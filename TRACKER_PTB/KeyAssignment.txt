@@ -1,0 +1,19 @@
+%% Experiment control
+Esc     Equivalent to clicking 'Stop'; breaking out of the experiment
+t       Simulates MRI sync pulse
+j       Manual juice reward
+s       Toggle stimulus on/off
+f       Toggle fix dot on/off
+p       Time-out, Switches on/off stimuli & reward, black screen
+r       Resets reward timing (duration & fix-hold) to what's in  ParSettings
+w       Shows the current reward scheme (duration and fix-hold time)
+z	Center fixation
+
+% Change stim position
+1       Position 1 as defined in StimSettings
+2       Position 2 as defined in StimSettings
+3       Position 3 as defined in StimSettings
+4       Position 4 as defined in StimSettings
+5       Position 5 as defined in StimSettings
+n       Next position    
+l       Lock current position (switching keys will have no effect)

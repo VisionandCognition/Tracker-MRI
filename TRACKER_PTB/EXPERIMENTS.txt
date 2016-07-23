@@ -1,0 +1,28 @@
+EXPERIMENTS ===============================================================
+
+CALIBRATION
+>> Bars that changes orientation against a noise background
+>> Used to calibrate eye position
+>> Well timed hand response is rewarded
+
+CHOICE_SACCADE
+>> Present targets
+>> Targets selected with eye movement
+>> Reward based on selection and target
+
+INITIAL_TRAINING
+>> same as REPORT_FIXORIENTCHANGE ?
+
+INITIAL_TRAINING_FIX
+>> ???
+
+REPORT_FIXORIENTCHANGE
+>> Bars that changes orientation against a noise background
+>> more extensive version of CALIBRATION
+
+RETINOTOPY
+>> Different retinotopic mapping stimuli
+>> checkerboard/faces/walkers rings and wedges
+>> prf moving bars in 8 directions
+>> with or without hand response task 
+>> if wthout task, fixation is rewarded

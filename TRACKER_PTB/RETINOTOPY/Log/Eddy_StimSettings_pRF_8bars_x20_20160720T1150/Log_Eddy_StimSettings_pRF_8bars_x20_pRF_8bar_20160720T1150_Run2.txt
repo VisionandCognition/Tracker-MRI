@@ -1,0 +1,11 @@
+Runstim: runstim
+StimSettings: StimSettings_pRF_8bars_x20
+ParSettings: ParSettings_EDDY_MOCK_HAND
+
+Stimulus: pRF_8bar
+
+Fixation perc over run (inc. pre/post): 72.3692
+Fixation perc over run (exc. pre/post): NaN
+Fixation perc PreStim: 72.3692
+
+Total reward: 6.3

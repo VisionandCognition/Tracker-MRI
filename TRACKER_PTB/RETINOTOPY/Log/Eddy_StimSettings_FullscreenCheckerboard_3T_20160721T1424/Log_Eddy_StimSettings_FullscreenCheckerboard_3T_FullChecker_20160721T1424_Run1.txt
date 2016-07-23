@@ -1,0 +1,22 @@
+Runstim: runstim
+StimSettings: StimSettings_FullscreenCheckerboard_3T
+ParSettings: ParSettings_EDDY_3T_HAND_TR25s
+
+Stimulus: FullChecker
+
+Fixation perc over run (inc. pre/post): 1.7425
+Fixation perc over run (exc. pre/post): 1.9842
+Fixation perc PreStim: 0.64104
+Fixation perc cycle 1: 0.2132
+Fixation perc cycle 2: 10.6722
+Fixation perc cycle 3: 6.3965
+Fixation perc cycle 4: 0.32014
+Fixation perc cycle 5: 0.95945
+Fixation perc cycle 6: 0
+Fixation perc cycle 7: 1.2807
+Fixation perc cycle 8: 0
+Fixation perc cycle 9: 0
+Fixation perc cycle 10: 0
+Fixation perc PostStim: 0.42643
+
+Total reward: 0.11
