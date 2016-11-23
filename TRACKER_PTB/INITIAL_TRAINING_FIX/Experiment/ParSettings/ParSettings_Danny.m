@@ -28,7 +28,6 @@ Stm=StimObj.Stm;
 Par.FixWinSize = [1.8 1.8]; % [W H] in deg
 Par.RequireFixation = false;
 
-
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
 Par.SCx = 0.14; %initial scale in control window
@@ -173,8 +172,8 @@ switch Par.RewardType
         Par.RewardTime = 0; %no reward
 end
 
-Par.RewardTimeManual = 0.04; % amount of reward when given manually
-Par.MaxTimeBetweenRewardsMin = 2; % Give reward at least once every 2 mins
+Par.RewardTimeManual = 0.05; % amount of reward when given manually
+
 
 %% Create Eye-check windows based on stimulus positions ===================
 for SetInitialWINs=1
@@ -217,6 +216,7 @@ Par.KeyPawSide1 = KbName('g'); % set side left
 Par.KeyPawSide2 = KbName('r'); % set side right
 Par.KeyCycleTask = KbName('m'); % cycle task / mode
 Par.KeyToggleAutoCycleTask = KbName('a'); % cycle task ever N correct trials
+Par.KeyCycleDisconnectedCurveLength = KbName('l'); % length of distracting curve (ratio)
 Par.KeyDecrPreSwitchAlpha = KbName('[{');
 Par.KeyIncrPreSwitchAlpha = KbName(']}');
 
