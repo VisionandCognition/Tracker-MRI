@@ -1249,7 +1249,7 @@ end
         vfix = Stm(1).Center(Par.PosNr,2)+Par.ScrCenter(2);
         
         gap = 0.2 * pos(1,1);
-        joint1 = 0.2 * pos(1,1); % start of curve
+        joint1 = 0.25 * pos(1,1); % start of curve
         joint2 = 0.5 * pos(1,1); % midpoint of curve
         joint3 = 0.9 * pos(1,1); % end of curve, near target
         

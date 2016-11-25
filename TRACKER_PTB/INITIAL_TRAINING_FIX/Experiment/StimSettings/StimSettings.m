@@ -28,7 +28,7 @@ Stm(1).AlphaPreSwitch = 0.0;
 Stm(1).PostSwitchJointAlpha = 0; % max should go to 0, with better training
 
 % Size of the gap at the "joint" closest to the target
-Stm(1).CurveAngleGap = 70; % (0,90]
+Stm(1).CurveAngleGap = 50; % (30,90]
 
 % Paw indicator
 Stm(1).RequireSpecificPaw = true;
@@ -41,7 +41,7 @@ Stm(1).PawIndPositions = [...
     6 -3; 6 3 ...
     ] * 0.65;
 Stm(1).PawIndAlpha = [1 1 1 1];
-Stm(1).NumOfPawIndicators = 4; % Can't be more than the number of PawIndPositions!
+Stm(1).NumOfPawIndicators = 2; % Can't be more than the number of PawIndPositions!
 
 Stm(1).PawIndCol = [0 .7 0; .9 .2 .2]; % colors for the left and right target
 
