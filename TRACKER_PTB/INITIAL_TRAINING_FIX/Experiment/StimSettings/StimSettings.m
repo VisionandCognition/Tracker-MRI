@@ -39,9 +39,9 @@ Stm(1).PawIndOffsetY = [2.0 5.0]; % [min max]
 Stm(1).PawIndPositions = [...
     -6 -3; -6 3; ...
     6 -3; 6 3 ...
-    ] * 0.65;
-Stm(1).PawIndAlpha = [1 1 1 1];
-Stm(1).NumOfPawIndicators = 2; % Can't be more than the number of PawIndPositions!
+    ] * 0.7;
+Stm(1).PawIndAlpha = [1 1 0.5 0.5];
+Stm(1).NumOfPawIndicators = 4; % Can't be more than the number of PawIndPositions!
 
 Stm(1).PawIndCol = [0 .7 0; .9 .2 .2]; % colors for the left and right target
 
@@ -65,14 +65,14 @@ Stm(1).NoiseContrast = 0.01; % 0-1
 Stm(1).NoiseDefaultOn = false; % [toggle with "B" key]
 
 % Stimulus specific timing (in ms)
-Stm(1).SwitchDur = 1000; % (200) duration of alternative orientation
+Stm(1).SwitchDur = 1500; % (200) duration of alternative orientation
 
 % set time-windows in which something can happen (ms)
 % [baseduration_without_switch ... 
 %  period_in_which_switch_randomly_occurs ...
 %  post_switch_duration_in_which_nothing_happens]
 %Stm(1).EventPeriods = [2500 1500 300];
-Stm(1).EventPeriods = [1000 1500 300];
+Stm(1).EventPeriods = [1150 1750 300];
 
 Stm(1).ShowDistractBar = true; % show vertical bar [toggle with "D" key]
 
