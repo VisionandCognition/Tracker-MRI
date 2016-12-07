@@ -82,7 +82,10 @@ for PrepareStim=1
     % Side 2 is right (red diamond)
     % The first PawSides is the indicator that should be attended
     if Stm(1).NumOfPawIndicators > 1
-        Par.PawSides = mod(randperm(Stm(1).NumOfPawIndicators)-1,2)+1;
+        Par.PawSides(:) = 0;
+        for i = 1:Stm(1).NumOfPawIndicators/2
+            Par.PawSides(2*i-1:2*i) = randperm(2);
+        end
     else
         Par.PawSides = randi([1,2]);
     end
@@ -251,8 +254,15 @@ while ~Par.ESC %===========================================================
                 ~Par.CorrectThisTrial && rand() <= Stm(1).SwitchToRPawProb(2))
             
             Par.PawSides(1) = 2; % switch to right
+            
             if Stm(1).NumOfPawIndicators > 1
-                Par.PawSides(2:Stm(1).NumOfPawIndicators) = mod(randperm(Stm(1).NumOfPawIndicators-1)-1,2)+1; % shuffle others
+                Par.PawSides(2:end) = 0;
+                % Paw indicator 2 should be opposite of 1
+                Par.PawSides(2) = mod(Par.PawSides(1),2)+1;
+                % others can choose randomly
+                for i = 2:Stm(1).NumOfPawIndicators/2
+                    Par.PawSides(2*i-1:2*i) = randperm(2);
+                end
             end
             
             Par.SwitchableInNumTrials = Stm(1).TrialsWithoutSwitching;
@@ -261,16 +271,22 @@ while ~Par.ESC %===========================================================
         if Par.SwitchableInNumTrials <= 0 && (...
                 Par.CorrectThisTrial && rand() <= Stm(1).SwitchToLPawProb(1) || ...
                 ~Par.CorrectThisTrial && rand() <= Stm(1).SwitchToLPawProb(2))
-            Par.PawSide=1; % switch to left
             
             Par.PawSides(1) = 1; % switch to left
-            if Stm(1).NumOfPawIndicators > 1
-                Par.PawSides(2:Stm(1).NumOfPawIndicators) = mod(randperm(Stm(1).NumOfPawIndicators-1),2)+1; % shuffle others
-            end
             
-            Par.SwitchableInNumTrials = Stm(1).TrialsWithoutSwitching;
+            if Stm(1).NumOfPawIndicators > 1
+                Par.PawSides(2:end) = 0;
+                % Paw indicator 2 should be opposite of 1
+                Par.PawSides(2) = mod(Par.PawSides(1),2)+1;
+                % others can choose randomly
+                for i = 2:Stm(1).NumOfPawIndicators/2
+                    Par.PawSides(2*i-1:2*i) = randperm(2);
+                end
+            end
         end
     end
+    Par.PawSides
+    Par.PartConnectedTarget = randperm(2, 1)+2;
     if Par.CorrectThisTrial || Par.TaskSwitched
         if Stm(1).Task == Stm(1).TASK_TARGET_AT_CURVE
             min_alpha = min(Stm(1).UnattdAlpha);
@@ -464,7 +480,7 @@ while ~Par.ESC %===========================================================
                         size(Stm(1).TasksToCycle, 2)) + 1;
                     Stm(1).Task = Stm(1).TasksToCycle(Stm(1).TaskCycleInd);
                     Par.TaskSwitched = true;
-                    fprintf(['Automatically cycling task to ' Stm(1).Task '\n']);
+                    fprintf(['Automatically cycling task to ' num2str(Stm(1).Task) '\n']);
                 end
             else %if ~Stm(1).RequireSpecificPaw || Par.NewResponse ~= Par.PawSides(1)
                 % false
@@ -757,23 +773,31 @@ while ~Par.ESC %===========================================================
                 Par.Response(3) ...
                 Par.Response(2) ...
                 Log.TotalReward];
-            fprintf(['\nPercent correct paw: ',...
+            fprintf(['\nPaw accuracy (total): ',...
                 num2str( round(100 * ...
                 Par.Response(RESP_CORRECT)/...
                 (Par.Response(RESP_CORRECT) + ...
                 Par.Response(RESP_FALSE))))...
-                '\n\n'])
-            fprintf(['\nFixation percentage: ',...
-                num2str( round(100*...
-                (Par.Response(RESP_CORRECT) + ...
-                Par.Response(RESP_FALSE) + ...
-                Par.Response(RESP_MISS))/...
-                (Par.Response(RESP_CORRECT) + ...
-                Par.Response(RESP_FALSE) + ...
-                Par.Response(RESP_BREAK_FIX) + ...
-                Par.Response(RESP_MISS) + ...
-                Par.Response(RESP_EARLY)))) ...
-                '\n\n'])
+                '%%\n'])
+            fprintf(['\nPaw accuracy (block): ',...
+                num2str( round(100 * ...
+                Par.ResponsePos(RESP_CORRECT)/...
+                (Par.ResponsePos(RESP_CORRECT) + ...
+                Par.ResponsePos(RESP_FALSE))))...
+                '%%\n\n'])
+%             fprintf(['\nFixation percentage: ',...
+%                 num2str( round(100*...
+%                 (Par.Response(RESP_CORRECT) + ...
+%                 Par.Response(RESP_FALSE) + ...
+%                 Par.Response(RESP_MISS))/...
+%                 (Par.Response(RESP_CORRECT) + ...
+%                 Par.Response(RESP_FALSE) + ...
+%                 Par.Response(RESP_BREAK_FIX) + ...
+%                 Par.Response(RESP_MISS) + ...
+%                 Par.Response(RESP_EARLY)))) ...
+%                 '\n\n'])
+            % reset
+            Par.ResponsePos = 0*Par.ResponsePos;
             
         end
     end
@@ -941,7 +965,9 @@ end
                         discon_offset = repmat( ...
                             Stm(1).PawIndOffsetPix(indpos,:), [4,1]);
                         
-                        DrawCurve(discon_offset, false, false, indpos);
+                        DrawCurve(discon_offset, false, ...
+                            indpos==1 || ...
+                            Par.PartConnectedTarget==indpos, indpos);
                     end
                     discon_offset = NaN;
                 end
@@ -962,7 +988,9 @@ end
                         discon_offset = repmat( ...
                             Stm(1).PawIndOffsetPix(indpos,:), [4,1]);
                         
-                        DrawCurve(discon_offset, false, false, indpos);
+                        DrawCurve(discon_offset, false, ...
+                            strcmp(Par.State, 'PRESWITCH') && Par.PartConnectedTarget==indpos,...
+                            indpos);
                     end
                     discon_offset = NaN;
                 end
@@ -1248,10 +1276,10 @@ end
         hfix = Stm(1).Center(Par.PosNr,1)+Par.ScrCenter(1);
         vfix = Stm(1).Center(Par.PosNr,2)+Par.ScrCenter(2);
         
-        gap = 0.2 * pos(1,1);
-        joint1 = 0.22 * pos(1,1); % start of curve
-        joint2 = 0.5 * pos(1,1); % midpoint of curve
-        joint3 = 0.9 * pos(1,1); % end of curve, near target
+        gap = Stm(1).CurveConnectionPosX(1) * pos(1,1);
+        joint1 = Stm(1).CurveConnectionPosX(2) * pos(1,1); % start of curve
+        joint2 = Stm(1).CurveConnectionPosX(3) * pos(1,1); % midpoint of curve
+        joint3 = Stm(1).CurveConnectionPosX(4) * pos(1,1); % end of curve, near target
         
         % left, top, right, bottom
         rect = [hfix + joint1 - (joint2 - joint1), ...
@@ -1667,6 +1695,9 @@ end
                 Par.RewardTimeCurrent = 0;
         end
         
+        Par.RewardTimeCurrent = Par.RewardTimeCurrent * ...
+            Stm(1).TaskRewardMultiplier(Stm(1).TaskCycleInd);
+        
         if size(Par.Times.Targ,2)>1;
             rownr= find(Par.Times.Targ(:,1)<Par.CorrStreakcount(2),1,'last');
             Par.Times.TargCurrent=Par.Times.Targ(rownr,2);
@@ -1738,10 +1769,22 @@ end
         if Stm(1).Task == Stm(1).TASK_FIXED_TARGET_LOCATIONS
             Stm(1).PawIndOffsetPix = Stm(1).PawIndPositions(Par.PawSides, :) * Par.PixPerDeg;
         else
+            % Perform stratisfied repetitions
+            Group_pos = reshape(...
+                repmat(randperm(Stm(1).NumOfPawIndicators/2),2,1),...
+                [1,Stm(1).NumOfPawIndicators]);
+            Group_pos = (Group_pos-1) * 2;
+            ind = zeros(size(Group_pos));
+            for m = 1:Stm(1).NumOfPawIndicators/2
+                ind(2*m-1:2*m) = randperm(2);
+            end
             Stm(1).PawIndOffsetPix = Stm(1).PawIndPositions(...
-                randperm(size(Stm(1).PawIndPositions, 1), ...
-                         Stm(1).NumOfPawIndicators), :) * Par.PixPerDeg;
+                Group_pos + ind, :) * Par.PixPerDeg;
+%             Stm(1).PawIndOffsetPix = Stm(1).PawIndPositions(...
+%                 randperm(size(Stm(1).PawIndPositions, 1), ...
+%                          Stm(1).NumOfPawIndicators), :) * Par.PixPerDeg;
 
+            PawPositions = Group_pos + ind
             Par.DistractLineTarget = randperm(2);
         end
     end

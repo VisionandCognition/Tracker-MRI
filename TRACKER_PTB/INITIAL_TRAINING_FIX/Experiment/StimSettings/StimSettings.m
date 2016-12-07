@@ -26,27 +26,33 @@ Stm(1).UnattdAlpha = 1; % min should go to 1, with better training
 Stm(1).UnattdAlpha_TargetAtFix = 1;
 Stm(1).AlphaPreSwitch = 0.0;
 Stm(1).PostSwitchJointAlpha = 0; % max should go to 0, with better training
+% Horizontal positions of "Connections" in Curve (edges of gaps)
+% [End_of_Fix_Gap/Start_of_straight_line, 
+%  End_of_straight_line/start of curve,
+%  Midpoint of curve (where curves meet, vertical line)
+%  End_of_curve/Beginning of straight line that connects to center of target ]
+Stm(1).CurveConnectionPosX = [0.17 0.26 0.5 0.8];
 
 % Size of the gap at the "joint" closest to the target
-Stm(1).CurveAngleGap = 50; % (30,90]
+Stm(1).CurveAngleGap = 45; % (30,90]
 
 % Paw indicator
 Stm(1).RequireSpecificPaw = true;
-Stm(1).PawIndSize = 2;
+Stm(1).PawIndSize = 2.5;
 %Stm(1).PawIndOffset = [3.5 2.5];
 Stm(1).PawIndOffsetX = [-3 3]; % [min max]
 Stm(1).PawIndOffsetY = [2.0 5.0]; % [min max]
 Stm(1).PawIndPositions = [...
     -6 -3; -6 3; ...
     6 -3; 6 3 ...
-    ] * 0.7;
-Stm(1).PawIndAlpha = [1 1 0.5 0.5];
+    ] * 0.9;
+Stm(1).PawIndAlpha = [1 1 1 1];
 Stm(1).NumOfPawIndicators = 4; % Can't be more than the number of PawIndPositions!
 
 Stm(1).PawIndCol = [0 .7 0; .9 .2 .2]; % colors for the left and right target
 
-Stm(1).SwitchToLPawProb = [0.5 0.5]; % [prev. correct, prev. incorrect]
-Stm(1).SwitchToRPawProb = [0.5 0.5]; % [prev. correct, prev. incorrect]
+Stm(1).SwitchToLPawProb = [0.5 0.25]; % [prev. correct, prev. incorrect]
+Stm(1).SwitchToRPawProb = [0.5 0.25]; % [prev. correct, prev. incorrect]
 Stm(1).TrialsWithoutSwitching = 0; % Wait at least this number of trials before switching
 
 % Stimulus position can be toggled with 1-5 keys
@@ -72,7 +78,7 @@ Stm(1).SwitchDur = 1500; % (200) duration of alternative orientation
 %  period_in_which_switch_randomly_occurs ...
 %  post_switch_duration_in_which_nothing_happens]
 %Stm(1).EventPeriods = [2500 1500 300];
-Stm(1).EventPeriods = [1150 1750 300];
+Stm(1).EventPeriods = [1400 2100 300];
 
 Stm(1).ShowDistractBar = true; % show vertical bar [toggle with "D" key]
 
@@ -94,6 +100,7 @@ Stm(1).TASK_TARGET_AT_CURVE_NO_DISTRACTOR = 2;
 Stm(1).TASK_TARGET_AT_FIX_NO_DISTRACTOR = 3;
 Stm(1).TASK_FIXED_TARGET_LOCATIONS = 4; % Red diamond on left, green square on right
 
+Stm(1).TaskRewardMultiplier = [1.1, 1/1.1];
 Stm(1).TasksToCycle = [Stm(1).TASK_TARGET_AT_CURVE Stm(1).TASK_TARGET_AT_FIX ];
 Stm(1).TaskCycleInd = 1;
 Stm(1).Task = Stm(1).TasksToCycle(Stm(1).TaskCycleInd);
