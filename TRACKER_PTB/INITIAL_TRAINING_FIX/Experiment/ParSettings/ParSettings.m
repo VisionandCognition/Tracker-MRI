@@ -137,6 +137,23 @@ Par.Reward = true; %boolean to enable reward stim bit or not
 
 Par.RewardSound = false; % give sound feedback about reward
 Par.RewSndPar = [44100 800 1];
+
+% RESP_CORRECT = 1;
+% RESP_FALSE = 2;
+% RESP_MISS = 3;
+% RESP_EARLY = 4;
+% RESP_BREAK_FIX = 5;
+Par.FeedbackSound = [false true true true true];
+Par.FeedbackSoundPar = [ ...
+    44100 800 1 NaN; ... CORRECT
+    44100 200 1 0.04; ... FALSE
+    44100 1600 1 0.01; ... MISS
+    44100 3200 1 0.01; ... EARLY
+    44100 400 1 0.01 ... FIXATION BREAK
+    ];
+Par.MissSound = true;
+Par.MissSndPar = [44100 200 1 0.01];
+
 % [FS(Hz) TonePitch(Hz) Amplitude]
 % duration matches 'open duration'
 Par.RewardFixFeedBack = true;
