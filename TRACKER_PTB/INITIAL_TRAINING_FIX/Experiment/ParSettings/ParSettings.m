@@ -151,8 +151,6 @@ Par.FeedbackSoundPar = [ ...
     44100 3200 1 0.01; ... EARLY
     44100 400 1 0.01 ... FIXATION BREAK
     ];
-Par.MissSound = true;
-Par.MissSndPar = [44100 200 1 0.01];
 
 % [FS(Hz) TonePitch(Hz) Amplitude]
 % duration matches 'open duration'

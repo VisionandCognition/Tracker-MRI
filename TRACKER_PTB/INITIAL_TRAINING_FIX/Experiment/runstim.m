@@ -94,6 +94,9 @@ for PrepareStim=1
     if ~isfield(Par, 'AutoCycleTasks')
         Par.AutoCycleTasks = 0; % do not cycle tasks automatically
     end
+    if ~isfield(Stm(1), 'DisplayChosenTargetDur')
+        Stm(1).DisplayChosenTargetDur = 0;
+    end
     
     Par.Paused = false;
     Par.unattended_alpha = max(Stm(1).UnattdAlpha); % redefined later, randomly
@@ -151,7 +154,8 @@ for CodeControl=1 %allow code folding
     % Initialize photosensor manual response
     Par.BeamLIsBlocked=false;  Par.BeamRIsBlocked=false;
     Par.BeamLWasBlocked=false; Par.BeamRWasBlocked=false;
-    Par.NewResponse = false;
+    Par.NewResponse = false; % updated every CheckManual
+    Par.TrialResponse = false; % updated with NewResponse when not false
     Par.GoNewTrial = false;
     
     % Initialize control parameters
@@ -185,6 +189,12 @@ for CodeControl=1 %allow code folding
     if ~isfield(Stm(1),'PawIndAlpha')
         Stm(1).PawIndAlpha = [1 1 1 1; 1 1 1 1];
     end
+    if ~isfield(Stm(1), 'FalseHitRewardRatio')
+        Stm(1).FalseHitRewardRatio = 0;
+    end
+    assert(Stm(1).FalseHitRewardRatio <= 1.0, ...
+        'It doesn''t make sense to reward more when subject does the wrong thing!')
+    
     if size(Stm(1).PawIndAlpha,1)==1
         Stm(1).PawIndAlpha = [ ...
             Stm(1).PawIndAlpha; ... PreSwitch Alpha
@@ -249,6 +259,12 @@ while ~Par.ESC %===========================================================
                 Par.ManualReward=false;
             end
         end
+    end
+    if Stm(1).OnlyStartTrialWhenBeamIsNotBlocked && Par.ResponseGiven && ...
+            isfield(Par, 'GiveRewardForUnblockingBeam') && ...
+            Par.GiveRewardForUnblockingBeam
+        GiveRewardManual;
+        Par.ManualReward=false;
     end
     
     % Allow for task to be changed
@@ -339,6 +355,7 @@ while ~Par.ESC %===========================================================
     Par.RespValid = false;
     Par.CorrectThisTrial=false;
     Par.BreakTrial=false;
+    Par.TrialResponse = false;
     
     % Eye Window preparation ----------------------------------------------
     for PrepareEyeWin=1
@@ -492,8 +509,6 @@ while ~Par.ESC %===========================================================
                 if Stm(1).BreakOnFalseHit
                     Par.BreakTrial=true;
                 end
-                %else
-                %    Par.NewResponse = false;
             end
             Par.RespTimes=[Par.RespTimes;
                 lft-Par.ExpStart Par.RespValid];
@@ -554,8 +569,14 @@ while ~Par.ESC %===========================================================
             Par.AutoRewardGiven = true;
         end
         
+        if Par.FalseResponseGiven && ...
+				Stm(1).FalseHitRewardRatio > 0 && ...
+                Stm(1).AutoReward && ~Par.AutoRewardGiven
+            GiveRewardAuto;
+            Par.AutoRewardGiven = true;
+        end
     end
-    
+        
     if Par.CurrResponse > 0 && ...
             isfield(Par, 'FeedbackSound') && ...
             isfield(Par, 'FeedbackSoundPar') && ...
@@ -628,18 +649,6 @@ while ~Par.ESC %===========================================================
             end
             Par.RespTimes=[Par.RespTimes;
                 lft-Par.ExpStart Par.RespValid];
-            %             % correct
-            %             Par.RespValid = true;
-            %             DrawStimuli;
-            %             if ~Par.ResponseGiven %only log once
-            %                 Par.Response(1)=Par.Response(1)+1;
-            %                 Par.ResponsePos(1)=Par.ResponsePos(1)+1;
-            %                 Par.CorrectThisTrial=true;
-            %             end
-            %             Par.ResponseGiven=true;
-            %             Par.RespTimes=[Par.RespTimes;
-            %                 lft-Par.ExpStart Par.RespValid];
-            %             Par.CorrStreakcount=Par.CorrStreakcount+1;
         elseif Par.NewResponse
             % Miss
             Par.CurrResponse = RESP_MISS;
@@ -672,6 +681,12 @@ while ~Par.ESC %===========================================================
             GiveRewardAuto;
             Par.AutoRewardGiven = true;
         end
+        
+        if Par.FalseResponseGiven && Stm(1).FalseHitRewardRatio > 0 ...
+                && Stm(1).AutoReward && ~Par.AutoRewardGiven
+            GiveRewardAuto;
+            Par.AutoRewardGiven = true;
+        end
     end
     Par.DrawPawIndNow = false;
     % no response or fix break during switch = miss
@@ -697,6 +712,25 @@ while ~Par.ESC %===========================================================
         t = GetSecs;
         GiveRewardManual;
         ConsolatoryRewardTime = lft;
+    end
+    if Stm(1).DisplayChosenTargetDur > 0 && Par.TrialResponse
+        Par.DisplayChosenStartTime=lft;
+        % Par.NewResponse == Par.PawSides(1)
+        which_side = Par.TrialResponse;
+        DrawTarget(1.0, 0, which_side);
+        
+        while lft < Par.DisplayChosenStartTime + ...
+                Stm(1).DisplayChosenTargetDur/1000 && ~Par.ESC
+            CheckKeys; % internal function
+            DrawTarget(1.0, 0, which_side);
+            
+            % give manual reward
+            if Par.ManualReward
+                GiveRewardManual;
+                Par.ManualReward=false;
+            end
+            lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
+        end
     end
     
     % Break for false hit
@@ -744,7 +778,8 @@ while ~Par.ESC %===========================================================
         % Display total reward every x correct trials
         if Par.CurrResponse == RESP_CORRECT && ...
                 mod(Par.Response(RESP_CORRECT),10) == 0 && ...
-                Par.Response(RESP_CORRECT) > 0
+                Par.Response(RESP_CORRECT) > 0 && ...
+                isfield(Stm(1),'TaskName')
             
             fprintf(['\nTask: ' Stm(1).TaskName(Stm(1).Task) '\n']);
         
@@ -791,12 +826,12 @@ while ~Par.ESC %===========================================================
                     fprintf('Requiring fixation (auto).\n');
                 end
             end
-            
+
             % reset
             Par.ResponsePos = 0*Par.ResponsePos;
         end
     end
-    
+
     % LOG TRIAL INFO ------------------------------------------------------
     for LogTrialInfo=1 % allow code folding
         Log.Trial(Par.Trlcount(2)).TrialNr = Par.Trlcount(2);
@@ -898,6 +933,53 @@ end
         refreshtracker( 1) %clear tracker screen and set fixation and target windows
         SetWindowDas; %set das control thresholds using global parameters : Par
     end
+    function DrawTarget(color, offset, which_side)
+        if length(color) == 1
+            alpha = color;
+            color = (...
+                (1 - alpha)*Stm(1).BackColor + ...
+                Stm(1).PawIndCol(which_side,:) * alpha) * Par.ScrWhite;
+        end
+        % Fixation position
+        hfix = Stm(1).Center(Par.PosNr,1)+Par.ScrCenter(1);
+        vfix = Stm(1).Center(Par.PosNr,2)+Par.ScrCenter(2);
+        fix_pos = ...
+            [hfix, vfix; ...
+            hfix, vfix; ...
+            hfix, vfix; ...
+            hfix, vfix];
+        for define_square=1 % left / square
+            lmost=-Stm(1).PawIndSizePix/2;
+            rmost= Stm(1).PawIndSizePix/2;
+            tmost=-Stm(1).PawIndSizePix/2;
+            bmost= Stm(1).PawIndSizePix/2;
+            left_square = [lmost,tmost; ...
+                rmost,tmost; ...
+                rmost,bmost; ...
+                lmost,bmost ...
+                ];
+        end
+        for define_diamond=1 % right / diamond
+            lmost=-sqrt(2)*Stm(1).PawIndSizePix/2;
+            rmost= sqrt(2)*Stm(1).PawIndSizePix/2;
+            tmost=-sqrt(2)*Stm(1).PawIndSizePix/2;
+            bmost= sqrt(2)*Stm(1).PawIndSizePix/2;
+            right_diamond = [lmost,0; ...
+                0,tmost; ...
+                rmost,0; ...
+                0,bmost ...
+                ];
+        end
+        if which_side==1
+            Screen('FillPoly',Par.window,...
+                color,...
+                fix_pos + left_square + offset);
+        else
+            Screen('FillPoly',Par.window,...
+                color,...
+                fix_pos + right_diamond + offset);
+        end
+    end
 % draw stimuli
     function DrawStimuli
         % Background
@@ -920,55 +1002,19 @@ end
             
             PawIndSizePix = Stm(1).PawIndSizePix;
             
-            % Fixation position
-            hfix = Stm(1).Center(Par.PosNr,1)+Par.ScrCenter(1);
-            vfix = Stm(1).Center(Par.PosNr,2)+Par.ScrCenter(2);
-            fix_pos = ...
-                [hfix, vfix; ...
-                hfix, vfix; ...
-                hfix, vfix; ...
-                hfix, vfix];
             attd_offset = repmat( ...
                 Stm(1).PawIndOffsetPix(1,:), [4,1]);
             
-            for define_square=1 % left / square
-                lmost=-PawIndSizePix/2;
-                rmost= PawIndSizePix/2;
-                tmost=-PawIndSizePix/2;
-                bmost= PawIndSizePix/2;
-                left_square = [lmost,tmost; ...
-                    rmost,tmost; ...
-                    rmost,bmost; ...
-                    lmost,bmost ...
-                    ];
-            end
-            for define_diamond=1 % right / diamond
-                lmost=-sqrt(2)*PawIndSizePix/2;
-                rmost= sqrt(2)*PawIndSizePix/2;
-                tmost=-sqrt(2)*PawIndSizePix/2;
-                bmost= sqrt(2)*PawIndSizePix/2;
-                right_diamond = [lmost,0; ...
-                    0,tmost; ...
-                    rmost,0; ...
-                    0,bmost ...
-                    ];
-            end
             
             if mod(Stm(1).Task, 2) == Stm(1).TASK_FIXED_TARGET_LOCATIONS
                 % -------------------- Attend targets away from Fixation Point
-                
-                color0 = (...
+                color = (...
                     Stm(1).BackColor * (1-Par.unattended_alpha) + ...
                     Stm(1).PawIndCol(Par.PawSides(1),:) * Par.unattended_alpha) * Par.ScrWhite;
-                if Par.PawSides(1) == 1
-                    Screen('FillPoly',Par.window,...
-                        color0,...
-                        fix_pos + left_square + attd_offset);
-                else
-                    Screen('FillPoly',Par.window,...
-                        color0,...
-                        fix_pos + right_diamond + attd_offset);
-                end
+
+                is_side_left = Par.PawSides(1) == 1;
+                DrawTarget(color, attd_offset, is_side_left);
+                
             elseif mod(Stm(1).Task, 2) == Stm(1).TASK_TARGET_AT_FIX && ...
                     Stm(1).Task < Stm(1).TASK_FIXED_TARGET_LOCATIONS
                 % -------------------- Attend targets at Fixation Point
@@ -988,11 +1034,10 @@ end
                 
                 if Par.unattended_alpha > 0.0
                     for indpos = 1:Stm(1).NumOfPawIndicators
-                        discon_offset = Stm(1).PawIndOffsetPix(indpos,:);
+                        discon_offset = repmat( ...
+                            Stm(1).PawIndOffsetPix(indpos,:), [4,1]);
                         
-                        DrawCurve2(discon_offset, false, ...
-                            indpos==1 || ...
-                            Par.PartConnectedTarget==indpos, indpos);
+                        DrawCurve(discon_offset, false, false, indpos);
                     end
                     discon_offset = NaN;
                 end
@@ -1013,7 +1058,8 @@ end
                         discon_offset = Stm(1).PawIndOffsetPix(indpos,:);
                         
                         DrawCurve2(discon_offset, false, ...
-                            strcmp(Par.State, 'PRESWITCH') && Par.PartConnectedTarget==indpos,...
+                            ... strcmp(Par.State, 'PRESWITCH') && Par.PartConnectedTarget==indpos,...
+                            Par.PartConnectedTarget==indpos,...
                             indpos);
                     end
                     discon_offset = NaN;
@@ -1034,18 +1080,17 @@ end
                     Stm(1).PawIndCol(Par.PawSides(1),:) * alpha1) * Par.ScrWhite;
                 
                 if alpha1 > 0.0
-                    if Par.PawSides(1) == 1
-                        Screen('FillPoly',Par.window, ...
-                            color1, ...
-                            fix_pos + left_square + attd_offset);
-                    else
-                        Screen('FillPoly',Par.window,...
-                            color1, ...
-                            fix_pos + right_diamond + attd_offset);
-                    end
+                    DrawTarget(color1, attd_offset, Par.PawSides(1) == 1)
                 end
                 
-                if alpha1 < 0.5
+                hfix = Stm(1).Center(Par.PosNr,1)+Par.ScrCenter(1);
+                vfix = Stm(1).Center(Par.PosNr,2)+Par.ScrCenter(2);
+                fix_pos = ...
+                    [hfix, vfix; ...
+                    hfix, vfix; ...
+                    hfix, vfix; ...
+                    hfix, vfix];
+                if alpha1 < 1.0
                     DrawPreSwitchFigure(fix_pos(1,:)+attd_offset(1,:), ...
                         PawIndSizePix,...
                         1-Par.trial_preswitch_alpha);
@@ -1065,15 +1110,7 @@ end
                         Stm(1).PawIndCol(side,:) * alpha1) * Par.ScrWhite;
                     
                     if alpha1 > 0.0 % draw faded out indicator
-                        if side == 2
-                            Screen('FillPoly',Par.window, ...
-                                color1, ...
-                                fix_pos + right_diamond + discon_offset);
-                        else
-                            Screen('FillPoly',Par.window,...
-                                color1, ...
-                                fix_pos + left_square + discon_offset);
-                        end
+                        DrawTarget(color1, discon_offset, Par.PawSides(indpos)==1)
                     end
                     
                     if alpha1 < 0.5 % draw ambiguous pre-switch placeholder
@@ -1092,15 +1129,8 @@ end
                 %                     repmat(,[1,2]) + repmat(,[1,2]) + wait_circle);
             else
                 % ------------------------------- POSTSWITCH
-                if Par.PawSides(1) == 1
-                    Screen('FillPoly',Par.window,...
-                        color0,...
-                        fix_pos + left_square + attd_offset);
-                else
-                    Screen('FillPoly',Par.window,...
-                        color0,...
-                        fix_pos + right_diamond + attd_offset);
-                end
+                
+                DrawTarget(color0, attd_offset, Par.PawSides(1)==1)
                 
                 for indpos = 2:Stm(1).NumOfPawIndicators
                     discon_offset = repmat( ...
@@ -1115,15 +1145,7 @@ end
                         Stm(1).PawIndAlpha(2, indpos));
                     Unattd_color = (Color_obj + Color_bg) * Par.ScrWhite;
                     
-                    if side == 1
-                        Screen('FillPoly',Par.window,...
-                            Unattd_color,...
-                            fix_pos + left_square + discon_offset);
-                    else
-                        Screen('FillPoly',Par.window,...
-                            Unattd_color,...
-                            fix_pos + right_diamond + discon_offset);
-                    end
+                    DrawTarget(Unattd_color, discon_offset, side==1)
                 end
             end
         end
@@ -1144,28 +1166,6 @@ end
                 hfix, vfix; ...
                 hfix, vfix];
             
-            for define_square=1 % left / square
-                lmost=-PawIndSizePix/2;
-                rmost= PawIndSizePix/2;
-                tmost=-PawIndSizePix/2;
-                bmost= PawIndSizePix/2;
-                left_square = [lmost,tmost; ...
-                    rmost,tmost; ...
-                    rmost,bmost; ...
-                    lmost,bmost ...
-                    ];
-            end
-            for define_diamond=1 % right / diamond
-                lmost=-sqrt(2)*PawIndSizePix/2;
-                rmost= sqrt(2)*PawIndSizePix/2;
-                tmost=-sqrt(2)*PawIndSizePix/2;
-                bmost= sqrt(2)*PawIndSizePix/2;
-                right_diamond = [lmost,0; ...
-                    0,tmost; ...
-                    rmost,0; ...
-                    0,bmost ...
-                    ];
-            end
             Screen('DrawLine', Par.window, ...
                 Stm(1).TraceCurveCol, hfix, vfix, ...
                 hfix, vfix,...
@@ -1182,15 +1182,8 @@ end
                 [Stm(1).PawIndCol(Par.PawSides(1),1:3),alpha1].*Par.ScrWhite);
             
             % Draw Side Indicator
-            if Par.PawSides(1) == 1
-                Screen('FillPoly',Par.window,...
-                    color1,...
-                    fix_pos + left_square);
-            else
-                Screen('FillPoly',Par.window,...
-                    color1,...
-                    fix_pos + right_diamond);
-            end
+            
+            DrawTarget(color1, 0, Par.PawSides(1) == 1)
             if strcmp(Par.State, 'PRESWITCH')
                 DrawPreSwitchFigure(fix_pos, PawIndSizePix, 1-Par.trial_preswitch_alpha)
             end
@@ -1295,37 +1288,63 @@ end
             repmat(pos(1,:),[1,2]) + wait_circle*SizePix);
     end
     function DrawCurve2(pos, connection1, connection2, indpos)
+        if ~isfield(Par, 'CurveAngles')
+            return
+        end
         npoints = 500;
         distractor = ~(connection1 && connection2);
         hfix = Stm(1).Center(Par.PosNr,1)+Par.ScrCenter(1);
         vfix = Stm(1).Center(Par.PosNr,2)+Par.ScrCenter(2);
         d1 = sqrt(pos(1)^2 + pos(2)^2);
                 
-        pts = bezier_curve_angle3([hfix; vfix], ...
-            [hfix+pos(1); vfix+pos(2)], Par.CurveAngles(indpos), d1, ...
-                npoints);
+        if mod(Par.CurveAngles(indpos)+90, 360) < 180
+            target_angle = 180;
+        else
+            target_angle = 0;
+        end
+        pt1 = [ cos(Par.CurveAngles(indpos)*pi/180), ...
+               -sin(Par.CurveAngles(indpos)*pi/180)] * ...
+               Stm(1).BranchDistDeg * Par.PixPerDeg;
+        pt2 = [ cos(Par.CurveAngles(indpos)*pi/180), ...
+               -sin(Par.CurveAngles(indpos)*pi/180)] * ...
+               Stm(1).CurveTargetDistDeg * Par.PixPerDeg;
+        spline_pts = [hfix, vfix; ...
+                      hfix+pt1(1), vfix+pt1(2);
+                      hfix+pos(1)-pt2(1), vfix+pos(2)-pt2(2);
+                      hfix+pos(1), vfix+pos(2)];
+                  
+        pts = bezier_curve_with_lines(spline_pts, [npoints npoints npoints]);
         
         alpha = Stm(1).CurveAlpha(~strcmp(Par.State, 'PRESWITCH')+1, ...
             indpos);
         if connection1 && connection2
             base_alpha = alpha;
+            pts_alpha = repmat(base_alpha, [size(pts,1), 1]);
             startpos = 1;
         else
+            if connection2 % Small gap to fixation point
+                Gap = Stm(1).Gap1_deg(2);
+            else % larger gap
+                Gap = Stm(1).Gap2_deg(2);
+            end
+                
             base_alpha = Par.unattended_alpha * alpha;
-            startpos = int16(Stm(1).GapFraction * size(pts,2));
-            % calculate total distance (to edge of target)
-            TD = sum(sqrt(diff(pts(1,:)).^2 + diff(pts(2,:)).^2)) - ...
-                Stm(1).PawIndSize / 2 * Par.PixPerDeg;
-            % calculate distance of gap
-            GD = TD * Stm(1).GapFraction;
-            % distance from each point to fixation point
-            ptD = [0 cumsum(sqrt(diff(pts(1,:)).^2 + diff(pts(2,:)).^2))];
-            % pts outside of gap
-            pts = pts(:, ptD >= GD);
+            pts_alpha = repmat(base_alpha, [size(pts,1), 1]);
+            startpos = int16(Gap * size(pts,1));
+
+            GD = Gap * Par.PixPerDeg;
+            ptD = [0; cumsum(sqrt(diff(pts(:,1)).^2 + diff(pts(:,2)).^2))];
+            
+            pts_alpha(~connection1 & ...
+                ptD >= Stm(1).Gap1_deg(1)*Par.PixPerDeg & ...
+                ptD < Stm(1).Gap1_deg(2)*Par.PixPerDeg) = nan;
+            pts_alpha(~connection2 & ...
+                ptD >= Stm(1).Gap2_deg(1)*Par.PixPerDeg & ...
+                ptD < Stm(1).Gap2_deg(2)*Par.PixPerDeg) = nan;
         end
-        linecol = [Stm(1).TraceCurveCol base_alpha] * Par.ScrWhite;
+        linecol = [repmat(Stm(1).TraceCurveCol, [size(pts,1) 1]), pts_alpha] * Par.ScrWhite;
         draw_curve_along_pts(Par.window, ...
-            pts(1,:), pts(2,:), Stm(1).TraceCurveWidth, linecol);
+            pts(:,1), pts(:,2), Stm(1).TraceCurveWidth, linecol);
     end
     function DrawCurve(pos, connection1, connection2, indpos)
         distractor = ~(connection1 && connection2);
@@ -1689,6 +1708,10 @@ end
             Par.BeamRWasBlocked = false;
         end
         
+        if Par.NewResponse
+            Par.TrialResponse = Par.NewResponse;
+        end
+        
         Par.GoNewTrial = ~Par.BeamLIsBlocked && ~Par.BeamRIsBlocked;
     end
     function CheckFixation
@@ -1719,7 +1742,7 @@ end
             % Check eye position
             if ~TestRunstimWithoutDAS
                 dasrun(5);
-                [Hit, Time] = DasCheck;
+                [Hit, ~] = DasCheck;
             end
             
             if Hit == 1 % eye in fix window (hit will never be 1 is tested without DAS)
@@ -1749,7 +1772,7 @@ end
             % DasCheck
             if ~TestRunstimWithoutDAS
                 dasrun(5);
-                [Hit, Time] = DasCheck;
+                [Hit, ~] = DasCheck;
             end
             
             if Hit == 1 % eye out of fix window
@@ -1778,8 +1801,17 @@ end
                 Par.RewardTimeCurrent = 0;
         end
         
-        Par.RewardTimeCurrent = Par.RewardTimeCurrent * ...
-            Stm(1).TaskRewardMultiplier(Stm(1).TaskCycleInd);
+        if Par.FalseResponseGiven
+            Par.RewardTimeCurrent = Par.RewardTimeCurrent * Stm(1).FalseHitRewardRatio;
+        end
+        if isfield(Stm(1), 'TaskRewardMultiplier')
+            Par.RewardTimeCurrent = Par.RewardTimeCurrent * ...
+                Stm(1).TaskRewardMultiplier(Stm(1).TaskCycleInd);
+        end
+        if isfield(Stm(1), 'PawRewardMultiplier')
+            Par.RewardTimeCurrent = Par.RewardTimeCurrent * ...
+                Stm(1).PawRewardMultiplier(Par.TrialResponse);
+        end
         
         if size(Par.Times.Targ,2)>1;
             rownr= find(Par.Times.Targ(:,1)<Par.CorrStreakcount(2),1,'last');
@@ -1868,8 +1900,8 @@ end
             for m = 1:Stm(1).NumOfPawIndicators/2
                 ind(2*m-1:2*m) = randperm(2);
                 
-                a = min(Stm(1).CurveAnglesAtFP(m));
-                b = max(Stm(1).CurveAnglesAtFP(m));
+                a = min(Stm(1).CurveAnglesAtFP(m,:));
+                b = max(Stm(1).CurveAnglesAtFP(m,:));
                 angles(2*m-1:2*m) = (b-a).*rand(1,1) + a;
             end
             Stm(1).PawIndOffsetPix = Stm(1).PawIndPositions(...

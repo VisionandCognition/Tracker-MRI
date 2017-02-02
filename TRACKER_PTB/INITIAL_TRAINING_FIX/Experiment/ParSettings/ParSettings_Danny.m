@@ -138,6 +138,9 @@ Par.RewardSound = false; % give sound feedback about reward
 Par.RewSndPar = [44100 800 1];
 % [FS(Hz) TonePitch(Hz) Amplitude]
 % duration matches 'open duration'
+
+Par.FeedbackSound = [false false false false false];
+
 Par.RewardFixFeedBack = true;
 
 % Require hands in the box (reduces movement?)
@@ -157,7 +160,7 @@ Par.OneRewardPerTrial = false; % for training allow multiple rewards/target
 Par.RewardType = 0; % 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTime = 0.04;
+        Par.RewardTime = 0.3; %0.04;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -173,7 +176,8 @@ switch Par.RewardType
 end
 
 Par.RewardTimeManual = 0.05; % amount of reward when given manually
-
+Par.MaxTimeBetweenRewardsMin = 0.5; % Give reward at least once every 30 seconds
+Par.GiveRewardForUnblockingBeam = true;
 
 %% Create Eye-check windows based on stimulus positions ===================
 for SetInitialWINs=1
