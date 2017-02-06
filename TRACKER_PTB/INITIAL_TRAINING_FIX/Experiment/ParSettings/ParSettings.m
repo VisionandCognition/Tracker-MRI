@@ -190,6 +190,7 @@ end
 
 Par.RewardTimeManual = 0.04; % amount of reward when given manually
 Par.MaxTimeBetweenRewardsMin = 2; % Give reward at least once every 2 mins
+Par.GiveRewardForUnblockingBeam = false;
 
 %% Create Eye-check windows based on stimulus positions ===================
 for SetInitialWINs=1

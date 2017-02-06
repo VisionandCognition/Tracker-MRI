@@ -220,6 +220,7 @@ while ~Par.ESC %===========================================================
         
         Par.CurrResponse = RESP_NONE;
         Par.ResponseGiven=false;
+        Par.LastResponse = RESP_NONE;
         Par.FalseResponseGiven=false;
         Par.RespValid = false;
         Par.CorrectThisTrial = false;
@@ -260,12 +261,14 @@ while ~Par.ESC %===========================================================
             end
         end
     end
-    if Stm(1).OnlyStartTrialWhenBeamIsNotBlocked && Par.ResponseGiven && ...
+    if Stm(1).OnlyStartTrialWhenBeamIsNotBlocked && ...
+            (Par.LastResponse == RESP_CORRECT || Par.LastResponse == RESP_FALSE) && ...
             isfield(Par, 'GiveRewardForUnblockingBeam') && ...
             Par.GiveRewardForUnblockingBeam
         GiveRewardManual;
         Par.ManualReward=false;
     end
+    Par.ResponsePreviouslyGiven = false;
     
     % Allow for task to be changed
     Stm(1).PawIndSizePix = round(Stm(1).PawIndSize.*Par.PixPerDeg);
@@ -555,7 +558,8 @@ while ~Par.ESC %===========================================================
         
         
         % Draw fixation dot
-        DrawFix;
+        %DrawFix;
+        DrawStimuli; % update lifted paw indicator
         
         % Check eye position
         if ~TestRunstimWithoutDAS
@@ -588,9 +592,9 @@ while ~Par.ESC %===========================================================
                 RewT=0:1/Par.FeedbackSoundPar(Par.CurrResponse,1):Par.FeedbackSoundPar(Par.CurrResponse,4);
                 RewY=Par.FeedbackSoundPar(Par.CurrResponse,3)*sin(2*pi*Par.FeedbackSoundPar(Par.CurrResponse,2)*RewT);
                 sound(RewY, Par.FeedbackSoundPar(Par.CurrResponse, 1));
-                warning(w)
+                warning(w) % return warning settings to previous state
             catch
-                warning(w)
+                warning(w) % return warning settings to previous state
             end
         end
     end
@@ -697,6 +701,7 @@ while ~Par.ESC %===========================================================
         Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
         Par.CorrStreakcount=[0 0];
     end
+    Par.LastResponse = Par.CurrResponse;
     
     % Consolatory reward
     if ~Par.AutoRewardGiven && ~Par.FalseResponseGiven && ...
@@ -729,6 +734,7 @@ while ~Par.ESC %===========================================================
                 GiveRewardManual;
                 Par.ManualReward=false;
             end
+            DrawLiftedResponseIndicators;
             lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
         end
     end
@@ -933,7 +939,10 @@ end
         refreshtracker( 1) %clear tracker screen and set fixation and target windows
         SetWindowDas; %set das control thresholds using global parameters : Par
     end
-    function DrawTarget(color, offset, which_side)
+    function DrawTarget(color, offset, which_side, size_pix)
+        if nargin < 4
+            size_pix = Stm(1).PawIndSizePix;
+        end
         if length(color) == 1
             alpha = color;
             color = (...
@@ -949,10 +958,10 @@ end
             hfix, vfix; ...
             hfix, vfix];
         for define_square=1 % left / square
-            lmost=-Stm(1).PawIndSizePix/2;
-            rmost= Stm(1).PawIndSizePix/2;
-            tmost=-Stm(1).PawIndSizePix/2;
-            bmost= Stm(1).PawIndSizePix/2;
+            lmost=-size_pix/2;
+            rmost= size_pix/2;
+            tmost=-size_pix/2;
+            bmost= size_pix/2;
             left_square = [lmost,tmost; ...
                 rmost,tmost; ...
                 rmost,bmost; ...
@@ -960,10 +969,10 @@ end
                 ];
         end
         for define_diamond=1 % right / diamond
-            lmost=-sqrt(2)*Stm(1).PawIndSizePix/2;
-            rmost= sqrt(2)*Stm(1).PawIndSizePix/2;
-            tmost=-sqrt(2)*Stm(1).PawIndSizePix/2;
-            bmost= sqrt(2)*Stm(1).PawIndSizePix/2;
+            lmost=-sqrt(2)*size_pix/2;
+            rmost= sqrt(2)*size_pix/2;
+            tmost=-sqrt(2)*size_pix/2;
+            bmost= sqrt(2)*size_pix/2;
             right_diamond = [lmost,0; ...
                 0,tmost; ...
                 rmost,0; ...
@@ -1119,14 +1128,6 @@ end
                             (1-Par.trial_preswitch_alpha)*Stm(1).PawIndAlpha(1, indpos));
                     end
                 end
-                
-                %                 lmost=-sqrt(1/pi)*PawIndSizePix;
-                %                 rmost= sqrt(1/pi)*PawIndSizePix;
-                %                 tmost=-sqrt(1/pi)*PawIndSizePix;
-                %                 bmost= sqrt(1/pi)*PawIndSizePix;
-                %                 wait_circle = [lmost, tmost, rmost, bmost];
-                %                 Screen('FillOval', Par.window, [0.6, 0.6, 0.6,].*Par.ScrWhite, ...
-                %                     repmat(,[1,2]) + repmat(,[1,2]) + wait_circle);
             else
                 % ------------------------------- POSTSWITCH
                 
@@ -1206,6 +1207,8 @@ end
         if ~Stm(1).Orientation(Par.CurrOrient) || Stm(1).ShowDistractBar
             Screen('FillRect',Par.window,Stm(1).Color.*Par.ScrWhite,rect);
         end
+        DrawLiftedResponseIndicators
+        
         % Draw on screen
         lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
     end
@@ -1254,6 +1257,7 @@ end
             % Draw fixation dot
             DrawFix;
         end
+        DrawLiftedResponseIndicators;
         % Draw on screen
         lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
         
@@ -1288,7 +1292,7 @@ end
             repmat(pos(1,:),[1,2]) + wait_circle*SizePix);
     end
     function DrawCurve2(pos, connection1, connection2, indpos)
-        if ~isfield(Par, 'CurveAngles')
+        if ~isfield(Par, 'CurveAngles') || ~isfield(Stm(1), 'BranchDistDeg')
             return
         end
         npoints = 500;
@@ -1471,6 +1475,22 @@ end
             hfix + pos(1,1), ...
             vfix + pos(1,2),...
             Stm(1).TraceCurveWidth);
+    end
+    function DrawLiftedResponseIndicators
+        
+        if isfield(Stm(1), 'LiftedPawIndPositions')
+            size_pix = Stm(1).LiftedPawIndSize * Par.PixPerDeg;
+            if Par.BeamLIsBlocked
+                offset = repmat( ...
+                        Stm(1).LiftedPawIndPositions(1,:)*Par.PixPerDeg, [4,1]);
+                DrawTarget(1.0, offset, 1, size_pix);
+            end
+            if Par.BeamRIsBlocked
+                offset = repmat( ...
+                        Stm(1).LiftedPawIndPositions(2,:)*Par.PixPerDeg, [4,1]);
+                DrawTarget(1.0, offset, 2, size_pix);
+            end
+        end
     end
 % change stimulus features
     function ChangeStimulus
@@ -1726,17 +1746,6 @@ end
             
             % Load retinotopic mapping stimuli - none to load
             LoadStimuli=false;
-            % Draw stimulus
-            %             if LoadStimuli
-            %                 DrawStimuli;
-            %                 if ~Stm(1).IsPreDur && ~Par.ToggleHideStim
-            %                     Screen('DrawTexture',Par.window,VidTex,[],...
-            %                         [Par.HW-Par.HH 0 Par.HW+Par.HH Par.HH*2 ],[],1);
-            %                     Par.VidTexDrawn=true;
-            %                 end
-            %             end
-            
-            % Draw fixation dot
             DrawFix;
             
             % Check eye position

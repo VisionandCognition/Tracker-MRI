@@ -38,10 +38,10 @@ Stm(1).CurveConnectionPosX = [0.18 0.25 0.5 0.8];
 %Stm(1).CurveAngleGap = 45; % (30,90]
 Stm(1).CurveAngleGap = 90; % (30,90]
 
-difficulty = 1;
-Stm(1).Gap1_deg = [0 1] * difficulty;
-Stm(1).Gap2_deg = [1 2] * difficulty;
+gap = 1;
 Stm(1).BranchDistDeg = 1;
+Stm(1).Gap1_deg = [0 gap];
+Stm(1).Gap2_deg = [0 Stm(1).BranchDistDeg] + gap;
 Stm(1).CurveTargetDistDeg = 3;
 
 Stm(1).BezierStraightnessFP = 0.75;
@@ -57,7 +57,7 @@ Stm(1).PawIndPositions = [...
     -6 -3; -6 3; ...
     6 -3; 6 3 ...
     ] * 1.1;
-angle_rand = 20; %50;
+angle_rand = 0; %50;
 Stm(1).CurveAnglesAtFP = [...
     180-angle_rand, 180+angle_rand;
     -angle_rand, +angle_rand;
