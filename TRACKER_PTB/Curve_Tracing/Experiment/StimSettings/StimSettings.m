@@ -37,15 +37,8 @@ Stm(1).CurveConnectionPosX = [0.18 0.25 0.5 0.8];
 % Size of the gap at the "joint" closest to the target
 %Stm(1).CurveAngleGap = 45; % (30,90]
 Stm(1).CurveAngleGap = 90; % (30,90]
-
-gap = 1.5;
-Stm(1).BranchDistDeg = 1;
-Stm(1).Gap1_deg = [0 gap];
-Stm(1).Gap2_deg = [0 Stm(1).BranchDistDeg] + gap;
-Stm(1).CurveTargetDistDeg = 1.5;
-
-Stm(1).BezierStraightnessFP = 0.75;
-Stm(1).BezierStraightnessTarget = 1;
+Stm(1).GapFraction1 = 0.2; % Gap closest to the fixation point
+Stm(1).GapFraction2 = 0.5; % Larger gap, close to branching point
 
 % Paw indicator
 Stm(1).RequireSpecificPaw = true;
@@ -57,7 +50,7 @@ Stm(1).PawIndPositions = [...
     -6 -3; -6 3; ...
     6 -3; 6 3 ...
     ] * 1.1;
-angle_rand = 20; %50;
+angle_rand = 50;
 Stm(1).CurveAnglesAtFP = [...
     180-angle_rand, 180+angle_rand;
     -angle_rand, +angle_rand;
@@ -134,7 +127,7 @@ Stm(1).TaskNames_1 = {'Curve tracing', 'Control task', ...
 Stm(1).TaskName = @(i) Stm(1).TaskNames_1{i+1};
 
 Stm(1).TaskRewardMultiplier = [1.4, 1/1.4];
-Stm(1).TasksToCycle = [Stm(1).TASK_TARGET_AT_CURVE Stm(1).TASK_TARGET_AT_FIX ];
+Stm(1).TasksToCycle = [CurveTracingJoystickTask('StimSettings/CurveTracingJoyStickTask.csv')];
 Stm(1).TaskCycleInd = 1;
 Stm(1).Task = Stm(1).TasksToCycle(Stm(1).TaskCycleInd);
 
