@@ -8,12 +8,20 @@ classdef CurveTracingJoystickTask < handle
         curr_stim_index = -1;
         curr_stim = NaN;
         state = NaN;
-        stateChangeTime = -Inf;
+        currStateStart = -Inf; 
+        stateStart = struct('SWITCHED', -Inf);
     end
     properties (Access = public)
         taskParams; % parameters that apply to every stimulus
     end
-    
+    methods (Access = private)
+        update_InitTrial(obj);
+        update_PrepareStim(obj);
+        update_PreOrPostSwitch(obj);
+        
+        checkResponses_PreSwitch(obj, lft);
+        checkResponses_Switched(obj, lft);
+    end
     methods
         function obj = CurveTracingJoystickTask(commonParams, stimuliParams)
             % INPUT commonParams: should be a container.Map
@@ -22,9 +30,6 @@ classdef CurveTracingJoystickTask < handle
             obj.taskParams = commonParams;
             obj.stimuli_params = readtable(stimuliParams);
         end
-        update_InitTrial(obj);
-        update_PrepareStim(obj);
-        update_PreOrPostSwitch(obj);
         
         drawFix(obj);
         drawBackgroundFixPoint(obj);
@@ -36,9 +41,13 @@ classdef CurveTracingJoystickTask < handle
         function updateState(obj, State, time)
             obj.state = State;
             if nargin > 2
-                obj.stateChangeTime = time;
+                obj.currStateStart = time;
+                
+                if strcmp(obj.state, 'SWITCHED')==1
+                    obj.stateStart.SWITCHED = time;
+                end
             end
-            fprintf('New state: %s\n', State);
+            % fprintf('New state: %s\n', State);
         end
         
         function update(obj)
@@ -54,6 +63,21 @@ classdef CurveTracingJoystickTask < handle
                     obj.update_PreOrPostSwitch();
                 case 'POSTSWITCH'
                     obj.update_PreOrPostSwitch();
+                otherwise
+                    print(obj.state)
+            end
+        end
+        function checkResponses(obj, lft)
+            switch obj.state
+                case 'PREPARE_STIM'
+                case 'INIT_TRIAL'
+                case 'PREFIXATION'
+                case 'PRESWITCH'
+                    obj.checkResponses_PreSwitch(lft);
+                case 'SWITCHED'
+                    obj.checkResponses_Switched(lft);
+                case 'POSTSWITCH'
+                    obj.checkResponses_Switched(lft);
                 otherwise
                     print(obj.state)
             end

@@ -50,10 +50,10 @@ global Par;
     obj.set_param('TargetShape', targetShape);
     
     STR_IDENTICAL = 1; % Matlab's strcmp doesn't follow standard
-    if strcmp(targetShape, 'Diamond')==STR_IDENTICAL
+    if strcmp(targetShape, 'Square')==STR_IDENTICAL
         obj.set_param('Target', 1);
     else
-        assert(strcmp(targetShape, 'Square')==STR_IDENTICAL)
+        assert(strcmp(targetShape, 'Diamond')==STR_IDENTICAL)
         obj.set_param('Target', 2);
     end
     

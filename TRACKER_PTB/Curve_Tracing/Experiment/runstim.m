@@ -5,12 +5,12 @@ global Par   %global parameters
 global StimObj %stimulus objects
 global Log
 
-RESP_NONE = 0;
-RESP_CORRECT = 1;
-RESP_FALSE = 2;
-RESP_MISS = 3;
-RESP_EARLY = 4;
-RESP_BREAK_FIX = 5;
+Par.RESP_NONE = 0;
+Par.RESP_CORRECT = 1;
+Par.RESP_FALSE = 2;
+Par.RESP_MISS = 3;
+Par.RESP_EARLY = 4;
+Par.RESP_BREAK_FIX = 5;
 
 RespText = {'Correct', 'False', 'Miss', 'Early', 'Fix. break'};
 
@@ -106,7 +106,7 @@ for CodeControl=1 %allow code folding
     Par.BreakTrial=false;
 
     % Trial Logging
-    Par.CurrResponse = RESP_NONE;
+    Par.CurrResponse = Par.RESP_NONE;
     Par.Response = [0 0 0 0 0]; %[correct false-hit missed]
     Par.ResponsePos = [0 0 0 0 0]; %[correct false-hit missed]
     Par.RespTimes = [];
@@ -141,7 +141,7 @@ while ~Par.ESC %===========================================================
         
         Par.Trlcount = Par.Trlcount+1; %keep track of trial numbers
         
-        Par.CurrResponse = RESP_NONE;
+        Par.CurrResponse = Par.RESP_NONE;
         Par.ResponseGiven=false;
         Par.FalseResponseGiven=false;
         Par.RespValid = false;
@@ -166,7 +166,7 @@ while ~Par.ESC %===========================================================
        
     Par.Trlcount = Par.Trlcount+1; %keep track of trial numbers
     Par.AutoRewardGiven=false;
-    Par.CurrResponse = RESP_NONE;
+    Par.CurrResponse = Par.RESP_NONE;
     Par.ResponseGiven=false;
     Par.FalseResponseGiven=false;
     Par.RespValid = false;
@@ -192,6 +192,7 @@ while ~Par.ESC %===========================================================
     while lft < Par.FixStart+50/1000 && ...
             Par.RequireFixation && ~Par.ESC
         CheckManual;
+        Stm(1).Task.checkResponses(lft);
         CheckKeys;
         Stm(1).Task.drawBackgroundFixPoint();
         
@@ -242,24 +243,7 @@ while ~Par.ESC %===========================================================
         
         % check for manual responses
         CheckManual;
-        if Par.NewResponse
-            % false hit / early response
-            Par.RespValid = false;
-            Par.CurrResponse = RESP_EARLY;
-            Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
-            Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
-            Par.FalseResponseGiven=true;
-            Par.RespTimes=[Par.RespTimes;
-                lft-Par.ExpStart Par.RespValid];
-        elseif ~Par.FixIn && Par.RequireFixation
-            % false
-            Par.RespValid = false;
-            Par.CurrResponse = RESP_BREAK_FIX;
-            Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
-            Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
-            Par.FalseResponseGiven=false;
-            Par.BreakTrial=true;
-        end
+        Stm(1).Task.checkResponses(lft);
         
         % Get and plot eye position
         CheckTracker;
@@ -284,70 +268,17 @@ while ~Par.ESC %===========================================================
     % switched
     while lft < Par.SwitchStart+Stm(1).Task.param('SwitchDur')/1000 && ...
             ~Par.PosReset && ~Par.ESC && ~Par.BreakTrial && ...
-            (Par.CurrResponse ~= RESP_CORRECT)
+            (Par.CurrResponse ~= Par.RESP_CORRECT)
         
         % DrawStimuli
         lft = Stm(1).Task.drawStimuli(lft);
         
         % Check eye fixation ----------------------------------------------
         CheckFixation;
+        CheckKeys; % check for key-presses
+        CheckManual; % check for manual (joystick) responses
         
-        % check for key-presses
-        CheckKeys; % internal function
-        
-        % check for manual responses
-        CheckManual;
-        if Par.NewResponse && ...
-                lft >= Par.SwitchStart+Stm(1).Task.taskParams.ResponseAllowed(1)/1000 && ...
-                lft < Par.SwitchStart+Stm(1).Task.taskParams.ResponseAllowed(2)/1000
-            % correct
-            if ~Stm(1).Task.param('RequireSpecificPaw') || Par.NewResponse == Stm(1).Task.param('Target')
-                Par.RespValid = true;
-                Par.CurrResponse = RESP_CORRECT;
-                if ~Par.ResponseGiven && ~Par.FalseResponseGiven %only log once
-                    Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
-                    Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
-                    Par.CorrectThisTrial = true;
-                end
-                Par.ResponseGiven=true;
-                Par.CorrStreakcount=Par.CorrStreakcount+1;
-            else %if ~Stm(1).Task.param('RequireSpecificPaw') || Par.NewResponse ~= Stm(1).Task.param('Target')
-                % false
-                Par.RespValid = false;
-                Par.CurrResponse = RESP_FALSE;
-                if ~Par.ResponseGiven && ~Par.FalseResponseGiven %only log once
-                    Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
-                    Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
-                end
-                Par.FalseResponseGiven=true;
-            end
-            Par.RespTimes=[Par.RespTimes;
-                lft-Par.ExpStart Par.RespValid];
-        elseif Par.NewResponse % early or late
-            % false
-            Par.RespValid = false;
-            if lft < Par.SwitchStart+Stm(1).Task.taskParams.ResponseAllowed(2)/1000
-                Par.CurrResponse = RESP_EARLY;
-            else
-                Par.CurrResponse = RESP_MISS;
-            end
-            Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
-            Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
-            Par.FalseResponseGiven=true;
-            Par.RespTimes=[Par.RespTimes;
-                lft-Par.ExpStart Par.RespValid];
-        elseif ~Par.FixIn && Par.RequireFixation
-            % false
-            Par.CurrResponse = RESP_BREAK_FIX;
-            Par.RespValid = false;
-            if ~Par.ResponseGiven && ~Par.FalseResponseGiven %only log once
-                Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
-                %Par.ResponsePos
-                Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
-            end
-            Par.FalseResponseGiven=false;
-            Par.BreakTrial=true;
-        end
+        Stm(1).Task.checkResponses(lft);
         
         % Get and plot eye position
         CheckTracker;
@@ -418,46 +349,7 @@ while ~Par.ESC %===========================================================
         
         % check for manual responses
         CheckManual;
-        if Par.NewResponse && ...
-                lft < Par.SwitchStart+Stm(1).Task.taskParams.ResponseAllowed(2)/1000
-            
-            % correct
-            if ~Stm(1).Task.param('RequireSpecificPaw') || Par.NewResponse == Stm(1).Task.param('Target')
-                Par.RespValid = true;
-                Par.CurrResponse = RESP_CORRECT;
-                if ~Par.ResponseGiven  && ~Par.FalseResponseGiven %only log once
-                    Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
-                    Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
-                    Par.CorrectThisTrial=true;
-                end
-                Par.ResponseGiven=true;
-                Par.CorrStreakcount=Par.CorrStreakcount+1;
-            else %if ~Stm(1).Task.param('RequireSpecificPaw') || Par.NewResponse ~= Stm(1).Task.param('Target')
-                % false
-                Par.RespValid = false;
-                Par.CurrResponse = RESP_FALSE;
-                if ~Par.ResponseGiven && ~Par.FalseResponseGiven %only log once
-                    Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
-                    Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
-                end
-                Par.FalseResponseGiven=true;
-            end
-            Par.RespTimes=[Par.RespTimes;
-                lft-Par.ExpStart Par.RespValid];
-        elseif Par.NewResponse
-            % Miss
-            Par.CurrResponse = RESP_MISS;
-            Par.RespValid = false;
-            Par.FalseResponseGiven=true;
-            if ~Par.ResponseGiven && ~Par.FalseResponseGiven %only log once
-                Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
-                Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
-            end
-            %Par.ResponseGiven=true;
-            Par.RespTimes=[Par.RespTimes;
-                lft-Par.ExpStart Par.RespValid];
-            %Don't break trial, this would speed it up and be positive
-        end
+        Stm(1).Task.checkResponses(lft);
         
         % Get and plot eye position
         CheckTracker;
@@ -480,8 +372,8 @@ while ~Par.ESC %===========================================================
     Par.DrawPawIndNow = false;
     % no response or fix break during switch = miss
     % ~Par.ResponseGiven && ~Par.FalseResponseGiven && ...
-    if Par.CurrResponse == RESP_NONE            
-        Par.CurrResponse = RESP_MISS;
+    if Par.CurrResponse == Par.RESP_NONE            
+        Par.CurrResponse = Par.RESP_MISS;
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
         Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
         Par.CorrStreakcount=[0 0];
@@ -522,9 +414,9 @@ while ~Par.ESC %===========================================================
         end
         
         % Display total reward every x correct trials
-        if Par.CurrResponse == RESP_CORRECT && ...
-                mod(Par.Response(RESP_CORRECT),10) == 0 && ...
-                Par.Response(RESP_CORRECT) > 0
+        if Par.CurrResponse == Par.RESP_CORRECT && ...
+                mod(Par.Response(Par.RESP_CORRECT),10) == 0 && ...
+                Par.Response(Par.RESP_CORRECT) > 0
             
             fprintf(['\nTask: ' Stm(1).Task.taskName '\n']);
         
@@ -537,14 +429,14 @@ while ~Par.ESC %===========================================================
                 Log.TotalReward];
             fprintf(['Paw accuracy (block): ',...
                 num2str( round(100 * ...
-                Par.ResponsePos(RESP_CORRECT)/...
-                (Par.ResponsePos(RESP_CORRECT) + ...
-                Par.ResponsePos(RESP_FALSE))))])
+                Par.ResponsePos(Par.RESP_CORRECT)/...
+                (Par.ResponsePos(Par.RESP_CORRECT) + ...
+                Par.ResponsePos(Par.RESP_FALSE))))])
             fprintf(['%%\t (total): ',...
                 num2str( round(100 * ...
-                Par.Response(RESP_CORRECT)/...
-                (Par.Response(RESP_CORRECT) + ...
-                Par.Response(RESP_FALSE))))...
+                Par.Response(Par.RESP_CORRECT)/...
+                (Par.Response(Par.RESP_CORRECT) + ...
+                Par.Response(Par.RESP_FALSE))))...
                 '%%\n\n'])
 
             % reset
@@ -575,11 +467,11 @@ while ~Par.ESC %===========================================================
     % Update Tracker window
     if ~TestRunstimWithoutDAS
         %SCNT = {'TRIALS'};
-        SCNT(1) = { ['Corr:  ' num2str(Par.Response(RESP_CORRECT)) ] };
-        SCNT(2) = { ['False: ' num2str(Par.Response(RESP_FALSE)) ] };
+        SCNT(1) = { ['Corr:  ' num2str(Par.Response(Par.RESP_CORRECT)) ] };
+        SCNT(2) = { ['False: ' num2str(Par.Response(Par.RESP_FALSE)) ] };
         SCNT(3) = { ['Miss:  ' num2str(...
-            Par.Response(RESP_MISS)+Par.Response(RESP_EARLY)+ ...
-            Par.Response(RESP_BREAK_FIX)) ] };
+            Par.Response(Par.RESP_MISS)+Par.Response(Par.RESP_EARLY)+ ...
+            Par.Response(Par.RESP_BREAK_FIX)) ] };
         SCNT(4) = { ['Total: ' num2str(Par.Trlcount(2)) ]};
         if Par.CurrResponse > 0
             SCNT(5) = { [RespText{Par.CurrResponse}]};
