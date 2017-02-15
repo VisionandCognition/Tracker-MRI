@@ -1,14 +1,14 @@
-% draw stimuli
-function drawNoiseOnly(obj, Stm)
+function drawBackgroundFixPoint(obj)
+% Draw background and possibly fixation point
 global Par
 
     % Background
-    Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
+    Screen('FillRect',Par.window, obj.param('BGColor').*Par.ScrWhite);
     if Par.Paused
         % Dark background
-        Screen('FillRect',Par.window, 0.0 * Par.BG.*Par.ScrWhite);
+        Screen('FillRect',Par.window, 0.0 * obj.param('BGColor').*Par.ScrWhite);
     elseif ~Par.GoNewTrial
-        if strcmp(Par.State,'INIT')
+        if strcmp(obj.state,'INIT_TRIAL')
             %                 if Stm(1).NumBeams == 2 && Par.BeamLIsBlocked
             %                     Screen('DrawLine', Par.window, ...
             %                         Stm(1).PawIndCol(1,:), ...
@@ -26,23 +26,11 @@ global Par
             Screen('FillRect',Par.window, [.5 .25 0].*Par.ScrWhite);
         else
             % Dark background
-            Screen('FillRect',Par.window, 0.0 * Par.BG.*Par.ScrWhite);
+            Screen('FillRect',Par.window, 0.0 * obj.param('BGColor').*Par.ScrWhite);
         end
     end
     if ~Par.BeamLIsBlocked && ~Par.BeamRIsBlocked && ~Par.Paused
-        % Noise patch
-        if Par.DrawNoise
-            srcRect = [Par.ScrCenter(2)-(Stm(1).NoiseSizePix/2)-5 ...
-                Par.ScrCenter(2)-(Stm(1).NoiseSizePix/2)-5 ...
-                Par.ScrCenter(2)+(Stm(1).NoiseSizePix/2)+5 ...
-                Par.ScrCenter(2)+(Stm(1).NoiseSizePix/2)+5];
-            destRect = [Stm(1).Center(Par.PosNr,1)+Par.ScrCenter(1)-(Stm(1).NoiseSizePix/2)-5 ...
-                Stm(1).Center(Par.PosNr,2)+Par.ScrCenter(2)-(Stm(1).NoiseSizePix/2)-5 ...
-                Stm(1).Center(Par.PosNr,1)+Par.ScrCenter(1)+(Stm(1).NoiseSizePix/2)+5 ...
-                Stm(1).Center(Par.PosNr,2)+Par.ScrCenter(2)+(Stm(1).NoiseSizePix/2)+5];
-            Screen('DrawTexture',Par.window,NoiTex,srcRect,destRect);
-        end
         % Draw fixation dot
-        obj.drawFix(Stm);
+        obj.drawFix();
     end
 end

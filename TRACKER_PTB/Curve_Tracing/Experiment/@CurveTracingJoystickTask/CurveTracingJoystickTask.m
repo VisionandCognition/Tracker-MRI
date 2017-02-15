@@ -1,74 +1,93 @@
-classdef CurveTracingJoystickTask
+classdef CurveTracingJoystickTask < handle
     % CurveTracingTask The curve tracing task.
     properties (Constant)
         taskName = 'Curve tracing'
     end
-    properties
-        post_switch_joint_alpha = 1.0;
-        stimuli_params;
-        curr_stim_index = 0;
-        curr_stim;
+    properties (Access = private)
+        stimuli_params; % parameters for each individual stimulus
+        curr_stim_index = -1;
+        curr_stim = NaN;
+        state = NaN;
+        stateChangeTime = -Inf;
+    end
+    properties (Access = public)
+        taskParams; % parameters that apply to every stimulus
     end
     
     methods
-        function obj = CurveTracingJoystickTask(csvfile)
-            obj.stimuli_params = readtable(csvfile);
+        function obj = CurveTracingJoystickTask(commonParams, stimuliParams)
+            % INPUT commonParams: should be a container.Map
+            %       stimuliParams: should be the path to the stimuli params
+            %                      in CSV format.
+            obj.taskParams = commonParams;
+            obj.stimuli_params = readtable(stimuliParams);
         end
-        [Par, Stm] = update_Init(obj, Par, Stm);
-        [Par, Stm] = update_PrepareStim(obj, Par, Stm);
-        [Par, Stm] = update_PreOrPostSwitch(obj, Par, Stm);
+        update_InitTrial(obj);
+        update_PrepareStim(obj);
+        update_PreOrPostSwitch(obj);
         
-        drawFix(obj, Stm);
-        drawNoiseOnly(obj, Stm);
+        drawFix(obj);
+        drawBackgroundFixPoint(obj);
         drawCurve(obj, pos, connection1, connection2, indpos, Par, Stm);
+        drawPreSwitchFigure(obj, Par, pos, SizePix, alpha);
+        lft = drawStimuli(obj, lft);
+        drawTarget(obj, color, offset, which_side);
         
-        function [Par, Stm] = updateAndDraw(obj, State, Par, Stm)
-            switch State
+        function updateState(obj, State, time)
+            obj.state = State;
+            if nargin > 2
+                obj.stateChangeTime = time;
+            end
+            fprintf('New state: %s\n', State);
+        end
+        
+        function update(obj)
+            switch obj.state
                 case 'PREPARE_STIM'
-                    [Par, Stm] = obj.update_PrepareStim(Par, Stm);
-                case 'INIT'
-                    [Par, Stm] = obj.update_Init(Par, Stm);
+                    obj.update_PrepareStim();
+                case 'INIT_TRIAL'
+                    obj.update_InitTrial();
                 case 'PREFIXATION'
-                    [Par, Stm] = obj.update_Prefixation(Par, Stm);
                 case 'PRESWITCH'
-                    [Par, Stm] = obj.update_PreOrPostSwitch(Par, Stm);
+                    obj.update_PreOrPostSwitch();
                 case 'SWITCHED'
-                    [Par, Stm] = obj.update_PreOrPostSwitch(Par, Stm);
+                    obj.update_PreOrPostSwitch();
                 case 'POSTSWITCH'
-                    [Par, Stm] = obj.update_PreOrPostSwitch(Par, Stm);
+                    obj.update_PreOrPostSwitch();
                 otherwise
-                    print State
+                    print(obj.state)
             end
         end
-        function [Par, Stm] = update_Prefixation(obj, Par, Stm)
-        end
-
-        function [Par, Stm] = RandomizePawIndOffset(obj, Par, Stm)
-            % Perform stratisfied repetitions
-            % size(Stm(1).PawIndPositions,1) is used to allow right or left
-            % branch to appear when there are only 2 targets
-            Group_pos = reshape(...
-                repmat(randperm(size(Stm(1).PawIndPositions,1)/2, Stm(1).NumOfPawIndicators/2),...
-                       2,1),...
-                [1,Stm(1).NumOfPawIndicators]);
-            Group_pos = (Group_pos-1) * 2;
-            ind = zeros(size(Group_pos));
-            angles = zeros(size(Group_pos));
-            for m = 1:Stm(1).NumOfPawIndicators/2
-                ind(2*m-1:2*m) = randperm(2);
-
-                a = min(Stm(1).CurveAnglesAtFP(m,:));
-                b = max(Stm(1).CurveAnglesAtFP(m,:));
-                angles(2*m-1:2*m) = (b-a).*rand(1,1) + a;
+        function [val, status] = param(obj, var)
+            % first look for parameter in current stimulus conditions
+            try
+                val = obj.curr_stim(var);
+                status = true;
+            catch ME
+                % Remember: STRCMP behaves as "STREQUAL", not as it should
+                if ~strcmp(ME.identifier, 'MATLAB:Containers:Map:NoKey') && ...
+                        ~strcmp(ME.identifier, 'MATLAB:badsubscript')
+                    rethrow(ME);
+                end
+                if isfield(obj.taskParams, var)
+                    val = obj.taskParams.(var);
+                    status = true;
+                else
+                    val = nan;
+                    status = false;
+                end
             end
-            Stm(1).PawIndOffsetPix = Stm(1).PawIndPositions(...
-                Group_pos + ind, :) * Par.PixPerDeg;
-            Par.CurveAngles = angles(Group_pos + ind);
-    %             Stm(1).PawIndOffsetPix = Stm(1).PawIndPositions(...
-    %                 randperm(size(Stm(1).PawIndPositions, 1), ...
-    %                          Stm(1).NumOfPawIndicators), :) * Par.PixPerDeg;
-
-            Par.DistractLineTarget = randperm(2);
+            if nargout < 2 && ~status
+                % if calling function doesn't get the status value and
+                %   it is false, throw an error.
+                error('Parameter variable %s does not exist!', var);
+            end
+        end
+        function obj = set_param(obj, var, val)
+            if ~isa( obj.curr_stim, 'containers.Map')
+                obj.curr_stim = containers.Map;
+            end
+            obj.curr_stim(var) = val;
         end
     end
     methods(Static)

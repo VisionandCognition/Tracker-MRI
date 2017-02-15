@@ -1,25 +1,28 @@
-function drawTarget(obj, color, offset, which_side, Stm)
+function drawTarget(obj, color, offset, which_side)
 global Par
+
+    pawIndSizePix = obj.param('PawIndSizePix');        
+    pawIndCol = obj.param('PawIndCol');
 
     if length(color) == 1
         alpha = color;
         color = (...
-            (1 - alpha)*Stm(1).BackColor + ...
-            Stm(1).PawIndCol(which_side,:) * alpha) * Par.ScrWhite;
+            (1 - alpha)*obj.param('BGColor') + ...
+            pawIndCol(which_side,:) * alpha) * Par.ScrWhite;
     end
     % Fixation position
-    hfix = Stm(1).Center(Par.PosNr,1)+Par.ScrCenter(1);
-    vfix = Stm(1).Center(Par.PosNr,2)+Par.ScrCenter(2);
+    hfix = obj.taskParams.FixPositionsPix(Par.PosNr,1)+Par.ScrCenter(1);
+    vfix = obj.taskParams.FixPositionsPix(Par.PosNr,2)+Par.ScrCenter(2);
     fix_pos = ...
         [hfix, vfix; ...
         hfix, vfix; ...
         hfix, vfix; ...
         hfix, vfix];
     for define_square=1 % left / square
-        lmost=-Stm(1).PawIndSizePix/2;
-        rmost= Stm(1).PawIndSizePix/2;
-        tmost=-Stm(1).PawIndSizePix/2;
-        bmost= Stm(1).PawIndSizePix/2;
+        lmost=-pawIndSizePix/2;
+        rmost= pawIndSizePix/2;
+        tmost=-pawIndSizePix/2;
+        bmost= pawIndSizePix/2;
         left_square = [lmost,tmost; ...
             rmost,tmost; ...
             rmost,bmost; ...
@@ -27,10 +30,10 @@ global Par
             ];
     end
     for define_diamond=1 % right / diamond
-        lmost=-sqrt(2)*Stm(1).PawIndSizePix/2;
-        rmost= sqrt(2)*Stm(1).PawIndSizePix/2;
-        tmost=-sqrt(2)*Stm(1).PawIndSizePix/2;
-        bmost= sqrt(2)*Stm(1).PawIndSizePix/2;
+        lmost=-sqrt(2)*pawIndSizePix/2;
+        rmost= sqrt(2)*pawIndSizePix/2;
+        tmost=-sqrt(2)*pawIndSizePix/2;
+        bmost= sqrt(2)*pawIndSizePix/2;
         right_diamond = [lmost,0; ...
             0,tmost; ...
             rmost,0; ...

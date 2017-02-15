@@ -1,41 +1,30 @@
- function DrawStimuli
+ function [lft] = drawStimuli(obj, lft)
+ global Par;
+ 
     % Background
-    Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
+    Screen('FillRect',Par.window,obj.param('BGColor').*Par.ScrWhite);
 
-    % Noise patch
-    if Par.DrawNoise
-        srcRect = [Par.ScrCenter(2)-(Stm(1).NoiseSizePix/2)-5 ...
-            Par.ScrCenter(2)-(Stm(1).NoiseSizePix/2)-5 ...
-            Par.ScrCenter(2)+(Stm(1).NoiseSizePix/2)+5 ...
-            Par.ScrCenter(2)+(Stm(1).NoiseSizePix/2)+5];
-        destRect = [Stm(1).Center(Par.PosNr,1)+Par.ScrCenter(1)-(Stm(1).NoiseSizePix/2)-5 ...
-            Stm(1).Center(Par.PosNr,2)+Par.ScrCenter(2)-(Stm(1).NoiseSizePix/2)-5 ...
-            Stm(1).Center(Par.PosNr,1)+Par.ScrCenter(1)+(Stm(1).NoiseSizePix/2)+5 ...
-            Stm(1).Center(Par.PosNr,2)+Par.ScrCenter(2)+(Stm(1).NoiseSizePix/2)+5];
-        Screen('DrawTexture',Par.window,NoiTex,srcRect,destRect);
-    end
+    obj.update();
 
-    [Par, Stm] = Stm(1).Task.updateAndDraw(Par.State, Par, Stm);
-
-    DrawFix;
+    obj.drawFix();
 
     % Target bar - "Go bar"
-    if ~Stm(1).Orientation(Par.CurrOrient) %horizontal
+    if ~obj.taskParams.GoBarOrientation(Par.CurrOrient) %horizontal
         rect=[...
-            Stm(1).Center(Par.PosNr,1)+Par.ScrCenter(1)-Stm(1).SizePix(1)/2, ...
-            Stm(1).Center(Par.PosNr,2)+Par.ScrCenter(2)-Stm(1).SizePix(2)/2, ...
-            Stm(1).Center(Par.PosNr,1)+Par.ScrCenter(1)+Stm(1).SizePix(1)/2, ...
-            Stm(1).Center(Par.PosNr,2)+Par.ScrCenter(2)+Stm(1).SizePix(2)/2];
+            obj.taskParams.FixPositionsPix(Par.PosNr,1)+Par.ScrCenter(1)-obj.taskParams.GoBarSizePix(1)/2, ...
+            obj.taskParams.FixPositionsPix(Par.PosNr,2)+Par.ScrCenter(2)-obj.taskParams.GoBarSizePix(2)/2, ...
+            obj.taskParams.FixPositionsPix(Par.PosNr,1)+Par.ScrCenter(1)+obj.taskParams.GoBarSizePix(1)/2, ...
+            obj.taskParams.FixPositionsPix(Par.PosNr,2)+Par.ScrCenter(2)+obj.taskParams.GoBarSizePix(2)/2];
     else
         rect=[...
-            Stm(1).Center(Par.PosNr,1)+Par.ScrCenter(1)-Stm(1).SizePix(2)/2, ... left
-            Stm(1).Center(Par.PosNr,2)+Par.ScrCenter(2)-Stm(1).SizePix(1)/2, ... top
-            Stm(1).Center(Par.PosNr,1)+Par.ScrCenter(1)+Stm(1).SizePix(2)/2, ... right
-            Stm(1).Center(Par.PosNr,2)+Par.ScrCenter(2)+Stm(1).SizePix(1)/2];
+            obj.taskParams.FixPositionsPix(Par.PosNr,1)+Par.ScrCenter(1)-obj.taskParams.GoBarSizePix(2)/2, ... left
+            obj.taskParams.FixPositionsPix(Par.PosNr,2)+Par.ScrCenter(2)-obj.taskParams.GoBarSizePix(1)/2, ... top
+            obj.taskParams.FixPositionsPix(Par.PosNr,1)+Par.ScrCenter(1)+obj.taskParams.GoBarSizePix(2)/2, ... right
+            obj.taskParams.FixPositionsPix(Par.PosNr,2)+Par.ScrCenter(2)+obj.taskParams.GoBarSizePix(1)/2];
     end
-    if ~Stm(1).Orientation(Par.CurrOrient) || Stm(1).ShowDistractBar
-        Screen('FillRect',Par.window,Stm(1).Color.*Par.ScrWhite,rect);
-    end
+    
+    Screen('FillRect', Par.window, obj.taskParams.GoBarColor .* Par.ScrWhite, rect);
+    
     % Draw on screen
     lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
 end

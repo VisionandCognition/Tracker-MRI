@@ -108,7 +108,8 @@ if Par.nFlipsRefresh==0 || ~Stm(1).UsePreDefFlipTime
     Par.nFlipsRefresh=1;
 end
 
-Par.BG = Stm(1).BackColor; % get from stimulus file
+%Par.BG = Stm(1).BackColor; % get from stimulus file
+Par.BG = Stm(1).Task.param('BGColor');
 
 Par.ScrWhite=WhiteIndex(Par.window);
 Par.ScrBlack=BlackIndex(Par.window);
@@ -226,16 +227,8 @@ Par.KeyTogglePause = KbName('Space'); % allows breaking out of the experiment
 Par.KeyTriggerMR = KbName('t'); % MRI sends a sync pulse as a 't' keypress
 Par.KeyJuice = KbName('j'); % Manual juice reward
 Par.KeyBackNoise = KbName('b'); % toggle background noise patch
-Par.KeyDistract = KbName('d'); % toggle distracter
 Par.KeyCyclePos = KbName('p'); % toggle cycle position
 Par.KeyRequireFixation = KbName('f'); % toggle cycle position
-Par.KeyCyclePawSide = KbName('s'); % toggle cycle position
-Par.KeyPawSide1 = KbName('g'); % set side left
-Par.KeyPawSide2 = KbName('r'); % set side right
-Par.KeyCycleTask = KbName('m'); % cycle task / mode
-Par.KeyToggleAutoCycleTask = KbName('a'); % cycle task ever N correct trials
-Par.KeyDecrPreSwitchAlpha = KbName('[{');
-Par.KeyIncrPreSwitchAlpha = KbName(']}');
 
 % Change stim position
 KbName('UnifyKeyNames');

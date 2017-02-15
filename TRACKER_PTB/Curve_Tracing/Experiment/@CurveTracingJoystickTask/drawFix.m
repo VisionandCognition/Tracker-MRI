@@ -1,17 +1,17 @@
-function drawFix(obj, Stm)
+function drawFix(obj)
 % draw fixation point
-global Par
+    global Par
 
-    fix_pos = Stm(1).Center(Par.PosNr,:)+Par.ScrCenter(:)';
+    fix_pos = obj.taskParams.FixPositionsPix(Par.PosNr,:)+Par.ScrCenter(:)';
+    dot_radius = obj.param('FixDotSizePix')/2;
     rect=[...
-        Stm(1).Center(Par.PosNr,1)+Par.ScrCenter(1)-Stm(1).FixDotSizePix/2, ...
-        Stm(1).Center(Par.PosNr,2)+Par.ScrCenter(2)-Stm(1).FixDotSizePix/2, ...
-        Stm(1).Center(Par.PosNr,1)+Par.ScrCenter(1)+Stm(1).FixDotSizePix/2, ...
-        Stm(1).Center(Par.PosNr,2)+Par.ScrCenter(2)+Stm(1).FixDotSizePix/2];
+        fix_pos - dot_radius, ...
+        fix_pos + dot_radius];
     if Par.RequireFixation
-        % fixation area
+        % Par.CurrFixCol can vary 
         Screen('FillOval',Par.window, Par.CurrFixCol, rect);
     else
-        Screen('FillOval',Par.window, Stm(1).FixDotCol(3,:).*Par.ScrWhite, rect);
+        Screen('FillOval',Par.window, ...
+            obj.taskParams.FixDotCol(3,:).*Par.ScrWhite, rect);
     end
 end

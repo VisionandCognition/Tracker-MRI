@@ -1,102 +1,53 @@
-function [Par, Stm] = update_PreOrPostSwitch(obj, Par, Stm)
-    PawIndSizePix = Stm(1).PawIndSizePix;
-    attd_offset = repmat( ...
-        Stm(1).PawIndOffsetPix(1,:), [4,1]);
+function update_PreOrPostSwitch(obj)
+global Par;
 
-    % task related curve
-    if strcmp(Par.State, 'PRESWITCH')                    
-        obj.drawCurve(attd_offset(1,:), true, true, 1, Par, Stm);
-    else
-        obj.drawCurve(attd_offset(1,:), ...
-            obj.post_switch_joint_alpha, obj.post_switch_joint_alpha, 1, Par, Stm);
+    PawIndSizePix = obj.param('PawIndSizePix');
+    PawIndOffsetPix = obj.param('PawIndOffsetPix');
+    
+    pawIndCol = obj.param('PawIndCol');
+    pawIndAlpha = obj.param('PawIndAlpha');
+
+    for indpos = 1:obj.param('NumOfPawIndicators')
+        obj.drawCurve(indpos);
     end
-
-    if Par.unattended_alpha > 0.0
-        for indpos = 2:Stm(1).NumOfPawIndicators
-            discon_offset = Stm(1).PawIndOffsetPix(indpos,:);
-
-            obj.drawCurve(discon_offset, false, ...
-                ... strcmp(Par.State, 'PRESWITCH') && Par.PartConnectedTarget==indpos,...
-                Par.PartConnectedTarget==indpos,...
-                indpos, Par, Stm);
-        end
-        discon_offset = NaN;
-    end
-    alpha = Stm(1).PawIndAlpha(~strcmp(Par.State, 'PRESWITCH')+1, 1);
-    color0 = (...
-        Stm(1).PawIndCol(Par.PawSides(1),:) * ...
-        alpha + ...
-        (1-alpha)*Stm(1).BackColor ...
-        ).*Par.ScrWhite;
-
-    if strcmp(Par.State, 'PRESWITCH')
+    
+    if strcmp(obj.state, 'PRESWITCH')
         % ------------------------------- PRESWITCH
-        alpha1 = 1.0 * Par.trial_preswitch_alpha;
-        color1 = (...
-            (1 - alpha1)*Stm(1).BackColor + ...
-            Stm(1).PawIndCol(Par.PawSides(1),:) * alpha1) * Par.ScrWhite;
+        %hfix = obj.taskParams.FixPositionsPix(Par.PosNr,1)+Par.ScrCenter(1); %Stm(1).Center
+        %vfix = obj.taskParams.FixPositionsPix(Par.PosNr,2)+Par.ScrCenter(2); 
+        fix = obj.taskParams.FixPositionsPix(Par.PosNr,:) + Par.ScrCenter;
+        fix_pos = [fix; fix; fix; fix];
+        
+        pawIndAlpha = obj.param('PawIndAlpha');
+        for indpos = 1:obj.param('NumOfPawIndicators')
+            offset = repmat( ...
+                PawIndOffsetPix(indpos,:), [4,1]);
 
-        if alpha1 > 0.0
-            obj.drawTarget(color1, attd_offset, Par.PawSides(1) == 1, Stm)
-        end
-
-        hfix = Stm(1).Center(Par.PosNr,1)+Par.ScrCenter(1);
-        vfix = Stm(1).Center(Par.PosNr,2)+Par.ScrCenter(2);
-        fix_pos = ...
-            [hfix, vfix; ...
-            hfix, vfix; ...
-            hfix, vfix; ...
-            hfix, vfix];
-        if alpha1 < 1.0
-            DrawPreSwitchFigure(Par, Stm, ...
-                fix_pos(1,:)+attd_offset(1,:), ...
-                PawIndSizePix,...
-                1-Par.trial_preswitch_alpha);
-        end
-
-        for indpos = 2:Stm(1).NumOfPawIndicators
-            alpha1 = (1-Stm(1).PawIndAlpha(1, indpos)) * ...
-                Par.unattended_alpha * ...                            
-                Par.trial_preswitch_alpha;
-
-            discon_offset = repmat( ...
-                Stm(1).PawIndOffsetPix(indpos,:), [4,1]);
-            side = Par.PawSides(indpos);
-
-            color1 = (...
-                (1 - alpha1)*Stm(1).BackColor + ...
-                Stm(1).PawIndCol(side,:) * alpha1) * Par.ScrWhite;
-
-            if alpha1 > 0.0 % draw faded out indicator
-                obj.drawTarget(color1, discon_offset, Par.PawSides(indpos)==1, Stm)
-            end
-
-            if alpha1 < 0.5 % draw ambiguous pre-switch placeholder
-                DrawPreSwitchFigure(Par, Stm, ...
-                    fix_pos(1,:)+discon_offset(1,:), ...
-                    PawIndSizePix,  ...
-                    (1-Par.trial_preswitch_alpha)*Stm(1).PawIndAlpha(1, indpos));
-            end
+            obj.drawPreSwitchFigure(Par, ...
+                fix_pos(1,:)+offset(1,:), ...
+                PawIndSizePix,  ...
+                pawIndAlpha(1, indpos));
         end
     else
         % ------------------------------- POSTSWITCH
 
-        obj.drawTarget(color0, attd_offset, Par.PawSides(1)==1, Stm)
+        %obj.drawTarget(color0, attd_offset, obj.param('Target')==1, Stm)
 
-        for indpos = 2:Stm(1).NumOfPawIndicators
-            discon_offset = repmat( ...
-                Stm(1).PawIndOffsetPix(indpos,:), [4,1]);
-            side = Par.PawSides(indpos);
+        sideIndicators = obj.param('SideIndicators');
+        for indpos = 1:obj.param('NumOfPawIndicators')
+            offset = repmat( ...
+                PawIndOffsetPix(indpos,:), [4,1]);
 
-            Color_obj = Stm(1).PawIndCol(side,:) * ...
-                Par.unattended_alpha * ...
-                Stm(1).PawIndAlpha(2, indpos);
-            Color_bg = Stm(1).BackColor * ...
-                (1 - Par.unattended_alpha * ...
-                Stm(1).PawIndAlpha(2, indpos));
-            Unattd_color = (Color_obj + Color_bg) * Par.ScrWhite;
+            side = sideIndicators(indpos);
+            if isnan(side)
+                continue
+            end
 
-            obj.drawTarget(Unattd_color, discon_offset, side==1, Stm)
+            Color_obj = pawIndCol(side,:) * ...
+                pawIndAlpha(2, indpos);
+            Unattd_color = Color_obj * Par.ScrWhite;
+
+            obj.drawTarget(Unattd_color, offset, side)
         end
     end
 end
