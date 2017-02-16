@@ -23,5 +23,11 @@ function checkResponses_PreSwitch( obj, lft )
         Par.FalseResponseGiven=false;
         Par.BreakTrial=true;
     end
+    
+    if lft >= obj.currStateStart + ...
+            obj.taskParams.EventPeriods(1)/1000 + obj.params('RandomGoSwitchDelay')
+        obj.updateState('SWITCHED', lft);
+        obj.updateState('PRESWITCH', lft);
+    end
 end
 

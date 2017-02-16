@@ -173,26 +173,26 @@ Par.ManualRewardTargetOnly = false; % only give manual reward during target pres
 % prevents me from mistiming the manual reward during training
 
 Par.OneRewardPerTrial = false; % for training allow multiple rewards/target
-Par.RewardType = 0; % 0=fixed reward, 1=progressive, 2=stimulus dependent
-switch Par.RewardType
-    case 0
-        Par.RewardTime = 0.04;
-    case 1
-        % Alternatively use a progressive reward scheme based on the number of
-        % preceding consecutive correct responses format as
-        % rows stating: [nCorrectTrials RewardTime]
-        Par.RewardTime = [...
-            0   0.100;...
-            5   0.150;...
-            10  0.200;...
-            15  0.250;...
-            20  0.300];
-    case 2
-        Par.RewardTime = 0; %no reward
-end
+Par.RewardTime = 0.04;
+
+% switch Par.RewardType
+%     case 0
+%         Par.RewardTime = 0.04;
+%     case 1
+%         % Alternatively use a progressive reward scheme based on the number of
+%         % preceding consecutive correct responses format as
+%         % rows stating: [nCorrectTrials RewardTime]
+%         Par.RewardTime = [...
+%             0   0.100;...
+%             5   0.150;...
+%             10  0.200;...
+%             15  0.250;...
+%             20  0.300];
+%     case 2
+%         Par.RewardTime = 0; %no reward
+% end
 
 Par.RewardTimeManual = 0.04; % amount of reward when given manually
-Par.MaxTimeBetweenRewardsMin = 2; % Give reward at least once every 2 mins
 
 %% Create Eye-check windows based on stimulus positions ===================
 for SetInitialWINs=1

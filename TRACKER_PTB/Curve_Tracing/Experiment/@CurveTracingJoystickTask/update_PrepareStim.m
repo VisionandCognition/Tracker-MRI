@@ -24,4 +24,7 @@ global Par;
     Par.CurrOrient=1; % 1=default, 2=switched
 
     Par.Paused = false;
+    
+    obj.set_param('RandomGoSwitchDelay', ...
+        rand(1)*obj.taskParams.EventPeriods(2)/1000);
 end

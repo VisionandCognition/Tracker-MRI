@@ -13,6 +13,8 @@ function checkResponses_Switched(obj, lft)
             if ~obj.param('RequireSpecificPaw') || Par.NewResponse == obj.param('Target')
                 Par.RespValid = true;
                 Par.CurrResponse = Par.RESP_CORRECT;
+                Par.GiveRewardAmount = Par.GiveRewardAmount + Par.RewardTime;
+                
                 if ~Par.ResponseGiven && ~Par.FalseResponseGiven %only log once
                     Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
                     Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
@@ -65,6 +67,8 @@ function checkResponses_Switched(obj, lft)
             if ~obj.param('RequireSpecificPaw') || Par.NewResponse == obj.param('Target')
                 Par.RespValid = true;
                 Par.CurrResponse = Par.RESP_CORRECT;
+                Par.GiveRewardAmount = Par.GiveRewardAmount + Par.RewardTime;
+                
                 if ~Par.ResponseGiven  && ~Par.FalseResponseGiven %only log once
                     Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
                     Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;

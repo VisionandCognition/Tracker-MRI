@@ -19,6 +19,7 @@ classdef CurveTracingJoystickTask < handle
         update_PrepareStim(obj);
         update_PreOrPostSwitch(obj);
         
+        checkResponses_PreFixation(obj, lft);
         checkResponses_PreSwitch(obj, lft);
         checkResponses_Switched(obj, lft);
     end
@@ -42,12 +43,14 @@ classdef CurveTracingJoystickTask < handle
             obj.state = State;
             if nargin > 2
                 obj.currStateStart = time;
-                
-                if strcmp(obj.state, 'SWITCHED')==1
-                    obj.stateStart.SWITCHED = time;
-                end
+                obj.stateStart.(obj.state) = time;
             end
-            % fprintf('New state: %s\n', State);
+            fprintf('New state: %s\n', State);
+        end
+        function isend = endOfTrial(obj)
+            STR_IDENTICAL = true;
+            % temporary
+            isend = (strcmp(obj.state, 'SWITCHED') ~= STR_IDENTICAL);
         end
         
         function update(obj)
@@ -72,6 +75,7 @@ classdef CurveTracingJoystickTask < handle
                 case 'PREPARE_STIM'
                 case 'INIT_TRIAL'
                 case 'PREFIXATION'
+                    obj.checkResponses_PreFixation(lft);
                 case 'PRESWITCH'
                     obj.checkResponses_PreSwitch(lft);
                 case 'SWITCHED'

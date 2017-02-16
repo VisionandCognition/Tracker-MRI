@@ -97,8 +97,6 @@ Stm(1).TaskNames_1 = {'Curve tracing', 'Control task', ...
     };
 Stm(1).TaskName = @(i) Stm(1).TaskNames_1{i+1};
 
-Stm(1).TaskRewardMultiplier = [1.4, 1/1.4];
-
 Params.CurveAnglesAtFP = [ 180; 180; 0; 0];
 
 Params.PawIndSizeDeg = 2.5;

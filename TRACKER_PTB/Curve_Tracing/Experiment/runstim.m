@@ -102,8 +102,9 @@ for CodeControl=1 %allow code folding
     Par.ToggleNoisePatch = false;
     Par.ToggleCyclePos = true; % overrules the Stim(1)setting; toggles with 'p'
     Par.ManualReward = false;
-    Par.PosReset=false;
-    Par.BreakTrial=false;
+    Par.PosReset = false;
+    Par.BreakTrial = false;
+    Par.GiveRewardAmount = 0;
 
     % Trial Logging
     Par.CurrResponse = Par.RESP_NONE;
@@ -117,12 +118,6 @@ for CodeControl=1 %allow code folding
     Par.CheckFixOut=false;
     Par.CheckTarget=false;
     Par.RewardRunning=false;
-
-    if isfield(Par,'MaxTimeBetweenRewardsMin')
-        Par.MaxTimeBetweenRewardsSecs = Par.MaxTimeBetweenRewardsMin*60;
-    else
-        Par.MaxTimeBetweenRewardsSecs = Inf;
-    end
 end
 
 %% Stimulus presentation loop =============================================
@@ -159,7 +154,6 @@ while ~Par.ESC %===========================================================
         if TestRunstimWithoutDAS; Hit=0; end
         Par.LastRewardTime = GetSecs;
     end
-    Par.DrawPawIndNow = false;
     
     % State == INIT_TRIAL
     Stm(1).Task.update();
@@ -189,73 +183,20 @@ while ~Par.ESC %===========================================================
     Stm(1).Task.updateState('PREFIXATION', lft);
     Par.FixStart=Inf;
     % what happens during this loop is not logged
-    while lft < Par.FixStart+50/1000 && ...
-            Par.RequireFixation && ~Par.ESC
+    while ~Stm(1).Task.endOfTrial() && ~Par.PosReset && ~Par.ESC && ~Par.BreakTrial
+        
         CheckManual;
         Stm(1).Task.checkResponses(lft);
         CheckKeys;
-        Stm(1).Task.drawBackgroundFixPoint();
-        
-        % Check eye fixation ----------------------------------------------
-        CheckFixation;
-        if Par.FixIn && Par.FixStart == Inf
-            Par.FixStart = lft;
-            Stm(1).Task.updateState('FIXATING', Par.FixStart);
-        end
-        % Get and plot eye position
-        CheckTracker;
-        % Change stimulus if required
-        ChangeStimulus;
-        
-        % give manual reward
-        if Par.ManualReward
-            GiveRewardManual;
-            Par.ManualReward=false;
-        end
-        
-        if GetSecs > Par.LastRewardTime && ...
-            Par.LastRewardTime + Par.MaxTimeBetweenRewardsSecs < GetSecs % give reward if its been 2 minutes
-            t = GetSecs;
-            GiveRewardManual;
-            % ConsolatoryRewardTime = lft;
-        end
-    end
-    
-    % PRESWITCH -----------------------------------------------------------
-    Par.PreSwitchStart=lft;
-    Stm(1).Task.updateState('PRESWITCH', Par.PreSwitchStart);
-    Par.SwitchOnset=rand(1)*Stm(1).Task.taskParams.EventPeriods(2)/1000;
-    while lft < Par.PreSwitchStart + ...
-            Stm(1).Task.taskParams.EventPeriods(1)/1000 + Par.SwitchOnset && ...
-            ~Par.PosReset && ~Par.ESC && ~Par.BreakTrial
-        
-        Par.DrawPawIndNow = true;
-        %(lft >= ...
-        %    Par.PreSwitchStart + Stm(1).Task.taskParams.EventPeriods(1)/1000 - 350/1000);
-        
         lft = Stm(1).Task.drawStimuli(lft);
         
-        % Check eye fixation ----------------------------------------------
         CheckFixation;
-        
-        % check for key-presses
-        CheckKeys; % internal function
-        
-        % check for manual responses
-        CheckManual;
-        Stm(1).Task.checkResponses(lft);
-        
-        % Get and plot eye position
-        CheckTracker;
-        
-        % Change stimulus if required
-        ChangeStimulus;
+        CheckTracker; % Get and plot eye position
+        ChangeStimulus; % Change stimulus if required (e.g. fixation moved).
         
         % give manual reward
         if Par.ManualReward
             GiveRewardManual;
-            Par.ManRewThisTrial=[Par.ManRewThisTrial ...
-                lft-Par.ExpStart];
             Par.ManualReward=false;
         end
     end
@@ -327,7 +268,6 @@ while ~Par.ESC %===========================================================
     end
         
     % switch to orientation 1
-    Par.DrawPawIndNow = false;
     Par.CurrOrient=1;
     
     % POSTSWITCH ----------------------------------------------------------
@@ -369,7 +309,6 @@ while ~Par.ESC %===========================================================
             Par.AutoRewardGiven = true;
         end
     end
-    Par.DrawPawIndNow = false;
     % no response or fix break during switch = miss
     % ~Par.ResponseGiven && ~Par.FalseResponseGiven && ...
     if Par.CurrResponse == Par.RESP_NONE            
@@ -377,14 +316,6 @@ while ~Par.ESC %===========================================================
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
         Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
         Par.CorrStreakcount=[0 0];
-    end
-    
-    % Minimum reward
-    if GetSecs > Par.LastRewardTime && ...
-            Par.LastRewardTime + Par.MaxTimeBetweenRewardsSecs < GetSecs % give reward if its been 2 minutes
-        t = GetSecs;
-        GiveRewardManual;
-        ConsolatoryRewardTime = lft;
     end
     
     % Performance info on screen
@@ -795,26 +726,8 @@ end
     end
 % give automated reward
     function GiveRewardAuto
-        % Get correct reward duration
-        switch Par.RewardType
-            case 0
-                Par.RewardTimeCurrent = Par.RewardTime;
-            case 1
-                if size(Par.RewardTime,2)>1 % progressive schedule still active
-                    % Get number of consecutive correct trials
-                    rownr= find(Par.RewardTime(:,1)<Par.CorrStreakcount(2),1,'last');
-                    Par.RewardTimeCurrent = Par.RewardTime(rownr,2);
-                else %schedule overruled by slider settings
-                    Par.RewardTimeCurrent = Par.RewardTime;
-                end
-            case 2
-                Par.RewardTimeCurrent = 0;
-        end
-        
-        if isfield(Stm(1), 'TaskRewardMultiplier')
-            Par.RewardTimeCurrent = Par.RewardTimeCurrent * ...
-                Stm(1).TaskRewardMultiplier(Stm(1).TaskCycleInd);
-        end
+        Par.RewardTimeCurrent = Par.GiveRewardAmount;
+        Par.GiveRewardAmount = 0;
         
         if size(Par.Times.Targ,2)>1;
             rownr= find(Par.Times.Targ(:,1)<Par.CorrStreakcount(2),1,'last');
