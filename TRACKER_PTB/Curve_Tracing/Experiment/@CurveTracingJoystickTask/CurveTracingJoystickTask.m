@@ -10,6 +10,16 @@ classdef CurveTracingJoystickTask < handle
         state = NaN;
         currStateStart = -Inf; 
         stateStart = struct('SWITCHED', -Inf);
+        goBarOrient =  1; % 1=default, 2=switched
+        
+        % Always log fixation, "tracking" here means calculating amount of
+        % fix-in and fix-out time.
+        fixationTrackStarted = false; % updated depending on state
+        fixIn = nan;
+        fixInTime = nan;
+        fixOutTime = nan;
+        trialFixS = 0.0; % seconds spent fixating in current trial
+        trialNoFixS = 0.0; % seconds spent not fixating in current trial
     end
     properties (Access = public)
         taskParams; % parameters that apply to every stimulus
@@ -22,8 +32,14 @@ classdef CurveTracingJoystickTask < handle
         checkResponses_PreFixation(obj, lft);
         checkResponses_PreSwitch(obj, lft);
         checkResponses_Switched(obj, lft);
+        
+        correctResponseGiven(obj, lft);
+        falseResponseGiven(obj, lft)
     end
     methods
+        function time = stateStartTime(obj, state)
+            time = obj.stateStart.(state);
+        end
         function obj = CurveTracingJoystickTask(commonParams, stimuliParams)
             % INPUT commonParams: should be a container.Map
             %       stimuliParams: should be the path to the stimuli params
@@ -32,6 +48,42 @@ classdef CurveTracingJoystickTask < handle
             obj.stimuli_params = readtable(stimuliParams);
         end
         
+        function fixationIn(obj, time)
+            global Log;
+        	Log.Events.add_entry(time, 'Fixation', 'In');
+            
+            % function should only be called if previously not fixating
+            assert(isnan(obj.fixIn) || ~obj.fixIn);
+            obj.fixIn = true;
+            
+            if obj.fixationTrackStarted
+                obj.fixInTime = time;
+                assert(~isnan(obj.fixOutTime))
+                obj.trialFixS = obj.trialFixS + (obj.fixInTime - obj.fixOutTime);
+            end
+        end
+        function fixationOut(obj, time)
+            global Log;
+        	Log.Events.add_entry(time, 'Fixation', 'Out');
+            
+            % function should only be called if previously fixating
+            assert(isnan(obj.fixIn) || obj.fixIn);
+            obj.fixIn = false;
+            
+            if obj.fixationTrackStarted
+                obj.fixOutTime = time;
+                assert(~isnan(obj.fixInTime))
+                obj.trialNoFixS = obj.trialNoFixS + (obj.fixOutTime - obj.fixInTime);
+            end
+        end
+        function stopTrackingFixationTime(obj, time)
+            obj.fixationTrackStarted = false;
+            if obj.fixIn
+                obj.trialFixS = obj.trialFixS + (time - obj.fixInTime);
+            else
+                obj.trialNoFixS = obj.trialNoFixS + (time - obj.fixOutTime);
+            end
+        end
         drawFix(obj);
         drawBackgroundFixPoint(obj);
         drawCurve(obj, pos, connection1, connection2, indpos, Par, Stm);
@@ -39,18 +91,20 @@ classdef CurveTracingJoystickTask < handle
         lft = drawStimuli(obj, lft);
         drawTarget(obj, color, offset, which_side);
         
-        function updateState(obj, State, time)
-            obj.state = State;
-            if nargin > 2
-                obj.currStateStart = time;
-                obj.stateStart.(obj.state) = time;
-            end
-            fprintf('New state: %s\n', State);
+        function updateState(obj, state, time)
+            global Log;
+            obj.state = state;
+
+            obj.currStateStart = time;
+            obj.stateStart.(obj.state) = time;
+            Log.Events.add_entry(time, 'NewState', obj.state);
+
+            fprintf('New state: %s\n', state);
         end
         function isend = endOfTrial(obj)
             STR_IDENTICAL = true;
             % temporary
-            isend = (strcmp(obj.state, 'SWITCHED') ~= STR_IDENTICAL);
+            isend = (strcmp(obj.state, 'POSTSWITCH') == STR_IDENTICAL);
         end
         
         function update(obj)
@@ -81,7 +135,7 @@ classdef CurveTracingJoystickTask < handle
                 case 'SWITCHED'
                     obj.checkResponses_Switched(lft);
                 case 'POSTSWITCH'
-                    obj.checkResponses_Switched(lft);
+                    obj.checkResponses_PostSwitch(lft);
                 otherwise
                     print(obj.state)
             end

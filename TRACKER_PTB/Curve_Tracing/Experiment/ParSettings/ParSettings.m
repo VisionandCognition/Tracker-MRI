@@ -26,8 +26,8 @@ Stm=StimObj.Stm;
 
 % overrule generic fixation window
 Par.FixWinSize = [1.8 1.8]; % [W H] in deg
-Par.RequireFixation = false;
-
+Par.WaitForFixation = false; % Used to be Par.RequireFixation
+Par.RequireFixationForReward = true;
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed

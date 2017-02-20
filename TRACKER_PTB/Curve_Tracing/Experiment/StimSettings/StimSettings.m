@@ -12,7 +12,9 @@ Params.BGColor = [.5 .5 .5]; % [R G B] 0-1
 % Fixation ----------------------------------------------------------------
 Params.FixWinSizeDeg = 2.5; % in deg
 Params.FixDotSizeDeg = 0.3;
-Params.FixDotCol = [0 0 0; 0 0 0; .1 .1 .1]; %[RGB if not fixating; RGB fixating; Fixation not required]
+
+%[RGB if not fixating; RGB fixating; Fixation not required]
+Params.FixDotCol = [0 0 0; 0 0 0; .1 .1 .1];
 
 % A vertical bar that is randomly set to horizontal
 length = 0.16;
@@ -27,8 +29,8 @@ Params.TraceCurveWidth = 9; % 6;
 % Stm(1).PostSwitchJointAlpha = 0; % max should go to 0, with better training
 Params.PostSwitchJointAlpha = 1; % max should go to 0, with better training
 
-gap = 1.5;
-Params.BranchDistDeg = 1;
+gap = 1;
+Params.BranchDistDeg = 1.2;
 Params.Gap1_deg = [0 gap];
 Params.Gap2_deg = [0 Params.BranchDistDeg] + gap;
 Params.CurveTargetDistDeg = 1.5;

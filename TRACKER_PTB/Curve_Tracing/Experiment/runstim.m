@@ -56,14 +56,19 @@ eval(Par.PARSETFILE); % this takes the ParSettings file chosen via the context m
 
 Stm = StimObj.Stm;
 
-Stm(1).Task.updateState('PREPARE_STIM');
+% Flip the proper background on screen
+Screen('FillRect',Par.window, Par.BG .* Par.ScrWhite);
+lft=Screen('Flip', Par.window);
+
+Log.Events = EventLog;
+Stm(1).Task.updateState('PREPARE_STIM', lft);
 
 %% Stimulus preparation ===================================================
 for PrepareStim=1
     Stm(1).Task.update();
 end % allow code-folding
 
-Stm(1).Task.updateState('INIT_EXPERIMENT');
+Stm(1).Task.updateState('INIT_EXPERIMENT', lft);
 %% Code Control Preparation ===============================================
 for CodeControl=1 %allow code folding
     % Some intitialization of control parameters
@@ -118,6 +123,21 @@ for CodeControl=1 %allow code folding
     Par.CheckFixOut=false;
     Par.CheckTarget=false;
     Par.RewardRunning=false;
+end
+
+%% MRI triggered start
+Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
+lft=Screen('Flip', Par.window);
+if Par.MRITriggeredStart
+    Log.Events.add_entry(GetSecs, 'MRI_Trigger', 'Waiting');
+    fprintf('Waiting for MRI trigger (or press ''t'' on keyboard)\n');
+    while ~Log.MRI.TriggerReceived
+        CheckKeys;
+        %Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
+        %lft=Screen('Flip', Par.window);
+    end
+    fprintf(['MRI trigger received after ' num2str(GetSecs-Par.ExpStart) ' s\n']);
+    Log.Events.add_entry(GetSecs, 'MRI_Trigger', 'Received');
 end
 
 %% Stimulus presentation loop =============================================
@@ -182,7 +202,10 @@ while ~Par.ESC %===========================================================
     % Wait for fixation --------------------------------------------------
     Stm(1).Task.updateState('PREFIXATION', lft);
     Par.FixStart=Inf;
-    % what happens during this loop is not logged
+    
+    % ---------------------------------------------------------------------
+    % Go through all of the different states of the current trial
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     while ~Stm(1).Task.endOfTrial() && ~Par.PosReset && ~Par.ESC && ~Par.BreakTrial
         
         CheckManual;
@@ -199,42 +222,6 @@ while ~Par.ESC %===========================================================
             GiveRewardManual;
             Par.ManualReward=false;
         end
-    end
-    
-    % SWITCHED ------------------------------------------------------------
-    Par.SwitchStart=lft;
-    Stm(1).Task.updateState('SWITCHED', Par.SwitchStart);
-    % switch to orientation 2
-    Par.CurrOrient=2;
-    % switched
-    while lft < Par.SwitchStart+Stm(1).Task.param('SwitchDur')/1000 && ...
-            ~Par.PosReset && ~Par.ESC && ~Par.BreakTrial && ...
-            (Par.CurrResponse ~= Par.RESP_CORRECT)
-        
-        % DrawStimuli
-        lft = Stm(1).Task.drawStimuli(lft);
-        
-        % Check eye fixation ----------------------------------------------
-        CheckFixation;
-        CheckKeys; % check for key-presses
-        CheckManual; % check for manual (joystick) responses
-        
-        Stm(1).Task.checkResponses(lft);
-        
-        % Get and plot eye position
-        CheckTracker;
-        
-        % Change stimulus if required
-        ChangeStimulus;
-        
-        % give manual reward
-        if Par.ManualReward
-            GiveRewardManual;
-            Par.ManualReward=false;
-        end
-        
-        %DrawStimuli; % update lifted paw indicator
-        lft = Stm(1).Task.drawStimuli(lft);
         
         % Check eye position
         if ~TestRunstimWithoutDAS
@@ -248,67 +235,25 @@ while ~Par.ESC %===========================================================
             Par.AutoRewardGiven = true;
         end
     end
-        
-    if Par.CurrResponse > 0 && ...
-            isfield(Par, 'FeedbackSound') && ...
-            isfield(Par, 'FeedbackSoundPar') && ...
-            Par.FeedbackSound(Par.CurrResponse) && ...
-            ~isnan(Par.FeedbackSoundPar(Par.CurrResponse,1))
-        if Par.FeedbackSoundPar(Par.CurrResponse)
-            try
-                w = warning ('off','MATLAB:audiovideo:audioplayer:noAudioOutputDevice');
-                RewT=0:1/Par.FeedbackSoundPar(Par.CurrResponse,1):Par.FeedbackSoundPar(Par.CurrResponse,4);
-                RewY=Par.FeedbackSoundPar(Par.CurrResponse,3)*sin(2*pi*Par.FeedbackSoundPar(Par.CurrResponse,2)*RewT);
-                sound(RewY, Par.FeedbackSoundPar(Par.CurrResponse, 1));
-                warning(w) % return warning settings to previous state
-            catch
-                warning(w) % return warning settings to previous state
-            end
-        end
-    end
-        
-    % switch to orientation 1
-    Par.CurrOrient=1;
     
-    % POSTSWITCH ----------------------------------------------------------
-    Par.PostSwitchStart=lft;
-    Stm(1).Task.updateState('POSTSWITCH', Par.PostSwitchStart);
-    
-    while lft < Par.PostSwitchStart + ...
-            Stm(1).Task.taskParams.EventPeriods(3)/1000 && ~Par.PosReset && ...
-            ~Par.ESC && ~Par.BreakTrial
-        
-        % DrawStimuli;
-        lft = Stm(1).Task.drawStimuli(lft);
-        
-        % Check eye fixation ----------------------------------------------
-        CheckFixation;
-        
-        % check for key-presses
-        CheckKeys; % internal function
-        
-        % check for manual responses
-        CheckManual;
-        Stm(1).Task.checkResponses(lft);
-        
-        % Get and plot eye position
-        CheckTracker;
-        
-        % Change stimulus if required
-        ChangeStimulus;
-        
-        % give manual reward
-        if Par.ManualReward
-            GiveRewardManual;
-            Par.ManualReward=false;
-        end
-        
-        % give automated reward
-        if Par.RespValid && ~Par.AutoRewardGiven
-            GiveRewardAuto;
-            Par.AutoRewardGiven = true;
-        end
-    end
+%     if Par.CurrResponse > 0 && ...
+%             isfield(Par, 'FeedbackSound') && ...
+%             isfield(Par, 'FeedbackSoundPar') && ...
+%             Par.FeedbackSound(Par.CurrResponse) && ...
+%             ~isnan(Par.FeedbackSoundPar(Par.CurrResponse,1))
+%         if Par.FeedbackSoundPar(Par.CurrResponse)
+%             try
+%                 w = warning ('off','MATLAB:audiovideo:audioplayer:noAudioOutputDevice');
+%                 RewT=0:1/Par.FeedbackSoundPar(Par.CurrResponse,1):Par.FeedbackSoundPar(Par.CurrResponse,4);
+%                 RewY=Par.FeedbackSoundPar(Par.CurrResponse,3)*sin(2*pi*Par.FeedbackSoundPar(Par.CurrResponse,2)*RewT);
+%                 sound(RewY, Par.FeedbackSoundPar(Par.CurrResponse, 1));
+%                 warning(w) % return warning settings to previous state
+%             catch
+%                 warning(w) % return warning settings to previous state
+%             end
+%         end
+%     end
+
     % no response or fix break during switch = miss
     % ~Par.ResponseGiven && ~Par.FalseResponseGiven && ...
     if Par.CurrResponse == Par.RESP_NONE            
@@ -321,6 +266,8 @@ while ~Par.ESC %===========================================================
     % Performance info on screen
     for PerformanceOnCMD=1
         if Par.PosReset
+            Log.Events.add_entry(lft, 'PosReset');
+            
             % display & write stats for this position
             fprintf(['Pos ' num2str(Par.PrevPosNr) ': T=' ...
                 num2str(Par.Trlcount(1)) ' C=' ...
@@ -339,9 +286,8 @@ while ~Par.ESC %===========================================================
             Par.Trlcount(1) = 0;
             Par.CorrStreakcount(1)=0;
             Par.PosReset=false; %start new trial when switching position
-            Log.Trial(Par.Trlcount(2)).Finished = false;
         else
-            Log.Trial(Par.Trlcount(2)).Finished = true;
+            Log.Events.add_entry(lft, 'TrialCompleted');
         end
         
         % Display total reward every x correct trials
@@ -373,26 +319,6 @@ while ~Par.ESC %===========================================================
             % reset
             Par.ResponsePos = 0*Par.ResponsePos;
         end
-    end
-
-    % LOG TRIAL INFO ------------------------------------------------------
-    for LogTrialInfo=1 % allow code folding
-        Log.Trial(Par.Trlcount(2)).TrialNr = Par.Trlcount(2);
-        Log.Trial(Par.Trlcount(2)).PosNr = Par.PosNr;
-        Log.Trial(Par.Trlcount(2)).TrialNrPos = Par.Trlcount(1);
-        Log.Trial(Par.Trlcount(2)).PreSwitchStart = ...
-            Par.PreSwitchStart-Par.ExpStart;
-        Log.Trial(Par.Trlcount(2)).SwitchStart = ...
-            Par.SwitchStart-Par.ExpStart;
-        Log.Trial(Par.Trlcount(2)).PostSwitchStart = ...
-            Par.PostSwitchStart-Par.ExpStart;
-        Log.Trial(Par.Trlcount(2)).RespTime = Par.RespTimes;
-        Log.Trial(Par.Trlcount(2)).Reward = Par.AutoRewardGiven;
-        Log.Trial(Par.Trlcount(2)).RewardAmount = Par.RewardTime;
-        Log.Trial(Par.Trlcount(2)).ManualRewards = Par.ManRewThisTrial;
-        Log.Trial(Par.Trlcount(2)).ResponseGiven = Par.ResponseGiven;
-        Log.Trial(Par.Trlcount(2)).CurrResponse = Par.CurrResponse;
-        Log.Trial(Par.Trlcount(2)).CorrectThisTrial = Par.CorrectThisTrial;
     end
     
     % Update Tracker window
@@ -564,12 +490,12 @@ end
                             %                     Par.SwitchPos = true;
                             %                     Par.WhichPos = 'Prev';
                         case Par.KeyRequireFixation
-                            if ~Par.RequireFixation;
-                                Par.RequireFixation = true;
-                                fprintf('Requiring fixation.\n')
+                            if ~Par.RequireFixationForReward;
+                                Par.RequireFixationForReward = true;
+                                fprintf('Requiring fixation for reward.\n')
                             else
-                                Par.RequireFixation = false;
-                                fprintf('Not requiring fixation.\n')
+                                Par.RequireFixationForReward = false;
+                                fprintf('Not requiring fixation for reward.\n')
                             end
                     end
                 end
@@ -689,6 +615,8 @@ end
             if Hit == 1 % eye in fix window (hit will never be 1 is tested without DAS)
                 Par.FixIn=true;
                 Par.LastFixInTime=GetSecs;
+                Stm(1).Task.fixationIn(Par.LastFixInTime);
+                
                 Par.CurrFixCol=Stm(1).Task.taskParams.FixDotCol(2,:).*Par.ScrWhite;
                 % Par.Trlcount=Par.Trlcount+1;
                 refreshtracker(3);
@@ -719,13 +647,22 @@ end
             if Hit == 1 % eye out of fix window
                 Par.FixIn=false;
                 Par.LastFixOutTime=GetSecs;
+                
+                Stm(1).Task.fixationOut(Par.LastFixOutTime);
+                
                 Par.CurrFixCol=Stm(1).Task.taskParams.FixDotCol(1,:).*Par.ScrWhite;
                 refreshtracker(1);
+                
+                Log.Events.add_entry(Par.LastFixOutTime, 'Fixation', 'Out');
             end
         end
     end
 % give automated reward
     function GiveRewardAuto
+        assert(Par.GiveRewardAmount >= 0);
+        if Par.GiveRewardAmount <= 0
+            return
+        end
         Par.RewardTimeCurrent = Par.GiveRewardAmount;
         Par.GiveRewardAmount = 0;
         

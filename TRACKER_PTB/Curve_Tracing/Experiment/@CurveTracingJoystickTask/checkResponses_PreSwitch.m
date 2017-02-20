@@ -14,7 +14,7 @@ function checkResponses_PreSwitch( obj, lft )
         Par.FalseResponseGiven=true;
         Par.RespTimes=[Par.RespTimes;
             lft-Par.ExpStart Par.RespValid];
-    elseif ~Par.FixIn && Par.RequireFixation
+    elseif ~Par.FixIn && Par.WaitForFixation
         % false
         Par.RespValid = false;
         Par.CurrResponse = Par.RESP_BREAK_FIX;
@@ -25,9 +25,9 @@ function checkResponses_PreSwitch( obj, lft )
     end
     
     if lft >= obj.currStateStart + ...
-            obj.taskParams.EventPeriods(1)/1000 + obj.params('RandomGoSwitchDelay')
+            obj.taskParams.EventPeriods(1)/1000 + obj.param('RandomGoSwitchDelay')
+        obj.goBarOrient = 2;
         obj.updateState('SWITCHED', lft);
-        obj.updateState('PRESWITCH', lft);
     end
 end
 

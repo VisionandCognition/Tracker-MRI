@@ -1,11 +1,16 @@
 function update_InitTrial(obj)
 % Setup the stimuli information that varies per trial
 global Par;
+global Log;
+
+    obj.fixationTrackStarted = false;
 
     obj.curr_stim_index = randi(size(obj.stimuli_params, 1), 1);
     curr_stim = table2cell(obj.stimuli_params(obj.curr_stim_index, :));
     obj.curr_stim = containers.Map(...
         obj.stimuli_params.Properties.VariableNames, curr_stim);
+    
+    Log.Events.add_entry(nan, 'NewStimulus', obj.curr_stim_index);
     
     % Allow for PawIndSizePix to be changed per trial
     obj.set_param('PawIndSizePix', ...
@@ -56,5 +61,8 @@ global Par;
         assert(strcmp(targetShape, 'Diamond')==STR_IDENTICAL)
         obj.set_param('Target', 2);
     end
+    
+    obj.set_param('RandomGoSwitchDelay', ...
+        rand(1)*obj.taskParams.EventPeriods(2)/1000);
     
 end 
