@@ -65,16 +65,17 @@ Params.FixPositionsDeg{4} = [4 0]; % deg from center (-=left/down)
 Params.FixPositionsDeg{5} = [0 4]; % deg from center (-=left/down)
 
 % Stimulus specific timing (in ms)
-Params.SwitchDur = 5000; % (200) duration of alternative orientation
+Params.SwitchDur = 1300; % (200) duration of alternative orientation
 
 % set time-windows in which something can happen (ms)
 % [baseduration_without_switch ... 
 %  period_in_which_switch_randomly_occurs ...
 %  post_switch_duration_in_which_nothing_happens]
-%Stm(1).EventPeriods = [2500 1500 300];
-%Stm(1).EventPeriods = [1400 2100 300];
-Params.EventPeriods = [1800 1600 300];
-% Stm(1).EventPeriods = [500 0 300];
+Params.prefixPeriod = 200;  % just for fixation task
+%Params.EventPeriods = [1800 1600 300];
+Params.EventPeriods = [3000 0 300];
+Params.fixationPeriod = 4500;  % just for fixation task
+Params.postfixPeriod = 300;  % just for fixation task
 
 
 Stm(1).ShowDistractBar = true; % show vertical bar [toggle with "D" key]
@@ -88,25 +89,22 @@ Params.BreakDuration = 1000; % 1500 additional waiting period for early / false 
 Stm(1).ProbConsolatoryReward = 0.01;
 Stm(1).ProbFixationReward = 0.0;
 
-Stm(1).TASK_TARGET_AT_CURVE = 0;
-Stm(1).TASK_TARGET_AT_FIX = 1;
-Stm(1).TASK_TARGET_AT_CURVE_NO_DISTRACTOR = 2;
-Stm(1).TASK_TARGET_AT_FIX_NO_DISTRACTOR = 3;
-Stm(1).TASK_FIXED_TARGET_LOCATIONS = 4; % Red diamond on left, green square on right
-Stm(1).TaskNames_1 = {'Curve tracing', 'Control task', ...
-    'Curve tracing w/o distractor', 'Control task w/o distractor', ...
-    'Fixed cue location task' ...
-    };
-Stm(1).TaskName = @(i) Stm(1).TaskNames_1{i+1};
-
 Params.CurveAnglesAtFP = [ 180; 180; 0; 0];
 
 Params.PawIndSizeDeg = 2.5;
+Params.BlockSize = 3;
+Params.rewardMultiplier = 1.0;
+FixParams = Params;
+FixParams.rewardMultiplier = 0.25;
 
-Stm(1).TasksToCycle = [...
-    CurveTracingJoystickTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv')];
-Stm(1).TaskCycleInd = 1;
-Stm(1).Task = Stm(1).TasksToCycle(Stm(1).TaskCycleInd);
+ctjt = CurveTracingJoystickTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
+Stm(1).tasksToCycle = {...
+    FixationTask(FixParams), ...
+    ctjt, ...
+    ctjt, ...
+    };
+Stm(1).taskCycleInd = 1;
+Stm(1).task = Stm(1).tasksToCycle{Stm(1).taskCycleInd};
 
 % Write stimulus settings to global variable StimObj
 StimObj.Stm = Stm;

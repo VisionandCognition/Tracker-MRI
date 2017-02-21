@@ -33,7 +33,7 @@ function checkResponses_PostSwitch(obj, lft)
         %Don't break trial, this would speed it up and be positive
     end
     
-    if lft >= obj.stateStart.POSTSWITCH + Stm(1).Task.taskParams.EventPeriods(3)/1000 
+    if lft >= obj.stateStart.POSTSWITCH + Stm(1).task.taskParams.EventPeriods(3)/1000 
         obj.updateState('TRIAL_END', lft);
     end
 end

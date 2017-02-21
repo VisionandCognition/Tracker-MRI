@@ -16,7 +16,7 @@ global Par
             Screen('FillRect',Par.window, 0.0 .* Par.ScrWhite);
         end
     end
-    if ~Par.BeamLIsBlocked && ~Par.BeamRIsBlocked && ~Par.Paused
+    if ~Par.Paused % ~Par.BeamLIsBlocked && ~Par.BeamRIsBlocked && 
         % Draw fixation dot
         obj.drawFix();
     end

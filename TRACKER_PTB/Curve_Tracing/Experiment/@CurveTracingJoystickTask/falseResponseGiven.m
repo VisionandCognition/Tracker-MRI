@@ -8,7 +8,7 @@ function falseResponseGiven(obj, lft)
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
         Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
         
-        Log.Events.add_entry(lft, 'ResponseGiven', 'FALSE');
+        Log.events.add_entry(lft, 'ResponseGiven', 'FALSE');
     end
     Par.FalseResponseGiven=true;
 end

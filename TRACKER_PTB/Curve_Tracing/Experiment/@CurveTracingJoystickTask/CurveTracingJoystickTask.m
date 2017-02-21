@@ -1,9 +1,9 @@
-classdef CurveTracingJoystickTask < handle
-    % CurveTracingTask The curve tracing task.
+classdef CurveTracingJoystickTask < FixationTrackingTask
+    % CURVETRACINGTASK The curve tracing task.
     properties (Constant)
         taskName = 'Curve tracing'
     end
-    properties (Access = private)
+    properties (Access = protected)
         stimuli_params; % parameters for each individual stimulus
         curr_stim_index = -1;
         curr_stim = NaN;
@@ -12,29 +12,10 @@ classdef CurveTracingJoystickTask < handle
         stateStart = struct('SWITCHED', -Inf);
         goBarOrient =  1; % 1=default, 2=switched
         
-        % Always log fixation, "tracking" here means calculating amount of
-        % fix-in and fix-out time.
-        fixationTrackStarted = false; % updated depending on state
-        fixIn = nan;
-        fixInTime = nan;
-        fixOutTime = nan;
-        trialFixS = 0.0; % seconds spent fixating in current trial
-        trialNoFixS = 0.0; % seconds spent not fixating in current trial
+        iTrialOfBlock = 0;
     end
     properties (Access = public)
         taskParams; % parameters that apply to every stimulus
-    end
-    methods (Access = private)
-        update_InitTrial(obj);
-        update_PrepareStim(obj);
-        update_PreOrPostSwitch(obj);
-        
-        checkResponses_PreFixation(obj, lft);
-        checkResponses_PreSwitch(obj, lft);
-        checkResponses_Switched(obj, lft);
-        
-        correctResponseGiven(obj, lft);
-        falseResponseGiven(obj, lft)
     end
     methods
         function time = stateStartTime(obj, state)
@@ -47,43 +28,7 @@ classdef CurveTracingJoystickTask < handle
             obj.taskParams = commonParams;
             obj.stimuli_params = readtable(stimuliParams);
         end
-        
-        function fixationIn(obj, time)
-            global Log;
-        	Log.Events.add_entry(time, 'Fixation', 'In');
-            
-            % function should only be called if previously not fixating
-            assert(isnan(obj.fixIn) || ~obj.fixIn);
-            obj.fixIn = true;
-            
-            if obj.fixationTrackStarted
-                obj.fixInTime = time;
-                assert(~isnan(obj.fixOutTime))
-                obj.trialFixS = obj.trialFixS + (obj.fixInTime - obj.fixOutTime);
-            end
-        end
-        function fixationOut(obj, time)
-            global Log;
-        	Log.Events.add_entry(time, 'Fixation', 'Out');
-            
-            % function should only be called if previously fixating
-            assert(isnan(obj.fixIn) || obj.fixIn);
-            obj.fixIn = false;
-            
-            if obj.fixationTrackStarted
-                obj.fixOutTime = time;
-                assert(~isnan(obj.fixInTime))
-                obj.trialNoFixS = obj.trialNoFixS + (obj.fixOutTime - obj.fixInTime);
-            end
-        end
-        function stopTrackingFixationTime(obj, time)
-            obj.fixationTrackStarted = false;
-            if obj.fixIn
-                obj.trialFixS = obj.trialFixS + (time - obj.fixInTime);
-            else
-                obj.trialNoFixS = obj.trialNoFixS + (time - obj.fixOutTime);
-            end
-        end
+
         drawFix(obj);
         drawBackgroundFixPoint(obj);
         drawCurve(obj, pos, connection1, connection2, indpos, Par, Stm);
@@ -94,36 +39,29 @@ classdef CurveTracingJoystickTask < handle
         function updateState(obj, state, time)
             global Log;
             obj.state = state;
-
             obj.currStateStart = time;
             obj.stateStart.(obj.state) = time;
-            Log.Events.add_entry(time, 'NewState', obj.state);
+            
+            Log.events.save_next_flip();
+            Log.events.add_entry(time, 'DecideNewState', obj.state);
+            Log.events.queue_entry('NewState', obj.state);
 
-            fprintf('New state: %s\n', state);
+            obj.update();
+            %fprintf('New state: %s\n', state);
         end
-        function isend = endOfTrial(obj)
+        function isEnd = endOfTrial(obj)
             STR_IDENTICAL = true;
             % temporary
-            isend = (strcmp(obj.state, 'POSTSWITCH') == STR_IDENTICAL);
+            isEnd = (strcmp(obj.state, 'POSTSWITCH') == STR_IDENTICAL);
         end
-        
-        function update(obj)
-            switch obj.state
-                case 'PREPARE_STIM'
-                    obj.update_PrepareStim();
-                case 'INIT_TRIAL'
-                    obj.update_InitTrial();
-                case 'PREFIXATION'
-                case 'PRESWITCH'
-                    obj.update_PreOrPostSwitch();
-                case 'SWITCHED'
-                    obj.update_PreOrPostSwitch();
-                case 'POSTSWITCH'
-                    obj.update_PreOrPostSwitch();
-                otherwise
-                    print(obj.state)
+        function isEnd = endOfBlock(obj)
+            if ~obj.endOfTrial()
+                isEnd = false;
+            else
+                isEnd = obj.iTrialOfBlock >= obj.param('BlockSize');
             end
         end
+        
         function checkResponses(obj, lft)
             switch obj.state
                 case 'PREPARE_STIM'
@@ -172,7 +110,33 @@ classdef CurveTracingJoystickTask < handle
             obj.curr_stim(var) = val;
         end
     end
-    methods(Static)
+    methods (Access = protected)
+        function update(obj)
+            switch obj.state
+                case 'PREPARE_STIM'
+                    obj.update_PrepareStim();
+                case 'INIT_TRIAL'
+                    obj.update_InitTrial();
+                case 'PREFIXATION'
+                case 'PRESWITCH'
+                    obj.update_PreOrPostSwitch();
+                case 'SWITCHED'
+                    obj.update_PreOrPostSwitch();
+                case 'POSTSWITCH'
+                    obj.update_PreOrPostSwitch();
+            end
+        end
+        
+        update_InitTrial(obj);
+        update_PrepareStim(obj);
+        update_PreOrPostSwitch(obj);
+        
+        checkResponses_PreFixation(obj, lft);
+        checkResponses_PreSwitch(obj, lft);
+        checkResponses_Switched(obj, lft);
+        
+        correctResponseGiven(obj, lft);
+        falseResponseGiven(obj, lft);
     end
     
 end

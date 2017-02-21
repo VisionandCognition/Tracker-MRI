@@ -7,14 +7,9 @@ function drawFix(obj)
     rect=[...
         fix_pos - dot_radius, ...
         fix_pos + dot_radius];
+    
     if Par.RequireFixationForReward
-        if isnan(obj.fixIn)
-            fixCol = obj.taskParams.FixDotCol(Par.FixIn+1,:).*Par.ScrWhite;
-        else
-            fixCol = obj.taskParams.FixDotCol(obj.fixIn+1,:).*Par.ScrWhite;
-        end
-        
-        % Par.CurrFixCol can vary 
+        fixCol = obj.taskParams.FixDotCol(Par.FixIn+1,:).*Par.ScrWhite;
         Screen('FillOval',Par.window, fixCol, rect);
     else
         Screen('FillOval',Par.window, ...

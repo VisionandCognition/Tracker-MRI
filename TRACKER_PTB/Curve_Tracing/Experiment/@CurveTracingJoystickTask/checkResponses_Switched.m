@@ -45,6 +45,12 @@ function checkResponses_Switched(obj, lft)
     end
     
     if lft >= obj.stateStart.SWITCHED + obj.param('SwitchDur')/1000
+        
+        obj.stopTrackingFixationTime(lft); % might have already been called
+        fixInRatio = obj.fixation_ratio();
+        fprintf('Fixation ratio: %0.2f  (in: %0.1f, out: %0.1f)\n', fixInRatio, ...
+            obj.time_fixating(), obj.time_not_fixating());
+    
         obj.updateState('POSTSWITCH', lft);
         obj.goBarOrient = 1;
     end

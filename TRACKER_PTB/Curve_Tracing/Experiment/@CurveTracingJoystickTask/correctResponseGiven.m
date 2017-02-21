@@ -12,12 +12,12 @@ function correctResponseGiven(obj, lft)
     RewardAmount = 0;
 
     if Par.RequireFixationForReward
-        % Check obj.trialFixS / (obj.trialFixS + obj.trialNoFixS);
-        fixInRatio = obj.trialFixS / (obj.trialNoFixS + obj.trialFixS);
-        fprintf('Fixation ratio: %0.2f\n', fixInRatio);
-        thresh = 1.0;
-        if fixInRatio >= thresh
+        fixInRatio = obj.fixation_ratio();
+
+        if fixInRatio >= 1.0
             RewardAmount = Par.GiveRewardAmount + Par.RewardTime;
+        else
+            RewardAmount = Par.GiveRewardAmount + Par.RewardTime * fixInRatio^6.7;
         end
     else
         RewardAmount = Par.GiveRewardAmount + Par.RewardTime;
@@ -29,8 +29,8 @@ function correctResponseGiven(obj, lft)
         Par.CorrectThisTrial=true;
         
         Par.GiveRewardAmount = Par.GiveRewardAmount + RewardAmount;
-        Log.Events.add_entry(lft, 'ResponseGiven', 'CORRECT');
-        Log.Events.add_entry(lft, 'ResponseReward', RewardAmount);
+        Log.events.add_entry(lft, 'ResponseGiven', 'CORRECT');
+        Log.events.add_entry(lft, 'ResponseReward', RewardAmount);
     end
     Par.ResponseGiven=true;
     Par.CorrStreakcount=Par.CorrStreakcount+1;

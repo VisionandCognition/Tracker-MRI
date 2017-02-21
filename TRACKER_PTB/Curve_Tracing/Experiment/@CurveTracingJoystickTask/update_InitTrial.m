@@ -3,14 +3,13 @@ function update_InitTrial(obj)
 global Par;
 global Log;
 
-    obj.fixationTrackStarted = false;
-
+    obj.iTrialOfBlock = mod(obj.iTrialOfBlock, obj.param('BlockSize')) + 1;
     obj.curr_stim_index = randi(size(obj.stimuli_params, 1), 1);
     curr_stim = table2cell(obj.stimuli_params(obj.curr_stim_index, :));
     obj.curr_stim = containers.Map(...
         obj.stimuli_params.Properties.VariableNames, curr_stim);
     
-    Log.Events.add_entry(nan, 'NewStimulus', obj.curr_stim_index);
+    Log.events.add_entry(nan, 'NewStimulus', obj.curr_stim_index);
     
     % Allow for PawIndSizePix to be changed per trial
     obj.set_param('PawIndSizePix', ...

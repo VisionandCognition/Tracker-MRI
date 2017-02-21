@@ -1,5 +1,6 @@
  function [lft] = drawStimuli(obj, lft)
  global Par;
+ global Log;
  
     if strcmp(obj.state, 'PREFIXATION')==1
         obj.drawBackgroundFixPoint();
@@ -11,7 +12,7 @@
     % Background
     Screen('FillRect', Par.window, obj.param('BGColor').*Par.ScrWhite);
 
-    obj.update();
+    obj.update(); % Redundant?
 
     obj.drawFix();
 
@@ -33,5 +34,6 @@
     Screen('FillRect', Par.window, obj.taskParams.GoBarColor .* Par.ScrWhite, rect);
     
     % Draw on screen
-    lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
+    lft = Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
+    Log.events.screen_flip(lft);
 end

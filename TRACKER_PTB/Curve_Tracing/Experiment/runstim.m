@@ -60,15 +60,14 @@ Stm = StimObj.Stm;
 Screen('FillRect',Par.window, Par.BG .* Par.ScrWhite);
 lft=Screen('Flip', Par.window);
 
-Log.Events = EventLog;
-Stm(1).Task.updateState('PREPARE_STIM', lft);
-
+Log.events = EventLog;
 %% Stimulus preparation ===================================================
-for PrepareStim=1
-    Stm(1).Task.update();
-end % allow code-folding
+for i = 1:length(Stm(1).tasksToCycle)
+    Stm(1).tasksToCycle{i}.updateState('PREPARE_STIM', lft);
+end
 
-Stm(1).Task.updateState('INIT_EXPERIMENT', lft);
+
+Stm(1).task.updateState('INIT_EXPERIMENT', lft);
 %% Code Control Preparation ===============================================
 for CodeControl=1 %allow code folding
     % Some intitialization of control parameters
@@ -128,8 +127,9 @@ end
 %% MRI triggered start
 Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
 lft=Screen('Flip', Par.window);
+Log.events.screen_flip(lft);
 if Par.MRITriggeredStart
-    Log.Events.add_entry(GetSecs, 'MRI_Trigger', 'Waiting');
+    Log.events.add_entry(GetSecs, 'MRI_Trigger', 'Waiting');
     fprintf('Waiting for MRI trigger (or press ''t'' on keyboard)\n');
     while ~Log.MRI.TriggerReceived
         CheckKeys;
@@ -137,14 +137,18 @@ if Par.MRITriggeredStart
         %lft=Screen('Flip', Par.window);
     end
     fprintf(['MRI trigger received after ' num2str(GetSecs-Par.ExpStart) ' s\n']);
-    Log.Events.add_entry(GetSecs, 'MRI_Trigger', 'Received');
+    Log.events.add_entry(GetSecs, 'MRI_Trigger', 'Received');
 end
 
 %% Stimulus presentation loop =============================================
 % keep doing this until escape is pressed or stop is clicked
 % Structure: preswitch_period-switch_period/switched_duration-postswitch
 while ~Par.ESC %===========================================================
-    Stm(1).Task.updateState('INIT_TRIAL', lft);
+    if Stm(1).task.endOfBlock()
+        Stm(1).taskCycleInd = mod(Stm(1).taskCycleInd, length(Stm(1).tasksToCycle))+1;
+        Stm(1).task = Stm(1).tasksToCycle{Stm(1).taskCycleInd};
+    end
+    Stm(1).task.updateState('INIT_TRIAL', lft);
     
     while ~Par.FirstInitDone
         %set control window positions and dimensions
@@ -165,18 +169,13 @@ while ~Par.ESC %===========================================================
         Par.LastFixInTime=0;
         Par.LastFixOutTime=0;
         Par.FixIn=false; %initially set to 'not fixating'
-        Par.CurrFixCol=Stm(1).Task.taskParams.FixDotCol(1,:).*Par.ScrWhite;
         Par.FirstInitDone=true;
         Par.FixInOutTime=[0 0];
         Log.StartBlock=lft;
         lft=Screen('Flip', Par.window);  %initial flip to sync up timing
         nf=0;
-        if TestRunstimWithoutDAS; Hit=0; end
         Par.LastRewardTime = GetSecs;
     end
-    
-    % State == INIT_TRIAL
-    Stm(1).Task.update();
        
     Par.Trlcount = Par.Trlcount+1; %keep track of trial numbers
     Par.AutoRewardGiven=false;
@@ -200,18 +199,19 @@ while ~Par.ESC %===========================================================
     CheckFixation;
     
     % Wait for fixation --------------------------------------------------
-    Stm(1).Task.updateState('PREFIXATION', lft);
+    Stm(1).task.updateState('PREFIXATION', lft);
     Par.FixStart=Inf;
+    fprintf('Start %s task\n', Stm(1).task.taskName);
     
     % ---------------------------------------------------------------------
     % Go through all of the different states of the current trial
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    while ~Stm(1).Task.endOfTrial() && ~Par.PosReset && ~Par.ESC && ~Par.BreakTrial
+    while ~Stm(1).task.endOfTrial() && ~Par.PosReset && ~Par.ESC && ~Par.BreakTrial
         
         CheckManual;
-        Stm(1).Task.checkResponses(lft);
+        Stm(1).task.checkResponses(GetSecs);
         CheckKeys;
-        lft = Stm(1).Task.drawStimuli(lft);
+        lft = Stm(1).task.drawStimuli(lft);
         
         CheckFixation;
         CheckTracker; % Get and plot eye position
@@ -224,36 +224,16 @@ while ~Par.ESC %===========================================================
         end
         
         % Check eye position
-        if ~TestRunstimWithoutDAS
-            dasrun(5);
-            [Hit, Time] = DasCheck;
-        end
+        %CheckTracker(); % just for plotting
+        CheckFixation;
         
         % give automated reward
-        if Par.RespValid && ~Par.AutoRewardGiven
+        if Par.GiveRewardAmount > 0 % Par.RespValid && ~Par.AutoRewardGiven
             GiveRewardAuto;
             Par.AutoRewardGiven = true;
         end
     end
     
-%     if Par.CurrResponse > 0 && ...
-%             isfield(Par, 'FeedbackSound') && ...
-%             isfield(Par, 'FeedbackSoundPar') && ...
-%             Par.FeedbackSound(Par.CurrResponse) && ...
-%             ~isnan(Par.FeedbackSoundPar(Par.CurrResponse,1))
-%         if Par.FeedbackSoundPar(Par.CurrResponse)
-%             try
-%                 w = warning ('off','MATLAB:audiovideo:audioplayer:noAudioOutputDevice');
-%                 RewT=0:1/Par.FeedbackSoundPar(Par.CurrResponse,1):Par.FeedbackSoundPar(Par.CurrResponse,4);
-%                 RewY=Par.FeedbackSoundPar(Par.CurrResponse,3)*sin(2*pi*Par.FeedbackSoundPar(Par.CurrResponse,2)*RewT);
-%                 sound(RewY, Par.FeedbackSoundPar(Par.CurrResponse, 1));
-%                 warning(w) % return warning settings to previous state
-%             catch
-%                 warning(w) % return warning settings to previous state
-%             end
-%         end
-%     end
-
     % no response or fix break during switch = miss
     % ~Par.ResponseGiven && ~Par.FalseResponseGiven && ...
     if Par.CurrResponse == Par.RESP_NONE            
@@ -266,7 +246,7 @@ while ~Par.ESC %===========================================================
     % Performance info on screen
     for PerformanceOnCMD=1
         if Par.PosReset
-            Log.Events.add_entry(lft, 'PosReset');
+            Log.events.add_entry(lft, 'PosReset');
             
             % display & write stats for this position
             fprintf(['Pos ' num2str(Par.PrevPosNr) ': T=' ...
@@ -287,7 +267,7 @@ while ~Par.ESC %===========================================================
             Par.CorrStreakcount(1)=0;
             Par.PosReset=false; %start new trial when switching position
         else
-            Log.Events.add_entry(lft, 'TrialCompleted');
+            Log.events.add_entry(lft, 'TrialCompleted');
         end
         
         % Display total reward every x correct trials
@@ -295,7 +275,7 @@ while ~Par.ESC %===========================================================
                 mod(Par.Response(Par.RESP_CORRECT),10) == 0 && ...
                 Par.Response(Par.RESP_CORRECT) > 0
             
-            fprintf(['\nTask: ' Stm(1).Task.taskName '\n']);
+            fprintf(['\nTask: ' Stm(1).task.taskName '\n']);
         
 
             Log.TCMFR = [Log.TCMFR; ...
@@ -346,7 +326,7 @@ end
 %% Clean up and Save Log ==================================================
 for CleanUp=1 % code folding
     % Empty the screen
-    Screen('FillRect',Par.window,Stm(1).Task.param('BGColor').*Par.ScrWhite);
+    Screen('FillRect',Par.window,Stm(1).task.param('BGColor').*Par.ScrWhite);
     lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
     if ~TestRunstimWithoutDAS
         dasjuice(0); %stop reward if its running
@@ -378,9 +358,9 @@ end
         FIX = 0;  %this is the fixation window
         TALT = 1; %this is an alternative/erroneous target window --> not used
         TARG = 2; %this is the correct target window --> not used
-        FixWinSizePix = Stm(1).Task.param('FixWinSizePix');
+        FixWinSizePix = Stm(1).task.param('FixWinSizePix');
         Par.WIN = [...
-            Stm(1).Task.taskParams.FixPositionsPix(Par.PosNr,:), ...
+            Stm(1).task.taskParams.FixPositionsPix(Par.PosNr,:), ...
             FixWinSizePix, ...
             FixWinSizePix, FIX]';
         refreshtracker( 1) %clear tracker screen and set fixation and target windows
@@ -542,7 +522,7 @@ end
             end
         end
         
-        if Stm(1).Task.taskParams.NumBeams >= 2
+        if Stm(1).task.taskParams.NumBeams >= 2
             %check the incoming signal on DAS channel #4 (#5 base 1)
             % NB dasgetlevel only starts counting at the third channel (#2)
             % Right / Secondary beam
@@ -603,21 +583,14 @@ end
             % Load retinotopic mapping stimuli - none to load
             LoadStimuli=false;
             
-            % Draw fixation dot
-            Stm(1).Task.drawFix();
-            
             % Check eye position
-            if ~TestRunstimWithoutDAS
-                dasrun(5);
-                [Hit, ~] = DasCheck;
-            end
+            fixChange = CheckTracker;
             
-            if Hit == 1 % eye in fix window (hit will never be 1 is tested without DAS)
+            if fixChange % eye in fix window (hit will never be 1 is tested without DAS)
                 Par.FixIn=true;
                 Par.LastFixInTime=GetSecs;
-                Stm(1).Task.fixationIn(Par.LastFixInTime);
+                Stm(1).task.fixation_in(Par.LastFixInTime);
                 
-                Par.CurrFixCol=Stm(1).Task.taskParams.FixDotCol(2,:).*Par.ScrWhite;
                 % Par.Trlcount=Par.Trlcount+1;
                 refreshtracker(3);
             end
@@ -634,26 +607,19 @@ end
             Par.CheckFixOut=true;
             Par.CheckTarget=false;
             
-            % Draw fixation dot
-            Stm(1).Task.drawFix();
-            
             % Check eye position
             % DasCheck
-            if ~TestRunstimWithoutDAS
-                dasrun(5);
-                [Hit, ~] = DasCheck;
-            end
+            fixChange = CheckTracker;
             
-            if Hit == 1 % eye out of fix window
+            if fixChange % eye out of fix window
                 Par.FixIn=false;
                 Par.LastFixOutTime=GetSecs;
                 
-                Stm(1).Task.fixationOut(Par.LastFixOutTime);
+                Stm(1).task.fixation_out(Par.LastFixOutTime);
                 
-                Par.CurrFixCol=Stm(1).Task.taskParams.FixDotCol(1,:).*Par.ScrWhite;
                 refreshtracker(1);
                 
-                Log.Events.add_entry(Par.LastFixOutTime, 'Fixation', 'Out');
+                Log.events.add_entry(Par.LastFixOutTime, 'Fixation', 'Out');
             end
         end
     end
@@ -728,9 +694,14 @@ end
         
     end
 % check and update eye info in tracker window
-    function CheckTracker
-        dasrun(5);
-        DasCheck;
+    function fixChange = CheckTracker
+        if TestRunstimWithoutDAS
+            fixChange = false;
+        else
+            dasrun(5);
+            [fixChange, ~] = DasCheck;
+            fixChange = fixChange ~= 0;
+        end
     end
 
 

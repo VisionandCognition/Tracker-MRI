@@ -1,28 +1,16 @@
-function checkResponses_PreFixation( obj, lft )
+function checkResponses_PreFixation( obj, time )
 %CHECKRESPONSES_PREFIXATION Helper function for CheckResponses.
 
     global Par;
     global Log;
 
-    if Par.FixIn || ~Par.WaitForFixation
+    if time > obj.stateStart.PREFIXATION + obj.taskParams.prefixPeriod/1000 ...
+            && (Par.FixIn || ~Par.WaitForFixation)
         % The subject "should" be fixating now, start tracking time
-        obj.fixationTrackStarted = true;
-        Log.Events.add_entry(lft, 'FixationTracking', 'Start');
-        
-        obj.trialFixS = 0.0; % seconds spent fixating in current trial
-        obj.trialNoFixS = 0.0;
+        Log.events.add_entry(time, 'FixationTracking', 'Start');
 
-        if Par.FixIn
-            obj.updateState('FIXATING', lft);
-            obj.fixIn = true;
-            obj.fixInTime = lft;
-            obj.fixOutTime = nan;
-        else
-            obj.fixIn = false;
-            obj.fixOutTime = lft;
-            obj.fixInTime = nan;
-        end
-        obj.updateState('PRESWITCH', lft);
+        obj.startTrackingFixationTime(time, Par.FixIn);
+        obj.updateState('PRESWITCH', time);
     end
 end
 

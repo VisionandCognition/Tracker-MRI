@@ -12,10 +12,7 @@ global Par;
         round(obj.taskParams.FixWinSizeDeg*Par.PixPerDeg);
     obj.taskParams.FixDotSizePix = ...
         round(obj.taskParams.FixDotSizeDeg*Par.PixPerDeg);
-    
-    % Bar
-    obj.taskParams.GoBarSizePix = round(obj.taskParams.GoBarSizeDeg.*Par.PixPerDeg);
-    
+        
     obj.taskParams.FixPositionsPix = zeros(...
         size(obj.taskParams.FixPositionsDeg,2), 2);
     for i=1:size(obj.taskParams.FixPositionsDeg,2);
