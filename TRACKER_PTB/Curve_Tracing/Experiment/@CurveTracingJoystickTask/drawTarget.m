@@ -1,7 +1,7 @@
-function drawTarget(obj, color, offset, which_side)
+function drawTarget(obj, color, offset, which_side, pawIndSizePix)
 global Par
 
-    pawIndSizePix = obj.param('PawIndSizePix');        
+    %pawIndSizePix = obj.param('PawIndSizePix');
     pawIndCol = obj.param('PawIndCol');
 
     if length(color) == 1

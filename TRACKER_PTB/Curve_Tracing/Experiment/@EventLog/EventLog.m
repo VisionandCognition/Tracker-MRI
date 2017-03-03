@@ -6,31 +6,40 @@ classdef EventLog < handle
         log = [];
         queue = [];
         saveNextFlipTime = false;
+        beginExpTime = 0;
     end
     
     methods
-        function add_entry(obj, time, event, info )
+        function begin_experiment(obj, time)
+            obj.beginExpTime = time;
+            obj.add_entry(time, 'NA', 'BeginExperiment');
+        end
+        function add_entry(obj, time, task, event, info )
+            assert(isnumeric(time))
             nEvents = length(obj.log)+1;
             obj.log(nEvents).time = time;
+            obj.log(nEvents).task = task;
             obj.log(nEvents).type = event;
-            if nargin >= 4
+            if nargin >= 5
                 obj.log(nEvents).info = info;
             end
         end
-        function queue_entry(obj, event, info )
+        function queue_entry(obj, task, event, info )
             nEvents = length(obj.queue)+1;
+            obj.queue(nEvents).task = task;
             obj.queue(nEvents).type = event;
-            if nargin >= 3
+            if nargin >= 4
                 obj.queue(nEvents).info = info;
             end
         end
         function save_next_flip(obj)
             obj.saveNextFlipTime = true;
         end
-        function screen_flip(obj, time)
+        function screen_flip(obj, time, taskName)
+            assert(isnumeric(time))
             obj.timestamp_queue(time);
             if obj.saveNextFlipTime
-                obj.add_entry(obj, time, 'ScreenUpdate');
+                obj.add_entry(time, taskName, 'ScreenUpdate');
                 obj.saveNextFlipTime = false;
             end
         end
@@ -39,18 +48,23 @@ classdef EventLog < handle
         end
         function write_csv(obj, filename)
             fid = fopen(filename, 'w');
-            fprintf(fid,'time,event,info\n');
+            fprintf(fid,'time,task,event,info\n');
             for e = 1:length(obj.log)
-                fprintf(fid,'%f,"%s","%s"\n', ...
-                    obj.log(e).time, obj.log(e).type, obj.log(e).info);
+                line = sprintf('%0.1f,"%s","%s","%s"\n', ...
+                    1000*(obj.log(e).time - obj.beginExpTime), ...
+                    obj.log(e).task, ...
+                    obj.log(e).type, ...
+                    obj.log(e).info);
+                fprintf(fid, line);
             end
             fclose(fid);
         end
     end
     methods(Access = protected)
         function timestamp_queue(obj, time)
+            assert(isnumeric(time))
             for e = 1:length(obj.queue)
-                obj.add_entry(time, obj.queue(e).type, obj.queue(e).info)
+                obj.add_entry(time, obj.queue(e).task, obj.queue(e).type, obj.queue(e).info)
             end
             obj.queue = [];
         end

@@ -7,11 +7,11 @@ function checkResponses_Switched(obj, lft)
         lft >= obj.stateStart.SWITCHED + obj.taskParams.ResponseAllowed(1)/1000 && ...
         lft < obj.stateStart.SWITCHED + obj.taskParams.ResponseAllowed(2)/1000
         % correct
-        if ~obj.param('RequireSpecificPaw') || Par.NewResponse == obj.param('Target')
+        if ~obj.param('RequireSpecificPaw') || Par.NewResponse == obj.param('iTargetShape')
             
             obj.correctResponseGiven(lft);
             
-        else %if ~obj.param('RequireSpecificPaw') || Par.NewResponse ~= obj.param('Target')
+        else %if ~obj.param('RequireSpecificPaw') || Par.NewResponse ~= obj.param('iTargetShape')
             
             obj.falseResponseGiven(lft)
             
@@ -22,8 +22,10 @@ function checkResponses_Switched(obj, lft)
         % false
         Par.RespValid = false;
         if lft < obj.stateStart.SWITCHED+obj.taskParams.ResponseAllowed(2)/1000
+            obj.curr_response = 'early';
             Par.CurrResponse = Par.RESP_EARLY;
         else
+            obj.curr_response = 'miss';
             Par.CurrResponse = Par.RESP_MISS;
         end
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
@@ -33,6 +35,7 @@ function checkResponses_Switched(obj, lft)
             lft-Par.ExpStart Par.RespValid];
     elseif ~Par.FixIn && Par.WaitForFixation
         % false
+        obj.curr_response = 'break_fix';
         Par.CurrResponse = Par.RESP_BREAK_FIX;
         Par.RespValid = false;
         if ~Par.ResponseGiven && ~Par.FalseResponseGiven %only log once
@@ -44,7 +47,8 @@ function checkResponses_Switched(obj, lft)
         Par.BreakTrial=true;
     end
     
-    if lft >= obj.stateStart.SWITCHED + obj.param('SwitchDur')/1000
+    if lft >= obj.stateStart.SWITCHED + obj.param('SwitchDur')/1000 || ...
+            Par.EndTrialOnResponse && ~strcmp(obj.curr_response, 'none')
         
         obj.stopTrackingFixationTime(lft); % might have already been called
         fixInRatio = obj.fixation_ratio();
@@ -52,9 +56,6 @@ function checkResponses_Switched(obj, lft)
             obj.time_fixating(), obj.time_not_fixating());
     
         obj.updateState('POSTSWITCH', lft);
-        obj.goBarOrient = 1;
     end
-    %        ~Par.PosReset && ~Par.ESC && ~Par.BreakTrial && ...
-    %        (Par.CurrResponse ~= Par.RESP_CORRECT)
 end
 

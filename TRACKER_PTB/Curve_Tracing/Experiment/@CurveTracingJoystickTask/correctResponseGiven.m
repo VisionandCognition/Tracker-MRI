@@ -7,9 +7,11 @@ function correctResponseGiven(obj, lft)
     end
 
     Par.RespValid = true;
+    fprintf('%.0f ms\n', 1000*(lft - obj.stateStart.SWITCHED));
+    
+    obj.curr_response = 'correct';
     Par.CurrResponse = Par.RESP_CORRECT;
     obj.stopTrackingFixationTime(lft);
-    RewardAmount = 0;
 
     if Par.RequireFixationForReward
         fixInRatio = obj.fixation_ratio();
@@ -17,7 +19,7 @@ function correctResponseGiven(obj, lft)
         if fixInRatio >= 1.0
             RewardAmount = Par.GiveRewardAmount + Par.RewardTime;
         else
-            RewardAmount = Par.GiveRewardAmount + Par.RewardTime * fixInRatio^6.7;
+            RewardAmount = Par.GiveRewardAmount + Par.RewardTime * fixInRatio; %^6.7;
         end
     else
         RewardAmount = Par.GiveRewardAmount + Par.RewardTime;
@@ -29,8 +31,8 @@ function correctResponseGiven(obj, lft)
         Par.CorrectThisTrial=true;
         
         Par.GiveRewardAmount = Par.GiveRewardAmount + RewardAmount;
-        Log.events.add_entry(lft, 'ResponseGiven', 'CORRECT');
-        Log.events.add_entry(lft, 'ResponseReward', RewardAmount);
+        Log.events.add_entry(lft, obj.taskName, 'ResponseGiven', 'CORRECT');
+        Log.events.add_entry(lft, obj.taskName, 'ResponseReward', RewardAmount);
     end
     Par.ResponseGiven=true;
     Par.CorrStreakcount=Par.CorrStreakcount+1;

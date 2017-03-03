@@ -7,6 +7,9 @@ function drawCurve(obj, indpos)
     end
     pos = obj.param('PawIndOffsetPix');
     pos = pos(indpos,:);  % Matlab doesn't allow indexing on returned values
+    if all(pos==0) % if target is at fixation point, don't draw curve!
+        return;
+    end
     connection1 = obj.param('Connection1');
     connection1 = connection1(indpos);
     connection2 = obj.param('Connection2');

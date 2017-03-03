@@ -19,5 +19,5 @@
     
     % Draw on screen
     lft = Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
-    Log.events.screen_flip(lft);
+    Log.events.screen_flip(lft, obj.taskName);
 end

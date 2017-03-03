@@ -12,9 +12,9 @@
     % Background
     Screen('FillRect', Par.window, obj.param('BGColor').*Par.ScrWhite);
 
-    obj.update(); % Redundant?
-
     obj.drawFix();
+    
+    obj.update(); % Draws some of the stimuli (curves, targets)
 
     % Target bar - "Go bar"
     if ~obj.taskParams.GoBarOrientation(obj.goBarOrient) %horizontal
@@ -35,5 +35,5 @@
     
     % Draw on screen
     lft = Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
-    Log.events.screen_flip(lft);
+    Log.events.screen_flip(lft, obj.taskName);
 end

@@ -4,14 +4,14 @@ function checkResponses_PostSwitch(obj, lft)
     global Par;
     
     if Par.NewResponse && ...
-        lft < obj.stateStart.SWITCHED+obj.taskParams.ResponseAllowed(2)/1000
+        lft < obj.stateStart.SWITCHED + obj.taskParams.ResponseAllowed(2)/1000
 
         % correct
-        if ~obj.param('RequireSpecificPaw') || Par.NewResponse == obj.param('Target')
+        if ~obj.param('RequireSpecificPaw') || Par.NewResponse == obj.param('iTargetShape')
             
             obj.correctResponseGiven(lft);
             
-        else %if ~obj.param('RequireSpecificPaw') || Par.NewResponse ~= obj.param('Target')
+        else %if ~obj.param('RequireSpecificPaw') || Par.NewResponse ~= obj.param('iTargetShape')
 
             obj.falseResponseGiven(lft)
             
@@ -20,6 +20,7 @@ function checkResponses_PostSwitch(obj, lft)
             lft-Par.ExpStart Par.RespValid];
     elseif Par.NewResponse
         % Miss
+        obj.curr_response = 'miss';
         Par.CurrResponse = Par.RESP_MISS;
         Par.RespValid = false;
         Par.FalseResponseGiven=true;
@@ -33,8 +34,20 @@ function checkResponses_PostSwitch(obj, lft)
         %Don't break trial, this would speed it up and be positive
     end
     
-    if lft >= obj.stateStart.POSTSWITCH + Stm(1).task.taskParams.EventPeriods(3)/1000 
+    if lft >= obj.stateStart.POSTSWITCH + obj.taskParams.EventPeriods(3)/1000 || ...
+            Par.EndTrialOnResponse && ~strcmp(obj.curr_response, 'none')
+        
+        if strcmp(obj.curr_response, 'none')==1
+            obj.curr_response = 'miss';
+        end
+        iLoc = obj.param('iTargetLoc');
+        obj.responses_loc.(obj.curr_response)(iLoc) = obj.responses_loc.(obj.curr_response)(iLoc) + 1;
+        iShape = obj.param('iTargetShape');
+        obj.responses_shape.(obj.curr_response)(iShape) = obj.responses_shape.(obj.curr_response)(iShape) + 1;
+        
         obj.updateState('TRIAL_END', lft);
+        
+        obj.goBarOrient = 1;
     end
 end
 

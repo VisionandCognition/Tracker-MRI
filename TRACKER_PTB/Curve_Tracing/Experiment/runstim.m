@@ -66,8 +66,8 @@ for i = 1:length(Stm(1).tasksToCycle)
     Stm(1).tasksToCycle{i}.updateState('PREPARE_STIM', lft);
 end
 
-
-Stm(1).task.updateState('INIT_EXPERIMENT', lft);
+Log.events.begin_experiment(lft)
+%Stm(1).task.updateState('INIT_EXPERIMENT', lft);
 %% Code Control Preparation ===============================================
 for CodeControl=1 %allow code folding
     % Some intitialization of control parameters
@@ -127,9 +127,9 @@ end
 %% MRI triggered start
 Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
 lft=Screen('Flip', Par.window);
-Log.events.screen_flip(lft);
+Log.events.screen_flip(lft, 'NA');
 if Par.MRITriggeredStart
-    Log.events.add_entry(GetSecs, 'MRI_Trigger', 'Waiting');
+    Log.events.add_entry(GetSecs, 'NA', 'MRI_Trigger', 'Waiting');
     fprintf('Waiting for MRI trigger (or press ''t'' on keyboard)\n');
     while ~Log.MRI.TriggerReceived
         CheckKeys;
@@ -137,7 +137,7 @@ if Par.MRITriggeredStart
         %lft=Screen('Flip', Par.window);
     end
     fprintf(['MRI trigger received after ' num2str(GetSecs-Par.ExpStart) ' s\n']);
-    Log.events.add_entry(GetSecs, 'MRI_Trigger', 'Received');
+    Log.events.add_entry(GetSecs, 'NA', 'MRI_Trigger', 'Received');
 end
 
 %% Stimulus presentation loop =============================================
@@ -201,7 +201,7 @@ while ~Par.ESC %===========================================================
     % Wait for fixation --------------------------------------------------
     Stm(1).task.updateState('PREFIXATION', lft);
     Par.FixStart=Inf;
-    fprintf('Start %s task\n', Stm(1).task.taskName);
+    fprintf('Start %s task\n', Stm(1).task.name);
     
     % ---------------------------------------------------------------------
     % Go through all of the different states of the current trial
@@ -246,7 +246,7 @@ while ~Par.ESC %===========================================================
     % Performance info on screen
     for PerformanceOnCMD=1
         if Par.PosReset
-            Log.events.add_entry(lft, 'PosReset');
+            Log.events.add_entry(lft, Stm(1).task.name, 'PosReset');
             
             % display & write stats for this position
             fprintf(['Pos ' num2str(Par.PrevPosNr) ': T=' ...
@@ -267,7 +267,7 @@ while ~Par.ESC %===========================================================
             Par.CorrStreakcount(1)=0;
             Par.PosReset=false; %start new trial when switching position
         else
-            Log.events.add_entry(lft, 'TrialCompleted');
+            Log.events.add_entry(lft, Stm(1).task.name, 'TrialCompleted');
         end
         
         % Display total reward every x correct trials
@@ -275,7 +275,7 @@ while ~Par.ESC %===========================================================
                 mod(Par.Response(Par.RESP_CORRECT),10) == 0 && ...
                 Par.Response(Par.RESP_CORRECT) > 0
             
-            fprintf(['\nTask: ' Stm(1).task.taskName '\n']);
+            fprintf(['\nTask: ' Stm(1).task.name '\n']);
         
 
             Log.TCMFR = [Log.TCMFR; ...
@@ -304,17 +304,18 @@ while ~Par.ESC %===========================================================
     % Update Tracker window
     if ~TestRunstimWithoutDAS
         %SCNT = {'TRIALS'};
-        SCNT(1) = { ['Corr:  ' num2str(Par.Response(Par.RESP_CORRECT)) ] };
-        SCNT(2) = { ['False: ' num2str(Par.Response(Par.RESP_FALSE)) ] };
-        SCNT(3) = { ['Miss:  ' num2str(...
-            Par.Response(Par.RESP_MISS)+Par.Response(Par.RESP_EARLY)+ ...
-            Par.Response(Par.RESP_BREAK_FIX)) ] };
-        SCNT(4) = { ['Total: ' num2str(Par.Trlcount(2)) ]};
-        if Par.CurrResponse > 0
-            SCNT(5) = { [RespText{Par.CurrResponse}]};
-        else
-            SCNT(5) = {''};
-        end
+%         SCNT(1) = { ['Corr:  ' num2str(Par.Response(Par.RESP_CORRECT)) ] };
+%         SCNT(2) = { ['False: ' num2str(Par.Response(Par.RESP_FALSE)) ] };
+%         SCNT(3) = { ['Miss:  ' num2str(...
+%             Par.Response(Par.RESP_MISS)+Par.Response(Par.RESP_EARLY)+ ...
+%             Par.Response(Par.RESP_BREAK_FIX)) ] };
+%         SCNT(4) = { ['Total: ' num2str(Par.Trlcount(2)) ]};
+%         if Par.CurrResponse > 0
+%             SCNT(5) = { [RespText{Par.CurrResponse}]};
+%         else
+%             SCNT(5) = {''};
+%         end
+        SCNT = Stm(1).task.trackerWindowDisplay();
         set(Hnd(1), 'String', SCNT ) %display updated numbers in GUI
         % Give noise-on-eye-channel info
         SD = dasgetnoise();
@@ -339,10 +340,23 @@ for CleanUp=1 % code folding
         FileName=['Log_NODAS_' Par.STIMSETFILE '_' datestr(clock,30)];
     end
     warning off; %#ok<WNOFF>
-    if TestRunstimWithoutDAS; cd ..;end
-    mkdir('Log');cd('Log');
-    save(FileName,'Log','Par','StimObj');
-    cd ..
+    
+    logPath = getenv('TRACKER_LOGS');
+    %[~, currDir, ~] = fileparts(pwd);
+    logPath = fullfile(logPath, Par.ProjectLogDir);
+    mkdir(logPath);
+    filePath = fullfile(logPath, FileName);
+    %if TestRunstimWithoutDAS; cd ..;end
+    
+    %mkdir('Log');cd('Log');
+    save(filePath,'Log','Par','StimObj');
+    Log.events.write_csv([filePath '.csv']);
+    
+    for i = 1:length(Stm(1).tasksToCycle)
+        % same event log might be called twice, but that's okay
+        Stm(1).tasksToCycle{i}.write_trial_log_csv(filePath);
+    end
+
     if TestRunstimWithoutDAS; cd Experiment;end
     warning on; %#ok<WNON>
     
@@ -426,13 +440,13 @@ end
                     switch Key
                         case Par.KeyEscape
                             Par.ESC = true;
-                        case Par.KeyTogglePause
-                            if Par.Paused
-                                Par.Paused = false;
-                            else
-                                Par.Paused = true;
-                                Par.BreakTrial=true;
-                            end
+%                         case Par.KeyTogglePause
+%                             if Par.Paused
+%                                 Par.Paused = false;
+%                             else
+%                                 Par.Paused = true;
+%                                 Par.BreakTrial=true;
+%                             end
                         case Par.KeyTriggerMR
                         case Par.KeyJuice
                             Par.ManualReward = true;
@@ -472,9 +486,11 @@ end
                         case Par.KeyRequireFixation
                             if ~Par.RequireFixationForReward;
                                 Par.RequireFixationForReward = true;
+                                Par.WaitForFixation = true;
                                 fprintf('Requiring fixation for reward.\n')
                             else
                                 Par.RequireFixationForReward = false;
+                                Par.WaitForFixation = false;
                                 fprintf('Not requiring fixation for reward.\n')
                             end
                     end
@@ -619,7 +635,7 @@ end
                 
                 refreshtracker(1);
                 
-                Log.events.add_entry(Par.LastFixOutTime, 'Fixation', 'Out');
+                Log.events.add_entry(Par.LastFixOutTime, Stm(1).task.name, 'Fixation', 'Out');
             end
         end
     end

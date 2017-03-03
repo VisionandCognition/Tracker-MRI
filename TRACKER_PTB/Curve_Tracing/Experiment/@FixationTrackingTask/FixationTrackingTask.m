@@ -41,6 +41,9 @@ classdef FixationTrackingTask < handle
             obj.fixIn = nan;
         end
     end
+    methods (Abstract)
+       name = name(obj) % return the name of the task (without "task")
+    end
     methods
         function fixationRatio = fixation_ratio(obj)
             fixationRatio = obj.trialFixS / (obj.trialNoFixS + obj.trialFixS);
@@ -53,7 +56,7 @@ classdef FixationTrackingTask < handle
         end
         function fixation_in(obj, time)
             global Log;
-        	Log.events.add_entry(time, 'Fixation', 'In');
+        	Log.events.add_entry(time, obj.name(), 'Fixation', 'In');
             
             % function should only be called if previously not fixating
             assert(isnan(obj.fixIn) || ~obj.fixIn);
@@ -67,7 +70,7 @@ classdef FixationTrackingTask < handle
         end
         function fixation_out(obj, time)
             global Log;
-        	Log.events.add_entry(time, 'Fixation', 'Out');
+        	Log.events.add_entry(time, obj.name, 'Fixation', 'Out');
             
             % function should only be called if previously fixating
             assert(isnan(obj.fixIn) || obj.fixIn);

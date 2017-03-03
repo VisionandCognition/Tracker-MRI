@@ -1,4 +1,4 @@
-GroupConnections,Target,GapL,GapR,GapUL,GapDL,GapUR,GapDR,GroupIndicator,IndicatorUL,IndicatorUR,IndicatorDL,IndicatorDR
+GroupConnections,TargetLoc,GapL,GapR,GapUL,GapDL,GapUR,GapDR,GroupIndicator,IndicatorUL,IndicatorUR,IndicatorDL,IndicatorDR
 UUL,UL,1,0,1,0,1,0,SS,Square,Square,Diamond,Diamond
 UDL,UL,1,0,1,0,0,1,SS,Square,Square,Diamond,Diamond
 DUL,DL,1,0,0,1,1,0,SS,Square,Square,Diamond,Diamond

@@ -13,9 +13,11 @@ elseif strcmp(Par.ScreenChoice,'Mock')
 end
 
 %% Triggering =============================================================
-Par.TR = 3; % Not important during training
+Par.TR = 2.5; % Not important during training
 Par.MRITriggeredStart = true;
 Par.MRITrigger_OnlyOnce = true;
+
+Par.ProjectLogDir = 'Curve_Tracing';
 
 %% Get stimulus info ======================================================
 eval(Par.STIMSETFILE);
@@ -28,6 +30,8 @@ Stm=StimObj.Stm;
 Par.FixWinSize = [1.8 1.8]; % [W H] in deg
 Par.WaitForFixation = false; % Used to be Par.RequireFixation
 Par.RequireFixationForReward = true;
+Par.EndTrialOnResponse = true;
+% Par.EndTrialOnFixBreak = true;
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed

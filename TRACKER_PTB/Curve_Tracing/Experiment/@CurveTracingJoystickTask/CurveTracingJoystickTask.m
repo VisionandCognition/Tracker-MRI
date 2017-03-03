@@ -1,9 +1,7 @@
 classdef CurveTracingJoystickTask < FixationTrackingTask
     % CURVETRACINGTASK The curve tracing task.
-    properties (Constant)
-        taskName = 'Curve tracing'
-    end
     properties (Access = protected)
+        taskName = 'Curve tracing'
         stimuli_params; % parameters for each individual stimulus
         curr_stim_index = -1;
         curr_stim = NaN;
@@ -13,11 +11,30 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
         goBarOrient =  1; % 1=default, 2=switched
         
         iTrialOfBlock = 0;
+        blockNum = 0;
+        curr_response = 'none'; % response of current trial
+        responses_loc = struct(...
+            'correct', [0 0 0 0 0], ... UpL DownL UpR DownR Center
+            'false', [0 0 0 0 0], ...
+            'miss', [0 0 0 0 0], ...
+            'early', [0 0 0 0 0], ...
+            'break_fix', [0 0 0 0 0]);
+        responses_shape = struct(...
+            'correct', [0 0], ...
+            'false', [0 0], ...
+            'miss', [0 0], ...
+            'early', [0 0], ...
+            'break_fix', [0 0]);
+        
+        trial_log = nan; 
     end
     properties (Access = public)
         taskParams; % parameters that apply to every stimulus
     end
     methods
+        function name = name(obj)
+            name = obj.taskName;
+        end
         function time = stateStartTime(obj, state)
             time = obj.stateStart.(state);
         end
@@ -27,6 +44,10 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
             %                      in CSV format.
             obj.taskParams = commonParams;
             obj.stimuli_params = readtable(stimuliParams);
+            if all(strcmp(obj.stimuli_params.TargetLoc, 'Center'))
+                obj.taskName = 'Control CT';
+            end
+            obj.trial_log = TrialLog();
         end
 
         drawFix(obj);
@@ -34,7 +55,7 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
         drawCurve(obj, pos, connection1, connection2, indpos, Par, Stm);
         drawPreSwitchFigure(obj, Par, pos, SizePix, alpha);
         lft = drawStimuli(obj, lft);
-        drawTarget(obj, color, offset, which_side);
+        drawTarget(obj, color, offset, which_side, pawIndSizePix);
         
         function updateState(obj, state, time)
             global Log;
@@ -43,8 +64,8 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
             obj.stateStart.(obj.state) = time;
             
             Log.events.save_next_flip();
-            Log.events.add_entry(time, 'DecideNewState', obj.state);
-            Log.events.queue_entry('NewState', obj.state);
+            Log.events.add_entry(time, obj.taskName, 'DecideNewState', obj.state);
+            Log.events.queue_entry(obj.taskName, 'NewState', obj.state);
 
             obj.update();
             %fprintf('New state: %s\n', state);
@@ -52,7 +73,7 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
         function isEnd = endOfTrial(obj)
             STR_IDENTICAL = true;
             % temporary
-            isEnd = (strcmp(obj.state, 'POSTSWITCH') == STR_IDENTICAL);
+            isEnd = (strcmp(obj.state, 'TRIAL_END') == STR_IDENTICAL);
         end
         function isEnd = endOfBlock(obj)
             if ~obj.endOfTrial()
@@ -109,8 +130,50 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
             end
             obj.curr_stim(var) = val;
         end
+        function SCNT = trackerWindowDisplay(obj)
+            if strcmp(obj.taskName, 'Control CT')
+                SCNT(1) = { ['Control ' num2str(obj.blockNum)] };
+            else
+                SCNT(1) = { ['Curve tr. ' num2str(obj.blockNum)] };
+            end
+            SCNT(2) = { ['C:  ' num2str(sum(obj.responses_shape.correct)) ...
+                ' ' num2str(sum(obj.responses_shape.correct(1))) '+' ...
+                num2str(sum(obj.responses_shape.correct(2))) ...
+                ] };
+            SCNT(3) = { ['F: ' num2str(sum(obj.responses_shape.false)) ...
+                ' ' num2str(sum(obj.responses_shape.false(1))) '+' ...
+                num2str(sum(obj.responses_shape.false(2))) ...
+                ] };
+            SCNT(4) = { ['M:  ' num2str(sum(obj.responses_shape.miss) + ...
+                sum(obj.responses_shape.early) + sum(obj.responses_shape.break_fix))] };
+            
+            SCNT(5) = { ['C+F: ' num2str(...
+                sum(obj.responses_shape.correct) + ...
+                sum(obj.responses_shape.false)) ]};
+            
+            if strcmp(obj.curr_response, 'none')~=1
+                SCNT(6) = { [obj.curr_response]};
+            else
+                SCNT(6) = {''};
+            end
+        end
+        function write_trial_log_csv(obj, common_base_fn)
+            obj.trial_log.write_csv([common_base_fn '_CurveTracingTask.csv'])
+        end
     end
     methods (Access = protected)
+        
+        update_InitTrial(obj);
+        update_PrepareStim(obj);
+        update_PreOrPostSwitch(obj);
+        
+        checkResponses_PreFixation(obj, lft);
+        checkResponses_PreSwitch(obj, lft);
+        checkResponses_Switched(obj, lft);
+        
+        correctResponseGiven(obj, lft);
+        falseResponseGiven(obj, lft);
+        
         function update(obj)
             switch obj.state
                 case 'PREPARE_STIM'
@@ -127,16 +190,9 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
             end
         end
         
-        update_InitTrial(obj);
-        update_PrepareStim(obj);
-        update_PreOrPostSwitch(obj);
-        
-        checkResponses_PreFixation(obj, lft);
-        checkResponses_PreSwitch(obj, lft);
-        checkResponses_Switched(obj, lft);
-        
-        correctResponseGiven(obj, lft);
-        falseResponseGiven(obj, lft);
+        function stim_index = selectTrialStimulus(obj)
+            stim_index = randi(size(obj.stimuli_params, 1), 1);
+        end
     end
     
 end

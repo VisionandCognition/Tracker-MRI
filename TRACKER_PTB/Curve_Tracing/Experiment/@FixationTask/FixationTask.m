@@ -1,11 +1,9 @@
 classdef FixationTask < FixationTrackingTask
     %FIXATIONTASK Summary of this class goes here
     %   Detailed explanation goes here
-    
-    properties (Constant)
-        taskName = 'Fixation'
-    end
+
     properties (Access = private)
+        taskName = 'Fixation'
         stimuli_params; % parameters for each individual stimulus
         state = NaN;
         curr_stim = NaN; % save randomizations
@@ -14,11 +12,19 @@ classdef FixationTask < FixationTrackingTask
         stateStart = struct('PREFIXATION', -Inf, 'FIXATION_PERIOD', -Inf, 'POSTFIXATION', -Inf);
         
         iTrialOfBlock = 0;
+        
+        curr_response = 'none'; % response of current trial
+        responses = struct(...
+            'correct', [0], ...
+            'break_fix', [0]);
     end
     properties (Access = public)
         taskParams; % parameters that apply to every stimulus
     end
     methods
+        function name = name(obj)
+            name = obj.taskName;
+        end
         function time = stateStartTime(obj, state)
             time = obj.stateStart.(state);
         end
@@ -33,7 +39,6 @@ classdef FixationTask < FixationTrackingTask
         drawCurve(obj, pos, connection1, connection2, indpos, Par, Stm);
         drawPreSwitchFigure(obj, Par, pos, SizePix, alpha);
         lft = drawStimuli(obj, lft);
-        drawTarget(obj, color, offset, which_side);
         
         function updateState(obj, state, time)
             global Log;
@@ -41,7 +46,9 @@ classdef FixationTask < FixationTrackingTask
 
             obj.currStateStart = time;
             obj.stateStart.(obj.state) = time;
-            Log.events.add_entry(time, 'NewState', obj.state);
+            
+            Log.events.add_entry(time, obj.taskName, 'DecideNewState', obj.state);
+            Log.events.queue_entry(obj.taskName, 'NewState', obj.state);
 
             %fprintf('New state: %s\n', state);
             obj.update();
@@ -79,22 +86,25 @@ classdef FixationTask < FixationTrackingTask
 
                         if fixInRatio >= 0.1
                             RewardAmount = Par.GiveRewardAmount + ...
-                                fixInRatio^2 * Par.RewardTime * obj.taskParams.rewardMultiplier;
+                                fixInRatio * Par.RewardTime * obj.taskParams.rewardMultiplier;
 
+                            obj.curr_response = 'correct';
                             Par.CurrResponse = Par.RESP_CORRECT;
                             
                             Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
                             Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
 
                             Par.GiveRewardAmount = Par.GiveRewardAmount + RewardAmount;
-                            Log.events.add_entry(time, 'ResponseGiven', 'CORRECT');
-                            Log.events.add_entry(time, 'ResponseReward', RewardAmount);
+                            Log.events.add_entry(time, obj.taskName, 'ResponseGiven', 'CORRECT');
+                            Log.events.add_entry(time, obj.taskName, 'ResponseReward', RewardAmount);
                         else
+                            obj.curr_response = 'break_fix';
                             Par.CurrResponse = Par.RESP_BREAK_FIX;
                         end
                     end
                 case 'POSTFIXATION'
                     if time > obj.stateStart.POSTFIXATION + obj.taskParams.postfixPeriod/1000
+                        obj.responses.(obj.curr_response) = obj.responses.(obj.curr_response) + 1;
                         obj.updateState('END_TRIAL', time);
                     end
             end
@@ -130,6 +140,14 @@ classdef FixationTask < FixationTrackingTask
             end
             obj.curr_stim(var) = val;
         end
+        function SCNT = trackerWindowDisplay(obj)
+            SCNT(1) = { obj.taskName };
+            SCNT(2) = { ['Corr:  ' num2str(obj.responses.correct) ] };
+            SCNT(3) = { ['Fix. break:  ' num2str(obj.responses.break_fix) ] };
+        end
+        function write_trial_log_csv(~, ~)
+            % do nothing
+        end
     end
     methods(Access = protected)
         update_PrepareStim(obj);
@@ -138,7 +156,8 @@ classdef FixationTask < FixationTrackingTask
             switch obj.state
                 case 'PREPARE_STIM'
                     obj.update_PrepareStim();
-                case 'INIT_TRIAL'                    
+                case 'INIT_TRIAL'
+                    obj.curr_response = 'none';
                     obj.iTrialOfBlock = mod(obj.iTrialOfBlock, obj.param('BlockSize')) + 1;
                     obj.set_param('FixationPeriodTime', ...
                         obj.taskParams.EventPeriods(1)/1000 + ...

@@ -25,13 +25,11 @@ global Par;
 
             obj.drawPreSwitchFigure(Par, ...
                 fix_pos(1,:)+offset(1,:), ...
-                PawIndSizePix,  ...
+                PawIndSizePix(indpos),  ...
                 pawIndAlpha(1, indpos));
         end
     else
         % ------------------------------- POSTSWITCH
-
-        %obj.drawTarget(color0, attd_offset, obj.param('Target')==1, Stm)
 
         sideIndicators = obj.param('SideIndicators');
         for indpos = 1:obj.param('NumOfPawIndicators')
@@ -47,7 +45,9 @@ global Par;
                 pawIndAlpha(2, indpos);
             Unattd_color = Color_obj * Par.ScrWhite;
 
-            obj.drawTarget(Unattd_color, offset, side)
+            pawIndSizePix = obj.param('PawIndSizePix');
+            pawIndSizePix = pawIndSizePix(indpos);
+            obj.drawTarget(Unattd_color, offset, side, pawIndSizePix)
         end
     end
 end

@@ -40,13 +40,14 @@ Params.RequireSpecificPaw = true;
 %Stm(1).PawIndOffset = [3.5 2.5];
 Params.PawIndPositions = [...
     -6 -3; -6 3; ...
-    6 -3; 6 3 ...
+    6 -3; 6 3; ...
+    0 0 ... center
     ] * 1.1;
 
 % Stm(1).PawIndAlpha = [ PreSwitchAlpha target 1 target 2 ... ; 
 %                        PostSwitchAlpha target 1 target 2 ... ]
-Params.CurveAlpha = [1 1 1 1; 1 1 1 1];
-Params.PawIndAlpha = [1 1 1 1; 1 1 1 1];
+Params.CurveAlpha = [1 1 1 1 1; 1 1 1 1 1];
+Params.PawIndAlpha = [1 1 1 1 1; 1 1 1 1 1];
 Params.NumOfPawIndicators = 4; % Can't be more than the number of PawIndPositions!
 Params.DistractBranchConnAlpha = 1;
 
@@ -91,17 +92,27 @@ Stm(1).ProbFixationReward = 0.0;
 
 Params.CurveAnglesAtFP = [ 180; 180; 0; 0];
 
-Params.PawIndSizeDeg = 2.5;
+Params.PawIndSizeDeg = [2.5, 2.5, 2.5, 2.5, Params.FixDotSizeDeg];
 Params.BlockSize = 3;
 Params.rewardMultiplier = 1.0;
-FixParams = Params;
-FixParams.rewardMultiplier = 0.25;
 
-ctjt = CurveTracingJoystickTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
+FixParams = Params;
+FixParams.rewardMultiplier = 0.5;
+
+CtrlParams = Params;
+CtrlParams.NumOfPawIndicators = 5;
+
+%curvetracing = CurveTracingJoystickTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
+curvetracing = CurveTracingJoystickBlockTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
+curvecontrol = CurveTracingJoystickTask(CtrlParams, 'StimSettings/CurveTracingJoyStickTask-control.csv');
 Stm(1).tasksToCycle = {...
-    FixationTask(FixParams), ...
-    ctjt, ...
-    ctjt, ...
+    curvetracing, ...
+    curvetracing, ...
+    curvetracing, ...
+    curvetracing, ...
+    curvecontrol ...
+    %FixationTask(FixParams) ...
+    %curvetracing, ...
     };
 Stm(1).taskCycleInd = 1;
 Stm(1).task = Stm(1).tasksToCycle{Stm(1).taskCycleInd};
