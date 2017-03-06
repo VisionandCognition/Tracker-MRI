@@ -262,11 +262,11 @@ while ~Par.ESC %===========================================================
         end
     end
     if Stm(1).OnlyStartTrialWhenBeamIsNotBlocked && ...
-            (Par.LastResponse == RESP_CORRECT || Par.LastResponse == RESP_FALSE) && ...
+            (Par.LastResponse == RESP_CORRECT) && ...  || Par.LastResponse == RESP_FALSE
             isfield(Par, 'GiveRewardForUnblockingBeam') && ...
             Par.GiveRewardForUnblockingBeam
-        GiveRewardManual;
-        Par.ManualReward=false;
+        GiveRewardAuto;
+        %Par.ManualReward=false;
     end
     Par.ResponsePreviouslyGiven = false;
     
@@ -497,6 +497,9 @@ while ~Par.ESC %===========================================================
                     Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
                     Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
                     Par.CorrectThisTrial = true;
+                    
+                    resp_time = 1000*(lft - Par.SwitchStart) + Stm(1).ResponseAllowed(1);
+                    % fprintf('Response time: %0.f ms\n', resp_time);
                 end
                 Par.ResponseGiven=true;
                 Par.CorrStreakcount=Par.CorrStreakcount+1;
@@ -585,7 +588,7 @@ while ~Par.ESC %===========================================================
             isfield(Par, 'FeedbackSound') && ...
             isfield(Par, 'FeedbackSoundPar') && ...
             Par.FeedbackSound(Par.CurrResponse) && ...
-            ~isnan(Par.FeedbackSoundPar(Par.CurrResponse,1))
+            all(~isnan(Par.FeedbackSoundPar(Par.CurrResponse,:)))
         if Par.FeedbackSoundPar(Par.CurrResponse)
             try
                 w = warning ('off','MATLAB:audiovideo:audioplayer:noAudioOutputDevice');
@@ -729,7 +732,7 @@ while ~Par.ESC %===========================================================
             CheckKeys; % internal function
             DrawTarget(1.0, 0, which_side);
             
-            % give manual reward
+            % allow manual reward
             if Par.ManualReward
                 GiveRewardManual;
                 Par.ManualReward=false;
@@ -1317,7 +1320,7 @@ end
                       hfix+pos(1)-pt2(1), vfix+pos(2)-pt2(2);
                       hfix+pos(1), vfix+pos(2)];
                   
-        pts = bezier_curve_with_lines(spline_pts, [npoints npoints npoints]);
+        pts = bezier_curve_with_lines(spline_pts, round([npoints npoints npoints]/3));
         
         alpha = Stm(1).CurveAlpha(~strcmp(Par.State, 'PRESWITCH')+1, ...
             indpos);

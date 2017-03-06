@@ -146,10 +146,10 @@ Par.RewSndPar = [44100 800 1];
 Par.FeedbackSound = [false true true true true];
 Par.FeedbackSoundPar = [ ...
     44100 800 1 NaN; ... CORRECT
-    44100 200 1 0.04; ... FALSE
-    44100 1600 1 0.01; ... MISS
-    44100 3200 1 0.01; ... EARLY
-    44100 400 1 0.01 ... FIXATION BREAK
+    44100 200 1 NaN; ... FALSE
+    44100 1600 1 NaN; ... MISS
+    44100 3200 1 NaN; ... EARLY
+    44100 400 1.5 0.01 ... FIXATION BREAK
     ];
 
 % [FS(Hz) TonePitch(Hz) Amplitude]
@@ -190,7 +190,8 @@ end
 
 Par.RewardTimeManual = 0.04; % amount of reward when given manually
 Par.MaxTimeBetweenRewardsMin = 2; % Give reward at least once every 2 mins
-Par.GiveRewardForUnblockingBeam = false;
+Par.GiveRewardForUnblockingBeam = true;
+Par.AutoCycleTasks = true;
 
 %% Create Eye-check windows based on stimulus positions ===================
 for SetInitialWINs=1
