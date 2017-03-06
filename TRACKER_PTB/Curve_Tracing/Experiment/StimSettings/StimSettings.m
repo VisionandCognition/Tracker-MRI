@@ -72,11 +72,12 @@ Params.SwitchDur = 1300; % (200) duration of alternative orientation
 % [baseduration_without_switch ... 
 %  period_in_which_switch_randomly_occurs ...
 %  post_switch_duration_in_which_nothing_happens]
-Params.prefixPeriod = 200;  % just for fixation task
 %Params.EventPeriods = [1800 1600 300];
 Params.EventPeriods = [3000 0 300];
 Params.fixationPeriod = 4500;  % just for fixation task
 Params.postfixPeriod = 300;  % just for fixation task
+
+Params.prefixPeriod = 200;  % just for fixation task
 
 
 Stm(1).ShowDistractBar = true; % show vertical bar [toggle with "D" key]
@@ -105,6 +106,7 @@ CtrlParams.NumOfPawIndicators = 5;
 %curvetracing = CurveTracingJoystickTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
 curvetracing = CurveTracingJoystickBlockTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
 curvecontrol = CurveTracingJoystickTask(CtrlParams, 'StimSettings/CurveTracingJoyStickTask-control.csv');
+
 Stm(1).tasksToCycle = {...
     curvetracing, ...
     curvetracing, ...

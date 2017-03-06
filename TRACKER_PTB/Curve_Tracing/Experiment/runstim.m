@@ -62,8 +62,21 @@ lft=Screen('Flip', Par.window);
 
 Log.events = EventLog;
 %% Stimulus preparation ===================================================
-for i = 1:length(Stm(1).tasksToCycle)
-    Stm(1).tasksToCycle{i}.updateState('PREPARE_STIM', lft);
+Stm(1).tasksUnique = {Stm(1).tasksToCycle{1}};
+for i = 2:length(Stm(1).tasksToCycle)
+    unique = true;
+    for j = 1:length(Stm(1).tasksUnique)
+        if Stm(1).tasksToCycle{i} == Stm(1).tasksUnique{j}
+            unique = false;
+            break
+        end
+    end
+    if unique
+        Stm(1).tasksUnique{end+1} = Stm(1).tasksToCycle{i};
+    end
+end
+for i = 1:length(Stm(1).tasksUnique)
+    Stm(1).tasksUnique{i}.updateState('PREPARE_STIM', lft);
 end
 
 Log.events.begin_experiment(lft)
@@ -352,9 +365,8 @@ for CleanUp=1 % code folding
     save(filePath,'Log','Par','StimObj');
     Log.events.write_csv([filePath '.csv']);
     
-    for i = 1:length(Stm(1).tasksToCycle)
-        % same event log might be called twice, but that's okay
-        Stm(1).tasksToCycle{i}.write_trial_log_csv(filePath);
+    for i = 1:length(Stm(1).tasksUnique)
+        Stm(1).tasksUnique{i}.write_trial_log_csv(filePath);
     end
 
     if TestRunstimWithoutDAS; cd Experiment;end

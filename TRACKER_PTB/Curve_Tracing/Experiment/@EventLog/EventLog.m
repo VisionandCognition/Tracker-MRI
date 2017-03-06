@@ -14,12 +14,13 @@ classdef EventLog < handle
             obj.beginExpTime = time;
             obj.add_entry(time, 'NA', 'BeginExperiment');
         end
-        function add_entry(obj, time, task, event, info )
+        function add_entry(obj, time, task, event, info)
             assert(isnumeric(time))
             nEvents = length(obj.log)+1;
             obj.log(nEvents).time = time;
             obj.log(nEvents).task = task;
             obj.log(nEvents).type = event;
+            obj.log(nEvents).record_time = GetSecs;
             if nargin >= 5
                 obj.log(nEvents).info = info;
             end
@@ -48,13 +49,14 @@ classdef EventLog < handle
         end
         function write_csv(obj, filename)
             fid = fopen(filename, 'w');
-            fprintf(fid,'time,task,event,info\n');
+            fprintf(fid,'time,task,event,info,record_time\n');
             for e = 1:length(obj.log)
-                line = sprintf('%0.1f,"%s","%s","%s"\n', ...
+                line = sprintf('%0.1f,"%s","%s","%s",%0.1f\n', ...
                     1000*(obj.log(e).time - obj.beginExpTime), ...
                     obj.log(e).task, ...
                     obj.log(e).type, ...
-                    obj.log(e).info);
+                    obj.log(e).info, ...
+                    1000*(obj.log(e).record_time - obj.beginExpTime));
                 fprintf(fid, line);
             end
             fclose(fid);

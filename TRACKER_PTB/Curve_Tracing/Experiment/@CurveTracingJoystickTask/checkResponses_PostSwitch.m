@@ -34,8 +34,11 @@ function checkResponses_PostSwitch(obj, lft)
         %Don't break trial, this would speed it up and be positive
     end
     
-    if lft >= obj.stateStart.POSTSWITCH + obj.taskParams.EventPeriods(3)/1000 || ...
-            Par.EndTrialOnResponse && ~strcmp(obj.curr_response, 'none')
+    fix_broke = strcmp(obj.curr_response, 'break_fix');
+    if ~fix_broke && (lft >= obj.stateStart.POSTSWITCH + obj.taskParams.EventPeriods(3)/1000 || ...
+            Par.EndTrialOnResponse && ~strcmp(obj.curr_response, 'none')) || ...
+            fix_broke && (lft < obj.stateStart.PRESWITCH + ...
+            obj.taskParams.EventPeriods(1)/1000 + obj.taskParams.EventPeriods(3)/1000)
         
         if strcmp(obj.curr_response, 'none')==1
             obj.curr_response = 'miss';
