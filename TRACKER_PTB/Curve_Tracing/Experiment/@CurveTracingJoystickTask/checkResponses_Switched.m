@@ -44,7 +44,8 @@ function checkResponses_Switched(obj, lft)
             Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
         end
         Par.FalseResponseGiven=false;
-        Par.BreakTrial=true;
+        
+        obj.updateState('POSTSWITCH', lft);
     end
     
     if lft >= obj.stateStart.SWITCHED + obj.param('SwitchDur')/1000 || ...

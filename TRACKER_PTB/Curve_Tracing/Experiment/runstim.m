@@ -537,16 +537,19 @@ end
             Par.BeamLIsBlocked = false;
             if Par.HandIsIn
                 Par.HandIsIn=false;
+                Log.events.add_entry(GetSecs, Stm(1).task.name, 'Response_Release', 'Left');
             end
         elseif strcmp(computer,'PCWIN') && Log.RespSignal > 2750 % old das card
             Par.BeamLIsBlocked = false;
             if Par.HandIsIn
                 Par.HandIsIn=false;
+                Log.events.add_entry(GetSecs, Stm(1).task.name, 'Response_Release', 'Left');
             end
         else
             Par.BeamLIsBlocked = true;
             if ~Par.HandIsIn
                 Par.HandIsIn=true;
+                Log.events.add_entry(GetSecs, Stm(1).task.name, 'Response_Initiate', 'Left');
             end
         end
         
@@ -559,16 +562,19 @@ end
                 Par.BeamRIsBlocked = false;
                 if Par.HandIsIn
                     Par.HandIsIn=false;
+                    Log.events.add_entry(GetSecs, Stm(1).task.name, 'Response_Release', 'Right');
                 end
             elseif strcmp(computer,'PCWIN') && Log.RespSignal > 2750 % old das card
                 Par.BeamRIsBlocked = false;
                 if Par.HandIsIn
                     Par.HandIsIn=false;
+                    Log.events.add_entry(GetSecs, Stm(1).task.name, 'Response_Release', 'Right');
                 end
             else
                 Par.BeamRIsBlocked = true;
                 if ~Par.HandIsIn
                     Par.HandIsIn=true;
+                    Log.events.add_entry(GetSecs, Stm(1).task.name, 'Response_Initiate', 'Right');
                 end
             end
         end
@@ -691,6 +697,7 @@ end
             end
         end
         Par.LastRewardTime = StartReward;
+        Log.events.add_entry(StartReward, Stm(1).task.name, 'Reward', 'Auto');
     end
 % give manual reward
     function GiveRewardManual
@@ -719,6 +726,7 @@ end
             end
         end
         Par.LastRewardTime = StartReward;
+        Log.events.add_entry(StartReward, Stm(1).task.name, 'Reward', 'Manual');
         
     end
 % check and update eye info in tracker window

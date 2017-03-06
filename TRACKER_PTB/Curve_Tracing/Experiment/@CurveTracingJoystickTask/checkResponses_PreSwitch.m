@@ -23,7 +23,8 @@ function checkResponses_PreSwitch( obj, lft )
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
         Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
         Par.FalseResponseGiven=false;
-        Par.BreakTrial=true;
+        
+        obj.updateState('POSTSWITCH', lft);
     end
     
     if lft >= obj.currStateStart + ...

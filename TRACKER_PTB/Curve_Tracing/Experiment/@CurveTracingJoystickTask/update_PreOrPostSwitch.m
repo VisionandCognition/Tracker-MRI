@@ -28,8 +28,8 @@ global Par;
                 PawIndSizePix(indpos),  ...
                 pawIndAlpha(1, indpos));
         end
-    else
-        % ------------------------------- POSTSWITCH
+    elseif strcmp(obj.state, 'SWITCHED')
+        % ------------------------------- SWITCHED
 
         sideIndicators = obj.param('SideIndicators');
         for indpos = 1:obj.param('NumOfPawIndicators')

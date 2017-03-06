@@ -11,27 +11,39 @@
  
     % Background
     Screen('FillRect', Par.window, obj.param('BGColor').*Par.ScrWhite);
+    
+    % Special cases with not fixation point
+    if strcmp(obj.state, 'INIT_TRIAL')==1 ||  ...
+            strcmp(obj.state, 'TRIAL_END')==1 || ...
+            strcmp(obj.state, 'POSTSWITCH')==1
+        
+        lft = Screen('Flip', Par.window,lft+.9*Par.fliptimeSec); 
+        return;
+    end
 
-    obj.drawFix();
+    obj.drawFix();  % -------------- Fixation point
     
     obj.update(); % Draws some of the stimuli (curves, targets)
 
-    % Target bar - "Go bar"
-    if ~obj.taskParams.GoBarOrientation(obj.goBarOrient) %horizontal
-        rect=[...
-            obj.taskParams.FixPositionsPix(Par.PosNr,1)+Par.ScrCenter(1)-obj.taskParams.GoBarSizePix(1)/2, ...
-            obj.taskParams.FixPositionsPix(Par.PosNr,2)+Par.ScrCenter(2)-obj.taskParams.GoBarSizePix(2)/2, ...
-            obj.taskParams.FixPositionsPix(Par.PosNr,1)+Par.ScrCenter(1)+obj.taskParams.GoBarSizePix(1)/2, ...
-            obj.taskParams.FixPositionsPix(Par.PosNr,2)+Par.ScrCenter(2)+obj.taskParams.GoBarSizePix(2)/2];
-    else
-        rect=[...
-            obj.taskParams.FixPositionsPix(Par.PosNr,1)+Par.ScrCenter(1)-obj.taskParams.GoBarSizePix(2)/2, ... left
-            obj.taskParams.FixPositionsPix(Par.PosNr,2)+Par.ScrCenter(2)-obj.taskParams.GoBarSizePix(1)/2, ... top
-            obj.taskParams.FixPositionsPix(Par.PosNr,1)+Par.ScrCenter(1)+obj.taskParams.GoBarSizePix(2)/2, ... right
-            obj.taskParams.FixPositionsPix(Par.PosNr,2)+Par.ScrCenter(2)+obj.taskParams.GoBarSizePix(1)/2];
-    end
     
-    Screen('FillRect', Par.window, obj.taskParams.GoBarColor .* Par.ScrWhite, rect);
+    if strcmp(obj.state, 'POSTSWITCH') ~= 1
+        % Target bar - "Go bar"
+        if ~obj.taskParams.GoBarOrientation(obj.goBarOrient) %horizontal
+            rect=[...
+                obj.taskParams.FixPositionsPix(Par.PosNr,1)+Par.ScrCenter(1)-obj.taskParams.GoBarSizePix(1)/2, ...
+                obj.taskParams.FixPositionsPix(Par.PosNr,2)+Par.ScrCenter(2)-obj.taskParams.GoBarSizePix(2)/2, ...
+                obj.taskParams.FixPositionsPix(Par.PosNr,1)+Par.ScrCenter(1)+obj.taskParams.GoBarSizePix(1)/2, ...
+                obj.taskParams.FixPositionsPix(Par.PosNr,2)+Par.ScrCenter(2)+obj.taskParams.GoBarSizePix(2)/2];
+        else
+            rect=[...
+                obj.taskParams.FixPositionsPix(Par.PosNr,1)+Par.ScrCenter(1)-obj.taskParams.GoBarSizePix(2)/2, ... left
+                obj.taskParams.FixPositionsPix(Par.PosNr,2)+Par.ScrCenter(2)-obj.taskParams.GoBarSizePix(1)/2, ... top
+                obj.taskParams.FixPositionsPix(Par.PosNr,1)+Par.ScrCenter(1)+obj.taskParams.GoBarSizePix(2)/2, ... right
+                obj.taskParams.FixPositionsPix(Par.PosNr,2)+Par.ScrCenter(2)+obj.taskParams.GoBarSizePix(1)/2];
+        end
+
+        Screen('FillRect', Par.window, obj.taskParams.GoBarColor .* Par.ScrWhite, rect);
+    end
     
     % Draw on screen
     lft = Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);

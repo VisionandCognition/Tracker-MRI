@@ -186,7 +186,7 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
                 case 'SWITCHED'
                     obj.update_PreOrPostSwitch();
                 case 'POSTSWITCH'
-                    obj.update_PreOrPostSwitch();
+                    %obj.update_PreOrPostSwitch();
             end
         end
         

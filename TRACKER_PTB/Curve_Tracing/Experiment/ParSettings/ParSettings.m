@@ -28,7 +28,7 @@ Stm=StimObj.Stm;
 
 % overrule generic fixation window
 Par.FixWinSize = [1.8 1.8]; % [W H] in deg
-Par.WaitForFixation = false; % Used to be Par.RequireFixation
+Par.WaitForFixation = true; % Used to be Par.RequireFixation
 Par.RequireFixationForReward = true;
 Par.EndTrialOnResponse = true;
 % Par.EndTrialOnFixBreak = true;
