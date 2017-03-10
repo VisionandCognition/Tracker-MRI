@@ -26,7 +26,6 @@ function checkResponses_PostSwitch(obj, lft)
         Par.FalseResponseGiven=true;
         if ~Par.ResponseGiven && ~Par.FalseResponseGiven %only log once
             Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
-            Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
         end
         %Par.ResponseGiven=true;
         Par.RespTimes=[Par.RespTimes;
@@ -35,12 +34,13 @@ function checkResponses_PostSwitch(obj, lft)
     end
     
     %fix_broke = strcmp(obj.curr_response, 'break_fix');
-    time1 = obj.stateStart.POSTSWITCH - obj.stateStart.PRESWITCH + obj.taskParams.EventPeriods(3)/1000;
-    time2 = obj.taskParams.EventPeriods(1)/1000 + obj.taskParams.EventPeriods(3)/1000;
+    %time1 = obj.stateStart.POSTSWITCH - obj.stateStart.PRESWITCH + obj.taskParams.EventPeriods(3)/1000;
+    %time2 = obj.taskParams.EventPeriods(1)/1000 + obj.taskParams.EventPeriods(3)/1000;
+    
     if (lft >= obj.stateStart.POSTSWITCH + obj.taskParams.EventPeriods(3)/1000 || ...
             Par.EndTrialOnResponse && ~strcmp(obj.curr_response, 'none')) && ...
             (lft >= obj.stateStart.PRESWITCH + ...
-            obj.taskParams.EventPeriods(1)/1000 + obj.taskParams.EventPeriods(3)/1000)
+            (obj.taskParams.EventPeriods(1) + obj.taskParams.EventPeriods(3))/1000/2)
         
         if strcmp(obj.curr_response, 'none')==1
             obj.curr_response = 'miss';
@@ -53,6 +53,10 @@ function checkResponses_PostSwitch(obj, lft)
         obj.updateState('TRIAL_END', lft);
         
         obj.goBarOrient = 1;
+        % if switched state was not shown, don't count the trial
+        if isinf(obj.stateStart.SWITCHED)
+            obj.iTrialOfBlock = obj.iTrialOfBlock - 1;
+        end
     end
 end
 

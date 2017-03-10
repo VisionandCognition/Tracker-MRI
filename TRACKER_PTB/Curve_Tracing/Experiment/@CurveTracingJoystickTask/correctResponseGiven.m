@@ -27,7 +27,6 @@ function correctResponseGiven(obj, lft)
 
     if ~Par.ResponseGiven  && ~Par.FalseResponseGiven %only log once
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
-        Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
         Par.CorrectThisTrial=true;
         
         Par.GiveRewardAmount = Par.GiveRewardAmount + RewardAmount;

@@ -59,7 +59,7 @@ classdef FixationTrackingTask < handle
         	Log.events.add_entry(time, obj.name(), 'Fixation', 'In');
             
             % function should only be called if previously not fixating
-            assert(isnan(obj.fixIn) || ~obj.fixIn);
+            %assert(isnan(obj.fixIn) || ~obj.fixIn);
             
             if obj.fixationTrackStarted
                 obj.fixIn = true;
@@ -73,7 +73,7 @@ classdef FixationTrackingTask < handle
         	Log.events.add_entry(time, obj.name, 'Fixation', 'Out');
             
             % function should only be called if previously fixating
-            assert(isnan(obj.fixIn) || obj.fixIn);
+            %assert(isnan(obj.fixIn) || obj.fixIn);
             
             if obj.fixationTrackStarted
                 obj.fixIn = false;

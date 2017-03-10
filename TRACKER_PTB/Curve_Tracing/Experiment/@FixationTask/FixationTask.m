@@ -86,13 +86,12 @@ classdef FixationTask < FixationTrackingTask
 
                         if fixInRatio >= 0.1
                             RewardAmount = Par.GiveRewardAmount + ...
-                                fixInRatio * Par.RewardTime * obj.taskParams.rewardMultiplier;
+                                fixInRatio^2 * Par.RewardTime * obj.taskParams.rewardMultiplier;
 
                             obj.curr_response = 'correct';
                             Par.CurrResponse = Par.RESP_CORRECT;
                             
                             Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
-                            Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
 
                             Par.GiveRewardAmount = Par.GiveRewardAmount + RewardAmount;
                             Log.events.add_entry(time, obj.taskName, 'ResponseGiven', 'CORRECT');

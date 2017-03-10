@@ -29,32 +29,35 @@ function checkResponses_Switched(obj, lft)
             Par.CurrResponse = Par.RESP_MISS;
         end
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
-        Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
         Par.FalseResponseGiven=true;
         Par.RespTimes=[Par.RespTimes;
             lft-Par.ExpStart Par.RespValid];
-    elseif ~Par.FixIn && Par.WaitForFixation
+    end
+    
+    if ~Par.FixIn && Par.WaitForFixation
         % false
         obj.curr_response = 'break_fix';
         Par.CurrResponse = Par.RESP_BREAK_FIX;
         Par.RespValid = false;
         if ~Par.ResponseGiven && ~Par.FalseResponseGiven %only log once
             Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
-            %Par.ResponsePos
-            Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
         end
         Par.FalseResponseGiven=false;
         
+        obj.stopTrackingFixationTime(lft); % might have already been called
+        fixInRatio = obj.fixation_ratio();
+        fprintf('Fixation ratio: %0.2f  (in: %0.1f, out: %0.1f) ~ %s\n', fixInRatio, ...
+            obj.time_fixating(), obj.time_not_fixating(), obj.curr_response);
+        
         obj.updateState('POSTSWITCH', lft);
-    end
-    
-    if lft >= obj.stateStart.SWITCHED + obj.param('SwitchDur')/1000 || ...
+        
+    elseif lft >= obj.stateStart.SWITCHED + obj.param('SwitchDur')/1000 || ...
             Par.EndTrialOnResponse && ~strcmp(obj.curr_response, 'none')
         
         obj.stopTrackingFixationTime(lft); % might have already been called
         fixInRatio = obj.fixation_ratio();
-        fprintf('Fixation ratio: %0.2f  (in: %0.1f, out: %0.1f)\n', fixInRatio, ...
-            obj.time_fixating(), obj.time_not_fixating());
+        fprintf('Fixation ratio: %0.2f  (in: %0.1f, out: %0.1f) ~ %s\n', fixInRatio, ...
+            obj.time_fixating(), obj.time_not_fixating(), obj.curr_response);
     
         obj.updateState('POSTSWITCH', lft);
     end

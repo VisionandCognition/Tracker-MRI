@@ -30,7 +30,7 @@ Stm=StimObj.Stm;
 Par.FixWinSize = [1.8 1.8]; % [W H] in deg
 Par.WaitForFixation = true; % Used to be Par.RequireFixation
 Par.RequireFixationForReward = true;
-Par.EndTrialOnResponse = true;
+Par.EndTrialOnResponse = true; % Make responsive
 % Par.EndTrialOnFixBreak = true;
 
 %% Eyetracking parameters =================================================
@@ -171,7 +171,7 @@ Par.FixNeedsHandInBox=false;
 Par.HandOutDimsScreen = false;
 Par.HandOutDimsScreen_perc = 0.9; %(0-1, fraction dimming)
 
-Par.HandIsIn=false;
+Par.HandIsIn=[false false];
 
 Par.ManualRewardTargetOnly = false; % only give manual reward during target presentation
 % prevents me from mistiming the manual reward during training
@@ -227,6 +227,7 @@ Par.CorrStreakcount = [0 0];
 
 %% Keyboard initialization ================================================
 Par.KeyEscape = KbName('Escape'); % allows breaking out of the experiment
+Par.KeySwitchToRestingTask = KbName('r'); % only do switching tasks
 Par.KeyTogglePause = KbName('Space'); % allows breaking out of the experiment
 Par.KeyTriggerMR = KbName('t'); % MRI sends a sync pulse as a 't' keypress
 Par.KeyJuice = KbName('j'); % Manual juice reward

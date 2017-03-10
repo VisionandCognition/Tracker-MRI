@@ -1,6 +1,6 @@
 classdef CurveTracingJoystickBlockTask < CurveTracingJoystickTask
     % CURVETRACINGJOYSTICKBLOCKTASK Creates blocks of curve tracing trials.
-    %   Trials in a block are more likely to be similar.
+    %   Trials in a block are all the same location.
     
     properties (Access = protected)
         targetLoc = nan;
@@ -22,8 +22,8 @@ classdef CurveTracingJoystickBlockTask < CurveTracingJoystickTask
             stim_mask = strcmp(obj.stimuli_params.TargetLoc, obj.targetLoc);
             mask_indices = find(stim_mask);
             stim_index = mask_indices(randi(sum(stim_mask)));
+            %fprintf('Stim = %d\n', stim_index);
         end
     end
-    
 end
 

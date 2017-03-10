@@ -26,7 +26,8 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
             'early', [0 0], ...
             'break_fix', [0 0]);
         
-        trial_log = nan; 
+        trial_log = nan;
+        curves = nan;
     end
     properties (Access = public)
         taskParams; % parameters that apply to every stimulus
@@ -50,10 +51,6 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
             obj.trial_log = TrialLog();
         end
 
-        drawFix(obj);
-        drawBackgroundFixPoint(obj);
-        drawCurve(obj, pos, connection1, connection2, indpos, Par, Stm);
-        drawPreSwitchFigure(obj, Par, pos, SizePix, alpha);
         lft = drawStimuli(obj, lft);
         drawTarget(obj, color, offset, which_side, pawIndSizePix);
         
@@ -61,13 +58,13 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
             global Log;
             obj.state = state;
             obj.currStateStart = time;
-            obj.stateStart.(obj.state) = time;
             
             Log.events.save_next_flip();
             Log.events.add_entry(time, obj.taskName, 'DecideNewState', obj.state);
             Log.events.queue_entry(obj.taskName, 'NewState', obj.state);
 
             obj.update();
+            obj.stateStart.(obj.state) = time;
             %fprintf('New state: %s\n', state);
         end
         function isEnd = endOfTrial(obj)
@@ -158,7 +155,7 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
             end
         end
         function write_trial_log_csv(obj, common_base_fn)
-            obj.trial_log.write_csv([common_base_fn '_CurveTracingTask.csv'])
+            obj.trial_log.write_csv([common_base_fn '_' obj.taskName(obj.taskName ~= ' ') '.csv'])
         end
     end
     methods (Access = protected)
@@ -173,6 +170,14 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
         
         correctResponseGiven(obj, lft);
         falseResponseGiven(obj, lft);
+        
+        [pts, pts_col] = calcCurve(obj, indpos);
+        readStimulusParams(obj, stim_index);
+        
+        drawFix(obj);
+        drawBackgroundFixPoint(obj);
+        drawCurve(obj, indpos);
+        drawPreSwitchFigure(obj, Par, pos, SizePix, alpha);
         
         function update(obj)
             switch obj.state

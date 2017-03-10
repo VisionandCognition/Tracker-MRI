@@ -18,10 +18,23 @@ global Par;
     
     obj.taskParams.FixPositionsPix = zeros(...
         size(obj.taskParams.FixPositionsDeg,2), 2);
-    for i=1:size(obj.taskParams.FixPositionsDeg,2);
-        obj.taskParams.FixPositionsPix(i,:) = round(...
-            obj.taskParams.FixPositionsDeg{i}.*Par.PixPerDeg);
+    for stim_index=1:size(obj.taskParams.FixPositionsDeg,2);
+        obj.taskParams.FixPositionsPix(stim_index,:) = round(...
+            obj.taskParams.FixPositionsDeg{stim_index}.*Par.PixPerDeg);
     end
 
     Par.Paused = false;
+    
+    obj.curves = cell( ...
+        size(obj.stimuli_params, 1), ... number of stimuli
+        obj.param('NumOfPawIndicators'), ... targets
+        2); % pts or pts_col
+    for stim_index=1:size(obj.stimuli_params, 1)
+        obj.readStimulusParams(stim_index);
+        for indpos = 1:obj.param('NumOfPawIndicators')
+            [pts, pts_col] = obj.calcCurve(indpos);
+            obj.curves{stim_index, indpos, 1} = pts;
+            obj.curves{stim_index, indpos, 2} = pts_col;
+        end
+    end
 end

@@ -14,6 +14,9 @@ classdef EventLog < handle
             obj.beginExpTime = time;
             obj.add_entry(time, 'NA', 'BeginExperiment');
         end
+        function nEvents = nEvents(obj)
+            nEvents = length(obj.log)+1;
+        end
         function add_entry(obj, time, task, event, info)
             assert(isnumeric(time))
             nEvents = length(obj.log)+1;

@@ -62,8 +62,8 @@ lft=Screen('Flip', Par.window);
 
 Log.events = EventLog;
 %% Stimulus preparation ===================================================
-Stm(1).tasksUnique = {Stm(1).tasksToCycle{1}};
-for i = 2:length(Stm(1).tasksToCycle)
+Stm(1).tasksUnique = {Stm(1).RestingTask};
+for i = 1:length(Stm(1).tasksToCycle)
     unique = true;
     for j = 1:length(Stm(1).tasksUnique)
         if Stm(1).tasksToCycle{i} == Stm(1).tasksUnique{j}
@@ -85,12 +85,17 @@ Log.events.begin_experiment(lft)
 for CodeControl=1 %allow code folding
     % Some intitialization of control parameters
     Par.ESC = false; %escape has not been pressed
+    Par.endExperiment  = false;
+    Par.numEscapePresses = 0;
+    Par.WindDownScan = false;
+    Par.WindDownStartTime = nan;
     Log.MRI.TriggerReceived = false;
     Log.MRI.TriggerTime = [];
     Log.ManualReward = false;
     Log.ManualRewardTime = [];
     Log.TotalReward=0;
     Log.TCMFR = [];
+    Log.numMiniBlocks = 0;
 
     % Flip the proper background on screen
     Screen('FillRect',Par.window, Par.BG .* Par.ScrWhite);
@@ -125,19 +130,83 @@ for CodeControl=1 %allow code folding
 
     % Trial Logging
     Par.CurrResponse = Par.RESP_NONE;
-    Par.Response = [0 0 0 0 0]; %[correct false-hit missed]
-    Par.ResponsePos = [0 0 0 0 0]; %[correct false-hit missed]
+    Par.Response = [0 0 0 0 0]; % counts [ correct false-hit missed]
     Par.RespTimes = [];
-    Par.ManRewThisTrial=[];
 
     Par.FirstInitDone=false;
     Par.CheckFixIn=false;
     Par.CheckFixOut=false;
     Par.CheckTarget=false;
     Par.RewardRunning=false;
+    
+    EyeRecMsgShown=false;
 end
 
-%% MRI triggered start
+
+% This control parameter needs to be outside the stimulus loop
+FirstEyeRecSet=false;
+if ~TestRunstimWithoutDAS
+    dasbit(0,1); %set eye-recording trigger to 1 (=stopped)
+    %reset reward slider based on ParSettings
+    handles=guihandles(Par.hTracker);
+    if numel(Par.RewardTime)==1
+        set(handles.Lbl_Rwtime, 'String', num2str(Par.RewardTime, 5))
+        set(handles.slider1, 'Value', Par.RewardTime)
+    else
+        set(handles.Lbl_Rwtime, 'String', num2str(Par.RewardTime(1,2), 5))
+        set(handles.slider1, 'Value', Par.RewardTime(1,2))
+    end
+end
+
+%get the monkeyname
+FSTR = inputdlg('Specify primate''s name','Primate''s Name',1,{Par.MONKEY});
+Par.MONKEY = FSTR{1};
+
+% output stimsettings filename to cmd
+fprintf(['Setup selected: ' Par.SetUp '\n']);
+%fprintf(['Screen selected: ' Par.ScreenChoice '\n']);
+fprintf(['TR: ' num2str(Par.TR) 's\n\n']);
+
+DateString = datestr(clock,30);
+DateString = DateString(1:end-2);
+fprintf(['=== Running ' Par.STIMSETFILE ' for ' Par.MONKEY ' ===\n']);
+fprintf(['Started at ' DateString '\n']);
+
+
+%% Eye-tracker recording =============================================
+if Par.EyeRecAutoTrigger
+    if ~FirstEyeRecSet
+        SetEyeRecStatus(0); % send record off signal
+        hmb=msgbox('Prepare the eye-tracker for recording','Eye-tracking');
+        uiwait(hmb);
+        FirstEyeRecSet=true;
+        pause(1);
+    end
+
+    MoveOn=false;
+    StartSignalSent=false;
+    while ~MoveOn
+        StartEyeRecCheck = GetSecs;
+        while ~Par.EyeRecStatus && GetSecs < StartEyeRecCheck + 3 % check for 3 seconds
+            CheckEyeRecStatus; % checks the current status of eye-recording
+            if ~StartSignalSent
+                SetEyeRecStatus(1);
+                StartSignalSent=true;
+            end
+        end
+        BreakTime = GetSecs;
+        if Par.EyeRecStatus % recording
+            StartedEyeRecTime=BreakTime;
+            fprintf('Started recording eyetrace\n');
+            MoveOn=true;
+        else
+            fprintf('not recording yet\n')
+            SetEyeRecStatus(1); %trigger recording
+        end
+    end
+end
+
+%% Wait for MRI trigger =============================================
 Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
 lft=Screen('Flip', Par.window);
 Log.events.screen_flip(lft, 'NA');
@@ -146,20 +215,54 @@ if Par.MRITriggeredStart
     fprintf('Waiting for MRI trigger (or press ''t'' on keyboard)\n');
     while ~Log.MRI.TriggerReceived
         CheckKeys;
-        %Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
-        %lft=Screen('Flip', Par.window);
     end
     fprintf(['MRI trigger received after ' num2str(GetSecs-Par.ExpStart) ' s\n']);
-    Log.events.add_entry(GetSecs, 'NA', 'MRI_Trigger', 'Received');
 end
 
 %% Stimulus presentation loop =============================================
 % keep doing this until escape is pressed or stop is clicked
-% Structure: preswitch_period-switch_period/switched_duration-postswitch
-while ~Par.ESC %===========================================================
-    if Stm(1).task.endOfBlock()
-        Stm(1).taskCycleInd = mod(Stm(1).taskCycleInd, length(Stm(1).tasksToCycle))+1;
-        Stm(1).task = Stm(1).tasksToCycle{Stm(1).taskCycleInd};
+%  __  __       _         _                   
+% |  \/  |     (_)       | |                  
+% | \  / | __ _ _ _ __   | | ___   ___  _ __  
+% | |\/| |/ _` | | '_ \  | |/ _ \ / _ \| '_ \ 
+% | |  | | (_| | | | | | | | (_) | (_) | |_) |
+% |_|  |_|\__,_|_|_| |_| |_|\___/ \___/| .__/ 
+%                                      | |    
+%                                      |_| http://patorjk.com/software/taag
+%==========================================================================
+
+while ~Par.endExperiment  %|| (Par.ESC && ~isfield(Stm(1), 'RestingTask')))
+    
+    if Stm(1).task.endOfBlock() % ------- Start new block?
+        CHR = Stm(1).task.trackerWindowDisplay();
+        fprintf('%s\n', CHR{:});
+        
+        Log.numMiniBlocks = Log.numMiniBlocks + 1;
+        % Last block(s) should be resting blocks
+        if Par.ESC || Par.WindDownScan % && isfield(Stm(1), 'RestingTask')
+            % if the previous block was a resting block, don't need to add
+            % another resting block
+            if isnan(Par.WindDownStartTime) && Stm(1).task ~= Stm(1).RestingTask
+                Par.WindDownStartTime = lft;
+                Stm(1).taskCycleInd = NaN;
+                Stm(1).task = Stm(1).RestingTask;
+            else
+                Log.events.add_entry(GetSecs, Stm(1).task.name, 'EndExperiment', 'Rested');
+                Par.ESC = true;
+                Par.endExperiment = true;
+                break;
+            end
+        else
+            if Stm(1).alternateWithRestingBlocks && Stm(1).task ~= Stm(1).RestingTask
+                Stm(1).taskCycleInd = NaN;
+                Stm(1).task = Stm(1).RestingTask;
+            else
+                Stm(1).taskCycleInd = randi(length(Stm(1).tasksToCycle));
+                Stm(1).task = Stm(1).tasksToCycle{Stm(1).taskCycleInd};
+            end
+        end
+        fprintf('-- Start mini-block %d: %s --\n', Log.numMiniBlocks, Stm(1).task.name);
+        Log.events.add_entry(lft, Stm(1).task.name, 'NewMiniBlock', Log.numMiniBlocks);
     end
     Stm(1).task.updateState('INIT_TRIAL', lft);
     
@@ -186,6 +289,7 @@ while ~Par.ESC %===========================================================
         Par.FixInOutTime=[0 0];
         Log.StartBlock=lft;
         lft=Screen('Flip', Par.window);  %initial flip to sync up timing
+        Log.events.screen_flip(lft, 'NA');
         nf=0;
         Par.LastRewardTime = GetSecs;
     end
@@ -211,15 +315,15 @@ while ~Par.ESC %===========================================================
     % Check eye fixation --------------------------------------------------
     CheckFixation;
     
-    % Wait for fixation --------------------------------------------------
+    % Wait for fixation ---------------------------------------------------
     Stm(1).task.updateState('PREFIXATION', lft);
     Par.FixStart=Inf;
-    fprintf('Start %s task\n', Stm(1).task.name);
+    %fprintf('Start %s task\n', Stm(1).task.name);
     
     % ---------------------------------------------------------------------
     % Go through all of the different states of the current trial
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    while ~Stm(1).task.endOfTrial() && ~Par.PosReset && ~Par.ESC && ~Par.BreakTrial
+    while ~Stm(1).task.endOfTrial() && ~Par.PosReset && ~Par.endExperiment && ~Par.BreakTrial
         
         CheckManual;
         Stm(1).task.checkResponses(GetSecs);
@@ -252,7 +356,6 @@ while ~Par.ESC %===========================================================
     if Par.CurrResponse == Par.RESP_NONE            
         Par.CurrResponse = Par.RESP_MISS;
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
-        Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
         Par.CorrStreakcount=[0 0];
     end
     
@@ -261,73 +364,17 @@ while ~Par.ESC %===========================================================
         if Par.PosReset
             Log.events.add_entry(lft, Stm(1).task.name, 'PosReset');
             
-            % display & write stats for this position
-            fprintf(['Pos ' num2str(Par.PrevPosNr) ': T=' ...
-                num2str(Par.Trlcount(1)) ' C=' ...
-                num2str(Par.ResponsePos(1)) ' M=' ...
-                num2str(Par.ResponsePos(3)) ' F=' ...
-                num2str(Par.ResponsePos(2)) ' (' ...
-                num2str(round(100*Par.ResponsePos(1)/Par.Trlcount(1))) '%%)\n']);
-            fprintf(['Tot: T=' ...
-                num2str(Par.Trlcount(2)) ' C=' ...
-                num2str(Par.Response(1)) ' M=' ...
-                num2str(Par.Response(3)) ' F=' ...
-                num2str(Par.Response(2)) ' (' ...
-                num2str(round(100*Par.Response(1)/Par.Trlcount(2))) '%%)\n']);
             % reset
-            Par.ResponsePos = 0*Par.ResponsePos;
             Par.Trlcount(1) = 0;
             Par.CorrStreakcount(1)=0;
             Par.PosReset=false; %start new trial when switching position
         else
             Log.events.add_entry(lft, Stm(1).task.name, 'TrialCompleted');
         end
-        
-        % Display total reward every x correct trials
-        if Par.CurrResponse == Par.RESP_CORRECT && ...
-                mod(Par.Response(Par.RESP_CORRECT),10) == 0 && ...
-                Par.Response(Par.RESP_CORRECT) > 0
-            
-            fprintf(['\nTask: ' Stm(1).task.name '\n']);
-        
-
-            Log.TCMFR = [Log.TCMFR; ...
-                Par.Trlcount(2) ...
-                Par.Response(1) ...
-                Par.Response(3) ...
-                Par.Response(2) ...
-                Log.TotalReward];
-            fprintf(['Paw accuracy (block): ',...
-                num2str( round(100 * ...
-                Par.ResponsePos(Par.RESP_CORRECT)/...
-                (Par.ResponsePos(Par.RESP_CORRECT) + ...
-                Par.ResponsePos(Par.RESP_FALSE))))])
-            fprintf(['%%\t (total): ',...
-                num2str( round(100 * ...
-                Par.Response(Par.RESP_CORRECT)/...
-                (Par.Response(Par.RESP_CORRECT) + ...
-                Par.Response(Par.RESP_FALSE))))...
-                '%%\n\n'])
-
-            % reset
-            Par.ResponsePos = 0*Par.ResponsePos;
-        end
     end
     
     % Update Tracker window
     if ~TestRunstimWithoutDAS
-        %SCNT = {'TRIALS'};
-%         SCNT(1) = { ['Corr:  ' num2str(Par.Response(Par.RESP_CORRECT)) ] };
-%         SCNT(2) = { ['False: ' num2str(Par.Response(Par.RESP_FALSE)) ] };
-%         SCNT(3) = { ['Miss:  ' num2str(...
-%             Par.Response(Par.RESP_MISS)+Par.Response(Par.RESP_EARLY)+ ...
-%             Par.Response(Par.RESP_BREAK_FIX)) ] };
-%         SCNT(4) = { ['Total: ' num2str(Par.Trlcount(2)) ]};
-%         if Par.CurrResponse > 0
-%             SCNT(5) = { [RespText{Par.CurrResponse}]};
-%         else
-%             SCNT(5) = {''};
-%         end
         SCNT = Stm(1).task.trackerWindowDisplay();
         set(Hnd(1), 'String', SCNT ) %display updated numbers in GUI
         % Give noise-on-eye-channel info
@@ -337,8 +384,38 @@ while ~Par.ESC %===========================================================
     end
 end
 
-%% Clean up and Save Log ==================================================
+% Clean up and Save Log ===================================================
+%   ____ _                                
+%  / ___| | ___  __ _ _ __    _   _ _ __  
+% | |   | |/ _ \/ _` | '_ \  | | | | '_ \ 
+% | |___| |  __/ (_| | | | | | |_| | |_) |
+%  \____|_|\___|\__,_|_| |_|  \__,_| .__/ 
+%                                  |_|    
+%==========================================================================
 for CleanUp=1 % code folding
+    fprintf('Experiment ended. Cleaning up and saving logs.\n');
+    % end eye recording if necessary
+    if Par.EyeRecAutoTrigger && ~EyeRecMsgShown
+        cn=0;
+        while Par.EyeRecStatus == 0 && cn < 100
+            CheckEyeRecStatus; % checks the current status of eye-recording
+            cn=cn+1;
+        end
+        if Par.EyeRecStatus % recording
+            while Par.EyeRecStatus
+                SetEyeRecStatus(0);
+                pause(1)
+                CheckEyeRecStatus
+            end
+            fprintf('\nStopped eye-recording. Save the file or add more runs.\n');
+            %fprintf(['Suggested filename: ' Par.MONKEY '_' DateString '.tda\n']);
+        else % not recording
+            fprintf('\n>> Alert! Could not find a running eye-recording!\n');
+        end
+        EyeRecMsgShown=true;
+    end
+    fprintf(['Suggested filename: ' Par.MONKEY '_' DateString '.tda\n']);
+    
     % Empty the screen
     Screen('FillRect',Par.window,Stm(1).task.param('BGColor').*Par.ScrWhite);
     lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
@@ -348,9 +425,11 @@ for CleanUp=1 % code folding
     
     % save stuff
     if ~TestRunstimWithoutDAS
-        FileName=['Log_' Par.STIMSETFILE '_' datestr(clock,30)];
+        FileName=['Log_' Par.SetUp '_' Par.MONKEY '_' Par.STIMSETFILE '_' ...
+            DateString];
     else
-        FileName=['Log_NODAS_' Par.STIMSETFILE '_' datestr(clock,30)];
+        FileName=['Log_NODAS_' Par.MONKEY '_' Par.STIMSETFILE '_' ...
+            DateString];
     end
     warning off; %#ok<WNOFF>
     
@@ -376,6 +455,7 @@ for CleanUp=1 % code folding
     if TestRunstimWithoutDAS
         Screen('closeall');
     end
+    fprintf('Done.\n');
 end
 
 %% Standard functions called throughout the runstim =======================
@@ -448,18 +528,24 @@ end
                     Log.MRI.TriggerReceived = true;
                     Log.MRI.TriggerTime = ...
                         [Log.MRI.TriggerTime; Par.KeyTime];
+                    Log.events.add_entry(Par.KeyTime, 'NA', 'MRI_Trigger', 'Received');
                 elseif Par.KeyDetectedInTrackerWindow % only in Tracker
                     switch Key
                         case Par.KeyEscape
+                            if Par.numEscapePresses
+                                Par.endExperiment = true;
+                                fprintf('Ending scan.\n');
+                                Log.events.add_entry(GetSecs, Stm(1).task.name, 'EndExperiment', 'EscapeKey');
+                            else
+                                fprintf('Winding down scan.\n');
+                            end
                             Par.ESC = true;
-%                         case Par.KeyTogglePause
-%                             if Par.Paused
-%                                 Par.Paused = false;
-%                             else
-%                                 Par.Paused = true;
-%                                 Par.BreakTrial=true;
-%                             end
+                            Par.numEscapePresses = Par.numEscapePresses + 1;
+                        case Par.KeySwitchToRestingTask
+                            fprintf('Winding down scan.\n');
+                            Par.WindDownScan = true;
                         case Par.KeyTriggerMR
+                            % cannot be executed
                         case Par.KeyJuice
                             Par.ManualReward = true;
                             Log.ManualRewardTime = ...
@@ -496,14 +582,17 @@ end
                             %                     Par.SwitchPos = true;
                             %                     Par.WhichPos = 'Prev';
                         case Par.KeyRequireFixation
+                            time = GetSecs;
                             if ~Par.RequireFixationForReward;
                                 Par.RequireFixationForReward = true;
                                 Par.WaitForFixation = true;
                                 fprintf('Requiring fixation for reward.\n')
+                                Log.events.add_entry(time, Stm(1).task.name, 'FixationRequirement', 'Start');
                             else
                                 Par.RequireFixationForReward = false;
                                 Par.WaitForFixation = false;
                                 fprintf('Not requiring fixation for reward.\n')
+                                Log.events.add_entry(time, Stm(1).task.name, 'FixationRequirement', 'Stop');
                             end
                     end
                 end
@@ -535,20 +624,20 @@ end
         % values are different for 64 bit windows
         if strcmp(computer,'PCWIN64') && Log.RespSignal > 40000 % 64bit das card
             Par.BeamLIsBlocked = false;
-            if Par.HandIsIn
-                Par.HandIsIn=false;
+            if Par.HandIsIn(1)
+                Par.HandIsIn(1)=false;
                 Log.events.add_entry(GetSecs, Stm(1).task.name, 'Response_Release', 'Left');
             end
         elseif strcmp(computer,'PCWIN') && Log.RespSignal > 2750 % old das card
             Par.BeamLIsBlocked = false;
-            if Par.HandIsIn
-                Par.HandIsIn=false;
+            if Par.HandIsIn(1)
+                Par.HandIsIn(1)=false;
                 Log.events.add_entry(GetSecs, Stm(1).task.name, 'Response_Release', 'Left');
             end
         else
             Par.BeamLIsBlocked = true;
-            if ~Par.HandIsIn
-                Par.HandIsIn=true;
+            if ~Par.HandIsIn(1)
+                Par.HandIsIn(1)=true;
                 Log.events.add_entry(GetSecs, Stm(1).task.name, 'Response_Initiate', 'Left');
             end
         end
@@ -560,20 +649,20 @@ end
             Log.RespSignal = ChanLevels(5-2);
             if strcmp(computer,'PCWIN64') && Log.RespSignal > 40000 % 64bit das card
                 Par.BeamRIsBlocked = false;
-                if Par.HandIsIn
-                    Par.HandIsIn=false;
+                if Par.HandIsIn(2)
+                    Par.HandIsIn(2)=false;
                     Log.events.add_entry(GetSecs, Stm(1).task.name, 'Response_Release', 'Right');
                 end
             elseif strcmp(computer,'PCWIN') && Log.RespSignal > 2750 % old das card
                 Par.BeamRIsBlocked = false;
-                if Par.HandIsIn
-                    Par.HandIsIn=false;
+                if Par.HandIsIn(2)
+                    Par.HandIsIn(2)=false;
                     Log.events.add_entry(GetSecs, Stm(1).task.name, 'Response_Release', 'Right');
                 end
             else
                 Par.BeamRIsBlocked = true;
-                if ~Par.HandIsIn
-                    Par.HandIsIn=true;
+                if ~Par.HandIsIn(2)
+                    Par.HandIsIn(2)=true;
                     Log.events.add_entry(GetSecs, Stm(1).task.name, 'Response_Initiate', 'Right');
                 end
             end
@@ -737,6 +826,40 @@ end
             dasrun(5);
             [fixChange, ~] = DasCheck;
             fixChange = fixChange ~= 0;
+        end
+    end
+% check eye-tracker recording status
+    function CheckEyeRecStatus
+        daspause(5);
+        ChanLevels=dasgetlevel;
+        Par.CheckRecLevel=ChanLevels(Par.ConnectBox.EyeRecStat-2);
+        %Par.CheckRecLevel
+        % dasgetlevel starts reporting at channel 3, so subtract 2 from the channel you want (1 based)
+        if strcmp(computer,'PCWIN64') && Par.CheckRecLevel < 48000 % 64bit das card
+            Par.EyeRecStatus = 1;
+        elseif strcmp(computer,'PCWIN') &&  Par.CheckRecLevel < 2750 % old das card
+            Par.EyeRecStatus = 1;
+        else
+            Par.EyeRecStatus = 0;
+        end
+    end
+% set eye-tracker recording status
+    function SetEyeRecStatus(status)
+        if status % switch on
+            Par.EyeRecTriggerLevel=0;
+        elseif ~status % switch off
+            Par.EyeRecTriggerLevel=1;
+        end
+        tEyeRecSet = GetSecs;
+        %Par.EyeRecTriggerLevel
+        dasbit(0,Par.EyeRecTriggerLevel);
+        %Log.nEvents=Log.nEvents+1;
+        if Par.EyeRecTriggerLevel
+            Log.events.add_entry(tEyeRecSet, 'NA', 'EyeRecOff');
+            %Log.Events(Log.nEvents).type='EyeRecOff';
+        else
+            Log.events.add_entry(tEyeRecSet, 'NA', 'EyeRecOn');
+            %Log.Events(Log.nEvents).type='EyeRecOn';
         end
     end
 

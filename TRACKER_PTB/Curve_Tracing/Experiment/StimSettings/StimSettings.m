@@ -98,26 +98,28 @@ Params.BlockSize = 3;
 Params.rewardMultiplier = 1.0;
 
 FixParams = Params;
-FixParams.rewardMultiplier = 0.5;
+FixParams.rewardMultiplier = 1.0; % 0.5;
 
 CtrlParams = Params;
 CtrlParams.NumOfPawIndicators = 5;
 
 %curvetracing = CurveTracingJoystickTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
 curvetracing = CurveTracingJoystickBlockTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
+curvecatch = CurveTracingCatchBlockTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
 curvecontrol = CurveTracingJoystickTask(CtrlParams, 'StimSettings/CurveTracingJoyStickTask-control.csv');
+fixation = FixationTask(FixParams);
+Stm(1).RestingTask = fixation;
 
-Stm(1).tasksToCycle = {...
-    curvetracing, ...
-    curvetracing, ...
-    curvetracing, ...
-    curvetracing, ...
-    curvecontrol ...
-    %FixationTask(FixParams) ...
-    %curvetracing, ...
-    };
+    %repmat({fixation}, 1, 1*4) ... fixation
+Stm(1).tasksToCycle = [...
+    repmat({curvetracing}, 1, 4*4) ... curve tracing
+    repmat({curvecontrol}, 1, 1*4) ... control
+    repmat({fixation}, 1, 1*4) ... fixation
+    {curvecatch} ... catch trial
+    ];
 Stm(1).taskCycleInd = 1;
-Stm(1).task = Stm(1).tasksToCycle{Stm(1).taskCycleInd};
+Stm(1).task = Stm(1).RestingTask;
+Stm(1).alternateWithRestingBlocks = false;
 
 % Write stimulus settings to global variable StimObj
 StimObj.Stm = Stm;

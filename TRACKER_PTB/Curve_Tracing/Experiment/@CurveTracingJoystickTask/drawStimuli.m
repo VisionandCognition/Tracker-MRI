@@ -6,6 +6,7 @@
         obj.drawBackgroundFixPoint();
         % Draw on screen
         lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
+        Log.events.screen_flip(lft, obj.taskName);
         return;
     end
  
@@ -18,6 +19,7 @@
             strcmp(obj.state, 'POSTSWITCH')==1
         
         lft = Screen('Flip', Par.window,lft+.9*Par.fliptimeSec); 
+        Log.events.screen_flip(lft, obj.taskName);
         return;
     end
 
