@@ -115,9 +115,9 @@ Stm(1).RestingTask = fixation;
     %repmat({fixation}, 1, 1*4) ... fixation
     %{curvecatch} ... catch trial
 Stm(1).tasksToCycle = [...
-    repmat({curvetracing}, 1, 4*4) ... curve tracing
-    repmat({curvecontrol}, 1, 1*4) ... control
-    repmat({fixation}, 1, 1*4) ... fixation
+    repmat({curvetracing}, 1, 4*2) ... curve tracing
+    repmat({curvecontrol}, 1, 1*2) ... control
+    repmat({fixation}, 1, 1*2) ... fixation
     {curvecatch} ... catch trial
     ];
 Stm(1).taskCycleInd = 1;

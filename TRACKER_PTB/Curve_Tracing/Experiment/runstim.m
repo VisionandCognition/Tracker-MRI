@@ -149,6 +149,10 @@ for CodeControl=1 %allow code folding
     Par.RewardRunning=false;
     
     EyeRecMsgShown=false;
+    
+    Log.Eye =[];
+    Par.CurrEyePos = [];
+    Par.CurrEyeZoom = [];
 end
 
 
@@ -348,6 +352,9 @@ while ~Par.endExperiment  %|| (Par.ESC && ~isfield(Stm(1), 'RestingTask')))
         Stm(1).task.checkResponses(GetSecs);
         CheckKeys;
         lft = Stm(1).task.drawStimuli(lft);
+        
+        %% log eye-info if required
+        LogEyeInfo;
         
         CheckFixation;
         CheckTracker; % Get and plot eye position
@@ -902,5 +909,20 @@ end
         end
     end
 
+% log eye info
+    function LogEyeInfo
+        % if nothing changes in calibration
+        % only log position at 5 Hz
+        if size(Log.Eye,2)==0 || ...
+                (sum(Par.ScaleOff-Log.Eye(end).ScaleOff) ~= 0 || ...
+                (GetSecs-Par.ExpStart) - Log.Eye(end).t > 1/5)
+            
+            eye_i = size(Log.Eye,2)+1;
+            Log.Eye(eye_i).t = GetSecs-Par.ExpStart;
+            Log.Eye(eye_i).CurrEyePos = Par.CurrEyePos;
+            Log.Eye(eye_i).CurrEyeZoom = Par.ZOOM;
+            Log.Eye(eye_i).ScaleOff = Par.ScaleOff;
+        end
+    end
 
 end

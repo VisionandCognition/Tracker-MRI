@@ -5,7 +5,7 @@ global Par
 global StimObj
 
 %% Load defaults ==========================================================
-eval('ParSettings'); % loads the chosen stimfile
+eval('ParSettings'); % loads the default parameters
 
 %% Setup ==================================================================
 % Spinoza_Mock / Spinoza_3T / NIN

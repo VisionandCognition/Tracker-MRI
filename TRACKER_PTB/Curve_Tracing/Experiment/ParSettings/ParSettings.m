@@ -177,7 +177,9 @@ Par.ManualRewardTargetOnly = false; % only give manual reward during target pres
 % prevents me from mistiming the manual reward during training
 
 Par.OneRewardPerTrial = false; % for training allow multiple rewards/target
-Par.RewardTime = 0.04;
+if ~isfield(Par, 'RewardTime')
+    Par.RewardTime = 0.1;
+end
 
 % switch Par.RewardType
 %     case 0
