@@ -110,7 +110,10 @@ curvecontrol = CurveTracingJoystickTask(CtrlParams, 'StimSettings/CurveTracingJo
 fixation = FixationTask(FixParams);
 Stm(1).RestingTask = fixation;
 
+    %repmat({curvetracing}, 1, 4*4) ... curve tracing
+    %repmat({curvecontrol}, 1, 1*4) ... control
     %repmat({fixation}, 1, 1*4) ... fixation
+    %{curvecatch} ... catch trial
 Stm(1).tasksToCycle = [...
     repmat({curvetracing}, 1, 4*4) ... curve tracing
     repmat({curvecontrol}, 1, 1*4) ... control
@@ -118,7 +121,8 @@ Stm(1).tasksToCycle = [...
     {curvecatch} ... catch trial
     ];
 Stm(1).taskCycleInd = 1;
-Stm(1).task = Stm(1).RestingTask;
+%Stm(1).task = Stm(1).RestingTask;
+Stm(1).task = curvecontrol; % This task is good for fixation calibration
 Stm(1).alternateWithRestingBlocks = false;
 
 % Write stimulus settings to global variable StimObj

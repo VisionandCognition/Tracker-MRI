@@ -37,10 +37,20 @@ function checkResponses_PostSwitch(obj, lft)
     %time1 = obj.stateStart.POSTSWITCH - obj.stateStart.PRESWITCH + obj.taskParams.EventPeriods(3)/1000;
     %time2 = obj.taskParams.EventPeriods(1)/1000 + obj.taskParams.EventPeriods(3)/1000;
     
-    if (lft >= obj.stateStart.POSTSWITCH + obj.taskParams.EventPeriods(3)/1000 || ...
+    if isinf(obj.stateStart.SWITCHED)
+        if (lft >= obj.stateStart.PRESWITCH + ...
+            (obj.taskParams.EventPeriods(1) + obj.taskParams.EventPeriods(3))/1000/2)
+
+            % switched state was not shown, show another trial in block
+            obj.iTrialOfBlock = obj.iTrialOfBlock - 1;
+            
+            obj.updateState('TRIAL_END', lft);
+            obj.goBarOrient = 1;
+        end
+    elseif (lft >= obj.stateStart.POSTSWITCH + obj.taskParams.EventPeriods(3)/1000 || ...
             Par.EndTrialOnResponse && ~strcmp(obj.curr_response, 'none')) && ...
             (lft >= obj.stateStart.PRESWITCH + ...
-            (obj.taskParams.EventPeriods(1) + obj.taskParams.EventPeriods(3))/1000/2)
+            (obj.taskParams.EventPeriods(1) + obj.taskParams.EventPeriods(3))/1000)
         
         if strcmp(obj.curr_response, 'none')==1
             obj.curr_response = 'miss';
@@ -51,12 +61,7 @@ function checkResponses_PostSwitch(obj, lft)
         obj.responses_shape.(obj.curr_response)(iShape) = obj.responses_shape.(obj.curr_response)(iShape) + 1;
         
         obj.updateState('TRIAL_END', lft);
-        
         obj.goBarOrient = 1;
-        % if switched state was not shown, don't count the trial
-        if isinf(obj.stateStart.SWITCHED)
-            obj.iTrialOfBlock = obj.iTrialOfBlock - 1;
-        end
     end
 end
 

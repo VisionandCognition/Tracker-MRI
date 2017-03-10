@@ -84,7 +84,7 @@ classdef FixationTask < FixationTrackingTask
                         fprintf('Fixation ratio: %0.2f  (in: %0.1f, out: %0.1f)\n', fixInRatio, ...
                             obj.time_fixating(), obj.time_not_fixating());
 
-                        if fixInRatio >= 0.1
+                        if fixInRatio >= 0.50
                             RewardAmount = Par.GiveRewardAmount + ...
                                 fixInRatio^2 * Par.RewardTime * obj.taskParams.rewardMultiplier;
 

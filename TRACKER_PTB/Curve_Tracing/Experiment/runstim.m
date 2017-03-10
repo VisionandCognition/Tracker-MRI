@@ -59,6 +59,7 @@ Stm = StimObj.Stm;
 % Flip the proper background on screen
 Screen('FillRect',Par.window, Par.BG .* Par.ScrWhite);
 lft=Screen('Flip', Par.window);
+Par.ExpStart = NaN; % experiment not yet "started"
 
 Log.events = EventLog;
 %% Stimulus preparation ===================================================
@@ -95,7 +96,14 @@ for CodeControl=1 %allow code folding
     Log.ManualRewardTime = [];
     Log.TotalReward=0;
     Log.TCMFR = [];
-    Log.numMiniBlocks = 0;
+    Log.numMiniBlocks = 1;
+    
+    % Turn off fixation for first block (so that it can be calibrated)
+    OldPar.WaitForFixation = Par.WaitForFixation;
+    OldPar.RequireFixationForReward = Par.RequireFixationForReward;
+    Par.RequireFixationForReward = false;
+    Par.WaitForFixation = false;
+    Log.events.add_entry(GetSecs, 'NA', 'FixationRequirement', 'Stop');
 
     % Flip the proper background on screen
     Screen('FillRect',Par.window, Par.BG .* Par.ScrWhite);
@@ -130,7 +138,8 @@ for CodeControl=1 %allow code folding
 
     % Trial Logging
     Par.CurrResponse = Par.RESP_NONE;
-    Par.Response = [0 0 0 0 0]; % counts [ correct false-hit missed]
+    
+    Par.Response = [0 0 0 0 0]; % counts [correct false-hit miss early fix.break]
     Par.RespTimes = [];
 
     Par.FirstInitDone=false;
@@ -253,7 +262,17 @@ while ~Par.endExperiment  %|| (Par.ESC && ~isfield(Stm(1), 'RestingTask')))
                 break;
             end
         else
-            if Stm(1).alternateWithRestingBlocks && Stm(1).task ~= Stm(1).RestingTask
+            if Log.numMiniBlocks == 2
+                Stm(1).taskCycleInd = NaN;
+                Stm(1).task = Stm(1).RestingTask;
+                
+                Par.WaitForFixation = OldPar.WaitForFixation;
+                Par.RequireFixationForReward = OldPar.RequireFixationForReward;
+                if Par.WaitForFixation
+                    Log.events.add_entry(GetSecs, Stm(1).task.name, 'FixationRequirement', 'Start');
+                end
+            elseif Stm(1).alternateWithRestingBlocks && ...
+                    Stm(1).task ~= Stm(1).RestingTask
                 Stm(1).taskCycleInd = NaN;
                 Stm(1).task = Stm(1).RestingTask;
             else
@@ -428,7 +447,7 @@ for CleanUp=1 % code folding
         FileName=['Log_' Par.SetUp '_' Par.MONKEY '_' Par.STIMSETFILE '_' ...
             DateString];
     else
-        FileName=['Log_NODAS_' Par.MONKEY '_' Par.STIMSETFILE '_' ...
+        FileName=['Log_NODAS_' Par.SetUp '_' Par.MONKEY '_' Par.STIMSETFILE '_' ...
             DateString];
     end
     warning off; %#ok<WNOFF>
@@ -447,6 +466,26 @@ for CleanUp=1 % code folding
     for i = 1:length(Stm(1).tasksUnique)
         Stm(1).tasksUnique{i}.write_trial_log_csv(filePath);
     end
+
+    % Print / write human-readable summary of performance
+    fprintf('\n');
+    fout = fopen([filePath '_summary.txt'], 'w');
+    for fid = [1 fout]
+        fprintf(fid, 'Total counts\n------------\n\n');
+        fprintf(fid, 'Correct: %d\n', Par.Response(Par.RESP_CORRECT));
+        fprintf(fid, 'Incorrect: %d\n', Par.Response(Par.RESP_FALSE));
+        fprintf(fid, 'Early response: %d\n', Par.Response(Par.RESP_EARLY));
+        fprintf(fid, 'Late / no response: %d\n', Par.Response(Par.RESP_MISS));
+        fprintf(fid, 'Fix. breaks: %d\n\n', Par.Response(Par.RESP_BREAK_FIX));
+        totalResp = sum(Par.Response([Par.RESP_CORRECT Par.RESP_FALSE Par.RESP_EARLY]));
+        fprintf(fid, 'Responses: %d\n\n', totalResp);
+        
+        fprintf(fid, 'Probabilities\n-------------\n\n');
+        fprintf(fid, 'Correct: %d%%\n', round(Par.Response(Par.RESP_CORRECT)*100/totalResp));
+        fprintf(fid, 'Incorrect: %d%%\n', round(Par.Response(Par.RESP_FALSE)*100/totalResp));
+        fprintf(fid, 'Early response: %d%%\n', round(Par.Response(Par.RESP_EARLY)*100/totalResp));
+    end
+    fclose(fout);
 
     if TestRunstimWithoutDAS; cd Experiment;end
     warning on; %#ok<WNON>

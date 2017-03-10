@@ -12,7 +12,7 @@ classdef FixationTrackingTask < handle
     end
     methods (Access = protected)
         function startTrackingFixationTime(obj, time, fixIn)
-            obj.fixationTrackStarted = true;
+            obj.fixationTrackStarted = time;
             
             obj.trialFixS = 0.0;
             obj.trialNoFixS = 0.0;
@@ -33,12 +33,19 @@ classdef FixationTrackingTask < handle
             obj.fixationTrackStarted = false;
             if obj.fixIn
                 obj.trialFixS = obj.trialFixS + (time - obj.fixInStart);
+                %fprintf('stop @%0.3f\t\t\t', time-obj.fixationTrackStarted)
+                %fprintf('accum. in: %0.3f\n', obj.trialFixS);
             else
                 obj.trialNoFixS = obj.trialNoFixS + (time - obj.fixOutStart);
+                %fprintf('stop @%0.3f\t\t\t', time-obj.fixationTrackStarted)
+                %fprintf('accum. out: %0.3f\n', obj.trialNoFixS);
             end
             obj.fixInStart = nan;
             obj.fixOutStart = nan;
             obj.fixIn = nan;
+            
+            global Par;
+            %fprintf('stop tracking %0.3f\n', time-Par.ExpStart)
         end
     end
     methods (Abstract)
@@ -65,7 +72,10 @@ classdef FixationTrackingTask < handle
                 obj.fixIn = true;
                 obj.fixInStart = time;
                 assert(~isnan(obj.fixOutStart))
-                obj.trialFixS = obj.trialFixS + (obj.fixInStart - obj.fixOutStart);
+                
+                obj.trialNoFixS = obj.trialNoFixS + (obj.fixInStart - obj.fixOutStart);
+                %fprintf('fix in @%0.3f\t\t\t', time-obj.fixationTrackStarted)
+                %fprintf('accum. out: %0.3f\n', obj.trialNoFixS);
             end
         end
         function fixation_out(obj, time)
@@ -79,7 +89,10 @@ classdef FixationTrackingTask < handle
                 obj.fixIn = false;
                 obj.fixOutStart = time;
                 assert(~isnan(obj.fixInStart))
-                obj.trialNoFixS = obj.trialNoFixS + (obj.fixOutStart - obj.fixInStart);
+                obj.trialFixS = obj.trialFixS + (obj.fixOutStart - obj.fixInStart);
+                
+                %fprintf('fix out @%0.3f\t\t\t', time-obj.fixationTrackStarted)
+                %fprintf('accum. time in: %0.3f\n', obj.trialFixS);
             end
         end
     end    
