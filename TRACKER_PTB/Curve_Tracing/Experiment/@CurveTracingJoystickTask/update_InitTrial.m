@@ -1,6 +1,5 @@
 function update_InitTrial(obj)
 % Setup the stimuli information that varies per trial
-global Par;
 global Log;
 
     obj.stateStart = struct('SWITCHED', -Inf); % reset times
@@ -15,7 +14,7 @@ global Log;
     
     obj.readStimulusParams(obj.curr_stim_index);
     
-    Log.events.add_entry(nan, obj.taskName, 'NewStimulus', obj.curr_stim_index);
+    Log.events.add_entry(nan, obj.taskName, 'NewStimulus', num2str(obj.curr_stim_index));
     Log.events.add_entry(nan, obj.taskName, 'TargetLoc', obj.param('TargetLoc'));
     
     obj.trial_log.recordTrialStimulus(obj.curr_stim);

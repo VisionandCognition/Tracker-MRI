@@ -285,7 +285,7 @@ while ~Par.endExperiment  %|| (Par.ESC && ~isfield(Stm(1), 'RestingTask')))
             end
         end
         fprintf('-- Start mini-block %d: %s --\n', Log.numMiniBlocks, Stm(1).task.name);
-        Log.events.add_entry(lft, Stm(1).task.name, 'NewMiniBlock', Log.numMiniBlocks);
+        Log.events.add_entry(lft, Stm(1).task.name, 'NewMiniBlock', num2str(Log.numMiniBlocks));
     end
     Stm(1).task.updateState('INIT_TRIAL', lft);
     
@@ -461,7 +461,7 @@ for CleanUp=1 % code folding
     
     logPath = getenv('TRACKER_LOGS');
     %[~, currDir, ~] = fileparts(pwd);
-    logPath = fullfile(logPath, Par.ProjectLogDir);
+    logPath = fullfile(logPath, Par.ProjectLogDir, [Par.SetUp '_' Par.MONKEY '_' DateString(1:8)]);
     mkdir(logPath);
     filePath = fullfile(logPath, FileName);
     %if TestRunstimWithoutDAS; cd ..;end
@@ -491,6 +491,13 @@ for CleanUp=1 % code folding
         fprintf(fid, 'Correct: %d%%\n', round(Par.Response(Par.RESP_CORRECT)*100/totalResp));
         fprintf(fid, 'Incorrect: %d%%\n', round(Par.Response(Par.RESP_FALSE)*100/totalResp));
         fprintf(fid, 'Early response: %d%%\n', round(Par.Response(Par.RESP_EARLY)*100/totalResp));
+        
+    
+        for i = 1:length(Stm(1).tasksUnique)
+            fprintf(fid, '\n%s\n-------------\n\n', Stm(1).tasksUnique{i}.name());
+            CHR = Stm(1).tasksUnique{i}.trackerWindowDisplay();
+            fprintf(fid, '%s\n', CHR{:});
+        end
     end
     fclose(fout);
 
