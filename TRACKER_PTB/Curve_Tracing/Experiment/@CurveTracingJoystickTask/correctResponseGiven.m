@@ -29,9 +29,11 @@ function correctResponseGiven(obj, lft)
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
         Par.CorrectThisTrial=true;
         
-        Par.GiveRewardAmount = Par.GiveRewardAmount + RewardAmount;
+        withhold_for_release = 0.5;
+        Par.GiveRewardAmount = Par.GiveRewardAmount + (1 - withhold_for_release) * RewardAmount;
+        Par.GiveRewardAmount_onResponseRelease = Par.GiveRewardAmount_onResponseRelease + withhold_for_release * RewardAmount;
         Log.events.add_entry(lft, obj.taskName, 'ResponseGiven', 'CORRECT');
-        Log.events.add_entry(lft, obj.taskName, 'ResponseReward', RewardAmount);
+        %Log.events.add_entry(lft, obj.taskName, 'ResponseReward', RewardAmount);
     end
     Par.ResponseGiven=true;
     Par.CorrStreakcount=Par.CorrStreakcount+1;

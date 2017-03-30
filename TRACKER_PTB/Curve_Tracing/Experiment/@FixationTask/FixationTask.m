@@ -12,6 +12,7 @@ classdef FixationTask < FixationTrackingTask
         stateStart = struct('PREFIXATION', -Inf, 'FIXATION_PERIOD', -Inf, 'POSTFIXATION', -Inf);
         
         iTrialOfBlock = 0;
+        iSubtrial = 0;
         
         curr_response = 'none'; % response of current trial
         responses = struct(...
@@ -68,44 +69,63 @@ classdef FixationTask < FixationTrackingTask
         function checkResponses(obj, time)
             global Par;
             global Log;
-            switch obj.state
-                case 'PREFIXATION'
-                    if time > obj.stateStart.PREFIXATION + obj.taskParams.prefixPeriod/1000
-                        obj.updateState('FIXATION_PERIOD', time);
-                        obj.startTrackingFixationTime(time, Par.FixIn);
+            if strcmp(obj.state, 'POSTFIXATION')
+                if time > obj.stateStart.POSTFIXATION + obj.taskParams.postfixPeriod/1000
+                    obj.responses.(obj.curr_response) = obj.responses.(obj.curr_response) + 1;
+                    obj.updateState('END_TRIAL', time);
+                end
+            end
+            if strcmp(obj.state, 'PREFIXATION')
+                if time > obj.stateStart.PREFIXATION + obj.taskParams.prefixPeriod/1000 && ...
+                        (Par.FixIn || ~Par.WaitForFixation)
+                    obj.updateState('FIXATION_PERIOD', time);
+                    obj.startTrackingFixationTime(time, Par.FixIn);
+                end
+            end
+            if strcmp(obj.state, 'FIXATION_PERIOD')
+                if time > obj.stateStart.FIXATION_PERIOD + obj.taskParams.fixationPeriod/1000
+                    obj.updateState('POSTFIXATION', time);
+                    obj.stopTrackingFixationTime(time);
+
+                    fixInRatio = obj.fixation_ratio();
+
+                    fprintf('Fixation ratio: %0.2f  (in: %0.1f, out: %0.1f)\n', fixInRatio, ...
+                        obj.time_fixating(), obj.time_not_fixating());
+
+                    if fixInRatio >= 0.90
+                        RewardAmount = Par.GiveRewardAmount + ...
+                            fixInRatio^2 * Par.RewardTime * obj.taskParams.rewardMultiplier;
+
+                        obj.curr_response = 'correct';
+                        Par.CurrResponse = Par.RESP_CORRECT;
+
+                        Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
+
+                        Par.GiveRewardAmount = Par.GiveRewardAmount + RewardAmount;
+                        Log.events.add_entry(time, obj.taskName, 'ResponseGiven', 'CORRECT');
+                        Log.events.add_entry(time, obj.taskName, 'ResponseReward', num2str(RewardAmount));
+                    else
+                        obj.curr_response = 'break_fix';
+                        Par.CurrResponse = Par.RESP_BREAK_FIX;
                     end
-                case 'FIXATION_PERIOD'
-                    if time > obj.stateStart.FIXATION_PERIOD + obj.taskParams.fixationPeriod/1000
-                        obj.updateState('POSTFIXATION', time);
-                        obj.stopTrackingFixationTime(time);
+                    
+                    if obj.taskParams.postfixPeriod == 0
+                        obj.responses.(obj.curr_response) = obj.responses.(obj.curr_response) + 1;
                         
-                        fixInRatio = obj.fixation_ratio();
+                        obj.update_InitSubtrial();
+                        
+                        if obj.iSubtrial > 0 % obj.iTrialOfBlock < obj.param('BlockSize')
+                            obj.set_param('FixationPeriodTime', ...
+                                obj.taskParams.EventPeriods(1)/1000 + ...
+                                rand(1)*obj.taskParams.EventPeriods(2)/1000);
 
-                        fprintf('Fixation ratio: %0.2f  (in: %0.1f, out: %0.1f)\n', fixInRatio, ...
-                            obj.time_fixating(), obj.time_not_fixating());
-
-                        if fixInRatio >= 0.50
-                            RewardAmount = Par.GiveRewardAmount + ...
-                                fixInRatio^2 * Par.RewardTime * obj.taskParams.rewardMultiplier;
-
-                            obj.curr_response = 'correct';
-                            Par.CurrResponse = Par.RESP_CORRECT;
-                            
-                            Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
-
-                            Par.GiveRewardAmount = Par.GiveRewardAmount + RewardAmount;
-                            Log.events.add_entry(time, obj.taskName, 'ResponseGiven', 'CORRECT');
-                            Log.events.add_entry(time, obj.taskName, 'ResponseReward', RewardAmount);
+                            obj.updateState('FIXATION_PERIOD', time);
+                            obj.startTrackingFixationTime(time, Par.FixIn);
                         else
-                            obj.curr_response = 'break_fix';
-                            Par.CurrResponse = Par.RESP_BREAK_FIX;
+                            obj.updateState('END_TRIAL', time);
                         end
                     end
-                case 'POSTFIXATION'
-                    if time > obj.stateStart.POSTFIXATION + obj.taskParams.postfixPeriod/1000
-                        obj.responses.(obj.curr_response) = obj.responses.(obj.curr_response) + 1;
-                        obj.updateState('END_TRIAL', time);
-                    end
+                end
             end
         end
         function [val, status] = param(obj, var)
@@ -156,11 +176,20 @@ classdef FixationTask < FixationTrackingTask
                 case 'PREPARE_STIM'
                     obj.update_PrepareStim();
                 case 'INIT_TRIAL'
-                    obj.curr_response = 'none';
-                    obj.iTrialOfBlock = mod(obj.iTrialOfBlock, obj.param('BlockSize')) + 1;
+                    obj.update_InitSubtrial();
+                    
+                    fprintf('Trial %s.%s', obj.iTrialOfBlock, obj.iSubtrial);
                     obj.set_param('FixationPeriodTime', ...
                         obj.taskParams.EventPeriods(1)/1000 + ...
                         rand(1)*obj.taskParams.EventPeriods(2)/1000);
+            end
+        end
+        function update_InitSubtrial(obj)
+            obj.curr_response = 'none';
+            obj.iSubtrial = obj.iSubtrial + 1;
+            if obj.iSubtrial > obj.taskParams.subtrialsInTrial
+                obj.iSubtrial = 0;
+                obj.iTrialOfBlock = mod(obj.iTrialOfBlock, obj.param('BlockSize')) + 1;
             end
         end
     end

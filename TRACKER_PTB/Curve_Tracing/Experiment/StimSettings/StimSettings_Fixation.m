@@ -55,9 +55,12 @@ Params.PawIndCol = [0 .7 0; .9 .2 .2]; % colors for the left and right target
 unsaturatedColor = [0.6 0.6 0.6; 0.6 0.6 0.6];
 satLevel = 5/6;
 Params.PawIndCol = satLevel * Params.PawIndCol + (1 - satLevel) * unsaturatedColor;
+%hsv = rgb2hsv(Params.PawIndCol);
+%hsv(:,2) = hsv(:,2) * 0; % decrease saturation
+%Params.PawIndCol = hsv2rgb(hsv);
 
 %Stm(1).SwitchToLPawProb = [0.55 0.15]; % [prev. correct, prev. incorrect]
-%Stm(1).SwitchToRPawProb = [0.55 0.15]; % [prev. correct, prev. incorrect]
+%Stm(1).SwitchToRPawProb = [0.55 0.15]; % [prev. correct, prev. incorrect]t
 
 % Stimulus position can be toggled with 1-5 keys
 % Params.FixPositionsPix used to be named Stm(1).Center(Par.PosNr,:)
@@ -103,7 +106,6 @@ FixParams.postfixPeriod = 0;  % just for fixation task
 FixParams.rewardMultiplier = .15; % 0.5;
 FixParams.BlockSize = 2; %round(3* 3500 / FixParams.fixationPeriod * FixParams.subtrialsInTrial);
 
-
 CtrlParams = Params;
 CtrlParams.NumOfPawIndicators = 5;
 
@@ -118,15 +120,19 @@ Stm(1).RestingTask = fixation;
     %repmat({curvecontrol}, 1, 1*4) ... control
     %repmat({fixation}, 1, 1*4) ... fixation
     %{curvecatch} ... catch trial
+% Stm(1).tasksToCycle = [...
+%     repmat({curvecontrol}, 1, 1) ... control
+%     %repmat({curvetracing}, 1, 1) ... curve tracing
+%     repmat({fixation}, 1, 4) ... fixation
+%     ];
+
 Stm(1).tasksToCycle = [...
-    repmat({curvetracing}, 1, 4*2) ... curve tracing
-    repmat({curvecontrol}, 1, 1*2) ... control
     repmat({fixation}, 1, 1*2) ... fixation
-    {curvecatch} ... catch trial
+    {curvecontrol} ... catch trial
     ];
 Stm(1).taskCycleInd = 1;
 %Stm(1).task = Stm(1).RestingTask;
-Stm(1).task = curvecontrol; % This task is good for fixation calibration
+Stm(1).task = Stm(1).RestingTask; % This task is good for fixation calibration
 Stm(1).alternateWithRestingBlocks = false;
 
 % Write stimulus settings to global variable StimObj

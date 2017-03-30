@@ -135,6 +135,7 @@ for CodeControl=1 %allow code folding
     Par.PosReset = false;
     Par.BreakTrial = false;
     Par.GiveRewardAmount = 0;
+    Par.GiveRewardAmount_onResponseRelease = 0;
 
     % Trial Logging
     Par.CurrResponse = Par.RESP_NONE;
@@ -244,7 +245,7 @@ end
 %                                      |_| http://patorjk.com/software/taag
 %==========================================================================
 
-while ~Par.endExperiment  %|| (Par.ESC && ~isfield(Stm(1), 'RestingTask')))
+while ~Par.ESC  %|| (Par.ESC && ~isfield(Stm(1), 'RestingTask')))
     
     if Stm(1).task.endOfBlock() % ------- Start new block?
         CHR = Stm(1).task.trackerWindowDisplay();
@@ -440,7 +441,11 @@ for CleanUp=1 % code folding
         end
         EyeRecMsgShown=true;
     end
-    fprintf(['Suggested filename: ' Par.MONKEY '_' DateString '.tda\n']);
+    suggestedTdaFilename = [Par.MONKEY '_' DateString '.tda'];
+    fprintf(['Suggested filename: ' suggestedTdaFilename '\n']);
+    if strcmp(Par.SetUp,'Spinoza_3T')
+        clipboard('copy', suggestedTdaFilename)
+    end
     
     % Empty the screen
     Screen('FillRect',Par.window,Stm(1).task.param('BGColor').*Par.ScrWhite);
@@ -468,7 +473,7 @@ for CleanUp=1 % code folding
     
     %mkdir('Log');cd('Log');
     save(filePath,'Log','Par','StimObj');
-    Log.events.write_csv([filePath '.csv']);
+    Log.events.write_csv([filePath '_eventlog.csv']);
     
     for i = 1:length(Stm(1).tasksUnique)
         Stm(1).tasksUnique{i}.write_trial_log_csv(filePath);
@@ -509,6 +514,7 @@ for CleanUp=1 % code folding
         Screen('closeall');
     end
     fprintf('Done.\n');
+    fprintf(['Suggested filename: ' suggestedTdaFilename '\n']);
 end
 
 %% Standard functions called throughout the runstim =======================
@@ -587,12 +593,12 @@ end
                         case Par.KeyEscape
                             if Par.numEscapePresses
                                 Par.endExperiment = true;
+                                Par.ESC = true;
                                 fprintf('Ending scan.\n');
                                 Log.events.add_entry(GetSecs, Stm(1).task.name, 'EndExperiment', 'EscapeKey');
                             else
                                 fprintf('Winding down scan.\n');
                             end
-                            Par.ESC = true;
                             Par.numEscapePresses = Par.numEscapePresses + 1;
                         case Par.KeySwitchToRestingTask
                             fprintf('Winding down scan.\n');
@@ -661,6 +667,11 @@ end
         % reset to false
         Par.KeyDetectedInTrackerWindow=false;
     end
+    function ResponsesReleased
+        Par.GiveRewardAmount = Par.GiveRewardAmount + Par.GiveRewardAmount_onResponseRelease;
+        Par.GiveRewardAmount_onResponseRelease = 0;
+        GiveRewardAuto; % make sure reward immediately on release
+    end
 % check DAS for manual responses
     function CheckManual
         %check the incoming signal on DAS channel #3  (#4 base 1)
@@ -680,12 +691,18 @@ end
             if Par.HandIsIn(1)
                 Par.HandIsIn(1)=false;
                 Log.events.add_entry(GetSecs, Stm(1).task.name, 'Response_Release', 'Left');
+                if ~any(Par.HandIsIn)
+                    ResponsesReleased();
+                end
             end
         elseif strcmp(computer,'PCWIN') && Log.RespSignal > 2750 % old das card
             Par.BeamLIsBlocked = false;
             if Par.HandIsIn(1)
                 Par.HandIsIn(1)=false;
                 Log.events.add_entry(GetSecs, Stm(1).task.name, 'Response_Release', 'Left');
+                if ~any(Par.HandIsIn)
+                    ResponsesReleased();
+                end
             end
         else
             Par.BeamLIsBlocked = true;
@@ -705,12 +722,18 @@ end
                 if Par.HandIsIn(2)
                     Par.HandIsIn(2)=false;
                     Log.events.add_entry(GetSecs, Stm(1).task.name, 'Response_Release', 'Right');
+                    if ~any(Par.HandIsIn)
+                        ResponsesReleased();
+                    end
                 end
             elseif strcmp(computer,'PCWIN') && Log.RespSignal > 2750 % old das card
                 Par.BeamRIsBlocked = false;
                 if Par.HandIsIn(2)
                     Par.HandIsIn(2)=false;
                     Log.events.add_entry(GetSecs, Stm(1).task.name, 'Response_Release', 'Right');
+                    if ~any(Par.HandIsIn)
+                        ResponsesReleased();
+                    end
                 end
             else
                 Par.BeamRIsBlocked = true;
@@ -840,6 +863,7 @@ end
         end
         Par.LastRewardTime = StartReward;
         Log.events.add_entry(StartReward, Stm(1).task.name, 'Reward', 'Auto');
+        Log.events.add_entry(StartReward, Stm(1).task.name, 'TaskReward', num2str(Par.RewardTimeCurrent));
     end
 % give manual reward
     function GiveRewardManual
@@ -868,8 +892,8 @@ end
             end
         end
         Par.LastRewardTime = StartReward;
-        Log.events.add_entry(StartReward, Stm(1).task.name, 'Reward', 'Manual');
-        
+        %Log.events.add_entry(StartReward, Stm(1).task.name, 'Reward', 'Manual');
+        Log.events.add_entry(StartReward, Stm(1).task.name, 'ManualReward', num2str(Par.RewardTimeCurrent));
     end
 % check and update eye info in tracker window
     function fixChange = CheckTracker
