@@ -99,11 +99,11 @@ Params.rewardMultiplier = 1.0;
 
 FixParams = Params;
 FixParams.rewardMultiplier = 1.0; % 0.5;
-FixParams.subtrialsInTrial = 5;
+FixParams.subtrialsInTrial = 8;
 FixParams.fixationPeriod = 500;  % just for fixation task
 FixParams.postfixPeriod = 0;  % just for fixation task
 
-FixParams.rewardMultiplier = .15; % 0.5;
+FixParams.rewardMultiplier = .12; % 0.5;
 FixParams.BlockSize = 2; %round(3* 3500 / FixParams.fixationPeriod * FixParams.subtrialsInTrial);
 
 CtrlParams = Params;
