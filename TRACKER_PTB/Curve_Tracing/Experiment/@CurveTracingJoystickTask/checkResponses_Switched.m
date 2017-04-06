@@ -28,6 +28,7 @@ function checkResponses_Switched(obj, lft)
             obj.curr_response = 'miss';
             Par.CurrResponse = Par.RESP_MISS;
         end
+        obj.curr_hand = Par.NewResponse; % save which hand
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
         Par.FalseResponseGiven=true;
         Par.RespTimes=[Par.RespTimes;

@@ -11,6 +11,7 @@ function correctResponseGiven(obj, lft)
     
     obj.curr_response = 'correct';
     Par.CurrResponse = Par.RESP_CORRECT;
+    obj.curr_hand = Par.NewResponse; % save which hand
     obj.stopTrackingFixationTime(lft);
 
     if Par.RequireFixationForReward

@@ -22,6 +22,7 @@ function checkResponses_PostSwitch(obj, lft)
         % Miss
         obj.curr_response = 'miss';
         Par.CurrResponse = Par.RESP_MISS;
+        obj.curr_hand = Par.NewResponse; % save which hand
         Par.RespValid = false;
         Par.FalseResponseGiven=true;
         if ~Par.ResponseGiven && ~Par.FalseResponseGiven %only log once
@@ -57,8 +58,15 @@ function checkResponses_PostSwitch(obj, lft)
         end
         iLoc = obj.param('iTargetLoc');
         obj.responses_loc.(obj.curr_response)(iLoc) = obj.responses_loc.(obj.curr_response)(iLoc) + 1;
-        iShape = obj.param('iTargetShape');
-        obj.responses_shape.(obj.curr_response)(iShape) = obj.responses_shape.(obj.curr_response)(iShape) + 1;
+        %iShape = obj.param('iTargetShape');
+        if obj.curr_hand == 0
+            iShape = obj.param('iTargetShape');
+            obj.responses_hand.(obj.curr_response)(iShape) = ...
+                obj.responses_hand.(obj.curr_response)(iShape) + 1;
+        else
+            obj.responses_hand.(obj.curr_response)(obj.curr_hand) = ...
+                obj.responses_hand.(obj.curr_response)(obj.curr_hand) + 1;
+        end
         
         obj.updateState('TRIAL_END', lft);
         obj.goBarOrient = 1;

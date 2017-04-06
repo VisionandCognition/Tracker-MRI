@@ -11,6 +11,7 @@ function checkResponses_PreSwitch( obj, lft )
         obj.curr_response = 'early';
         Par.CurrResponse = Par.RESP_EARLY;
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
+        obj.curr_hand = Par.NewResponse; % save which hand
         Par.FalseResponseGiven=true;
         Par.RespTimes=[Par.RespTimes;
             lft-Par.ExpStart Par.RespValid];
@@ -23,6 +24,7 @@ function checkResponses_PreSwitch( obj, lft )
         Par.RespValid = false;
         obj.curr_response = 'break_fix';
         Par.CurrResponse = Par.RESP_BREAK_FIX;
+        obj.curr_hand = Par.NewResponse; % save which hand
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
         Par.FalseResponseGiven=false;
         

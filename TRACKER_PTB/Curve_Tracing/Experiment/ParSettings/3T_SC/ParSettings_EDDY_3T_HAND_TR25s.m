@@ -7,6 +7,11 @@ global StimObj
 %% Load defaults ==========================================================
 eval('ParSettings'); % loads the default parameters
 
+
+Par.FixWinSize = [2.5 2.5]; % [W H] in deg
+Par.FixWdDeg = Par.FixWinSize(1);
+Par.FixHtDeg = Par.FixWinSize(2);
+
 %% Setup ==================================================================
 % Spinoza_Mock / Spinoza_3T / NIN
 if strcmp(Par.ScreenChoice,'3T')
