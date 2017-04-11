@@ -24,12 +24,12 @@ Stm=StimObj.Stm;
 StimObj.Stm.FixDotCol = [.3 .3 .3 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
-Par.FixWinSize = [1.8 1.8]; % [W H] in deg
+Par.FixWinSize = [2.5 2.5]; % [W H] in deg
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
-Par.SCx = 0.1; %initial scale in control window
-Par.SCy = 0.09;
+Par.SCx = 0.14; %initial scale in control window
+Par.SCy = 0.11;
 Par.OFFx = 0; %initial eye offset x => (center) of camera das output
 Par.OFFy = 0; %initial eye offset y
 Par.ScaleOff = [Par.OFFx; Par.OFFy; Par.SCx; Par.SCy]; 

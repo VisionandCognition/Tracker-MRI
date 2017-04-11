@@ -9,6 +9,7 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
         currStateStart = -Inf; 
         stateStart = struct('SWITCHED', -Inf);
         goBarOrient =  1; % 1=default, 2=switched
+        stimuliParamsPath = NaN;
         
         iTrialOfBlock = 0;
         blockNum = 0;
@@ -51,6 +52,7 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
             %       stimuliParams: should be the path to the stimuli params
             %                      in CSV format.
             obj.taskParams = commonParams;
+            obj.stimuliParamsPath = stimuliParams;
             obj.stimuli_params = readtable(stimuliParams);
             if all(strcmp(obj.stimuli_params.TargetLoc, 'Center'))
                 obj.taskName = 'Control CT';
@@ -179,7 +181,7 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
         falseResponseGiven(obj, lft);
         
         [pts, pts_col] = calcCurve(obj, indpos);
-        readStimulusParams(obj, stim_index);
+        readStimulusParamsForTrial(obj, stim_index);
         
         drawFix(obj);
         drawBackgroundFixPoint(obj);

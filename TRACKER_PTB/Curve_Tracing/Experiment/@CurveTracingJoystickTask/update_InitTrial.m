@@ -20,7 +20,7 @@ global Log;
     
     obj.curr_stim_index = obj.selectTrialStimulus(); %randi(size(obj.stimuli_params, 1), 1);
     
-    obj.readStimulusParams(obj.curr_stim_index);
+    obj.readStimulusParamsForTrial(obj.curr_stim_index);
     
     Log.events.add_entry(nan, obj.taskName, 'NewStimulus', num2str(obj.curr_stim_index));
     Log.events.add_entry(nan, obj.taskName, 'TargetLoc', obj.param('TargetLoc'));

@@ -94,6 +94,11 @@ Params.PawIndSizeDeg = [2.5, 2.5, 2.5, 2.5, Params.FixDotSizeDeg];
 Params.BlockSize = 3;
 Params.rewardMultiplier = 1.0;
 
+% Parameters for titrating the target to require the less used hand to be
+% used more often.
+Params.maxSideProb = 0.75; % Maximum probability after titrating targets to responses
+Params.unbiasedRespApriori = 1; % How many unbiased trials are assumed to be "observed" before starting
+
 FixParams = Params;
 FixParams.rewardMultiplier = 1.0; % 0.5;
 FixParams.subtrialsInTrial = 8;
@@ -108,7 +113,7 @@ CtrlParams = Params;
 CtrlParams.NumOfPawIndicators = 5;
 
 %curvetracing = CurveTracingJoystickTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
-curvetracing = CurveTracingJoystickBlockTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
+curvetracing = CurveTracingBlockTitratedTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
 curvecatch = CurveTracingCatchBlockTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
 curvecontrol = CurveTracingJoystickTask(CtrlParams, 'StimSettings/CurveTracingJoyStickTask-control.csv');
 fixation = FixationTask(FixParams);

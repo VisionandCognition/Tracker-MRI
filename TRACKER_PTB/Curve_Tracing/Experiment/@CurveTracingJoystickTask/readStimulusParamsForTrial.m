@@ -1,5 +1,5 @@
-function readStimulusParams(obj, stim_index)
-% Setup the stimuli information that varies per trial
+function readStimulusParamsForTrial(obj, stim_index)
+% Setup the stimuli information that varies per trial. Called each trial.
 global Par;
 % This function should not log anything, update_InitTrial should.
     
@@ -68,13 +68,22 @@ global Par;
     % Process the target/correct response
     targetShapeVar = sprintf('Indicator%s', obj.param('TargetLoc'));
     targetShape = obj.param(targetShapeVar);
+    assert(strcmp(obj.curr_stim('TargetShape'), targetShape), ...
+        ['Inconsistent TargetShape parameter in row ' stim_index ...
+        ' of ' obj.stimuliParamsPath]);
     obj.set_param('TargetShape', targetShape);
     
     STR_IDENTICAL = 1; % Matlab's strcmp doesn't follow standard
     if strcmp(targetShape, 'Square')==STR_IDENTICAL
+        assert(obj.curr_stim('iTargetShape') == 1, ...
+            ['Inconsistent iTargetShape parameter in row ' stim_index ...
+            ' of ' obj.stimuliParamsPath]);
         obj.set_param('iTargetShape', 1);
     else
         assert(strcmp(targetShape, 'Diamond')==STR_IDENTICAL)
+        assert(obj.curr_stim('iTargetShape') == 2, ...
+            ['Inconsistent iTargetShape parameter in row ' stim_index ...
+            ' of ' obj.stimuliParamsPath]);
         obj.set_param('iTargetShape', 2);
     end
     
