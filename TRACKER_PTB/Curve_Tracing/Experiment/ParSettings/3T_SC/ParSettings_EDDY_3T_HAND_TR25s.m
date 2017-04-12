@@ -8,7 +8,7 @@ global StimObj
 eval('ParSettings'); % loads the default parameters
 
 
-Par.FixWinSize = [2.5 2.5]; % [W H] in deg
+Par.FixWinSize = [3.5 3.5]; % [W H] in deg
 Par.FixWdDeg = Par.FixWinSize(1);
 Par.FixHtDeg = Par.FixWinSize(2);
 
