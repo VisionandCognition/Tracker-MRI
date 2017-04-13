@@ -28,8 +28,9 @@ Par.FixWinSize = [1.8 1.8]; % [W H] in deg
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
-Par.SCx = 0.1; %initial scale in control window
-Par.SCy = 0.09;
+
+Par.SCx = 0.14; %initial scale in control window
+Par.SCy = 0.11;
 Par.OFFx = 0; %initial eye offset x => (center) of camera das output
 Par.OFFy = 0; %initial eye offset y
 Par.ScaleOff = [Par.OFFx; Par.OFFy; Par.SCx; Par.SCy]; 
@@ -187,7 +188,7 @@ Par.RewardFixMultiplier = 0.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.050;
+        Par.RewardTimeSet = 0.10;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -218,8 +219,10 @@ if Par.RewardFixHoldTimeProg
 else
     Par.RewardFixHoldTime = 1250; %time to maintain fixation for reward
 end
-
-Par.RewardTime=Par.RewardTimeSet;
+if ~isfield(Par, 'RewardTime')
+    Par.RewardTime = 0.1;
+    Par.RewardTime=Par.RewardTimeSet;
+end
 
 %% Create Eye-check windows based on stimulus positions ===================
 % The code below is preloaded and will be overwritten on stimulus basis
