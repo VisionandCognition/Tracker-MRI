@@ -2,7 +2,9 @@ function correctResponseGiven(obj, lft)
     global Par
     global Log
     
-    if Par.CurrResponse ~= Par.RESP_NONE
+    % If response has already been recorded, don't override
+    %if Par.CurrResponse ~= Par.RESP_NONE
+    if ~strcmp(obj.curr_response, 'none') % if curr_response is not 'none'
         return
     end
 

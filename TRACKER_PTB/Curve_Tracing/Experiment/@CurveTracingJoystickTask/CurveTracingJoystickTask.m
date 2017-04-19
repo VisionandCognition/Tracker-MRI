@@ -47,14 +47,16 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
         function time = stateStartTime(obj, state)
             time = obj.stateStart.(state);
         end
-        function obj = CurveTracingJoystickTask(commonParams, stimuliParams)
+        function obj = CurveTracingJoystickTask(commonParams, stimuliParams, taskName)
             % INPUT commonParams: should be a container.Map
             %       stimuliParams: should be the path to the stimuli params
             %                      in CSV format.
             obj.taskParams = commonParams;
             obj.stimuliParamsPath = stimuliParams;
             obj.stimuli_params = readtable(stimuliParams);
-            if all(strcmp(obj.stimuli_params.TargetLoc, 'Center'))
+            if nargin >= 3
+                obj.taskName = taskName;
+            elseif all(strcmp(obj.stimuli_params.TargetLoc, 'Center'))
                 obj.taskName = 'Control CT';
             end
             obj.trial_log = TrialLog();

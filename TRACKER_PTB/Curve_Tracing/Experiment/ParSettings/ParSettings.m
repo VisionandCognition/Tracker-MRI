@@ -27,6 +27,8 @@ Stm=StimObj.Stm;
 %StimObj.Stm.FixDotCol = [.3 .3 .3 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
+% Fixation window set by StimSettings with FixWinSizeDeg, not sure what ...
+%    Par.FixWinSize does?
 Par.FixWinSize = [1.8 1.8]; % [W H] in deg
 Par.WaitForFixation = true; % Used to be Par.RequireFixation
 Par.RequireFixationForReward = true;

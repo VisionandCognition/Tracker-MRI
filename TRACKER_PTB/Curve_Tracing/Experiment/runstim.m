@@ -15,10 +15,10 @@ Par.RESP_BREAK_FIX = 5;
 RespText = {'Correct', 'False', 'Miss', 'Early', 'Fix. break'};
 
 %% THIS SWITCH ALLOW TESTING THE RUNSTIM WITHOUT DASCARD & TRACKER ========
-TestRunstimWithoutDAS = false;
+Par.TestRunstimWithoutDAS = false;
 %==========================================================================
 for DoThisOnlyForTestingWithoutDAS=1
-    if TestRunstimWithoutDAS
+    if Par.TestRunstimWithoutDAS
         %  #------ Not tested - not expected to work ------#
         cd ..; cd Engine;
         ptbInit % initialize PTB
@@ -159,7 +159,7 @@ end
 
 % This control parameter needs to be outside the stimulus loop
 FirstEyeRecSet=false;
-if ~TestRunstimWithoutDAS
+if ~Par.TestRunstimWithoutDAS
     dasbit(0,1); %set eye-recording trigger to 1 (=stopped)
     %reset reward slider based on ParSettings
     handles=guihandles(Par.hTracker);
@@ -248,6 +248,7 @@ end
 while ~Par.ESC  %|| (Par.ESC && ~isfield(Stm(1), 'RestingTask')))
     
     if Stm(1).task.endOfBlock() % ------- Start new block?
+        % Display information from previous task
         CHR = Stm(1).task.trackerWindowDisplay();
         fprintf('%s\n', CHR{:});
         
@@ -288,11 +289,13 @@ while ~Par.ESC  %|| (Par.ESC && ~isfield(Stm(1), 'RestingTask')))
         fprintf('-- Start mini-block %d: %s --\n', Log.numMiniBlocks, Stm(1).task.name);
         Log.events.add_entry(lft, Stm(1).task.name, 'NewMiniBlock', num2str(Log.numMiniBlocks));
     end
+    
+    % ----------------------------------------------- Start new trial -----
     Stm(1).task.updateState('INIT_TRIAL', lft);
     
     while ~Par.FirstInitDone
         %set control window positions and dimensions
-        if ~TestRunstimWithoutDAS
+        if ~Par.TestRunstimWithoutDAS
             DefineEyeWin;
             refreshtracker(1); %for your control display
             SetWindowDas;      %for the dascard, initializes eye control windows
@@ -332,7 +335,7 @@ while ~Par.ESC  %|| (Par.ESC && ~isfield(Stm(1), 'RestingTask')))
     for PrepareEyeWin=1
         DefineEyeWin;
     end
-    if ~TestRunstimWithoutDAS
+    if ~Par.TestRunstimWithoutDAS
         dasreset( 0 );
     end
     
@@ -345,7 +348,10 @@ while ~Par.ESC  %|| (Par.ESC && ~isfield(Stm(1), 'RestingTask')))
     %fprintf('Start %s task\n', Stm(1).task.name);
     
     % ---------------------------------------------------------------------
-    % Go through all of the different states of the current trial
+    %
+    %                       WITHIN-TRIAL LOOP
+    %
+    %     Go through all of the different states of the current trial
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     while ~Stm(1).task.endOfTrial() && ~Par.PosReset && ~Par.endExperiment && ~Par.BreakTrial
         
@@ -377,6 +383,11 @@ while ~Par.ESC  %|| (Par.ESC && ~isfield(Stm(1), 'RestingTask')))
             Par.AutoRewardGiven = true;
         end
     end
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    %
+    %                     END WITHIN-TRIAL LOOP
+    %
+    % ---------------------------------------------------------------------
     
     % no response or fix break during switch = miss
     % ~Par.ResponseGiven && ~Par.FalseResponseGiven && ...
@@ -401,7 +412,7 @@ while ~Par.ESC  %|| (Par.ESC && ~isfield(Stm(1), 'RestingTask')))
     end
     
     % Update Tracker window
-    if ~TestRunstimWithoutDAS
+    if ~Par.TestRunstimWithoutDAS
         SCNT = Stm(1).task.trackerWindowDisplay();
         set(Hnd(1), 'String', SCNT ) %display updated numbers in GUI
         % Give noise-on-eye-channel info
@@ -410,6 +421,11 @@ while ~Par.ESC  %|| (Par.ESC && ~isfield(Stm(1), 'RestingTask')))
         set(Hnd(2), 'String', SD )
     end
 end
+
+% = = =                                                               = = =
+% =                           END MAIN LOOP                               =
+% =                                                                       =
+% =========================================================================
 
 % Clean up and Save Log ===================================================
 %   ____ _                                
@@ -450,12 +466,12 @@ for CleanUp=1 % code folding
     % Empty the screen
     Screen('FillRect',Par.window,Stm(1).task.param('BGColor').*Par.ScrWhite);
     lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
-    if ~TestRunstimWithoutDAS
+    if ~Par.TestRunstimWithoutDAS
         dasjuice(0); %stop reward if its running
     end
     
     % save stuff
-    if ~TestRunstimWithoutDAS
+    if ~Par.TestRunstimWithoutDAS
         FileName=['Log_' Par.SetUp '_' Par.MONKEY '_' Par.STIMSETFILE '_' ...
             DateString];
     else
@@ -469,7 +485,7 @@ for CleanUp=1 % code folding
     logPath = fullfile(logPath, Par.ProjectLogDir, [Par.SetUp '_' Par.MONKEY '_' DateString(1:8)]);
     mkdir(logPath);
     filePath = fullfile(logPath, FileName);
-    %if TestRunstimWithoutDAS; cd ..;end
+    %if Par.TestRunstimWithoutDAS; cd ..;end
     
     %mkdir('Log');cd('Log');
     save(filePath,'Log','Par','StimObj');
@@ -506,15 +522,65 @@ for CleanUp=1 % code folding
     end
     fclose(fout);
 
-    if TestRunstimWithoutDAS; cd Experiment;end
+    if Par.TestRunstimWithoutDAS; cd Experiment;end
     warning on; %#ok<WNON>
     
     % if running without DAS close ptb windows
-    if TestRunstimWithoutDAS
+    if Par.TestRunstimWithoutDAS
         Screen('closeall');
     end
     fprintf('Done.\n');
     fprintf(['Suggested filename: ' suggestedTdaFilename '\n']);
+    
+    
+    % ---------------------------------------------------------------------
+    %
+    %                       POST-EXPERIMENT TASK
+    %
+    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if isfield(Stm(1),'KeepSubjectBusyTask')
+        Stm(1).task = Stm(1).KeepSubjectBusyTask;
+        
+        Stm(1).task.updateState('PREPARE_STIM', lft);
+        Stm(1).task.updateState('INIT_TRIAL', lft);
+        
+        % Wait for fixation ---------------------------------------------------
+        Stm(1).task.updateState('PREFIXATION', lft);
+        Par.FixStart=Inf;
+    
+        while ~Stm(1).task.endOfTrial() && ~Par.PosReset && ~Par.endExperiment && ~Par.BreakTrial
+
+            CheckManual;
+            Stm(1).task.checkResponses(GetSecs);
+            CheckKeys;
+            lft = Stm(1).task.drawStimuli(lft);
+
+            %% log eye-info if required
+            % LogEyeInfo;
+
+            CheckFixation;
+            CheckTracker; % Get and plot eye position
+            ChangeStimulus; % Change stimulus if required (e.g. fixation moved).
+
+            % give manual reward
+            if Par.ManualReward
+                GiveRewardManual;
+                Par.ManualReward=false;
+            end
+
+            % Check eye position
+            %CheckTracker(); % just for plotting
+            CheckFixation;
+
+            % give automated reward
+            if Par.GiveRewardAmount > 0 % Par.RespValid && ~Par.AutoRewardGiven
+                GiveRewardAuto;
+                Par.AutoRewardGiven = true;
+            end
+        end
+    end
+    %                     END POST-EXPERIMENT TASK
+    % ---------------------------------------------------------------------
 end
 
 %% Standard functions called throughout the runstim =======================
@@ -772,7 +838,7 @@ end
     function CheckFixation
         % Check if eye enters fixation window =============================
         if ~Par.FixIn %not fixating
-            if ~Par.CheckFixIn && ~TestRunstimWithoutDAS
+            if ~Par.CheckFixIn && ~Par.TestRunstimWithoutDAS
                 dasreset(0); % start testing for eyes moving into fix window
             end
             Par.CheckFixIn=true;
@@ -793,13 +859,13 @@ end
                 % Par.Trlcount=Par.Trlcount+1;
                 refreshtracker(3);
             end
-            if mod(nf,100)==0 && ~TestRunstimWithoutDAS
+            if mod(nf,100)==0 && ~Par.TestRunstimWithoutDAS
                 refreshtracker(1);
             end
         end
         % Check if eye leaves fixation window =============================
         if Par.FixIn %fixating
-            if ~Par.CheckFixOut && ~TestRunstimWithoutDAS
+            if ~Par.CheckFixOut && ~Par.TestRunstimWithoutDAS
                 dasreset(1); % start testing for eyes leaving fix window
             end
             Par.CheckFixIn=false;
@@ -897,7 +963,7 @@ end
     end
 % check and update eye info in tracker window
     function fixChange = CheckTracker
-        if TestRunstimWithoutDAS
+        if Par.TestRunstimWithoutDAS
             fixChange = false;
         else
             dasrun(5);

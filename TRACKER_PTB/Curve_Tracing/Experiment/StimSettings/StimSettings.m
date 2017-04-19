@@ -10,7 +10,7 @@ Stm(1).FlipTimePredef = 1/75;
 Params.BGColor = [.5 .5 .5]; % [R G B] 0-1
 
 % Fixation ----------------------------------------------------------------
-Params.FixWinSizeDeg = 2.5; % in deg
+Params.FixWinSizeDeg = 3.5; % <- testing   2.5; % in deg
 Params.FixDotSizeDeg = 0.3;
 
 %[RGB if not fixating; RGB fixating; Fixation not required]
@@ -113,6 +113,13 @@ CtrlParams = Params;
 CtrlParams.NumOfPawIndicators = 5;
 
 %curvetracing = CurveTracingJoystickTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
+% Stm(1).KeepSubjectBusyTask = CurveTracingJoystickTask(Params, ...
+%     'StimSettings/CurveTracingJoyStickTask.csv', ...
+%     'Keep busy');
+if isfield(Stm(1),'KeepSubjectBusyTask')
+    Stm(1) = rmfield(Stm(1),'KeepSubjectBusyTask');
+end
+
 curvetracing = CurveTracingBlockTitratedTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
 curvecatch = CurveTracingCatchBlockTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
 curvecontrol = CurveTracingJoystickTask(CtrlParams, 'StimSettings/CurveTracingJoyStickTask-control.csv');
