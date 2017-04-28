@@ -1,7 +1,0 @@
-Runstim: runstim
-StimSettings: StimSettings_FullscreenCheckerboard_3T
-ParSettings: ParSettings_EDDY_3T_HAND
-
-1: Performance for FullChecker = 2.4657 %
-Average performance: 2.4657% (std: 0 %)
-Total reward: 0 s

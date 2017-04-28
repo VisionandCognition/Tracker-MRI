@@ -1,7 +1,0 @@
-Runstim: runstim
-StimSettings: StimSettings_pRF_8bars_x20
-ParSettings: ParSettings_EDDY_MOCK_HAND
-
-1: Performance for pRF_8bar = NaN %
-Average performance: NaN% (std: NaN %)
-Total reward: 0 s

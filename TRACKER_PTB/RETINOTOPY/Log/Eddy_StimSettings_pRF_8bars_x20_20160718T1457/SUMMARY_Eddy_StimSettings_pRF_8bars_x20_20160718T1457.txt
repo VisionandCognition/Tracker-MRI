@@ -1,7 +1,0 @@
-Runstim: runstim
-StimSettings: StimSettings_pRF_8bars_x20
-ParSettings: ParSettings
-
-1: Performance for pRF_8bar = 10.1752 %
-Average performance: 10.1752% (std: 0 %)
-Total reward: 0 s

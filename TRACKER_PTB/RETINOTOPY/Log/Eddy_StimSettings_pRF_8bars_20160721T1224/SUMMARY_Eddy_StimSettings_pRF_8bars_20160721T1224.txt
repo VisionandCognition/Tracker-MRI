@@ -1,7 +1,0 @@
-Runstim: runstim
-StimSettings: StimSettings_pRF_8bars
-ParSettings: ParSettings_EDDY_3T_HAND
-
-1: Performance for pRF_8bar = 61.5547 %
-Average performance: 61.5547% (std: 0 %)
-Total reward: 5.25 s
