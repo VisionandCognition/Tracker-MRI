@@ -52,8 +52,10 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
             %       stimuliParams: should be the path to the stimuli params
             %                      in CSV format.
             obj.taskParams = commonParams;
-            obj.stimuliParamsPath = stimuliParams;
-            obj.stimuli_params = readtable(stimuliParams);
+            % Use which to search Matlab path - allows to read csv when
+            % starting up tracker. Needed for Matlab 2016B.
+            obj.stimuliParamsPath = which(stimuliParams);
+            obj.stimuli_params = readtable(obj.stimuliParamsPath);
             if nargin >= 3
                 obj.taskName = taskName;
             elseif all(strcmp(obj.stimuli_params.TargetLoc, 'Center'))

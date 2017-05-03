@@ -20,7 +20,11 @@ Par.TestRunstimWithoutDAS = ~hasrealdas();
 for DoThisOnlyForTestingWithoutDAS=1
     if Par.TestRunstimWithoutDAS
         %  #------ Not tested - not expected to work ------#
-        cd ..; cd Engine;
+        if strcmp(basename(pwd), 'Experiment')
+            % if not exited cleanly
+        	cd ..;
+        end
+        cd engine;
         ptbInit % initialize PTB
         cd ..; cd Experiment;
         Par.scr=Screen('screens');

@@ -122,7 +122,7 @@ end
 
 curvetracing = CurveTracingBlockTitratedTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
 curvecatch = CurveTracingCatchBlockTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
-curvecontrol = CurveTracingJoystickTask(CtrlParams, 'StimSettings/CurveTracingJoyStickTask-control.csv');
+curvecontrol = CurveTracingJoystickTask(CtrlParams, 'StimSettings/CurveTracingJoyStickTask-Control.csv');
 fixation = FixationTask(FixParams);
 Stm(1).RestingTask = fixation;
 
