@@ -186,6 +186,8 @@ DateString = DateString(1:end-2);
 fprintf(['=== Running ' Par.STIMSETFILE ' for ' Par.MONKEY ' ===\n']);
 fprintf(['Started at ' DateString '\n']);
 
+suggestedTdaFilename = [Par.MONKEY '_' DateString '.tda'];
+fprintf(['Suggested filename: ' suggestedTdaFilename '\n']);
 
 %% Eye-tracker recording =============================================
 if Par.EyeRecAutoTrigger
@@ -457,7 +459,6 @@ for CleanUp=1 % code folding
         end
         EyeRecMsgShown=true;
     end
-    suggestedTdaFilename = [Par.MONKEY '_' DateString '.tda'];
     fprintf(['Suggested filename: ' suggestedTdaFilename '\n']);
     if strcmp(Par.SetUp,'Spinoza_3T')
         clipboard('copy', suggestedTdaFilename)

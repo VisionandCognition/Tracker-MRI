@@ -164,6 +164,10 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
             else
                 SCNT(6) = {''};
             end
+            SCNT(7) = { ['C/(C+F): ' num2str(...
+                100*sum(obj.responses_hand.correct) / ...
+                (sum(obj.responses_hand.false) + sum(obj.responses_hand.correct))) ...
+                '%']};
         end
         function write_trial_log_csv(obj, common_base_fn)
             obj.trial_log.write_csv([common_base_fn '_' obj.taskName(obj.taskName ~= ' ') '.csv'])

@@ -97,7 +97,7 @@ Params.rewardMultiplier = 1.0;
 % Parameters for titrating the target to require the less used hand to be
 % used more often.
 Params.maxSideProb = 0.75; % Maximum probability after titrating targets to responses
-Params.unbiasedRespApriori = 1; % How many unbiased trials are assumed to be "observed" before starting
+Params.unbiasedRespApriori = 0.1; % How many unbiased trials are assumed to be "observed" before starting
 
 FixParams = Params;
 FixParams.rewardMultiplier = 1.0; % 0.5;
