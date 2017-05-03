@@ -22,6 +22,8 @@ Par.ScreenChoice = questdlg('Which setup (3T/Mock)?', 'Select Setup',...
 % remember the startfolder
 Par.StartFolder=cd;
 
+addpath(genpath([pwd filesep 'SharedScripts'])); % add scripts shared between projects
+
 % Select our experiment folder
 cd TRACKER_PTB
 Par.ExpFolder=uigetdir(pwd,'Choose your experiment root-folder (contains Engine & Experiment folders)');
