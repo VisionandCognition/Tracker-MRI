@@ -15,7 +15,7 @@ Par.RESP_BREAK_FIX = 5;
 RespText = {'Correct', 'False', 'Miss', 'Early', 'Fix. break'};
 
 %% THIS SWITCH ALLOW TESTING THE RUNSTIM WITHOUT DASCARD & TRACKER ========
-Par.TestRunstimWithoutDAS = false;
+Par.TestRunstimWithoutDAS = ~hasrealdas();
 %==========================================================================
 for DoThisOnlyForTestingWithoutDAS=1
     if Par.TestRunstimWithoutDAS
