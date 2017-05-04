@@ -220,7 +220,6 @@ else
     Par.RewardFixHoldTime = 1250; %time to maintain fixation for reward
 end
 if ~isfield(Par, 'RewardTime')
-    Par.RewardTime = 0.1;
     Par.RewardTime=Par.RewardTimeSet;
 end
 

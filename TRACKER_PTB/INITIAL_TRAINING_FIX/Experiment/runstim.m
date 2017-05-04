@@ -1,11 +1,8 @@
 function runstim(Hnd)
-% Updated September 2013 Chris Klink
-% Manual response photocell on channel 3 of connection box
+% Updated April 2017 Chris Klink
+global Par StimObj Log %global parameters
 
-global Par   %global parameters
-global StimObj %stimulus objects
-global Log
-
+%% Initialize button responses --------------------------------------------
 RESP_NONE = 0;
 RESP_CORRECT = 1;
 RESP_FALSE = 2;
@@ -17,196 +14,192 @@ RespText = {'Correct', 'False', 'Miss', 'Early', 'Fix. break'};
 
 %% THIS SWITCH ALLOW TESTING THE RUNSTIM WITHOUT DASCARD & TRACKER ========
 TestRunstimWithoutDAS = false;
-%==========================================================================
-for DoThisOnlyForTestingWithoutDAS=1
-    if TestRunstimWithoutDAS
-        %  #------ Not tested - not expected to work ------#
-        cd ..; cd Engine;
-        ptbInit % initialize PTB
-        cd ..; cd Experiment;
-        Par.scr=Screen('screens');
-        Par.ScrNr=max(Par.scr); % use the screen with the highest #
-        if Par.ScrNr==0
-            % part of the screen
-            [Par.window, Par.wrect] = ...
-                Screen('OpenWindow',Par.ScrNr,0,[0 0 1000 800],[],2);
-            % fullscreen
-            % [Par.window, Par.wrect] = Screen('OpenWindow',Par.ScrNr,0,[],[],2);
-        else
-            [Par.window, Par.wrect] = Screen('OpenWindow',Par.ScrNr,0,[],[],2);
-        end
-        % Reduce PTB3 verbosity
-        oldLevel = Screen('Preference', 'Verbosity', 0); %#ok<*NASGU>
-        Screen('Preference', 'VisualDebuglevel', 0);
-        Screen('Preference','SkipSyncTests',1);
-        
-        %Do some basic initializing
-        AssertOpenGL;
-        KbName('UnifyKeyNames');
-        
-        %Set ParFile and Stimfile
-        Par.PARSETFILE = 'ParSettings';
-        Par.STIMSETFILE = 'StimSettings';
+
+%%  Do This Only For Testing Without DAS ----------------------------------
+if TestRunstimWithoutDAS
+    %  #------ Not tested - not expected to work ------#
+    cd ..; cd Engine;
+    ptbInit % initialize PTB
+    cd ..; cd Experiment;
+    Par.scr=Screen('screens');
+    Par.ScrNr=max(Par.scr); % use the screen with the highest #
+    if Par.ScrNr==0
+        % part of the screen
+        [Par.window, Par.wrect] = ...
+            Screen('OpenWindow',Par.ScrNr,0,[0 0 1000 800],[],2);
+        % fullscreen
+        % [Par.window, Par.wrect] = Screen('OpenWindow',Par.ScrNr,0,[],[],2);
+    else
+        [Par.window, Par.wrect] = Screen('OpenWindow',Par.ScrNr,0,[],[],2);
     end
+    % Reduce PTB3 verbosity
+    oldLevel = Screen('Preference', 'Verbosity', 0); %#ok<*NASGU>
+    Screen('Preference', 'VisualDebuglevel', 0);
+    Screen('Preference','SkipSyncTests',1);
+    
+    %Do some basic initializing
+    AssertOpenGL;
+    KbName('UnifyKeyNames');
+    
+    %Set ParFile and Stimfile
+    Par.PARSETFILE = 'ParSettings';
+    Par.STIMSETFILE = 'StimSettings';
 end
 clc;
 
-% re-run parameter-file to update stim-settings without restarting Tracker
+%% Update stim/par-settings without restarting Tracker --------------------
 %ParSettings; % this is the old way of hardcoding a ParSettings file
-eval(Par.PARSETFILE); % this takes the ParSettings file chosen via the context menu
-
+eval(Par.PARSETFILE); % takes ParSettings file chosen via the context menu
 Stm = StimObj.Stm;
 
 %% Stimulus preparation ===================================================
-for PrepareStim=1
-    % Fixation
-    Stm(1).FixWinSizePix = round(Stm(1).FixWinSize*Par.PixPerDeg);
-    Stm(1).FixDotSizePix = round(Stm(1).FixDotSize*Par.PixPerDeg);
-    
-    % Bar
-    Stm(1).SizePix = round(Stm(1).Size.*Par.PixPerDeg);
-    Stm(1).Center =[];
-    for i=1:size(Stm(1).Position,2);
-        Stm(1).Center =[Stm(1).Center; ...
-            round(Stm(1).Position{i}.*Par.PixPerDeg)];
+% Fixation ----------------------------------------------------------------
+Stm(1).FixWinSizePix = round(Stm(1).FixWinSize*Par.PixPerDeg);
+Stm(1).FixDotSizePix = round(Stm(1).FixDotSize*Par.PixPerDeg);
+
+% Bar
+Stm(1).SizePix = round(Stm(1).Size.*Par.PixPerDeg);
+Stm(1).Center =[];
+for i=1:size(Stm(1).Position,2);
+    Stm(1).Center =[Stm(1).Center; ...
+        round(Stm(1).Position{i}.*Par.PixPerDeg)];
+end
+Par.CurrOrient=1; % 1=default, 2=switched
+
+% Paw indicator -----------------------------------------------------------
+Stm(1).PawIndSizePix = round(Stm(1).PawIndSize.*Par.PixPerDeg);
+Stm(1).FixTargetSizePix = round(1.25*Stm(1).FixDotSize*Par.PixPerDeg);
+
+%Par.PawSide=randi([1,2]);
+% PawSides indicate the side (1 or 2) for each paw indicator
+% Side 1 is left (green square)
+% Side 2 is right (red diamond)
+% The first PawSides is the indicator that should be attended
+if Stm(1).NumOfPawIndicators > 1
+    Par.PawSides(:) = 0;
+    for i = 1:Stm(1).NumOfPawIndicators/2
+        Par.PawSides(2*i-1:2*i) = randperm(2);
     end
-    Par.CurrOrient=1; % 1=default, 2=switched
-    
-    % Paw indicator
-    Stm(1).PawIndSizePix = round(Stm(1).PawIndSize.*Par.PixPerDeg);
-    Stm(1).FixTargetSizePix = round(1.25*Stm(1).FixDotSize*Par.PixPerDeg);
-    
-    %Par.PawSide=randi([1,2]);
-    % PawSides indicate the side (1 or 2) for each paw indicator
-    % Side 1 is left (green square)
-    % Side 2 is right (red diamond)
-    % The first PawSides is the indicator that should be attended
-    if Stm(1).NumOfPawIndicators > 1
-        Par.PawSides(:) = 0;
-        for i = 1:Stm(1).NumOfPawIndicators/2
-            Par.PawSides(2*i-1:2*i) = randperm(2);
-        end
-    else
-        Par.PawSides = randi([1,2]);
-    end
-    RandomizePawIndOffset();
-    
-    if ~isfield(Par, 'AutoCycleTasks')
-        Par.AutoCycleTasks = 0; % do not cycle tasks automatically
-    end
-    if ~isfield(Stm(1), 'DisplayChosenTargetDur')
-        Stm(1).DisplayChosenTargetDur = 0;
-    end
-    
-    Par.Paused = false;
-    Par.unattended_alpha = max(Stm(1).UnattdAlpha); % redefined later, randomly
-    Par.trial_preswitch_alpha = max(Stm(1).AlphaPreSwitch);
-    
-    % Noise patch
-    Stm(1).NoiseSizePix = round(Stm(1).NoiseSize.*Par.PixPerDeg);
-    % Square noise patch of window-height
-    NoiPatch = (.5-Stm(1).NoiseContrast/2) + ...
-        (Stm(1).NoiseContrast.*rand(Par.HH*2));
-    NoiPatch_RGB = ones(Par.HH*2,Par.HH*2,4);
-    NoiPatch_RGB(:,:,1)=NoiPatch;
-    NoiPatch_RGB(:,:,2)=NoiPatch;
-    NoiPatch_RGB(:,:,3)=NoiPatch;
-    % alpha mask circular
-    c=Par.HH;
-    s=Par.HH*2;
-    r=Stm(1).NoiseSizePix/2;
-    [x,y]=meshgrid(-(c-1):(s-c),-(c-1):(s-c));
-    alphamask=((x.^2+y.^2)<=r^2);
-    NoiPatch_RGB(:,:,4)=alphamask;
-    % Make a texture of the noise patch
-    NoiTex=Screen('MakeTexture',Par.window,NoiPatch_RGB.*Par.ScrWhite);
-end % allow code-folding
+else
+    Par.PawSides = randi([1,2]);
+end
+RandomizePawIndOffset();
+
+if ~isfield(Par, 'AutoCycleTasks')
+    Par.AutoCycleTasks = 0; % do not cycle tasks automatically
+end
+if ~isfield(Stm(1), 'DisplayChosenTargetDur')
+    Stm(1).DisplayChosenTargetDur = 0;
+end
+
+Par.Paused = false;
+Par.unattended_alpha = max(Stm(1).UnattdAlpha); % redefined later, randomly
+Par.trial_preswitch_alpha = max(Stm(1).AlphaPreSwitch);
+
+% Noise patch -------------------------------------------------------------
+Stm(1).NoiseSizePix = round(Stm(1).NoiseSize.*Par.PixPerDeg);
+% Square noise patch of window-height
+NoiPatch = (.5-Stm(1).NoiseContrast/2) + ...
+    (Stm(1).NoiseContrast.*rand(Par.HH*2));
+NoiPatch_RGB = ones(Par.HH*2,Par.HH*2,4);
+NoiPatch_RGB(:,:,1)=NoiPatch;
+NoiPatch_RGB(:,:,2)=NoiPatch;
+NoiPatch_RGB(:,:,3)=NoiPatch;
+% alpha mask circular
+c=Par.HH;
+s=Par.HH*2;
+r=Stm(1).NoiseSizePix/2;
+[x,y]=meshgrid(-(c-1):(s-c),-(c-1):(s-c));
+alphamask=((x.^2+y.^2)<=r^2);
+NoiPatch_RGB(:,:,4)=alphamask;
+% Make a texture of the noise patch
+NoiTex=Screen('MakeTexture',Par.window,NoiPatch_RGB.*Par.ScrWhite);
 
 %% Code Control Preparation ===============================================
-for CodeControl=1 %allow code folding
-    % Some intitialization of control parameters
-    Par.ESC = false; %escape has not been pressed
-    Log.MRI.TriggerReceived = false;
-    Log.MRI.TriggerTime = [];
-    Log.ManualReward = false;
-    Log.ManualRewardTime = [];
-    Log.TotalReward=0;
-    Log.TCMFR = [];
-    
-    % Flip the proper background on screen
-    Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
-    lft=Screen('Flip', Par.window);
-    lft=Screen('Flip', Par.window, lft+1);
-    Par.ExpStart = lft;
-    
-    % Initial stimulus position is 1
-    Par.PosNr=1;
-    Par.PrevPosNr=1;
-    
-    % Initial draw-background-status
-    Par.DrawNoise = Stm(1).NoiseDefaultOn;
-    
-    % Initialize KeyLogging
-    Par.KeyIsDown=false;
-    Par.KeyWasDown=false;
-    Par.KeyDetectedInTrackerWindow=false;
-    
-    % Initialize photosensor manual response
-    Par.BeamLIsBlocked=false;  Par.BeamRIsBlocked=false;
-    Par.BeamLWasBlocked=false; Par.BeamRWasBlocked=false;
-    Par.NewResponse = false; % updated every CheckManual
-    Par.TrialResponse = false; % updated with NewResponse when not false
-    Par.GoNewTrial = false;
-    
-    % Initialize control parameters
-    Par.SwitchPos = false;
-    Par.ToggleNoisePatch = false;
-    Par.ToggleDistract = false;
-    Par.ToggleCyclePos = true; % overrules the Stim(1)setting; toggles with 'p'
-    Par.ManualReward = false;
-    Par.PosReset=false;
-    Par.BreakTrial=false;
-    
-    % Trial Logging
-    Par.CurrResponse = RESP_NONE;
-    Par.Response = [0 0 0 0 0]; %[correct false-hit missed]
-    Par.ResponsePos = [0 0 0 0 0]; %[correct false-hit missed]
-    Par.RespTimes = [];
-    Par.ManRewThisTrial=[];
-    
-    Par.FirstInitDone=false;
-    Par.CheckFixIn=false;
-    Par.CheckFixOut=false;
-    Par.CheckTarget=false;
-    Par.RewardRunning=false;
-    
-    Par.State='Init';
-    if isfield(Par,'MaxTimeBetweenRewardsMin')
-        Par.MaxTimeBetweenRewardsSecs = Par.MaxTimeBetweenRewardsMin*60;
-    else
-        Par.MaxTimeBetweenRewardsSecs = Inf;
-    end
-    if ~isfield(Stm(1),'PawIndAlpha')
-        Stm(1).PawIndAlpha = [1 1 1 1; 1 1 1 1];
-    end
-    if ~isfield(Stm(1), 'FalseHitRewardRatio')
-        Stm(1).FalseHitRewardRatio = 0;
-    end
-    assert(Stm(1).FalseHitRewardRatio <= 1.0, ...
-        'It doesn''t make sense to reward more when subject does the wrong thing!')
-    
-    if size(Stm(1).PawIndAlpha,1)==1
-        Stm(1).PawIndAlpha = [ ...
-            Stm(1).PawIndAlpha; ... PreSwitch Alpha
-            Stm(1).PawIndAlpha ... PostSwitchAlpha
-            ];
-    end
+% Some intitialization of control parameters
+Par.ESC = false; %escape has not been pressed
+Log.MRI.TriggerReceived = false;
+Log.MRI.TriggerTime = [];
+Log.ManualReward = false;
+Log.ManualRewardTime = [];
+Log.TotalReward=0;
+Log.TCMFR = [];
+
+% Flip the proper background on screen
+Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
+lft=Screen('Flip', Par.window);
+lft=Screen('Flip', Par.window, lft+1);
+Par.ExpStart = lft;
+
+% Initial stimulus position is 1
+Par.PosNr=1;
+Par.PrevPosNr=1;
+
+% Initial draw-background-status
+Par.DrawNoise = Stm(1).NoiseDefaultOn;
+
+% Initialize KeyLogging
+Par.KeyIsDown=false;
+Par.KeyWasDown=false;
+Par.KeyDetectedInTrackerWindow=false;
+
+% Initialize photosensor manual response
+Par.BeamLIsBlocked=false;  Par.BeamRIsBlocked=false;
+Par.BeamLWasBlocked=false; Par.BeamRWasBlocked=false;
+Par.NewResponse = false; % updated every CheckManual
+Par.TrialResponse = false; % updated with NewResponse when not false
+Par.GoNewTrial = false;
+
+% Initialize control parameters
+Par.SwitchPos = false;
+Par.ToggleNoisePatch = false;
+Par.ToggleDistract = false;
+Par.ToggleCyclePos = true; % overrules the Stim(1)setting; toggles with 'p'
+Par.ManualReward = false;
+Par.PosReset=false;
+Par.BreakTrial=false;
+
+% Trial Logging
+Par.CurrResponse = RESP_NONE;
+Par.Response = [0 0 0 0 0]; %[correct false-hit missed]
+Par.ResponsePos = [0 0 0 0 0]; %[correct false-hit missed]
+Par.ResponseSide = [0 0 0 0 0; 0 0 0 0 0]; %[left-hand stats; right-hand stats ]
+Par.RespTimes = [];
+
+Par.FirstInitDone=false;
+Par.CheckFixIn=false;
+Par.CheckFixOut=false;
+Par.CheckTarget=false;
+Par.RewardRunning=false;
+
+Par.State='Init';
+if isfield(Par,'MaxTimeBetweenRewardsMin')
+    Par.MaxTimeBetweenRewardsSecs = Par.MaxTimeBetweenRewardsMin*60;
+else
+    Par.MaxTimeBetweenRewardsSecs = Inf;
+end
+if ~isfield(Stm(1),'PawIndAlpha')
+    Stm(1).PawIndAlpha = [1 1 1 1; 1 1 1 1];
+end
+if ~isfield(Stm(1), 'FalseHitRewardRatio')
+    Stm(1).FalseHitRewardRatio = 0;
+end
+assert(Stm(1).FalseHitRewardRatio <= 1.0, ...
+    'It doesn''t make sense to reward more when subject does the wrong thing!')
+
+if size(Stm(1).PawIndAlpha,1)==1
+    Stm(1).PawIndAlpha = [ ...
+        Stm(1).PawIndAlpha; ... PreSwitch Alpha
+        Stm(1).PawIndAlpha ... PostSwitchAlpha
+        ];
 end
 
 %% Stimulus presentation loop =============================================
 % keep doing this until escape is pressed or stop is clicked
 % Structure: preswitch_period-switch_period/switched_duration-postswitch
+
 while ~Par.ESC %===========================================================
+    %% INIT ---------------------------------------------------------------
     Par.State='INIT';
     while ~Par.FirstInitDone
         %set control window positions and dimensions
@@ -216,7 +209,9 @@ while ~Par.ESC %===========================================================
             SetWindowDas;      %for the dascard, initializes eye control windows
         end
         
-        Par.Trlcount = Par.Trlcount+1; %keep track of trial numbers
+        %Par.Trlcount = Par.Trlcount+1; %keep track of trial numbers
+        % >> this causes a skipping of trial #1 as it is updated again
+        % later on
         
         Par.CurrResponse = RESP_NONE;
         Par.ResponseGiven=false;
@@ -237,6 +232,7 @@ while ~Par.ESC %===========================================================
         if TestRunstimWithoutDAS; Hit=0; end
         Par.SwitchableInNumTrials = Stm(1).TrialsWithoutSwitching;
         Par.LastRewardTime = GetSecs;
+        Par.ManRewThisTrial=nan;
     end
     Par.DrawPawIndNow = false;
     
@@ -292,6 +288,7 @@ while ~Par.ESC %===========================================================
                 end
             end
             
+            % reset counter
             Par.SwitchableInNumTrials = Stm(1).TrialsWithoutSwitching;
         end
     else % currently right side
@@ -310,8 +307,12 @@ while ~Par.ESC %===========================================================
                     Par.PawSides(2*i-1:2*i) = randperm(2);
                 end
             end
+            
+            % reset counter
+            Par.SwitchableInNumTrials = Stm(1).TrialsWithoutSwitching;
         end
     end
+    
     Par.PartConnectedTarget = randperm(2, 1)+2;
     if Par.CorrectThisTrial || Par.TaskSwitched
         if Stm(1).Task == Stm(1).TASK_TARGET_AT_CURVE
@@ -346,10 +347,12 @@ while ~Par.ESC %===========================================================
         max_alpha - min_alpha) + min_alpha;
     post_switch_joint_alpha = min(1, max(0, post_switch_joint_alpha));
     
+    % countdown number of correct trials without switching
     if Par.CorrectThisTrial
         Par.SwitchableInNumTrials = Par.SwitchableInNumTrials - 1;
     end
     
+    % initiate at every new trial
     Par.Trlcount = Par.Trlcount+1; %keep track of trial numbers
     Par.AutoRewardGiven=false;
     Par.CurrResponse = RESP_NONE;
@@ -359,8 +362,10 @@ while ~Par.ESC %===========================================================
     Par.CorrectThisTrial=false;
     Par.BreakTrial=false;
     Par.TrialResponse = false;
-    
-    % Eye Window preparation ----------------------------------------------
+    Par.ManRewThisTrial=nan;
+    Par.ManResp4Log = nan;
+
+    % Eye Window preparation
     for PrepareEyeWin=1
         DefineEyeWin;
     end
@@ -368,7 +373,7 @@ while ~Par.ESC %===========================================================
         dasreset( 0 );
     end
     
-    % Check eye fixation --------------------------------------------------
+    % Check eye fixation
     CheckFixation;
     
     % Wait for fixation --------------------------------------------------
@@ -398,14 +403,14 @@ while ~Par.ESC %===========================================================
         end
         
         if GetSecs > Par.LastRewardTime && ...
-            Par.LastRewardTime + Par.MaxTimeBetweenRewardsSecs < GetSecs % give reward if its been 2 minutes
+                Par.LastRewardTime + Par.MaxTimeBetweenRewardsSecs < GetSecs % give reward if its been 2 minutes
             t = GetSecs;
             GiveRewardManual;
             % ConsolatoryRewardTime = lft;
         end
     end
     
-    % PRESWITCH -----------------------------------------------------------
+    %% PRESWITCH ----------------------------------------------------------
     Par.State='PRESWITCH';
     Par.PreSwitchStart=lft;
     Par.SwitchOnset=rand(1)*Stm(1).EventPeriods(2)/1000;
@@ -434,6 +439,11 @@ while ~Par.ESC %===========================================================
             Par.CurrResponse = RESP_EARLY;
             Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
             Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
+            
+            % NewResponse indicates left or right responses
+            Par.ManResp4Log = Par.NewResponse;
+            Par.ResponseSide(Par.NewResponse, Par.CurrResponse) = ...
+                Par.ResponseSide(Par.NewResponse, Par.CurrResponse)+1;
             Par.FalseResponseGiven=true;
             Par.RespTimes=[Par.RespTimes;
                 lft-Par.ExpStart Par.RespValid];
@@ -465,7 +475,7 @@ while ~Par.ESC %===========================================================
         end
     end
     
-    % SWITCHED ------------------------------------------------------------
+    %% SWITCHED -----------------------------------------------------------
     Par.State='SWITCHED';
     Par.SwitchStart=lft;
     % switch to orientation 2
@@ -478,7 +488,7 @@ while ~Par.ESC %===========================================================
         % DrawStimuli
         DrawStimuli;
         
-        % Check eye fixation ----------------------------------------------
+        % Check eye fixation
         CheckFixation;
         
         % check for key-presses
@@ -496,8 +506,11 @@ while ~Par.ESC %===========================================================
                 if ~Par.ResponseGiven && ~Par.FalseResponseGiven %only log once
                     Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
                     Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
+                    % NewResponse indicates left or right responses
+                    Par.ResponseSide(Par.NewResponse, Par.CurrResponse) = ...
+                        Par.ResponseSide(Par.NewResponse, Par.CurrResponse)+1;
                     Par.CorrectThisTrial = true;
-                    
+                    Par.ManResp4Log = Par.NewResponse;
                     resp_time = 1000*(lft - Par.SwitchStart) + Stm(1).ResponseAllowed(1);
                     % fprintf('Response time: %0.f ms\n', resp_time);
                 end
@@ -510,6 +523,13 @@ while ~Par.ESC %===========================================================
                 if ~Par.ResponseGiven && ~Par.FalseResponseGiven %only log once
                     Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
                     Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
+                    
+                    % NewResponse indicates left or right responses
+                    Par.ResponseSide(Par.NewResponse, Par.CurrResponse) = ...
+                        Par.ResponseSide(Par.NewResponse, Par.CurrResponse)+1;
+                    Par.CorrectThisTrial = false;
+                    Par.ResponseGiven=true;
+                    Par.ManResp4Log = Par.NewResponse;
                 end
                 Par.FalseResponseGiven=true;
                 if Stm(1).BreakOnFalseHit
@@ -528,6 +548,10 @@ while ~Par.ESC %===========================================================
             end
             Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
             Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
+            Par.ResponseSide(Par.NewResponse, Par.CurrResponse) = ...
+                Par.ResponseSide(Par.NewResponse, Par.CurrResponse)+1;
+            Par.CorrectThisTrial = false;
+            Par.ManResp4Log = Par.NewResponse;
             Par.FalseResponseGiven=true;
             Par.RespTimes=[Par.RespTimes;
                 lft-Par.ExpStart Par.RespValid];
@@ -542,6 +566,8 @@ while ~Par.ESC %===========================================================
                 Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
                 %Par.ResponsePos
                 Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
+                Par.ResponseSide(Par.NewResponse, Par.CurrResponse) = ...
+                    Par.ResponseSide(Par.NewResponse, Par.CurrResponse)+1;
             end
             Par.FalseResponseGiven=false;
             Par.BreakTrial=true;
@@ -559,10 +585,10 @@ while ~Par.ESC %===========================================================
             Par.ManualReward=false;
         end
         
-        
         % Draw fixation dot
         %DrawFix;
-        DrawStimuli; % update lifted paw indicator
+        %DrawStimuli; % update lifted paw indicator
+        % >> WHY? will be done on next iteration
         
         % Check eye position
         if ~TestRunstimWithoutDAS
@@ -577,13 +603,13 @@ while ~Par.ESC %===========================================================
         end
         
         if Par.FalseResponseGiven && ...
-				Stm(1).FalseHitRewardRatio > 0 && ...
+                Stm(1).FalseHitRewardRatio > 0 && ...
                 Stm(1).AutoReward && ~Par.AutoRewardGiven
             GiveRewardAuto;
             Par.AutoRewardGiven = true;
         end
     end
-        
+    
     if Par.CurrResponse > 0 && ...
             isfield(Par, 'FeedbackSound') && ...
             isfield(Par, 'FeedbackSoundPar') && ...
@@ -601,12 +627,12 @@ while ~Par.ESC %===========================================================
             end
         end
     end
-        
+    
     % switch to orientation 1
     Par.DrawPawIndNow = false;
     Par.CurrOrient=1;
     
-    % POSTSWITCH ----------------------------------------------------------
+    %% POSTSWITCH ---------------------------------------------------------
     Par.State='POSTSWITCH';
     Par.PostSwitchStart=lft;
     
@@ -614,16 +640,16 @@ while ~Par.ESC %===========================================================
             Stm(1).EventPeriods(3)/1000 && ~Par.PosReset && ...
             ~Par.ESC && ~Par.BreakTrial
         
-        % DrawStimuli
+        % DrawStimuli -----------------------------------------------------
         DrawStimuli;
         
         % Check eye fixation ----------------------------------------------
         CheckFixation;
         
-        % check for key-presses
+        % check for key-presses -------------------------------------------
         CheckKeys; % internal function
         
-        % check for manual responses
+        % check for manual responses --------------------------------------
         CheckManual;
         if Par.NewResponse && ...
                 lft < Par.SwitchStart+Stm(1).ResponseAllowed(2)/1000
@@ -698,7 +724,7 @@ while ~Par.ESC %===========================================================
     Par.DrawPawIndNow = false;
     % no response or fix break during switch = miss
     % ~Par.ResponseGiven && ~Par.FalseResponseGiven && ...
-    if Par.CurrResponse == RESP_NONE            
+    if Par.CurrResponse == RESP_NONE
         Par.CurrResponse = RESP_MISS;
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
         Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
@@ -706,7 +732,7 @@ while ~Par.ESC %===========================================================
     end
     Par.LastResponse = Par.CurrResponse;
     
-    % Consolatory reward
+    % Consolatory reward --------------------------------------------------
     if ~Par.AutoRewardGiven && ~Par.FalseResponseGiven && ...
             (Par.RequireFixation && rand() < Stm(1).ProbFixationReward && ...
             Par.FixIn || ...
@@ -721,6 +747,7 @@ while ~Par.ESC %===========================================================
         GiveRewardManual;
         ConsolatoryRewardTime = lft;
     end
+    
     if Stm(1).DisplayChosenTargetDur > 0 && Par.TrialResponse
         Par.DisplayChosenStartTime=lft;
         % Par.NewResponse == Par.PawSides(1)
@@ -742,9 +769,10 @@ while ~Par.ESC %===========================================================
         end
     end
     
-    % Break for false hit
+    %% Break for false hit ------------------------------------------------
     if Par.BreakTrial
         Par.BreakStartTime=lft;
+        %fprintf('Getting a time penalty...\n');
         while lft < Par.BreakStartTime + Stm(1).BreakDuration/1000 && ~Par.ESC
             CheckManual;
             CheckKeys; % internal function
@@ -758,110 +786,113 @@ while ~Par.ESC %===========================================================
         end
     end
     
-    % Performance info on screen
-    for PerformanceOnCMD=1
-        if Par.PosReset
-            % display & write stats for this position
-            fprintf(['Pos ' num2str(Par.PrevPosNr) ': T=' ...
-                num2str(Par.Trlcount(1)) ' C=' ...
-                num2str(Par.ResponsePos(1)) ' M=' ...
-                num2str(Par.ResponsePos(3)) ' F=' ...
-                num2str(Par.ResponsePos(2)) ' (' ...
-                num2str(round(100*Par.ResponsePos(1)/Par.Trlcount(1))) '%%)\n']);
-            fprintf(['Tot: T=' ...
-                num2str(Par.Trlcount(2)) ' C=' ...
-                num2str(Par.Response(1)) ' M=' ...
-                num2str(Par.Response(3)) ' F=' ...
-                num2str(Par.Response(2)) ' (' ...
-                num2str(round(100*Par.Response(1)/Par.Trlcount(2))) '%%)\n']);
-            % reset
-            Par.ResponsePos = 0*Par.ResponsePos;
-            Par.Trlcount(1) = 0;
-            Par.CorrStreakcount(1)=0;
-            Par.PosReset=false; %start new trial when switching position
-            Log.Trial(Par.Trlcount(2)).Finished = false;
-        else
-            Log.Trial(Par.Trlcount(2)).Finished = true;
-        end
-        
-        % Display total reward every x correct trials
-        if Par.CurrResponse == RESP_CORRECT && ...
-                mod(Par.Response(RESP_CORRECT),10) == 0 && ...
-                Par.Response(RESP_CORRECT) > 0 && ...
-                isfield(Stm(1),'TaskName')
-            
-            fprintf(['\nTask: ' Stm(1).TaskName(Stm(1).Task) '\n']);
-        
-
-            Log.TCMFR = [Log.TCMFR; ...
-                Par.Trlcount(2) ...
-                Par.Response(1) ...
-                Par.Response(3) ...
-                Par.Response(2) ...
-                Log.TotalReward];
-            fprintf(['Paw accuracy (block): ',...
-                num2str( round(100 * ...
-                Par.ResponsePos(RESP_CORRECT)/...
-                (Par.ResponsePos(RESP_CORRECT) + ...
-                Par.ResponsePos(RESP_FALSE))))])
-            fprintf(['%%\t (total): ',...
-                num2str( round(100 * ...
-                Par.Response(RESP_CORRECT)/...
-                (Par.Response(RESP_CORRECT) + ...
-                Par.Response(RESP_FALSE))))...
-                '%%\n\n'])
-            
-            % Check if should automatically cycle
-            if Par.AutoCycleTasks
-                RecentRatioCorrect = (Par.ResponsePos(RESP_CORRECT))/...
-                        (Par.ResponsePos(RESP_CORRECT) + ...
-                         Par.ResponsePos(RESP_FALSE));
-                Par.MinRatioCorrectToChangeTask = 0.7;
-                if RecentRatioCorrect >= Par.MinRatioCorrectToChangeTask
-                    Stm(1).TaskCycleInd = mod( Stm(1).TaskCycleInd, ...
-                        size(Stm(1).TasksToCycle, 2)) + 1;
-                    Stm(1).Task = Stm(1).TasksToCycle(Stm(1).TaskCycleInd);
-                    Par.TaskSwitched = true;
-                    fprintf(['Automatically cycling task to ' Stm(1).TaskName(Stm(1).Task) '\n']);
-                else
-                    fprintf(['Not automatically cycling due to poor performance ('...
-                        num2str(round(RecentRatioCorrect*100)) ...
-                        '%%  correct, must be ' ...
-                        num2str(Par.MinRatioCorrectToChangeTask*100) ...
-                        '%% correct)'])
-                end
-                if ~Par.RequireFixation
-                    Par.RequireFixation = true;
-                    fprintf('Requiring fixation (auto).\n');
-                end
-            end
-
-            % reset
-            Par.ResponsePos = 0*Par.ResponsePos;
-        end
-    end
-
-    % LOG TRIAL INFO ------------------------------------------------------
-    for LogTrialInfo=1 % allow code folding
-        Log.Trial(Par.Trlcount(2)).TrialNr = Par.Trlcount(2);
-        Log.Trial(Par.Trlcount(2)).PosNr = Par.PosNr;
-        Log.Trial(Par.Trlcount(2)).TrialNrPos = Par.Trlcount(1);
-        Log.Trial(Par.Trlcount(2)).PreSwitchStart = ...
-            Par.PreSwitchStart-Par.ExpStart;
-        Log.Trial(Par.Trlcount(2)).SwitchStart = ...
-            Par.SwitchStart-Par.ExpStart;
-        Log.Trial(Par.Trlcount(2)).PostSwitchStart = ...
-            Par.PostSwitchStart-Par.ExpStart;
-        Log.Trial(Par.Trlcount(2)).RespTime = Par.RespTimes;
-        Log.Trial(Par.Trlcount(2)).Reward = Par.AutoRewardGiven;
-        Log.Trial(Par.Trlcount(2)).RewardAmount = Par.RewardTime;
-        Log.Trial(Par.Trlcount(2)).ManualRewards = Par.ManRewThisTrial;
-        Log.Trial(Par.Trlcount(2)).ResponseGiven = Par.ResponseGiven;
-        Log.Trial(Par.Trlcount(2)).CurrResponse = Par.CurrResponse;
-        Log.Trial(Par.Trlcount(2)).CorrectThisTrial = Par.CorrectThisTrial;
+    %% Performance info on screen -----------------------------------------
+    if Par.PosReset
+        % display & write stats for this position
+        fprintf(['Pos ' num2str(Par.PrevPosNr) ': T=' ...
+            num2str(Par.Trlcount(1)) ' C=' ...
+            num2str(Par.ResponsePos(1)) ' M=' ...
+            num2str(Par.ResponsePos(3)) ' F=' ...
+            num2str(Par.ResponsePos(2)) ' (' ...
+            num2str(round(100*Par.ResponsePos(1)/Par.Trlcount(1))) '%%)\n']);
+        fprintf(['Tot: T=' ...
+            num2str(Par.Trlcount(2)) ' C=' ...
+            num2str(Par.Response(1)) ' M=' ...
+            num2str(Par.Response(3)) ' F=' ...
+            num2str(Par.Response(2)) ' (' ...
+            num2str(round(100*Par.Response(1)/Par.Trlcount(2))) '%%)\n']);
+        % reset
+        Par.ResponsePos = 0*Par.ResponsePos;
+        Par.Trlcount(1) = 0;
+        Par.CorrStreakcount(1)=0;
+        Par.PosReset=false; %start new trial when switching position
+        Log.Trial(Par.Trlcount(2)).Finished = false;
+    else
+        Log.Trial(Par.Trlcount(2)).Finished = true;
     end
     
-    % Switch position if required to do this automatically
+    %% Display total reward every x correct trials
+    if Par.CurrResponse == RESP_CORRECT && ...
+            mod(Par.Response(RESP_CORRECT),10) == 0 && ...
+            Par.Response(RESP_CORRECT) > 0 && ...
+            isfield(Stm(1),'TaskName')
+        
+        fprintf(['\nTask: ' Stm(1).TaskName(Stm(1).Task) '\n']);
+        
+        
+        Log.TCMFR = [Log.TCMFR; ...
+            Par.Trlcount(2) ...
+            Par.Response(1) ...
+            Par.Response(3) ...
+            Par.Response(2) ...
+            Log.TotalReward];
+        fprintf(['Paw accuracy (block): ',...
+            num2str( round(100 * ...
+            Par.ResponsePos(RESP_CORRECT)/...
+            (Par.ResponsePos(RESP_CORRECT) + ...
+            Par.ResponsePos(RESP_FALSE))))])
+        fprintf(['%%\t (total): ',...
+            num2str( round(100 * ...
+            Par.Response(RESP_CORRECT)/...
+            (Par.Response(RESP_CORRECT) + ...
+            Par.Response(RESP_FALSE))))...
+            '%%\n\n'])
+        
+        % Check if should automatically cycle
+        if Par.AutoCycleTasks
+            RecentRatioCorrect = (Par.ResponsePos(RESP_CORRECT))/...
+                (Par.ResponsePos(RESP_CORRECT) + ...
+                Par.ResponsePos(RESP_FALSE));
+            Par.MinRatioCorrectToChangeTask = 0.7;
+            if RecentRatioCorrect >= Par.MinRatioCorrectToChangeTask
+                Stm(1).TaskCycleInd = mod( Stm(1).TaskCycleInd, ...
+                    size(Stm(1).TasksToCycle, 2)) + 1;
+                Stm(1).Task = Stm(1).TasksToCycle(Stm(1).TaskCycleInd);
+                Par.TaskSwitched = true;
+                fprintf(['Automatically cycling task to ' Stm(1).TaskName(Stm(1).Task) '\n']);
+            else
+                fprintf(['Not automatically cycling due to poor performance ('...
+                    num2str(round(RecentRatioCorrect*100)) ...
+                    '%%  correct, must be ' ...
+                    num2str(Par.MinRatioCorrectToChangeTask*100) ...
+                    '%% correct)'])
+            end
+            if ~Par.RequireFixation
+                Par.RequireFixation = true;
+                fprintf('Requiring fixation (auto).\n');
+            end
+        end
+        
+        % reset
+        Par.ResponsePos = 0*Par.ResponsePos;
+    end
+    
+    %% LOG TRIAL INFO -----------------------------------------------------
+    Log.Trial(Par.Trlcount(2)).TrialNr = Par.Trlcount(2);
+    Log.Trial(Par.Trlcount(2)).PosNr = Par.PosNr;
+    Log.Trial(Par.Trlcount(2)).TrialNrPos = Par.Trlcount(1);
+    Log.Trial(Par.Trlcount(2)).PreSwitchStart = ...
+        Par.PreSwitchStart-Par.ExpStart;
+    Log.Trial(Par.Trlcount(2)).SwitchStart = ...
+        Par.SwitchStart-Par.ExpStart;
+    Log.Trial(Par.Trlcount(2)).PostSwitchStart = ...
+        Par.PostSwitchStart-Par.ExpStart;
+    if Par.ResponseGiven
+        Log.Trial(Par.Trlcount(2)).RespTime = Par.RespTimes(end,1);
+    else
+        Log.Trial(Par.Trlcount(2)).RespTime = nan;
+    end
+    Log.Trial(Par.Trlcount(2)).Reward = Par.AutoRewardGiven;
+    Log.Trial(Par.Trlcount(2)).RewardAmount = Par.RewardTime;
+    Log.Trial(Par.Trlcount(2)).ManualRewards = Par.ManRewThisTrial;
+    
+    Log.Trial(Par.Trlcount(2)).ResponseGiven = Par.ResponseGiven;
+    Log.Trial(Par.Trlcount(2)).CurrResponse = Par.CurrResponse;
+    Log.Trial(Par.Trlcount(2)).CorrectThisTrial = Par.CorrectThisTrial;
+    Log.Trial(Par.Trlcount(2)).RespSideIndicator = Par.PawSides(1); % Which button indicator is on the screen
+    Log.Trial(Par.Trlcount(2)).RespSide = Par.ManResp4Log; % Which button was lifted
+    
+    %% Switch position if required to do this automatically
     if Par.ToggleCyclePos && Stm(1).CyclePosition && ...
             Log.Trial(Par.Trlcount(2)).TrialNrPos >= Stm(1).CyclePosition
         % next position
@@ -871,12 +902,13 @@ while ~Par.ESC %===========================================================
         Par.SwitchPos = false;
     end
     
-
-    % Update Tracker window
+    %% Update Tracker window
     if ~TestRunstimWithoutDAS
         %SCNT = {'TRIALS'};
-        SCNT(1) = { ['Corr:  ' num2str(Par.Response(RESP_CORRECT)) ] };
-        SCNT(2) = { ['False: ' num2str(Par.Response(RESP_FALSE)) ] };
+        SCNT(1) = { ['C:' num2str(Par.Response(RESP_CORRECT)) ...
+            ' ' num2str(Par.ResponseSide(1, RESP_CORRECT)) '+' num2str(Par.ResponseSide(2, RESP_CORRECT)) ] };
+        SCNT(2) = { ['F:' num2str(Par.Response(RESP_FALSE)) ...
+            ' ' num2str(Par.ResponseSide(1, RESP_FALSE)) '+' num2str(Par.ResponseSide(2, RESP_FALSE)) ] };
         SCNT(3) = { ['Miss:  ' num2str(...
             Par.Response(RESP_MISS)+Par.Response(RESP_EARLY)+ ...
             Par.Response(RESP_BREAK_FIX)) ] };
@@ -892,7 +924,6 @@ while ~Par.ESC %===========================================================
         SD = SD./Par.PixPerDeg;
         set(Hnd(2), 'String', SD )
         
-        
         %fprintf(['Percent correct = ' ...
         %    num2str(100*Par.Trlcount(RESP_CORRECT) / ...
         %    (Par.Trlcount(RESP_CORRECT)+Par.Response(RESP_FALSE)))])
@@ -900,36 +931,34 @@ while ~Par.ESC %===========================================================
 end
 
 %% Clean up and Save Log ==================================================
-for CleanUp=1 % code folding
-    % Empty the screen
-    Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
-    lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
-    if ~TestRunstimWithoutDAS
-        dasjuice(0); %stop reward if its running
-    end
-    
-    % save stuff
-    if ~TestRunstimWithoutDAS
-        FileName=['Log_' Par.STIMSETFILE '_' datestr(clock,30)];
-    else
-        FileName=['Log_NODAS_' Par.STIMSETFILE '_' datestr(clock,30)];
-    end
-    warning off; %#ok<WNOFF>
-    if TestRunstimWithoutDAS; cd ..;end
-    mkdir('Log');cd('Log');
-    save(FileName,'Log','Par','StimObj');
-    cd ..
-    if TestRunstimWithoutDAS; cd Experiment;end
-    warning on; %#ok<WNON>
-    
-    % if running without DAS close ptb windows
-    if TestRunstimWithoutDAS
-        Screen('closeall');
-    end
+% Empty the screen
+Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
+lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
+if ~TestRunstimWithoutDAS
+    dasjuice(0); %stop reward if its running
+end
+
+% save stuff
+if ~TestRunstimWithoutDAS
+    FileName=['Log_' Par.STIMSETFILE '_' datestr(clock,30)];
+else
+    FileName=['Log_NODAS_' Par.STIMSETFILE '_' datestr(clock,30)];
+end
+warning off; %#ok<WNOFF>
+if TestRunstimWithoutDAS; cd ..;end
+mkdir('Log');cd('Log');
+save(FileName,'Log','Par','StimObj');
+cd ..
+if TestRunstimWithoutDAS; cd Experiment;end
+warning on; %#ok<WNON>
+
+% if running without DAS close ptb windows
+if TestRunstimWithoutDAS
+    Screen('closeall');
 end
 
 %% Standard functions called throughout the runstim =======================
-% create fixation window around target
+% create fixation window around target ------------------------------------
     function DefineEyeWin
         FIX = 0;  %this is the fixation window
         TALT = 1; %this is an alternative/erroneous target window --> not used
@@ -992,12 +1021,12 @@ end
                 fix_pos + right_diamond + offset);
         end
     end
-% draw stimuli
+% draw stimuli ------------------------------------------------------------
     function DrawStimuli
-        % Background
+        % Background ------------------------------------------------------
         Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
         
-        % Noise patch
+        % Noise patch -----------------------------------------------------
         if Par.DrawNoise
             srcRect = [Par.ScrCenter(2)-(Stm(1).NoiseSizePix/2)-5 ...
                 Par.ScrCenter(2)-(Stm(1).NoiseSizePix/2)-5 ...
@@ -1010,20 +1039,23 @@ end
             Screen('DrawTexture',Par.window,NoiTex,srcRect,destRect);
         end
         
+        % Paw indicators --------------------------------------------------
         if Stm(1).RequireSpecificPaw && Par.DrawPawIndNow
             
+            % size
             PawIndSizePix = Stm(1).PawIndSizePix;
             
+            % side
             attd_offset = repmat( ...
                 Stm(1).PawIndOffsetPix(1,:), [4,1]);
             
-            
+            % draw
             if mod(Stm(1).Task, 2) == Stm(1).TASK_FIXED_TARGET_LOCATIONS
                 % -------------------- Attend targets away from Fixation Point
                 color = (...
                     Stm(1).BackColor * (1-Par.unattended_alpha) + ...
                     Stm(1).PawIndCol(Par.PawSides(1),:) * Par.unattended_alpha) * Par.ScrWhite;
-
+                
                 is_side_left = Par.PawSides(1) == 1;
                 DrawTarget(color, attd_offset, is_side_left);
                 
@@ -1053,13 +1085,13 @@ end
                     end
                     discon_offset = NaN;
                 end
-                                
+                
                 color0 = (...
                     Stm(1).BackColor * (1-Par.unattended_alpha) + ...
                     Stm(1).PawIndCol(Par.PawSides(1),:) * Par.unattended_alpha) * Par.ScrWhite;
             else
                 % task related curve
-                if strcmp(Par.State, 'PRESWITCH')                    
+                if strcmp(Par.State, 'PRESWITCH')
                     DrawCurve2(attd_offset(1,:), true, true, 1);
                 else
                     DrawCurve2(attd_offset(1,:), post_switch_joint_alpha, post_switch_joint_alpha, 1);
@@ -1084,6 +1116,7 @@ end
                     ).*Par.ScrWhite;
             end
             
+            % draw differently in pre/post switch phases
             if strcmp(Par.State, 'PRESWITCH')
                 % ------------------------------- PRESWITCH
                 alpha1 = 1.0 * Par.trial_preswitch_alpha;
@@ -1110,9 +1143,9 @@ end
                 
                 for indpos = 2:Stm(1).NumOfPawIndicators
                     alpha1 = (1-Stm(1).PawIndAlpha(1, indpos)) * ...
-                        Par.unattended_alpha * ...                            
+                        Par.unattended_alpha * ...
                         Par.trial_preswitch_alpha;
-
+                    
                     discon_offset = repmat( ...
                         Stm(1).PawIndOffsetPix(indpos,:), [4,1]);
                     side = Par.PawSides(indpos);
@@ -1131,9 +1164,7 @@ end
                             (1-Par.trial_preswitch_alpha)*Stm(1).PawIndAlpha(1, indpos));
                     end
                 end
-            else
-                % ------------------------------- POSTSWITCH
-                
+            else % ------------------------------- POSTSWITCH
                 DrawTarget(color0, attd_offset, Par.PawSides(1)==1)
                 
                 for indpos = 2:Stm(1).NumOfPawIndicators
@@ -1154,8 +1185,10 @@ end
             end
         end
         
+        % fixation
         DrawFix;
         
+        % curve tracing functionality
         if mod(Stm(1).Task, 2) == Stm(1).TASK_TARGET_AT_FIX && ...
                 Stm(1).RequireSpecificPaw && Par.DrawPawIndNow
             
@@ -1193,7 +1226,7 @@ end
             end
         end
         
-        % Target bar - "Go bar"
+        % Target bar - "Go bar" -------------------------------------------
         if ~Stm(1).Orientation(Par.CurrOrient) %horizontal
             rect=[...
                 Stm(1).Center(Par.PosNr,1)+Par.ScrCenter(1)-Stm(1).SizePix(1)/2, ...
@@ -1215,7 +1248,7 @@ end
         % Draw on screen
         lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
     end
-% draw stimuli
+% draw Noise only ---------------------------------------------------------
     function DrawNoiseOnly
         % Background
         Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
@@ -1258,14 +1291,14 @@ end
                 Screen('DrawTexture',Par.window,NoiTex,srcRect,destRect);
             end
             % Draw fixation dot
-            DrawFix;
+            % DrawFix;  % <-- Why draw fixation point?
         end
         DrawLiftedResponseIndicators;
         % Draw on screen
         lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
         
     end
-% draw fixation
+% draw fixation -----------------------------------------------------------
     function DrawFix
         fix_pos = Stm(1).Center(Par.PosNr,:)+Par.ScrCenter(:)';
         rect=[...
@@ -1279,10 +1312,11 @@ end
         else
             Screen('FillOval',Par.window, Stm(1).FixDotCol(3,:).*Par.ScrWhite, rect);
         end
-        %         if strcmp(Par.State, 'PRESWITCH') && mod(Stm(1).Task, 2) == Stm(1).TASK_TARGET_AT_FIX
-        %             DrawPreSwitchFigure(fix_pos, Stm(1).FixDotSizePix,  1-Par.trial_preswitch_alpha);
-        %         end
+        % if strcmp(Par.State, 'PRESWITCH') && mod(Stm(1).Task, 2) == Stm(1).TASK_TARGET_AT_FIX
+        %   DrawPreSwitchFigure(fix_pos, Stm(1).FixDotSizePix,  1-Par.trial_preswitch_alpha);
+        % end
     end
+% draw pre-switch figure --------------------------------------------------
     function DrawPreSwitchFigure(pos, SizePix, alpha)
         lmost=-sqrt(1/pi);
         rmost= sqrt(1/pi);
@@ -1294,6 +1328,7 @@ end
         Screen('FillOval', Par.window, color .*Par.ScrWhite, ...
             repmat(pos(1,:),[1,2]) + wait_circle*SizePix);
     end
+% draw curves -------------------------------------------------------------
     function DrawCurve2(pos, connection1, connection2, indpos)
         if ~isfield(Par, 'CurveAngles') || ~isfield(Stm(1), 'BranchDistDeg')
             return
@@ -1303,23 +1338,23 @@ end
         hfix = Stm(1).Center(Par.PosNr,1)+Par.ScrCenter(1);
         vfix = Stm(1).Center(Par.PosNr,2)+Par.ScrCenter(2);
         d1 = sqrt(pos(1)^2 + pos(2)^2);
-                
+        
         if mod(Par.CurveAngles(indpos)+90, 360) < 180
             target_angle = 180;
         else
             target_angle = 0;
         end
         pt1 = [ cos(Par.CurveAngles(indpos)*pi/180), ...
-               -sin(Par.CurveAngles(indpos)*pi/180)] * ...
-               Stm(1).BranchDistDeg * Par.PixPerDeg;
+            -sin(Par.CurveAngles(indpos)*pi/180)] * ...
+            Stm(1).BranchDistDeg * Par.PixPerDeg;
         pt2 = [ cos(Par.CurveAngles(indpos)*pi/180), ...
-               -sin(Par.CurveAngles(indpos)*pi/180)] * ...
-               Stm(1).CurveTargetDistDeg * Par.PixPerDeg;
+            -sin(Par.CurveAngles(indpos)*pi/180)] * ...
+            Stm(1).CurveTargetDistDeg * Par.PixPerDeg;
         spline_pts = [hfix, vfix; ...
-                      hfix+pt1(1), vfix+pt1(2);
-                      hfix+pos(1)-pt2(1), vfix+pos(2)-pt2(2);
-                      hfix+pos(1), vfix+pos(2)];
-                  
+            hfix+pt1(1), vfix+pt1(2);
+            hfix+pos(1)-pt2(1), vfix+pos(2)-pt2(2);
+            hfix+pos(1), vfix+pos(2)];
+        
         pts = bezier_curve_with_lines(spline_pts, round([npoints npoints npoints]/3));
         
         alpha = Stm(1).CurveAlpha(~strcmp(Par.State, 'PRESWITCH')+1, ...
@@ -1334,11 +1369,11 @@ end
             else % larger gap
                 Gap = Stm(1).Gap2_deg(2);
             end
-                
+            
             base_alpha = Par.unattended_alpha * alpha;
             pts_alpha = repmat(base_alpha, [size(pts,1), 1]);
             startpos = int16(Gap * size(pts,1));
-
+            
             GD = Gap * Par.PixPerDeg;
             ptD = [0; cumsum(sqrt(diff(pts(:,1)).^2 + diff(pts(:,2)).^2))];
             
@@ -1421,7 +1456,7 @@ end
         end
         
         % This is a distracting curve connection
-        if ~connection1 && connection2 && Stm(1).Task == Stm(1).TASK_TARGET_AT_CURVE 
+        if ~connection1 && connection2 && Stm(1).Task == Stm(1).TASK_TARGET_AT_CURVE
             % Fill in "gap" with DistractBranchConnAlpha
             Screen('FrameArc', Par.window, ...
                 [Stm(1).TraceCurveCol ...
@@ -1479,23 +1514,23 @@ end
             vfix + pos(1,2),...
             Stm(1).TraceCurveWidth);
     end
+% draw lifted button indicators -------------------------------------------
     function DrawLiftedResponseIndicators
-        
-        if isfield(Stm(1), 'LiftedPawIndPositions')
+        if isfield(Stm(1), 'LiftedPawIndPositions') && Stm(1).LiftedPawIndSize > 0
             size_pix = Stm(1).LiftedPawIndSize * Par.PixPerDeg;
             if Par.BeamLIsBlocked
                 offset = repmat( ...
-                        Stm(1).LiftedPawIndPositions(1,:)*Par.PixPerDeg, [4,1]);
+                    Stm(1).LiftedPawIndPositions(1,:)*Par.PixPerDeg, [4,1]);
                 DrawTarget(1.0, offset, 1, size_pix);
             end
             if Par.BeamRIsBlocked
                 offset = repmat( ...
-                        Stm(1).LiftedPawIndPositions(2,:)*Par.PixPerDeg, [4,1]);
+                    Stm(1).LiftedPawIndPositions(2,:)*Par.PixPerDeg, [4,1]);
                 DrawTarget(1.0, offset, 2, size_pix);
             end
         end
     end
-% change stimulus features
+% change stimulus features ------------------------------------------------
     function ChangeStimulus
         % Change stimulus features if required
         % Position
@@ -1544,7 +1579,7 @@ end
             Par.ToggleDistract = false;
         end
     end
-% check for key-presses
+% check for key-presses ---------------------------------------------------
     function CheckKeys
         % check
         [Par.KeyIsDown,Par.KeyTime,KeyCode]=KbCheck; %#ok<*ASGLU>
@@ -1601,10 +1636,14 @@ end
                             else
                                 Par.PawSides(1)=1;
                             end
+                            RandomizePawIndOffset();
+                            Par.SwitchableInNumTrials = Stm(1).TrialsWithoutSwitching; % reset counter
                         case Par.KeyPawSide1
                             Par.PawSides(1)=1;
+                            RandomizePawIndOffset();
                         case Par.KeyPawSide2
                             Par.PawSides(1)=2;
+                            RandomizePawIndOffset();
                         case Par.KeyCycleTask
                             Stm(1).TaskCycleInd = mod( Stm(1).TaskCycleInd, ...
                                 size(Stm(1).TasksToCycle, 2)) + 1;
@@ -1629,9 +1668,9 @@ end
                         case Par.KeyNext
                             Par.SwitchPos = true;
                             Par.WhichPos = 'Next';
-                            %                 case Par.KeyPrevious
-                            %                     Par.SwitchPos = true;
-                            %                     Par.WhichPos = 'Prev';
+                            % case Par.KeyPrevious
+                            % Par.SwitchPos = true;
+                            % Par.WhichPos = 'Prev';
                         case Par.KeyRequireFixation
                             if ~Par.RequireFixation;
                                 Par.RequireFixation = true;
@@ -1658,7 +1697,7 @@ end
         % reset to false
         Par.KeyDetectedInTrackerWindow=false;
     end
-% check DAS for manual responses
+% check DAS for manual responses ------------------------------------------
     function CheckManual
         %check the incoming signal on DAS channel #3  (#4 base 1)
         % NB dasgetlevel only starts counting at the third channel (#2)
@@ -1795,7 +1834,7 @@ end
             end
         end
     end
-% give automated reward
+% give automated reward ---------------------------------------------------
     function GiveRewardAuto
         % Get correct reward duration
         switch Par.RewardType
@@ -1857,7 +1896,7 @@ end
         end
         Par.LastRewardTime = StartReward;
     end
-% give manual reward
+% give manual reward ------------------------------------------------------
     function GiveRewardManual
         Par.RewardTimeCurrent = Par.RewardTimeManual;
         % Give the reward
@@ -1886,12 +1925,11 @@ end
         Par.LastRewardTime = StartReward;
         
     end
-% check and update eye info in tracker window
+% check and update eye info in tracker window -----------------------------
     function CheckTracker
         dasrun(5);
         DasCheck;
     end
-
     function RandomizePawIndOffset
         if Stm(1).Task == Stm(1).TASK_FIXED_TARGET_LOCATIONS || ...
                 Stm(1).NumOfPawIndicators <= 1
@@ -1904,7 +1942,7 @@ end
             % branch to appear when there are only 2 targets
             Group_pos = reshape(...
                 repmat(randperm(size(Stm(1).PawIndPositions,1)/2, Stm(1).NumOfPawIndicators/2),...
-                       2,1),...
+                2,1),...
                 [1,Stm(1).NumOfPawIndicators]);
             Group_pos = (Group_pos-1) * 2;
             ind = zeros(size(Group_pos));
@@ -1919,10 +1957,10 @@ end
             Stm(1).PawIndOffsetPix = Stm(1).PawIndPositions(...
                 Group_pos + ind, :) * Par.PixPerDeg;
             Par.CurveAngles = angles(Group_pos + ind);
-%             Stm(1).PawIndOffsetPix = Stm(1).PawIndPositions(...
-%                 randperm(size(Stm(1).PawIndPositions, 1), ...
-%                          Stm(1).NumOfPawIndicators), :) * Par.PixPerDeg;
-
+            % Stm(1).PawIndOffsetPix = Stm(1).PawIndPositions(...
+            %   randperm(size(Stm(1).PawIndPositions, 1), ...
+            %   Stm(1).NumOfPawIndicators), :) * Par.PixPerDeg;
+            
             Par.DistractLineTarget = randperm(2);
         end
     end

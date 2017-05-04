@@ -19,7 +19,7 @@ Stm(1).Size = length*[1, .25] + [0, 0.01]; % [length width] in deg
 Stm(1).Orientation = [1 0]; % [def a1lt] 0=hor, 1=vert
 Stm(1).Color = [0.6 0.7 0.7]; % [R G B] 0-1
 
-% Curve tracing stimulus
+% Curve tracing stimulus -------------------------------------------------
 Stm(1).TraceCurveCol = Stm(1).BackColor;%[0 0 0];
 Stm(1).TraceCurveWidth = 6;
 Stm(1).UnattdAlpha = [0]; % min should go to 1, with better training
@@ -31,8 +31,14 @@ Stm(1).CurveAngleGap = 90; % (0,90]
 
 Stm(1).DisconnectedCurveLength = 0.75;
 
-% Paw indicator
-Stm(1).RequireSpecificPaw = true;
+% ------------------------------------------ Is a specific paw required?
+Stm(1).RequireSpecificPaw = false;
+% If RequireSpecificPaw = false, then FalseHitRewardRatio value is never used
+% FalseHitRewardRatio should probably just always be 0, unless you are
+% doing something crazy (like rewarding more for switching).
+Stm(1).FalseHitRewardRatio = 0.75; % amount of reward for FH relative to true hit
+
+% ---------------------------------- Paw indicator appearance, locations --
 Stm(1).PawIndSize = 5;
 %Stm(1).PawIndOffset = [3.5 2.5];
 Stm(1).PawIndOffsetX = [-3 3]; % [min max]
@@ -50,6 +56,7 @@ Stm(1).NumOfPawIndicators = 1; % Can't be more than the number of PawIndPosition
 
 Stm(1).PawIndCol = [0 .7 0; .9 .2 .2]; % colors for the left and right target
 
+% ----------------------------------------- Side switching probabilities --
 Stm(1).SwitchToLPawProb = [1.0 0.0]; % [prev. correct, prev. incorrect]
 Stm(1).SwitchToRPawProb = [1.0 0.0]; % [prev. correct, prev. incorrect]
 Stm(1).TrialsWithoutSwitching = 0; % Wait at least this number of trials before switching
@@ -70,14 +77,14 @@ Stm(1).NoiseContrast = 0.01; % 0-1
 Stm(1).NoiseDefaultOn = false; % [toggle with "B" key]
 
 % Stimulus specific timing (in ms)
-Stm(1).SwitchDur = 5000; % (200) duration of alternative orientation
+Stm(1).SwitchDur = 2000; % (200) duration of alternative orientation
 
 % set time-windows in which something can happen (ms)
 % [baseduration_without_switch ... 
 %  period_in_which_switch_randomly_occurs ...
 %  post_switch_duration_in_which_nothing_happens]
 %Stm(1).EventPeriods = [2500 1500 300];
-Stm(1).EventPeriods = [0 1000 0];
+Stm(1).EventPeriods = [1000 1000 1000];
 
 Stm(1).ShowDistractBar = true; % show vertical bar [toggle with "D" key]
 
@@ -90,11 +97,12 @@ Stm(1).ResponseAllowed = [100 Stm(1).SwitchDur+100]; % [after_onset after_offset
 %Stm(1).ResponseAllowed = [100 4000]; % [after_onset after_offset] in ms
 Stm(1).BreakDuration = 0; % 1500 additional waiting period for early / false hits
 
-Stm(1).FalseHitRewardRatio = 0.75; % amount of reward for FH relative to true hit
-Stm(1).PawRewardMultiplier = [.5 2]; % [left hand response, right hand response]
-Stm(1).ProbConsolatoryReward = 0.1;
+% ---------------------------------------- Task related reward modifiers --
+Stm(1).PawRewardMultiplier = [1 1]; % [left hand response, right response]
+Stm(1).ProbConsolatoryReward = 0.02;
 Stm(1).ProbFixationReward = 0.0;
 
+% -------------------------------------------------- Tasks, task cycling --
 Stm(1).TASK_TARGET_AT_CURVE = 0;
 Stm(1).TASK_TARGET_AT_FIX = 1;
 Stm(1).TASK_TARGET_AT_CURVE_NO_DISTRACTOR = 2;
