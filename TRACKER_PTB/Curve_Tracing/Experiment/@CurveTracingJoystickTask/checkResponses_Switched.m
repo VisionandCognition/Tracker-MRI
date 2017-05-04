@@ -46,9 +46,11 @@ function checkResponses_Switched(obj, lft)
         Par.FalseResponseGiven=false;
         
         obj.stopTrackingFixationTime(lft); % might have already been called
-        fixInRatio = obj.fixation_ratio();
-        fprintf('Fixation ratio: %0.2f  (in: %0.1f, out: %0.1f) ~ %s\n', fixInRatio, ...
-            obj.time_fixating(), obj.time_not_fixating(), obj.curr_response);
+        if Par.Verbosity >= 2
+            fixInRatio = obj.fixation_ratio();
+            fprintf('Fixation ratio: %0.2f  (in: %0.1f, out: %0.1f) ~ %s\n', fixInRatio, ...
+                obj.time_fixating(), obj.time_not_fixating(), obj.curr_response);
+        end
         
         obj.updateState('POSTSWITCH', lft);
         
@@ -56,9 +58,12 @@ function checkResponses_Switched(obj, lft)
             Par.EndTrialOnResponse && ~strcmp(obj.curr_response, 'none')
         
         obj.stopTrackingFixationTime(lft); % might have already been called
-        fixInRatio = obj.fixation_ratio();
-        fprintf('Fixation ratio: %0.2f  (in: %0.1f, out: %0.1f) ~ %s\n', fixInRatio, ...
-            obj.time_fixating(), obj.time_not_fixating(), obj.curr_response);
+        
+        if Par.Verbosity >= 2
+            fixInRatio = obj.fixation_ratio();
+            fprintf('Fixation ratio: %0.2f  (in: %0.1f, out: %0.1f) ~ %s\n', fixInRatio, ...
+                obj.time_fixating(), obj.time_not_fixating(), obj.curr_response);
+        end
     
         obj.updateState('POSTSWITCH', lft);
     end

@@ -89,8 +89,10 @@ classdef FixationTask < FixationTrackingTask
 
                     fixInRatio = obj.fixation_ratio();
 
-                    fprintf('Fixation ratio: %0.2f  (in: %0.1f, out: %0.1f)\n', fixInRatio, ...
-                        obj.time_fixating(), obj.time_not_fixating());
+                    if Par.Verbosity >= 2
+                        fprintf('Fixation ratio: %0.2f  (in: %0.1f, out: %0.1f)\n', fixInRatio, ...
+                            obj.time_fixating(), obj.time_not_fixating());
+                    end
 
                     if fixInRatio >= 0.90
                         RewardAmount = Par.GiveRewardAmount + ...

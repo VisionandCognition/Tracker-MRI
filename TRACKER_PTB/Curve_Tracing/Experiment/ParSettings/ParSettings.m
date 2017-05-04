@@ -57,8 +57,6 @@ Par.TargHtDeg = 2;
 Par.Bsqr = 0; %use square (1) or ellipse (0 )
 
 Par.MousePress = 0; %0 left = 'normal', 1 middle = 'extend', 2 right = 'alt'
-Par.NoiseUpdate = false; %show standard error of noise in fixation period
-Par.NoiseUpdate = 0; %calculate noise level
 
 %to use or not use the mouse
 if ~exist('Par','var') || ~isfield(Par,'Mouserun')
@@ -231,13 +229,14 @@ Par.CorrStreakcount = [0 0];
 
 %% Keyboard initialization ================================================
 Par.KeyEscape = KbName('Escape'); % allows breaking out of the experiment
-Par.KeySwitchToRestingTask = KbName('r'); % only do switching tasks
 Par.KeyTogglePause = KbName('Space'); % allows breaking out of the experiment
 Par.KeyTriggerMR = KbName('t'); % MRI sends a sync pulse as a 't' keypress
 Par.KeyJuice = KbName('j'); % Manual juice reward
-Par.KeyBackNoise = KbName('b'); % toggle background noise patch
 Par.KeyCyclePos = KbName('p'); % toggle cycle position
 Par.KeyRequireFixation = KbName('f'); % toggle cycle position
+
+Par.KeyFORPResponseLeft = KbName('e'); % for human or testing
+Par.KeyFORPResponseRight = KbName('b');
 
 % Change stim position
 KbName('UnifyKeyNames');

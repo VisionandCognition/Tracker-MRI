@@ -113,12 +113,9 @@ CtrlParams = Params;
 CtrlParams.NumOfPawIndicators = 5;
 
 %curvetracing = CurveTracingJoystickTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
-% Stm(1).KeepSubjectBusyTask = CurveTracingJoystickTask(Params, ...
-%     'StimSettings/CurveTracingJoyStickTask.csv', ...
-%     'Keep busy');
-if isfield(Stm(1),'KeepSubjectBusyTask')
-    Stm(1) = rmfield(Stm(1),'KeepSubjectBusyTask');
-end
+Stm(1).KeepSubjectBusyTask = CurveTracingJoystickTask(Params, ...
+     'StimSettings/CurveTracingJoyStickTask.csv', ...
+     'Keep busy');
 
 curvetracing = CurveTracingBlockTitratedTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
 curvecatch = CurveTracingCatchBlockTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
