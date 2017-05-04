@@ -21,12 +21,15 @@ Par.RESP_BREAK_FIX = 5;
 RespText = {'Correct', 'False', 'Miss', 'Early', 'Fix. break'};
 
 %% THIS SWITCH ALLOW TESTING THE RUNSTIM WITHOUT DASCARD & TRACKER ========
-Par.TestRunstimWithoutDAS = ~hasrealdas();
+% if hasrealdas exists and says that there is no das card, then don't
+%   run without the DAS...
+Par.TestRunstimWithoutDAS = exist('hasrealdas', 'file') && ~hasrealdas();
 %==========================================================================
 for DoThisOnlyForTestingWithoutDAS=1
     if Par.TestRunstimWithoutDAS
         %  #------ Not tested - not expected to work ------#
-        if strcmp(basename(pwd), 'Experiment')
+        [~, basename, ext] = fileparts(pwd);
+        if strcmp([basename ext], 'Experiment')
             % if not exited cleanly
         	cd ..;
         end
