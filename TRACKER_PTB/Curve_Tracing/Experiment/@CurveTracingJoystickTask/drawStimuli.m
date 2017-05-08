@@ -13,10 +13,11 @@
     % Background
     Screen('FillRect', Par.window, obj.param('BGColor').*Par.ScrWhite);
     
-    % Special cases with not fixation point
+    % Special cases with no fixation point
     if strcmp(obj.state, 'INIT_TRIAL')==1 ||  ...
             strcmp(obj.state, 'TRIAL_END')==1 || ...
-            strcmp(obj.state, 'POSTSWITCH')==1
+            strcmp(obj.state, 'POSTSWITCH')==1 || ...
+            strcmp(obj.state, 'END_TRIAL')==1
         
         lft = Screen('Flip', Par.window,lft+.9*Par.fliptimeSec); 
         Log.events.screen_flip(lft, obj.taskName);

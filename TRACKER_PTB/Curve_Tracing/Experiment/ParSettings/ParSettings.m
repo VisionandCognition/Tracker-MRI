@@ -71,11 +71,12 @@ Par.EyeRecStatus = 0; % recording status initially to 'not recording'
 Par.EyeRecTriggerLevel = 1; % 1 = stop recording, 0 = start recording
 
 %% Screen info ============================================================
-[ScrWidth, ScrHeight] = Screen('WindowSize',Par.ScrNr);
+[ScrWidth, ScrHeight] = Screen('WindowSize', Par.window);
+
 Par.HW = ScrWidth/2; %get half width of the screen
 Par.HH = ScrHeight/2;
 Par.ScrCenter = [Par.HW Par.HH];
-[Par.ScreenWidthD2, Par.ScreenHeightD2] = Screen('DisplaySize',Par.ScrNr);
+[Par.ScreenWidthD2, Par.ScreenHeightD2] = Screen('DisplaySize', Par.window);
 
 if strcmp(Par.SetUp,'NIN')
     Par.DistanceToScreen = 700; % distance to screen in mm
@@ -94,7 +95,7 @@ end
 Par.PixPerDeg = Par.HW/atand(Par.ScreenWidthD2/(2*Par.DistanceToScreen));
 
 % CheckFlipRate
-hz = Screen('NominalFrameRate', Par.ScrNr); RefRate100=hz*100;
+hz = Screen('NominalFrameRate', Par.window); RefRate100=hz*100;
 [MeasuredFlip,nrValidSamples,stddev] = ...
     Screen('GetFlipInterval',Par.window,100,[],[]);
 Rf = 1/MeasuredFlip;

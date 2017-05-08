@@ -38,15 +38,24 @@ for DoThisOnlyForTestingWithoutDAS=1
         cd ..; cd Experiment;
         Par.scr=Screen('screens');
         Par.ScrNr=max(Par.scr); % use the screen with the highest #
-        if Par.ScrNr==0
-            % part of the screen
-            [Par.window, Par.wrect] = ...
-                Screen('OpenWindow',Par.ScrNr,0,[0 0 1000 800],[],2);
-            % fullscreen
-            % [Par.window, Par.wrect] = Screen('OpenWindow',Par.ScrNr,0,[],[],2);
-        else
-            [Par.window, Par.wrect] = Screen('OpenWindow',Par.ScrNr,0,[],[],2);
+
+        [Par.window, Par.wrect] = Screen('OpenWindow', Par.window, 0,...
+                [0 0 1920 1080], [], 2, ... rect, pixelSize, numberOfBuffers
+                [], [], [], ... stereomode, multisample, imagingmode
+                kPsychGUIWindow); % specialFlags
+            
+            
+        blend = Screen('BlendFunction', Par.window);
+        if strcmp(blend, GL_ONE) || strcmp(blend, GL_ZERO)
+            % attempting to get around strange bug with Matlab 2016B Linux
+            Screen('BlendFunction', Par.window,...
+                GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+            blend = Screen('BlendFunction', Par.window);
+            if strcmp(blend, GL_ONE) || strcmp(blend, GL_ZERO)
+                smo = 0;
+            end
         end
+            
         % Reduce PTB3 verbosity
         oldLevel = Screen('Preference', 'Verbosity', 0); %#ok<*NASGU>
         Screen('Preference', 'VisualDebuglevel', 0);
