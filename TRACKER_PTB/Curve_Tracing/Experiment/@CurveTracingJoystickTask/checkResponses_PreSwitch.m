@@ -13,8 +13,6 @@ function checkResponses_PreSwitch( obj, lft )
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
         obj.curr_hand = Par.NewResponse; % save which hand
         Par.FalseResponseGiven=true;
-        Par.RespTimes=[Par.RespTimes;
-            lft-Par.ExpStart Par.RespValid];
         
         if Par.EndTrialOnResponse
             obj.updateState('POSTSWITCH', lft);

@@ -21,12 +21,31 @@ Stm = StimObj.Stm;
                 Log.MRI.TriggerTime = ...
                     [Log.MRI.TriggerTime; Par.KeyTime];
                 Log.events.add_entry(Par.KeyTime, 'NA', 'MRI_Trigger', 'Received');
+                
+                if isfield(Par, 'exitOnKeyWaitForMRITrigger') && ...
+                        Par.exitOnKeyWaitForMRITrigger
+                    fprintf('\n MRI Trigger Received Early!!!\n');
+                    Par.ESC = true;
+                    Log.events.add_entry(GetSecs, ...
+                        Stm(1).task.name, ...
+                        'MRI_Trigger', 'Received_Before_Ready');
+                end
             elseif Par.KeyDetectedInTrackerWindow || Par.TestRunstimWithoutDAS % only in Tracker
                 switch Key
-                    case Par.KeyEscape
+                    case Par.KeyEscape % Never caught - caught by tracker?
+                        fprintf('\n ------------- Escape Key Received!\n');
                         Par.ESC = true;
                     case Par.KeyTriggerMR
                         % cannot be executed
+                    case Par.KeyWaitForMRITrigger
+                        if isfield(Par, 'exitOnKeyWaitForMRITrigger') && ...
+                                Par.exitOnKeyWaitForMRITrigger
+                            fprintf('\n ------------- WaitForMRITrigger Key Received!\n');
+                            Par.ESC = true;
+                            Log.events.add_entry(GetSecs, ...
+                                ['PreTrigger' Stm(1).task.name], ...
+                                'KeyPressed', 'KeyWaitForMRITrigger');
+                        end
                     case Par.KeyFORPResponseLeft
                         Par.ForpRespLeft=true;
                         Log.events.add_entry(GetSecs, Stm(1).task.name, 'FORPResponse_Initiate', 'Left');

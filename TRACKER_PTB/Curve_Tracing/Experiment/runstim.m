@@ -71,7 +71,7 @@ Stm = StimObj.Stm;
 
 % Flip the proper background on screen
 Screen('FillRect',Par.window, Par.BG .* Par.ScrWhite);
-lft=Screen('Flip', Par.window);
+Par.lft=Screen('Flip', Par.window);
 Par.ExpStart = NaN; % experiment not yet "started"
 
 Log.events = EventLog;
@@ -94,11 +94,10 @@ for i = 1:length(Stm(1).tasksToCycle)
     end
 end
 for i = 1:length(Stm(1).tasksUnique)
-    Stm(1).tasksUnique{i}.updateState('PREPARE_STIM', lft);
+    Stm(1).tasksUnique{i}.updateState('PREPARE_STIM', Par.lft);
 end
 
-Log.events.begin_experiment(lft)
-%Stm(1).task.updateState('INIT_EXPERIMENT', lft);
+%Stm(1).task.updateState('INIT_EXPERIMENT', Par.lft);
 %% Code Control Preparation ===============================================
 for CodeControl=1 %allow code folding
     % Some intitialization of control parameters
@@ -121,9 +120,11 @@ for CodeControl=1 %allow code folding
 
     % Flip the proper background on screen
     Screen('FillRect',Par.window, Par.BG .* Par.ScrWhite);
-    lft=Screen('Flip', Par.window);
-    lft=Screen('Flip', Par.window, lft+1);
-    Par.ExpStart = lft;
+    Par.lft=Screen('Flip', Par.window);
+    Par.lft=Screen('Flip', Par.window, Par.lft+1);
+    
+    Par.ExpStart = Par.lft;
+    Log.events.begin_experiment(Par.ExpStart);
 
     % Initial stimulus position is 1
     Par.PosNr=1;
@@ -156,7 +157,6 @@ for CodeControl=1 %allow code folding
     Par.CurrResponse = Par.RESP_NONE;
     
     Par.Response = [0 0 0 0 0]; % counts [correct false-hit miss early fix.break]
-    Par.RespTimes = [];
 
     Par.FirstInitDone=false;
     Par.CheckFixIn=false;
@@ -170,6 +170,7 @@ for CodeControl=1 %allow code folding
     Par.CurrEyePos = [];
     Par.CurrEyeZoom = [];
     Par.Verbosity = 2;
+    Par.exitOnKeyWaitForMRITrigger = false;
 end
 
 
@@ -237,20 +238,6 @@ if Par.EyeRecAutoTrigger
         end
     end
 end
-
-%% Wait for MRI trigger =============================================
-Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
-lft=Screen('Flip', Par.window);
-Log.events.screen_flip(lft, 'NA');
-if Par.MRITriggeredStart
-    Log.events.add_entry(GetSecs, 'NA', 'MRI_Trigger', 'Waiting');
-    fprintf('Waiting for MRI trigger (or press ''t'' on keyboard)\n');
-    while ~Log.MRI.TriggerReceived
-        CheckKeys;
-    end
-    fprintf(['MRI trigger received after ' num2str(GetSecs-Par.ExpStart) ' s\n']);
-end
-
     
 while ~Par.FirstInitDone
     %set control window positions and dimensions
@@ -273,12 +260,55 @@ while ~Par.FirstInitDone
     Par.FixIn=false; %initially set to 'not fixating'
     Par.FirstInitDone=true;
     Par.FixInOutTime=[0 0];
-    Log.StartBlock=lft;
-    lft=Screen('Flip', Par.window);  %initial flip to sync up timing
-    Log.events.screen_flip(lft, 'NA');
+    Log.StartBlock=Par.lft;
+    Par.lft=Screen('Flip', Par.window);  %initial flip to sync up timing
+    Log.events.screen_flip(Par.lft, 'NA');
     Par.nf=0;
     Par.LastRewardTime = GetSecs;
 end
+
+%% PRE-TRIGGER TASK =======================================================
+%   ___                               _   
+%  | _ )_  _ ____  _  __ __ _____ _ _| |__
+%  | _ \ || (_-< || | \ V  V / _ \ '_| / /
+%  |___/\_,_/__/\_, |  \_/\_/\___/_| |_\_\
+%               |__/                     
+%==========================================================================
+
+fprintf('\n\n ------- Begin pre-trigger busy-tasks (press ''W'' key to wait for trigger) -------\n');
+if isfield(Stm(1),'KeepSubjectBusyTask')
+    Par.exitOnKeyWaitForMRITrigger = true;
+    PreviousVerbosity = Par.Verbosity;
+    Par.Verbosity = 0;
+    args=struct;
+    args.alternateWithRestingBlocks=false;
+    args.maxTimeSecs = 60.0;
+    CurveTracing_MainLoop(Hnd, {Stm(1).KeepSubjectBusyTask}, 10, args);
+    
+    Par.Verbosity = PreviousVerbosity;
+    Par.ESC=false; % Reset escape
+    Par.exitOnKeyWaitForMRITrigger = false;
+end
+
+
+%% Wait for MRI trigger =============================================
+Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
+Par.lft=Screen('Flip', Par.window);
+Log.events.screen_flip(Par.lft, 'NA');
+if Par.MRITriggeredStart
+    Par.WaitingForTriggerTime = GetSecs;
+    Log.events.add_entry(Par.WaitingForTriggerTime, 'NA', 'MRI_Trigger', 'Waiting');
+    fprintf('Waiting for MRI trigger (or press ''T'' on keyboard)\n');
+    while ~Log.MRI.TriggerReceived
+        CheckKeys;
+    end
+    received_time = Log.MRI.TriggerTime(end);
+    Log.events.add_entry(Par.WaitingForTriggerTime, 'NA', ...
+        'MRI_Trigger_Received', num2str(received_time-Par.WaitingForTriggerTime));
+    fprintf(['MRI trigger received after ' ...
+        num2str(received_time-Par.WaitingForTriggerTime) ' s after waiting\n']);
+end
+
 
 %% Scanning warm-up presentations =========================================
 % keep doing this until escape is pressed or stop is clicked
@@ -289,13 +319,12 @@ end
 %                                 |_|    http://patorjk.com/software/taag
 %==========================================================================
 
-Par.lft = lft;
-% Perform Warming up with 2 mini-blocks
+fprintf('\n\n ---------------  Start warm-up --------- \n');
 
 args=struct;
 args.alternateWithRestingBlocks=false;
 
-CurveTracing_MainLoop({Stm(1).RestingTask}, 2, args);
+CurveTracing_MainLoop(Hnd, {Stm(1).RestingTask}, 2, args);
 
 %% Stimulus presentation loop =============================================
 % keep doing this until escape is pressed or stop is clicked
@@ -318,10 +347,11 @@ end
 
 
 % --------------- Main loop
+fprintf('\n\n ---------------  Start Main tasks loop --------- \n');
 args=struct;
 args.alternateWithRestingBlocks=Stm(1).alternateWithRestingBlocks;
 
-CurveTracing_MainLoop(Stm(1).tasksToCycle, 300, args);
+CurveTracing_MainLoop(Hnd, Stm(1).tasksToCycle, 300, args);
 
 % = = =                                                               = = =
 % =                           END MAIN LOOP                               =
@@ -336,16 +366,14 @@ CurveTracing_MainLoop(Stm(1).tasksToCycle, 300, args);
 %   \___\___/\___/_|   \__,_\___/\_/\_/|_||_|    http://patorjk.com/software/taag
 %==========================================================================
 
-Par.lft = lft;
-% Perform Warming up with 1 mini-blocks
-print('Starting cool-down mini-blocks.')
+fprintf('\n\n ---------------  Start cool-down --------- \n');
 
 args=struct;
 args.alternateWithRestingBlocks=false;
 args.maxTimeSecs = 8.0;
 
 Par.ESC=false; % Reset escape
-CurveTracing_MainLoop({Stm(1).RestingTask}, 1, args);
+CurveTracing_MainLoop(Hnd, {Stm(1).RestingTask}, 2, args);
 
 % Clean up and Save Log ===================================================
 %   ____ _                                
@@ -384,11 +412,17 @@ for CleanUp=1 % code folding
     
     % Empty the screen
     Screen('FillRect',Par.window,Stm(1).task.param('BGColor').*Par.ScrWhite);
-    lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
+    Par.lft = Screen('Flip', Par.window, Par.lft+.9*Par.fliptimeSec);
     if ~Par.TestRunstimWithoutDAS
         dasjuice(0); %stop reward if its running
     end
     
+    % Add the time of writing the log - to avoid accidental overwrites
+    % I'm not sure how accidental overwrite has happened - but it did once.
+    % It has something to do with doing something in the MRI trigger
+    % waiting period (such as starting the experiment again).
+    TimeWriteStr = datestr(clock,'HHMM.SS');
+
     % save stuff
     if ~Par.TestRunstimWithoutDAS
         FileName=['Log_' Par.SetUp '_' Par.MONKEY '_' Par.STIMSETFILE '_' ...
@@ -401,7 +435,10 @@ for CleanUp=1 % code folding
     
     logPath = getenv('TRACKER_LOGS');
     %[~, currDir, ~] = fileparts(pwd);
-    logPath = fullfile(logPath, Par.ProjectLogDir, [Par.SetUp '_' Par.MONKEY '_' DateString(1:8)]);
+    %logPath = fullfile(logPath, Par.ProjectLogDir, [Par.SetUp '_' Par.MONKEY '_' DateString(1:8)]);
+    logPath = fullfile(logPath, Par.ProjectLogDir, ...
+        [Par.SetUp '_' Par.MONKEY '_' DateString(1:8)], ...
+        [Par.MONKEY '_' Par.ProjectLogDir, '_' Par.STIMSETFILE '_' Par.SetUp '_' DateString '-T' TimeWriteStr]);
     mkdir(logPath);
     filePath = fullfile(logPath, FileName);
     %if Par.TestRunstimWithoutDAS; cd ..;end
@@ -452,22 +489,27 @@ for CleanUp=1 % code folding
     fprintf(['Suggested filename: ' suggestedTdaFilename '\n']);
 end 
     
-    % ---------------------------------------------------------------------
-    %
-    %                       POST-EXPERIMENT TASK
-    %
-    % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+% ---------------------------------------------------------------------
+%   ___                               _   
+%  | _ )_  _ ____  _  __ __ _____ _ _| |__
+%  | _ \ || (_-< || | \ V  V / _ \ '_| / /
+%  |___/\_,_/__/\_, |  \_/\_/\___/_| |_\_\
+%               |__/                         POST-EXPERIMENT TASK
 
 if isfield(Stm(1),'KeepSubjectBusyTask')
+    
+    fprintf('\n\nStart Post-experiment keep-busy task.\n');
+    
     PreviousVerbosity = Par.Verbosity;
     Par.Verbosity = 0;
     Par.ESC=false; % Reset escape
     args=struct;
     args.alternateWithRestingBlocks=false;
-    CurveTracing_MainLoop({Stm(1).KeepSubjectBusyTask}, 10, args);
+    CurveTracing_MainLoop(Hnd, {Stm(1).KeepSubjectBusyTask}, 10, args);
     
     Par.Verbosity = PreviousVerbosity;
 end
+fprintf('Post-experiment busy tasks finished.\n');
     %                     END POST-EXPERIMENT TASK
     % ---------------------------------------------------------------------
 

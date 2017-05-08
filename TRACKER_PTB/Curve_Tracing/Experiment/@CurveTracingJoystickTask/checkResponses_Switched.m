@@ -16,8 +16,6 @@ function checkResponses_Switched(obj, lft)
             obj.falseResponseGiven(lft)
             
         end
-        Par.RespTimes=[Par.RespTimes;
-            lft-Par.ExpStart Par.RespValid];
     elseif Par.NewResponse % early or late
         % false
         Par.RespValid = false;
@@ -31,8 +29,6 @@ function checkResponses_Switched(obj, lft)
         obj.curr_hand = Par.NewResponse; % save which hand
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
         Par.FalseResponseGiven=true;
-        Par.RespTimes=[Par.RespTimes;
-            lft-Par.ExpStart Par.RespValid];
     end
     
     if ~Par.FixIn && Par.WaitForFixation

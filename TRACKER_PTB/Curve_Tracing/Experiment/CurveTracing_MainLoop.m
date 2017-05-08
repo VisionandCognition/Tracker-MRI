@@ -1,4 +1,4 @@
-function CurveTracing_MainLoop(tasksToCycle, maxTrials, args)
+function CurveTracing_MainLoop(Hnd, tasksToCycle, maxTrials, args)
 global Par;
 global Log;
 global StimObj;
@@ -16,6 +16,9 @@ end
 for trial_iter = 1:maxTrials % ------------------------ for each trial ----
     if Par.ESC || GetSecs >= stopAt 
         Par.ESC = true;
+        
+        Stm(1).task.updateState('END_TRIAL', GetSecs);
+        Par.lft = Stm(1).task.drawStimuli(Par.lft);
         break
     end
     
@@ -38,12 +41,11 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
         end
         
         fprintf('-- Start mini-block %d: %s --\n', Log.numMiniBlocks, Stm(1).task.name);
-        Log.events.add_entry(lft, Stm(1).task.name, 'NewMiniBlock', num2str(Log.numMiniBlocks));
+        Log.events.add_entry(Par.lft, Stm(1).task.name, 'NewMiniBlock', num2str(Log.numMiniBlocks));
     end
     
     % ----------------------------------------------- Start new trial -----
-    Stm(1).task.updateState('INIT_TRIAL', lft);
-
+    Stm(1).task.updateState('INIT_TRIAL', Par.lft);
        
     Par.Trlcount = Par.Trlcount+1; %keep track of trial numbers
     Par.AutoRewardGiven=false;
@@ -67,7 +69,7 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
     CheckFixation;
     
     % Wait for fixation ---------------------------------------------------
-    Stm(1).task.updateState('PREFIXATION', lft);
+    Stm(1).task.updateState('PREFIXATION', Par.lft);
     Par.FixStart=Inf;
     %fprintf('Start %s task\n', Stm(1).task.name);
     
@@ -78,10 +80,14 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
     %     Go through all of the different states of the current trial
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     while ~Stm(1).task.endOfTrial() && ~Par.PosReset && ~Par.endExperiment && ~Par.BreakTrial
-        
-        % If subject has not started fixating by the time the trials should
-        % end, go ahead and stop.
-        if Par.FixStart==Inf && GetSecs >= stopAt
+        if GetSecs >= stopAt || Par.ESC
+            if ~Par.WaitForFixation || Par.FixStart==Inf
+                % Give subject a reward if not waiting for fixation
+                % Might be interrupting subject while performing task
+                GiveRewardManual;
+                GiveRewardManual;
+                Par.ManualReward=false;
+            end
             Par.ESC = true;
             break;
         end
@@ -89,7 +95,7 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
         CheckManual;
         Stm(1).task.checkResponses(GetSecs);
         CheckKeys;
-        lft = Stm(1).task.drawStimuli(lft);
+        Par.lft = Stm(1).task.drawStimuli(Par.lft);
         
         %% log eye-info if required
         LogEyeInfo;
@@ -131,14 +137,14 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
     % Performance info on screen
     for PerformanceOnCMD=1
         if Par.PosReset
-            Log.events.add_entry(lft, Stm(1).task.name, 'PosReset');
+            Log.events.add_entry(Par.lft, Stm(1).task.name, 'PosReset');
             
             % reset
             Par.Trlcount(1) = 0;
             Par.CorrStreakcount(1)=0;
             Par.PosReset=false; %start new trial when switching position
         else
-            Log.events.add_entry(lft, Stm(1).task.name, 'TrialCompleted');
+            Log.events.add_entry(Par.lft, Stm(1).task.name, 'TrialCompleted');
         end
     end
     

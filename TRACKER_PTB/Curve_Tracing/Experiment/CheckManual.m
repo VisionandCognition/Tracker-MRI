@@ -108,9 +108,10 @@ Stm = StimObj.Stm;
     end
 
     Par.GoNewTrial = ~Par.BeamLIsBlocked && ~Par.BeamRIsBlocked;
-end
-function ResponsesReleased
-    Par.GiveRewardAmount = Par.GiveRewardAmount + Par.GiveRewardAmount_onResponseRelease;
-    Par.GiveRewardAmount_onResponseRelease = 0;
-    GiveRewardAuto; % make sure reward immediately on release
+
+    function ResponsesReleased
+        Par.GiveRewardAmount = Par.GiveRewardAmount + Par.GiveRewardAmount_onResponseRelease;
+        Par.GiveRewardAmount_onResponseRelease = 0;
+        GiveRewardAuto; % make sure reward immediately on release
+    end
 end

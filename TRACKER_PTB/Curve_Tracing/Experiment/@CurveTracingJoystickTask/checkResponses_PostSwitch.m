@@ -16,8 +16,6 @@ function checkResponses_PostSwitch(obj, lft)
             obj.falseResponseGiven(lft)
             
         end
-        Par.RespTimes=[Par.RespTimes;
-            lft-Par.ExpStart Par.RespValid];
     elseif Par.NewResponse
         % Miss
         obj.curr_response = 'miss';
@@ -29,8 +27,6 @@ function checkResponses_PostSwitch(obj, lft)
             Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
         end
         %Par.ResponseGiven=true;
-        Par.RespTimes=[Par.RespTimes;
-            lft-Par.ExpStart Par.RespValid];
         %Don't break trial, this would speed it up and be positive
     end
     
