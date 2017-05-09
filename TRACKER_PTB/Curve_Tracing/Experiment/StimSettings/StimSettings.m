@@ -52,7 +52,8 @@ Params.NumOfPawIndicators = 4; % Can't be more than the number of PawIndPosition
 Params.DistractBranchConnAlpha = 1;
 
 Params.PawIndCol = [0 .7 0; .9 .2 .2]; % colors for the left and right target
-unsaturatedColor = [0.6 0.6 0.6; 0.6 0.6 0.6];
+%unsaturatedColor = [0.6 0.6 0.6; 0.6 0.6 0.6];
+unsaturatedColor = [0.3 0.3 0.3; 0.3 0.3 0.3];
 satLevel = 5/6;
 Params.PawIndCol = satLevel * Params.PawIndCol + (1 - satLevel) * unsaturatedColor;
 
