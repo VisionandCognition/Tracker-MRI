@@ -291,8 +291,8 @@ if isfield(Stm(1),'KeepSubjectBusyTask')
     Par.Verbosity = 0;
     args=struct;
     args.alternateWithRestingBlocks=false;
-    args.maxTimeSecs = 60.0;
-    CurveTracing_MainLoop(Hnd, {Stm(1).KeepSubjectBusyTask}, 10, args);
+    args.maxTimeSecs = 600.0;
+    CurveTracing_MainLoop(Hnd, {Stm(1).KeepSubjectBusyTask}, 100, args);
     
     Par.Verbosity = PreviousVerbosity;
     Par.ESC=false; % Reset escape
