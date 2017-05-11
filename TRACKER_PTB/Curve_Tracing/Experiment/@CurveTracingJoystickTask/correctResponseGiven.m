@@ -20,21 +20,24 @@ function correctResponseGiven(obj, lft)
         fixInRatio = obj.fixation_ratio();
 
         if fixInRatio >= 1.0
-            RewardAmount = Par.GiveRewardAmount + Par.RewardTime;
+            RewardAmount = Par.RewardTime;
         else
-            RewardAmount = Par.GiveRewardAmount + Par.RewardTime * fixInRatio; %^6.7;
+            RewardAmount = Par.RewardTime * fixInRatio; %^6.7;
         end
     else
-        RewardAmount = Par.GiveRewardAmount + Par.RewardTime;
+        RewardAmount = Par.RewardTime;
     end
+    RewardAmount = RewardAmount * obj.taskParams.rewardMultiplier  * ...
+        obj.taskParams.rewardSideRespMultiplier(obj.curr_hand);
 
     if ~Par.ResponseGiven  && ~Par.FalseResponseGiven %only log once
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
         Par.CorrectThisTrial=true;
         
-        withhold_for_release = 0.5;
+        withhold_for_release = 0.75;
         Par.GiveRewardAmount = Par.GiveRewardAmount + (1 - withhold_for_release) * RewardAmount;
-        Par.GiveRewardAmount_onResponseRelease = Par.GiveRewardAmount_onResponseRelease + withhold_for_release * RewardAmount;
+        Par.GiveRewardAmount_onResponseRelease = ...
+            Par.GiveRewardAmount_onResponseRelease + withhold_for_release * RewardAmount;
         Log.events.add_entry(lft, obj.taskName, 'ResponseGiven', 'CORRECT');
         %Log.events.add_entry(lft, obj.taskName, 'ResponseReward', RewardAmount);
     end

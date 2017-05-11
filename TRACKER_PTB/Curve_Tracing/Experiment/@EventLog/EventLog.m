@@ -10,9 +10,12 @@ classdef EventLog < handle
     end
     
     methods
-        function begin_experiment(obj, time)
+        function begin_experiment(obj, time, readableDatestr)
             obj.beginExpTime = time;
-            obj.add_entry(time, 'NA', 'BeginExperiment');
+            if nargin <= 2
+                readableDatestr = datestr(clock,30);
+            end
+            obj.add_entry(time, 'NA', 'BeginExperiment', readableDatestr);
         end
         function nEvents = nEvents(obj)
             nEvents = length(obj.log)+1;

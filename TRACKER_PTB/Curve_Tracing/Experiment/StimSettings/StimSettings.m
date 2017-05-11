@@ -94,14 +94,15 @@ Params.CurveAnglesAtFP = [ 180; 180; 0; 0];
 Params.PawIndSizeDeg = [2.5, 2.5, 2.5, 2.5, Params.FixDotSizeDeg];
 Params.BlockSize = 3;
 Params.rewardMultiplier = 1.0;
+Params.rewardSideRespMultiplier = [1.2 0.8];
 
 % Parameters for titrating the target to require the less used hand to be
 % used more often.
 Params.maxSideProb = 0.75; % Maximum probability after titrating targets to responses
-Params.unbiasedRespApriori = 0.1; % How many unbiased trials are assumed to be "observed" before starting
+Params.sideAprioriLeftProb = 0.30;
+Params.sideRespAprioriNum = 5; % How many unbiased trials are assumed to be "observed" before starting
 
 FixParams = Params;
-FixParams.rewardMultiplier = 1.0; % 0.5;
 FixParams.subtrialsInTrial = 8;
 FixParams.fixationPeriod = 500;  % just for fixation task
 FixParams.postfixPeriod = 0;  % just for fixation task
