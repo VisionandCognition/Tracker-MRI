@@ -230,12 +230,12 @@ Par.CorrStreakcount = [0 0];
 
 %% Keyboard initialization ================================================
 Par.KeyEscape = KbName('Escape'); % allows breaking out of the experiment
-Par.KeyTogglePause = KbName('Space'); % allows breaking out of the experiment
 Par.KeyTriggerMR = KbName('t'); % MRI sends a sync pulse as a 't' keypress
 Par.KeyJuice = KbName('j'); % Manual juice reward
 Par.KeyCyclePos = KbName('p'); % toggle cycle position
 Par.KeyRequireFixation = KbName('f'); % toggle cycle position
 Par.KeyWaitForMRITrigger = KbName('w'); % proceed to wait for trigger
+Par.KeyCountDownMRITriger = KbName('Space'); % wait for trigger in ~7 s
 
 Par.KeyFORPResponseLeft = KbName('e'); % for human or testing
 Par.KeyFORPResponseRight = KbName('b');

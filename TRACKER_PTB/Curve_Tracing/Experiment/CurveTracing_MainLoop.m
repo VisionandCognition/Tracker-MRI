@@ -6,7 +6,11 @@ global StimObj;
 Stm = StimObj.Stm;
 
 lft = Par.lft;
+% For ending times that can be controlled by keyboard
+% Does not interrupt trial in progress
+Par.noNewTrialsAfter = Inf;
 
+% stopAt does interrupt trials, but gives some reward
 if isfield(args, 'maxTimeSecs')
     stopAt = GetSecs + args.maxTimeSecs;
 else
@@ -14,7 +18,7 @@ else
 end
 
 for trial_iter = 1:maxTrials % ------------------------ for each trial ----
-    if Par.ESC || GetSecs >= stopAt 
+    if Par.ESC || GetSecs >= stopAt || GetSecs >= Par.noNewTrialsAfter
         Par.ESC = true;
         
         Stm(1).task.updateState('END_TRIAL', GetSecs);

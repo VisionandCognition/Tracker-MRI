@@ -46,6 +46,15 @@ Stm = StimObj.Stm;
                                 ['PreTrigger' Stm(1).task.name], ...
                                 'KeyPressed', 'KeyWaitForMRITrigger');
                         end
+                    case Par.KeyCountDownMRITriger
+                        if isfield(Par, 'exitOnKeyWaitForMRITrigger') && ...
+                                Par.exitOnKeyWaitForMRITrigger && isinf(Par.noNewTrialsAfter)
+                            fprintf('\n ------------- Count down to MRI Trigger!\n');
+                            Log.events.add_entry(GetSecs, ...
+                                ['PreTrigger' Stm(1).task.name], ...
+                                'KeyPressed', 'CountDownToMRITrigger');
+                            Par.noNewTrialsAfter = GetSecs + 5;
+                        end
                     case Par.KeyFORPResponseLeft
                         Par.ForpRespLeft=true;
                         Log.events.add_entry(GetSecs, Stm(1).task.name, 'FORPResponse_Initiate', 'Left');

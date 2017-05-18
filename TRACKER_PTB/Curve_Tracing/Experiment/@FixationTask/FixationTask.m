@@ -163,8 +163,10 @@ classdef FixationTask < FixationTrackingTask
         end
         function SCNT = trackerWindowDisplay(obj)
             SCNT(1) = { obj.taskName };
-            SCNT(2) = { ['Corr:  ' num2str(obj.responses.correct) ] };
-            SCNT(3) = { ['Fix. break:  ' num2str(obj.responses.break_fix) ] };
+            SCNT(2) = { ['Cor:  ' num2str( round( ...
+                obj.responses.correct / obj.taskParams.subtrialsInTrial, 2)) ] };
+            SCNT(3) = { ['Fix. break:  ' num2str( round( ...
+                obj.responses.break_fix / obj.taskParams.subtrialsInTrial, 2)) ] };
         end
         function write_trial_log_csv(~, ~)
             % do nothing

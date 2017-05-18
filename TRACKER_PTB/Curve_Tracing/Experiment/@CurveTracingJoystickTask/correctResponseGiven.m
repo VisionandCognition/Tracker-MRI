@@ -34,7 +34,7 @@ function correctResponseGiven(obj, lft)
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
         Par.CorrectThisTrial=true;
         
-        withhold_for_release = 0.75;
+        withhold_for_release = 1.0;
         Par.GiveRewardAmount = Par.GiveRewardAmount + (1 - withhold_for_release) * RewardAmount;
         Par.GiveRewardAmount_onResponseRelease = ...
             Par.GiveRewardAmount_onResponseRelease + withhold_for_release * RewardAmount;
