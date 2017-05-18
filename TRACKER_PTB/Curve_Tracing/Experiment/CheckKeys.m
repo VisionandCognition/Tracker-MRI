@@ -60,8 +60,9 @@ Stm = StimObj.Stm;
                         Log.events.add_entry(GetSecs, Stm(1).task.name, 'FORPResponse_Initiate', 'Left');
                         
                     case Par.KeyFORPResponseRight
-                        Par.ForpRespRight=false;
+                        Par.ForpRespRight=true;
                         Log.events.add_entry(GetSecs, Stm(1).task.name, 'FORPResponse_Initiate', 'Right');
+                        
                     case Par.KeyJuice
                         Par.ManualReward = true;
                         Log.ManualRewardTime = ...
