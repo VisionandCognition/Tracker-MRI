@@ -519,6 +519,9 @@ if isfield(Stm(1),'KeepSubjectBusyTask')
     Par.Verbosity = PreviousVerbosity;
 end
 fprintf('Post-experiment busy tasks finished.\n');
+
+Screen('FillRect', Par.window, 0.*Par.ScrWhite); % Black out screen
+Par.lft=Screen('Flip', Par.window);
     %                     END POST-EXPERIMENT TASK
     % ---------------------------------------------------------------------
 

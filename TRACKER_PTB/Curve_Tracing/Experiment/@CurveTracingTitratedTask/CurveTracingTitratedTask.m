@@ -33,7 +33,7 @@ classdef CurveTracingTitratedTask < CurveTracingJoystickTask
                             obj.taskParams.sideRespAprioriNum ) / ...
                 (nleft + nright + obj.taskParams.sideRespAprioriNum) + ...
                 (1 - obj.taskParams.maxSideProb);
-            fprintf('Probability of picking left: %0.1f%%', pleft*100);
+            fprintf('Probability of left response being correct: %0.1f%%\n', pleft*100);
             if rand() < pleft
                 iTargetShape = 1; % make target shape the LH-shape (square)
             else

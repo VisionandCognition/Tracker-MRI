@@ -94,7 +94,7 @@ Params.CurveAnglesAtFP = [ 180; 180; 0; 0];
 Params.PawIndSizeDeg = [2.5, 2.5, 2.5, 2.5, Params.FixDotSizeDeg];
 Params.BlockSize = 3;
 Params.rewardMultiplier = 1.0;
-Params.rewardSideRespMultiplier = [1.0 1.0];
+Params.rewardSideRespMultiplier = [1 1];
 
 % Parameters for titrating the target to require the less used hand to be
 % used more often.
@@ -104,11 +104,11 @@ Params.sideRespAprioriNum = 0.1; % How many unbiased trials are assumed to be "o
 
 FixParams = Params;
 FixParams.subtrialsInTrial = 8;
-FixParams.fixationPeriod = 500;  % just for fixation task
+FixParams.fixationPeriod = 540;  % just for fixation task
 FixParams.postfixPeriod = 0;  % just for fixation task
 
 FixParams.rewardMultiplier = .12; % 0.5;
-FixParams.BlockSize = 2; %round(3* 3500 / FixParams.fixationPeriod * FixParams.subtrialsInTrial);
+FixParams.BlockSize = 3; %round(3* 3500 / FixParams.fixationPeriod * FixParams.subtrialsInTrial);
 
 
 CtrlParams = Params;
@@ -139,6 +139,11 @@ Stm(1).taskCycleInd = 1;
 %Stm(1).task = Stm(1).RestingTask;
 Stm(1).task = curvecontrol; % This task is good for fixation calibration
 Stm(1).alternateWithRestingBlocks = false;
+
+Stm(1).curvetracing = curvetracing;
+Stm(1).curvecatch = curvecatch;
+Stm(1).curvecontrol = curvecontrol;
+Stm(1).fixation = fixation;
 
 % Write stimulus settings to global variable StimObj
 StimObj.Stm = Stm;
