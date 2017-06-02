@@ -292,6 +292,7 @@ if isfield(Stm(1),'KeepSubjectBusyTask')
     args=struct;
     args.alternateWithRestingBlocks=false;
     args.maxTimeSecs = 600.0;
+                            
     CurveTracing_MainLoop(Hnd, {Stm(1).KeepSubjectBusyTask}, 100, args);
     
     Par.Verbosity = PreviousVerbosity;
@@ -333,7 +334,10 @@ fprintf('\n\n ---------------  Start warm-up --------- \n');
 args=struct;
 args.alternateWithRestingBlocks=false;
 
+    
+Log.events.add_entry(GetSecs, NaN, 'WarmupLoop', 'BeginLoop');
 CurveTracing_MainLoop(Hnd, {Stm(1).RestingTask}, 2, args);
+Log.events.add_entry(GetSecs, NaN, 'WarmupLoop', 'EndLoop');
 
 %% Stimulus presentation loop =============================================
 % keep doing this until escape is pressed or stop is clicked
@@ -360,7 +364,9 @@ fprintf('\n\n ---------------  Start Main tasks loop --------- \n');
 args=struct;
 args.alternateWithRestingBlocks=Stm(1).alternateWithRestingBlocks;
 
+Log.events.add_entry(GetSecs, NaN, 'MainExperimentLoop', 'BeginLoop');
 CurveTracing_MainLoop(Hnd, Stm(1).tasksToCycle, 300, args);
+Log.events.add_entry(GetSecs, NaN, 'MainExperimentLoop', 'EndLoop');
 
 % = = =                                                               = = =
 % =                           END MAIN LOOP                               =
@@ -382,7 +388,9 @@ args.alternateWithRestingBlocks=false;
 args.maxTimeSecs = 8.0;
 
 Par.ESC=false; % Reset escape
+Log.events.add_entry(GetSecs, NaN, 'Cooldown', 'BeginLoop');
 CurveTracing_MainLoop(Hnd, {Stm(1).RestingTask}, 2, args);
+Log.events.add_entry(GetSecs, NaN, 'Cooldown', 'EndLoop');
 
 % Clean up and Save Log ===================================================
 %   ____ _                                
@@ -514,7 +522,14 @@ if isfield(Stm(1),'KeepSubjectBusyTask')
     Par.ESC=false; % Reset escape
     args=struct;
     args.alternateWithRestingBlocks=false;
+    
+    % Log should not be written after this, this entry should not appear
+    % in the actual log.
+    Log.events.add_entry(GetSecs, NaN, 'PostExperimentBusyWork', 'BeginLoop');
+
     CurveTracing_MainLoop(Hnd, {Stm(1).KeepSubjectBusyTask}, 10, args);
+    
+    Log.events.add_entry(GetSecs, NaN, 'PostExperimentBusyWork', 'EndLoop');
     
     Par.Verbosity = PreviousVerbosity;
 end
