@@ -85,10 +85,9 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     while ~Stm(1).task.endOfTrial() && ~Par.PosReset && ~Par.endExperiment && ~Par.BreakTrial
         if GetSecs >= stopAt || Par.ESC
-            if ~Par.WaitForFixation || Par.FixStart==Inf
+            if Par.FixStart ~= Inf
                 % Give subject a reward if not waiting for fixation
                 % Might be interrupting subject while performing task
-                GiveRewardManual;
                 GiveRewardManual;
                 Par.ManualReward=false;
             end
