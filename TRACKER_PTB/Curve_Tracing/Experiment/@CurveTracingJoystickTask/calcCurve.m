@@ -70,8 +70,7 @@ function [pts, pts_col] = calcCurve(obj, indpos)
             ptD >= gap1_deg(2)*Par.PixPerDeg & ...
             ptD < gap2_deg(1)*Par.PixPerDeg) = nan;
         pts_alpha(~nongap_seg2 & ...
-            ptD >= gap1_deg(2)*Par.PixPerDeg & ...
-            ptD < gap2_deg(1)*Par.PixPerDeg) = nan;
+            ptD >= gap2_deg(2)*Par.PixPerDeg) = nan;
     end
     pts_col = [repmat(obj.param('TraceCurveCol'), [size(pts,1) 1]), pts_alpha] * Par.ScrWhite;
 end

@@ -9,6 +9,11 @@ lft = Par.lft;
 % For ending times that can be controlled by keyboard
 % Does not interrupt trial in progress
 Par.noNewTrialsAfter = Inf;
+if isfield(args, 'noNewBlocksAfterTime')
+    Par.noNewBlocksAfterTime = args.noNewBlocksAfterTime;
+else
+    Par.noNewBlocksAfterTime = Inf;
+end
 
 % stopAt does interrupt trials, but gives some reward
 if isfield(args, 'maxTimeSecs')
@@ -27,6 +32,13 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
     end
     
     if trial_iter == 1 || Stm(1).task.endOfBlock() % ------- Start new block?
+        if GetSecs > Par.noNewBlocksAfterTime
+            Par.ESC = true;
+            Log.events.add_entry(Par.lft, Stm(1).task.name, ...
+                'NoNewBlocksAfterTime', num2str(Par.noNewBlocksAfterTime));
+            Par.lft = Stm(1).task.drawStimuli(Par.lft);
+            break
+        end
         if trial_iter > 1 && Par.Verbosity >= 1
             % Display information from previous task
             CHR = Stm(1).task.trackerWindowDisplay();

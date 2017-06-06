@@ -17,7 +17,7 @@ Stm(1).tasksToCycle = [...
     ];
 Stm(1).taskCycleInd = 1;
 %Stm(1).task = checksides;
-Stm(1).task = curvetracing;
+Stm(1).task = curvemapping;
 Stm(1).alternateWithRestingBlocks = false;
 
 

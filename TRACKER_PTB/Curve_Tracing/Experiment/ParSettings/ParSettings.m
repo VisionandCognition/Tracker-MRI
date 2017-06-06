@@ -13,7 +13,10 @@ elseif strcmp(Par.ScreenChoice,'Mock')
 end
 
 %% Triggering =============================================================
-Par.TR = 2.5; % Not important during training
+% Par.TR * Par.NumVols Determines length of MRI scan
+% (first MRI trigger to last scanned volume)
+Par.TR = 2.5; 
+Par.NumVols = 420;
 Par.MRITriggeredStart = true;
 Par.MRITrigger_OnlyOnce = true;
 
