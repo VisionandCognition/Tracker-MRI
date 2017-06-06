@@ -10,10 +10,18 @@ function [pts, pts_col] = calcCurve(obj, indpos)
         pts_col = NaN;
         return;
     end
-    connection1 = obj.param('Connection1');
+    % (FP) [Conn1] ---CurveSeg1--- [Conn2] ---CurveSeg2---[Target]
+    connection1 = obj.param('Connection1'); % "gap" between FP and Seg1
     connection1 = connection1(indpos);
+    
+    nongap_seg1 = obj.param('CurveSeg1');
+    nongap_seg1 = nongap_seg1(indpos);
+    
     connection2 = obj.param('Connection2');
     connection2 = connection2(indpos);
+    
+    nongap_seg2 = obj.param('CurveSeg2');
+    nongap_seg2 = nongap_seg2(indpos);
     
     STR_IDENTICAL = 1; % Matlab's strcmp doesn't follow normal strcmp conventions
     if strcmp(obj.state, 'PRESWITCH') ~= STR_IDENTICAL
@@ -40,7 +48,8 @@ function [pts, pts_col] = calcCurve(obj, indpos)
     curveAlpha = obj.param('CurveAlpha');
     base_alpha = curveAlpha(~strcmp(obj.state, 'PRESWITCH')+1, ...
         indpos);
-    if connection1 && connection2
+    
+    if connection1 && connection2 && nongap_seg1 && nongap_seg2
         pts_alpha = repmat(base_alpha, [size(pts,1), 1]);
     else
         pts_alpha = repmat(base_alpha, [size(pts,1), 1]);
@@ -55,6 +64,14 @@ function [pts, pts_col] = calcCurve(obj, indpos)
         pts_alpha(~connection2 & ...
             ptD >= gap2_deg(1)*Par.PixPerDeg & ...
             ptD < gap2_deg(2)*Par.PixPerDeg) = nan;
+        
+        % segments between the gaps
+        pts_alpha(~nongap_seg1 & ...
+            ptD >= gap1_deg(2)*Par.PixPerDeg & ...
+            ptD < gap2_deg(1)*Par.PixPerDeg) = nan;
+        pts_alpha(~nongap_seg2 & ...
+            ptD >= gap1_deg(2)*Par.PixPerDeg & ...
+            ptD < gap2_deg(1)*Par.PixPerDeg) = nan;
     end
     pts_col = [repmat(obj.param('TraceCurveCol'), [size(pts,1) 1]), pts_alpha] * Par.ScrWhite;
 end

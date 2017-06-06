@@ -5,8 +5,7 @@ global Par;
     
     curr_stim = table2cell(obj.stimuli_params(stim_index, :));
     obj.curr_stim = containers.Map(...
-        obj.stimuli_params.Properties.VariableNames, curr_stim);
-    
+        obj.stimuli_params.Properties.VariableNames, curr_stim);    
     
     Par.TaskSwitched = false;
 
@@ -24,6 +23,10 @@ global Par;
         [obj.param('GapL'), obj.param('GapL'), obj.param('GapR'), obj.param('GapR')]);
     obj.set_param('Connection2', ...
         [obj.param('GapUL'), obj.param('GapDL'), obj.param('GapUR'), obj.param('GapDR')]);
+    obj.set_param('CurveSeg1', ...
+        [obj.param('CurveSegL', 1), obj.param('CurveSegL', 1), obj.param('CurveSegR', 1), obj.param('CurveSegR', 1)]);
+    obj.set_param('CurveSeg2', ...
+        [obj.param('CurveSegUL', 1), obj.param('CurveSegDL', 1), obj.param('CurveSegUR', 1), obj.param('CurveSegDR', 1)]);
     
     if obj.param('NumOfPawIndicators')==4
         targetIndicators = ...

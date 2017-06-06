@@ -109,7 +109,7 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
                     print(obj.state)
             end
         end
-        function [val, status] = param(obj, var)
+        function [val, status] = param(obj, var, default_value)
             % first look for parameter in current stimulus conditions
             try
                 val = obj.curr_stim(var);
@@ -124,8 +124,13 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
                     val = obj.taskParams.(var);
                     status = true;
                 else
-                    val = nan;
-                    status = false;
+                    if nargin >= 3
+                        val = default_value;
+                        status = true;
+                    else
+                        val = nan;
+                        status = false;
+                    end
                 end
             end
             if nargout < 2 && ~status
