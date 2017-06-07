@@ -28,6 +28,8 @@ classdef CurveTracingBlockByTitratedTask < CurveTracingJoystickTask
     
     methods (Access = protected)
         function stim_index = selectTrialStimulus(obj)
+            global Par;
+            global Log;
             % calculate the number of LH responses and RH responses
             % include correct and false responses
             nleft = obj.responses_hand.correct(1) + obj.responses_hand.false(1);
@@ -43,6 +45,8 @@ classdef CurveTracingBlockByTitratedTask < CurveTracingJoystickTask
                 iTargetShape = 2; % make target shape the RH-shape (diamond)
             end
             
+            blockby_params = obj.stimuli_params.(obj.blockBy);
+            
             if obj.iTrialOfBlock == 1 || isnan(obj.blockExampleIndex) % if new block
                 fprintf('Pr_left: %0.0f%%\n', pleft*100);
                 % choose target uniformly from target response
@@ -55,13 +59,15 @@ classdef CurveTracingBlockByTitratedTask < CurveTracingJoystickTask
                 side_mask = obj.stimuli_params.iTargetShape == iTargetShape;
 
                 % subset of stimuli that has target at obj.targetLoc
-                blockby_params = obj.stimuli_params.(obj.blockBy);
                 stim_mask = side_mask & ...
                     strcmp(blockby_params, ...
                     blockby_params(obj.blockExampleIndex));
                 mask_indices = find(stim_mask);
                 stim_index = mask_indices(randi(sum(stim_mask)));
             end
+            paramVal = blockby_params(obj.blockExampleIndex);
+            paramVal = paramVal{1};
+            Log.events.add_entry(Par.lft, obj.taskName, ['StimulusKey' obj.blockBy], paramVal);
         end
     end
 end
