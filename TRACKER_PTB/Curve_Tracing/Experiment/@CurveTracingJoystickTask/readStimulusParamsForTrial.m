@@ -32,25 +32,55 @@ global Par;
         targetIndicators = ...
             { obj.param('IndicatorUL'), obj.param('IndicatorDL'), ...
               obj.param('IndicatorUR'), obj.param('IndicatorDR')};
+          
+        preSwitchTargetIndicators = ...
+            { obj.param('PreSwitchUL', 'Circle'), ...
+              obj.param('PreSwitchDL', 'Circle'), ...
+              obj.param('PreSwitchUR', 'Circle'), ...
+              obj.param('PreSwitchDR', 'Circle')};
     else
         assert(obj.param('NumOfPawIndicators')==5)
         targetIndicators = ...
             { obj.param('IndicatorUL'), obj.param('IndicatorDL'), ...
               obj.param('IndicatorUR'), obj.param('IndicatorDR'), ...
               obj.param('IndicatorCenter')};
+          
+        preSwitchTargetIndicators = ...
+            { obj.param('PreSwitchUL', 'Circle'), ...
+              obj.param('PreSwitchDL', 'Circle'), ...
+              obj.param('PreSwitchUR', 'Circle'), ...
+              obj.param('PreSwitchDR', 'Circle'), ...
+              obj.param('PreSwitchCenter', 'Circle')};
     end
-    sideIndicators = zeros(length(targetIndicators),1);
+    shapeIndices = zeros(length(targetIndicators),1);
     for i = 1:length(targetIndicators)
         switch(targetIndicators{i})
             case 'Square' % left response
-                sideIndicators(i) = 1;
+                shapeIndices(i) = 1;
             case 'Diamond' % right response
-                sideIndicators(i) = 2;
+                shapeIndices(i) = 2;
+            case 'Circle' % wait / ambiguous - used in PreSwitch
+                shapeIndices(i) = 3;
             otherwise
-                sideIndicators(i) = nan; % don't show
+                shapeIndices(i) = nan; % don't show
         end
     end
-    obj.set_param('SideIndicators', sideIndicators);
+    obj.set_param('ShapeIndices', shapeIndices);
+    
+    preSwitchShapeIndices = zeros(length(preSwitchTargetIndicators),1);
+    for i = 1:length(preSwitchTargetIndicators)
+        switch(preSwitchTargetIndicators{i})
+            case 'Square' % left response
+                preSwitchShapeIndices(i) = 1;
+            case 'Diamond' % right response
+                preSwitchShapeIndices(i) = 2;
+            case 'Circle' % wait / ambiguous - used in PreSwitch
+                preSwitchShapeIndices(i) = 3;
+            otherwise
+                preSwitchShapeIndices(i) = nan; % don't show
+        end
+    end
+    obj.set_param('PreSwitchShapeIndices', preSwitchShapeIndices);
     
     switch obj.param('TargetLoc')
         case 'UL'

@@ -1,14 +1,18 @@
-classdef CurveTracingBlockTitratedTask < CurveTracingJoystickTask
+classdef CurveTracingBlockByTitratedTask < CurveTracingJoystickTask
     % CURVETRACINGBLOCKTITRATEDTASK Creates blocks of curve tracing trials.
     %   All trials in a block have the same target position. Target shapes
     %   are titrated to avoid bias.
     
     properties (Access = protected)
         targetLoc = nan;
+        blockExampleIndex = nan;
+        blockBy = nan;
     end
     methods
-        function obj = CurveTracingBlockTitratedTask(commonParams, stimuliParams)
-            obj = obj@CurveTracingJoystickTask(commonParams, stimuliParams);
+        function obj = CurveTracingBlockByTitratedTask(commonParams, stimuliParams, taskName, blockBy)
+            obj = obj@CurveTracingJoystickTask(commonParams, stimuliParams, taskName);
+            
+            obj.blockBy = blockBy;
             
             assert(isfield(commonParams, 'sideRespAprioriNum'), ...
                 ['Parameter sideRespAprioriNum must be defined for ' ...
@@ -24,11 +28,6 @@ classdef CurveTracingBlockTitratedTask < CurveTracingJoystickTask
     
     methods (Access = protected)
         function stim_index = selectTrialStimulus(obj)
-            if obj.iTrialOfBlock == 1 || any(isnan(obj.targetLoc)) % if new block
-                targetLocNames = {'UL','DL','UR','DR'};
-                iTargetLoc = randi(4, 1);
-                obj.targetLoc = targetLocNames{iTargetLoc};
-            end
             % calculate the number of LH responses and RH responses
             % include correct and false responses
             nleft = obj.responses_hand.correct(1) + obj.responses_hand.false(1);
@@ -38,21 +37,31 @@ classdef CurveTracingBlockTitratedTask < CurveTracingJoystickTask
                             obj.taskParams.sideRespAprioriNum ) / ...
                 (nleft + nright + obj.taskParams.sideRespAprioriNum) + ...
                 (1 - obj.taskParams.maxSideProb);
-            
-            fprintf('Probability of left response being correct: %0.1f%%\n', pleft*100);
             if rand() < pleft
                 iTargetShape = 1; % make target shape the LH-shape (square)
             else
                 iTargetShape = 2; % make target shape the RH-shape (diamond)
             end
-            side_mask = obj.stimuli_params.iTargetShape == iTargetShape;
             
-            % subset of stimuli that has target at obj.targetLoc
-            stim_mask = side_mask & ...
-                strcmp(obj.stimuli_params.TargetLoc, obj.targetLoc);
-            mask_indices = find(stim_mask);
-            stim_index = mask_indices(randi(sum(stim_mask)));
-            %fprintf('Stim = %d\n', stim_index);
+            if obj.iTrialOfBlock == 1 || isnan(obj.blockExampleIndex) % if new block
+                fprintf('Pr_left: %0.0f%%\n', pleft*100);
+                % choose target uniformly from target response
+                side_mask = obj.stimuli_params.iTargetShape == iTargetShape;
+                mask_indices = find(side_mask);
+                stim_index = mask_indices(randi(sum(side_mask)));
+                obj.blockExampleIndex = stim_index;
+            else
+
+                side_mask = obj.stimuli_params.iTargetShape == iTargetShape;
+
+                % subset of stimuli that has target at obj.targetLoc
+                blockby_params = obj.stimuli_params.(obj.blockBy);
+                stim_mask = side_mask & ...
+                    strcmp(blockby_params, ...
+                    blockby_params(obj.blockExampleIndex));
+                mask_indices = find(stim_mask);
+                stim_index = mask_indices(randi(sum(stim_mask)));
+            end
         end
     end
 end

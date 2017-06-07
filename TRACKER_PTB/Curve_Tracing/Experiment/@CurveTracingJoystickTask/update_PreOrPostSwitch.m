@@ -18,36 +18,48 @@ global Par;
         fix = obj.taskParams.FixPositionsPix(Par.PosNr,:) + Par.ScrCenter;
         fix_pos = [fix; fix; fix; fix];
         
-        pawIndAlpha = obj.param('PawIndAlpha');
+        preSwitchShapeIndices = obj.param('PreSwitchShapeIndices');
         for indpos = 1:obj.param('NumOfPawIndicators')
             offset = repmat( ...
                 PawIndOffsetPix(indpos,:), [4,1]);
 
-            obj.drawPreSwitchFigure(Par, ...
-                fix_pos(1,:)+offset(1,:), ...
-                PawIndSizePix(indpos),  ...
-                pawIndAlpha(1, indpos));
+%             obj.drawPreSwitchFigure(Par, ...
+%                 fix_pos(1,:)+offset(1,:), ...
+%                 PawIndSizePix(indpos),  ...
+%                 pawIndAlpha(1, indpos));
+
+            shapeIndex = preSwitchShapeIndices(indpos);
+            if isnan(shapeIndex)
+                continue
+            end
+            Color_obj = pawIndCol(shapeIndex,:) * ...
+                pawIndAlpha(2, indpos);
+            color = Color_obj * Par.ScrWhite;
+
+            pawIndSizePix = obj.param('PawIndSizePix');
+            pawIndSizePix = pawIndSizePix(indpos);
+            drawTarget(obj, color, offset, shapeIndex, pawIndSizePix);
         end
     elseif strcmp(obj.state, 'SWITCHED')
         % ------------------------------- SWITCHED
 
-        sideIndicators = obj.param('SideIndicators');
+        shapeIndices = obj.param('ShapeIndices');
         for indpos = 1:obj.param('NumOfPawIndicators')
             offset = repmat( ...
                 PawIndOffsetPix(indpos,:), [4,1]);
 
-            side = sideIndicators(indpos);
-            if isnan(side)
+            shapeIndex = shapeIndices(indpos);
+            if isnan(shapeIndex)
                 continue
             end
 
-            Color_obj = pawIndCol(side,:) * ...
+            Color_obj = pawIndCol(shapeIndex,:) * ...
                 pawIndAlpha(2, indpos);
             Unattd_color = Color_obj * Par.ScrWhite;
 
             pawIndSizePix = obj.param('PawIndSizePix');
             pawIndSizePix = pawIndSizePix(indpos);
-            obj.drawTarget(Unattd_color, offset, side, pawIndSizePix)
+            obj.drawTarget(Unattd_color, offset, shapeIndex, pawIndSizePix)
         end
     end
 end

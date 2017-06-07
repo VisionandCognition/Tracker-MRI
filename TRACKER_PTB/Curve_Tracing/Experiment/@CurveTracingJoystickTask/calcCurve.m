@@ -69,8 +69,16 @@ function [pts, pts_col] = calcCurve(obj, indpos)
         pts_alpha(~nongap_seg1 & ...
             ptD >= gap1_deg(2)*Par.PixPerDeg & ...
             ptD < gap2_deg(1)*Par.PixPerDeg) = nan;
+        
         pts_alpha(~nongap_seg2 & ...
             ptD >= gap2_deg(2)*Par.PixPerDeg) = nan;
+        
+        % don't draw to the center of the target
+        
+        pawIndSizePix = obj.param('PawIndSizePix');
+        pawIndSizePix = pawIndSizePix(indpos);
+        pts_mask = (ptD(end) - ptD) >= pawIndSizePix/2;
+        pts_alpha(~pts_mask) = nan;
     end
     pts_col = [repmat(obj.param('TraceCurveCol'), [size(pts,1) 1]), pts_alpha] * Par.ScrWhite;
 end

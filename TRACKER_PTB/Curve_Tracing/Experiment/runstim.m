@@ -39,10 +39,17 @@ for DoThisOnlyForTestingWithoutDAS=1
         Par.scr=Screen('screens');
         Par.ScrNr=max(Par.scr); % use the screen with the highest #
 
-        [Par.window, Par.wrect] = Screen('OpenWindow', Par.window, 0,...
-                [0 0 1920 1080], [], 2, ... rect, pixelSize, numberOfBuffers
-                [], [], [], ... stereomode, multisample, imagingmode
-                kPsychGUIWindow); % specialFlags
+        [W, H] = WindowSize(Par.window);
+        DesiredWidth = 1920;
+        DesiredHeight = 1080;
+        if abs(W-DesiredWidth) + abs(H-DesiredHeight) > 10
+            %Par.window = Screen(Par.window,'Close'); causes errors
+            [Par.window, Par.wrect] = Screen('OpenWindow', Par.window, 0,...
+                    [0 0 DesiredWidth DesiredHeight], ... rect
+                    [], 2, ... pixelSize, numberOfBuffers
+                    [], [], [], ... stereomode, multisample, imagingmode
+                    kPsychGUIWindow); % specialFlags
+        end
             
             
         blend = Screen('BlendFunction', Par.window);
@@ -66,8 +73,8 @@ for DoThisOnlyForTestingWithoutDAS=1
         KbName('UnifyKeyNames');
         
         %Set ParFile and Stimfile
-        Par.PARSETFILE = 'ParSettings';
-        Par.STIMSETFILE = 'StimSettings';
+        %Par.PARSETFILE = 'ParSettings';
+        %Par.STIMSETFILE = 'StimSettings';
     end
 end
 clc;
@@ -305,12 +312,24 @@ end
 Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
 Par.lft=Screen('Flip', Par.window);
 Log.events.screen_flip(Par.lft, 'NA');
+
 if Par.MRITriggeredStart
     Par.WaitingForTriggerTime = GetSecs;
     Log.events.add_entry(Par.WaitingForTriggerTime, 'NA', 'MRI_Trigger', 'Waiting');
     fprintf('Waiting for MRI trigger (or press ''T'' on keyboard)\n');
     while ~Log.MRI.TriggerReceived
         CheckKeys;
+        if Par.ESC
+            Screen('FillRect', Par.window, 0.*Par.ScrWhite); % Black out screen
+            Par.lft=Screen('Flip', Par.window);
+
+            fprintf('Escape key pressed while waiting for trigger!\n\n\n');
+            fprintf(' --------------- ABORTING EXPERIMENT! --------------- \n\n\n');
+            fprintf(' --------------- ABORTING EXPERIMENT! --------------- \n\n');
+            
+        	cd ..;
+            return
+        end
     end
     received_time = Log.MRI.TriggerTime(end);
     Log.events.add_entry(Par.WaitingForTriggerTime, 'NA', ...

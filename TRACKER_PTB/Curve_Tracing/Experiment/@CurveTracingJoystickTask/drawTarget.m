@@ -40,13 +40,24 @@ global Par
             0,bmost ...
             ];
     end
-    if which_side==1
+    if which_side == 1 % ---- Green Square
         Screen('FillPoly',Par.window,...
             color,...
             fix_pos + left_square + offset);
-    else
+    elseif which_side == 2 % ---- Red Diamond
         Screen('FillPoly',Par.window,...
             color,...
             fix_pos + right_diamond + offset);
+    elseif which_side == 3 % ---- Ambiguous Circle
+        lmost=-sqrt(1/pi);
+        rmost= sqrt(1/pi);
+        tmost=-sqrt(1/pi);
+        bmost= sqrt(1/pi);
+        wait_circle = [lmost, tmost, rmost, bmost] .* pawIndSizePix;
+        pos = repmat(fix_pos(1,:),[1,2]) + repmat(offset(1,:),[1,2]);
+        Screen('FillOval', Par.window, color, ...
+            pos + wait_circle);
+    else
+        assert(false);
     end
 end
