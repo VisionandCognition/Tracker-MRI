@@ -67,7 +67,7 @@ classdef CurveTracingBlockByTitratedTask < CurveTracingJoystickTask
             end
             paramVal = blockby_params(obj.blockExampleIndex);
             paramVal = paramVal{1};
-            Log.events.add_entry(Par.lft, obj.taskName, ['StimulusKey' obj.blockBy], paramVal);
+            Log.events.add_entry(Par.lft, obj.taskName, ['StimulusKey:' obj.blockBy], paramVal);
         end
     end
 end
