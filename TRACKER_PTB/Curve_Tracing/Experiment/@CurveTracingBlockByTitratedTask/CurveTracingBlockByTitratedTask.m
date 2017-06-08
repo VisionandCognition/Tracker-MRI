@@ -1,7 +1,7 @@
 classdef CurveTracingBlockByTitratedTask < CurveTracingJoystickTask
     % CURVETRACINGBLOCKTITRATEDTASK Creates blocks of curve tracing trials.
-    %   All trials in a block have the same target position. Target shapes
-    %   are titrated to avoid bias.
+    %   Trials are blocked by the parameter defined by the "blockBy"
+    % variable. Target shapes are titrated to avoid bias.
     
     properties (Access = protected)
         targetLoc = nan;

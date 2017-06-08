@@ -1,0 +1,3 @@
+TargetLoc,LeftStim,RightStim,CombinedStim,GapL,GapR,GapUL,GapDL,GapUR,GapDR,CurveSegL,CurveSegR,CurveSegUL,CurveSegDL,CurveSegUR,CurveSegDR,IndicatorCenter,TargetShape,iTargetShape,PreSwitchUL,IndicatorUL,PreSwitchDL,IndicatorDL,PreSwitchUR,IndicatorUR,PreSwitchDR,IndicatorDR
+Center,None,None,None+None,0,0,0,0,0,0,0,0,0,0,0,0,Square,Square,1,,,,,,,,
+Center,None,None,None+None,0,0,0,0,0,0,0,0,0,0,0,0,Diamond,Diamond,2,,,,,,,,

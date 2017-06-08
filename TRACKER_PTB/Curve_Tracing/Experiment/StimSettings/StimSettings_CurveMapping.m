@@ -8,11 +8,30 @@ Stm = StimObj.Stm;
 %% Load defaults ==========================================================
 eval('StimSettings'); % loads the default parameters
 
-% use non-blocked curvetracing
+% Stimulus specific timing (in ms)
+CtrlParams.SwitchDur = 1300; % (200) duration of alternative orientation
+
+% set time-windows in which something can happen (ms)
+% [baseduration_without_switch ... 
+%  period_in_which_switch_randomly_occurs ...
+%  post_switch_duration_in_which_nothing_happens]
+CtrlParams.EventPeriods = [1000 0 300]; % Params.EventPeriods = [3000 0 300];
+CtrlParams.prefixPeriod = 500; % not just for fixation!
+
+
+CtrlParams.rewardMultiplier = 0.6;
+CtrlParams.BlockSize = 6;
+
 curvemapping = CurveTracingBlockByTitratedTask(CtrlParams, ...
     'StimSettings/CurveMapping_BothHemispheres.csv', ...
     'Curve Mapping', ...
     'CombinedStim');
+
+Stm(1).RestingTask = CurveTracingBlockByTitratedTask(CtrlParams, ...
+    'StimSettings/HandResponseTask_NoStimulus.csv', ...
+    'No Stim Hand Response', ...
+    'CombinedStim');
+
 Stm(1).KeepSubjectBusyTask = curvemapping;
 
 Stm(1).tasksToCycle = [...
