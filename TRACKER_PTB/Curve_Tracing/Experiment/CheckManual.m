@@ -1,11 +1,8 @@
-function CheckManual
+function CheckManual(Stm)
 % check DAS for manual responses
 
 global Par;
 global Log;
-global StimObj;
-
-Stm = StimObj.Stm;
 
     %check the incoming signal on DAS channel #3  (#4 base 1)
     % NB dasgetlevel only starts counting at the third channel (#2)
@@ -25,7 +22,7 @@ Stm = StimObj.Stm;
         Par.BeamLIsBlocked = false;
         if Par.HandIsIn(1)
             Par.HandIsIn(1)=false;
-            Log.events.add_entry(GetSecs, Stm(1).task.name, 'Response_Release', 'Left');
+            Log.events.add_entry(GetSecs, NaN, 'Response_Release', 'Left');
             if ~any(Par.HandIsIn)
                 ResponsesReleased();
             end
@@ -34,32 +31,32 @@ Stm = StimObj.Stm;
         Par.BeamLIsBlocked = true;
         if ~Par.HandIsIn(1)
             Par.HandIsIn(1)=true;
-            Log.events.add_entry(GetSecs, Stm(1).task.name, 'Response_Initiate', 'Left');
+            Log.events.add_entry(GetSecs, NaN, 'Response_Initiate', 'Left');
         end
     end
-    if Stm(1).task.taskParams.NumBeams >= 2
-        %check the incoming signal on DAS channel #4 (#5 base 1)
-        % NB dasgetlevel only starts counting at the third channel (#2)
-        % Right / Secondary beam
-        Log.RespSignal = ChanLevels(5-2);
-        if strcmp(computer,'PCWIN64') && Log.RespSignal > 40000 || ... 64bit das card
-                strcmp(computer,'PCWIN') && Log.RespSignal > 2750 || ... % old das card
-                Par.TestRunstimWithoutDAS
-            
-            Par.BeamRIsBlocked = false;
-            if Par.HandIsIn(2)
-                Par.HandIsIn(2)=false;
-                Log.events.add_entry(GetSecs, Stm(1).task.name, 'Response_Release', 'Right');
-                if ~any(Par.HandIsIn)
-                    ResponsesReleased();
-                end
+    assert(Stm(1).task.taskParams.NumBeams >= 2)
+    
+    %check the incoming signal on DAS channel #4 (#5 base 1)
+    % NB dasgetlevel only starts counting at the third channel (#2)
+    % Right / Secondary beam
+    Log.RespSignal = ChanLevels(5-2);
+    if strcmp(computer,'PCWIN64') && Log.RespSignal > 40000 || ... 64bit das card
+            strcmp(computer,'PCWIN') && Log.RespSignal > 2750 || ... % old das card
+            Par.TestRunstimWithoutDAS
+
+        Par.BeamRIsBlocked = false;
+        if Par.HandIsIn(2)
+            Par.HandIsIn(2)=false;
+            Log.events.add_entry(GetSecs, NaN, 'Response_Release', 'Right');
+            if ~any(Par.HandIsIn)
+                ResponsesReleased();
             end
-        else
-            Par.BeamRIsBlocked = true;
-            if ~Par.HandIsIn(2)
-                Par.HandIsIn(2)=true;
-                Log.events.add_entry(GetSecs, Stm(1).task.name, 'Response_Initiate', 'Right');
-            end
+        end
+    else
+        Par.BeamRIsBlocked = true;
+        if ~Par.HandIsIn(2)
+            Par.HandIsIn(2)=true;
+            Log.events.add_entry(GetSecs, NaN, 'Response_Initiate', 'Right');
         end
     end
     

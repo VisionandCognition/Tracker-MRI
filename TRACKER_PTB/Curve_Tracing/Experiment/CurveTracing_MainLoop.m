@@ -107,7 +107,7 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
             break;
         end
         
-        CheckManual;
+        CheckManual(Stm);
         Stm(1).task.checkResponses(GetSecs);
         CheckKeys;
         Par.lft = Stm(1).task.drawStimuli(Par.lft);
