@@ -1,0 +1,13 @@
+TargetLoc,LeftStim,RightStim,CombinedStim,GapL,GapR,GapUL,GapDL,GapUR,GapDR,CurveSegL,CurveSegR,CurveSegUL,CurveSegDL,CurveSegUR,CurveSegDR,IndicatorCenter,TargetShape,iTargetShape,PreSwitchUL,IndicatorUL,PreSwitchDL,IndicatorDL,PreSwitchUR,IndicatorUR,PreSwitchDR,IndicatorDR
+Center,CurveSegDL,CurveSegUR,CurveSegDL+CurveSegUR,0,0,0,0,0,0,0,0,0,1,1,0,Square,Square,1,,,,,,,,
+Center,CurveSegUL,CurveSegUR,CurveSegUL+CurveSegUR,0,0,0,0,0,0,0,0,1,0,1,0,Square,Square,1,,,,,,,,
+Center,CurveSegDL,CurveSegDR,CurveSegDL+CurveSegDR,0,0,0,0,0,0,0,0,0,1,0,1,Square,Square,1,,,,,,,,
+Center,CurveSegUL,CurveSegDR,CurveSegUL+CurveSegDR,0,0,0,0,0,0,0,0,1,0,0,1,Square,Square,1,,,,,,,,
+Center,CurveSegDL,CurveSegUR,CurveSegDL+CurveSegUR,0,0,0,0,0,0,0,0,0,1,1,0,Diamond,Diamond,2,,,,,,,,
+Center,CurveSegUL,CurveSegUR,CurveSegUL+CurveSegUR,0,0,0,0,0,0,0,0,1,0,1,0,Diamond,Diamond,2,,,,,,,,
+Center,CurveSegDL,CurveSegDR,CurveSegDL+CurveSegDR,0,0,0,0,0,0,0,0,0,1,0,1,Diamond,Diamond,2,,,,,,,,
+Center,CurveSegUL,CurveSegDR,CurveSegUL+CurveSegDR,0,0,0,0,0,0,0,0,1,0,0,1,Diamond,Diamond,2,,,,,,,,
+Center,CurveSegDL,BlankR,CurveSegDL+BlankR,0,0,0,0,0,0,0,0,0,1,0,0,Square,Square,1,,,,,,,,
+Center,CurveSegUL,BlankR,CurveSegUL+BlankR,0,0,0,0,0,0,0,0,1,0,0,0,Square,Square,1,,,,,,,,
+Center,BlankL,CurveSegDR,BlankL+CurveSegDR,0,0,0,0,0,0,0,0,0,0,0,1,Square,Square,1,,,,,,,,
+Center,BlankL,CurveSegUR,BlankL+CurveSegUR,0,0,0,0,0,0,0,0,0,0,1,0,Square,Square,1,,,,,,,,
