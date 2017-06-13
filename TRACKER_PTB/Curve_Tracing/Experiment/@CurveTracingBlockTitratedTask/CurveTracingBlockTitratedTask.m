@@ -24,10 +24,13 @@ classdef CurveTracingBlockTitratedTask < CurveTracingJoystickTask
     
     methods (Access = protected)
         function stim_index = selectTrialStimulus(obj)
+            global Par;
+            global Log;
             if obj.iTrialOfBlock == 1 || any(isnan(obj.targetLoc)) % if new block
                 targetLocNames = {'UL','DL','UR','DR'};
                 iTargetLoc = randi(4, 1);
                 obj.targetLoc = targetLocNames{iTargetLoc};
+                Log.events.add_entry(Par.lft, obj.taskName, 'BlockTargetLocSelected', obj.targetLoc);
             end
             % calculate the number of LH responses and RH responses
             % include correct and false responses
