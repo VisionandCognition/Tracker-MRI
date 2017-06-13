@@ -20,6 +20,9 @@ Par.RESP_BREAK_FIX = 5;
 
 RespText = {'Correct', 'False', 'Miss', 'Early', 'Fix. break'};
 
+scriptPath = mfilename('fullpath');
+Par.CurveTracingRoot = fileparts(fileparts(scriptPath));
+
 %% THIS SWITCH ALLOW TESTING THE RUNSTIM WITHOUT DASCARD & TRACKER ========
 % if hasrealdas exists and says that there is no das card, then don't
 %   run without the DAS...
@@ -31,11 +34,13 @@ for DoThisOnlyForTestingWithoutDAS=1
         [~, basename, ext] = fileparts(pwd);
         if strcmp([basename ext], 'Experiment')
             % if not exited cleanly
-        	cd ..;
+        	% cd ..;
+        	cd(Par.CurveTracingRoot);
         end
         cd engine;
         ptbInit % initialize PTB
-        cd ..; cd Experiment;
+        
+        cd(Par.CurveTracingRoot); cd Experiment;
         Par.scr=Screen('screens');
         Par.ScrNr=max(Par.scr); % use the screen with the highest #
 
@@ -327,7 +332,7 @@ if Par.MRITriggeredStart
             fprintf(' --------------- ABORTING EXPERIMENT! --------------- \n\n\n');
             fprintf(' --------------- ABORTING EXPERIMENT! --------------- \n\n');
             
-        	cd ..;
+        	cd(Par.CurveTracingRoot);
             return
         end
     end
@@ -390,7 +395,7 @@ args.maxTimeSecs = hardStopTime - GetSecs;
 args.noNewBlocksAfterTime = hardStopTime - 9*4; % BlockSize * TrialDur
 
 Log.events.add_entry(GetSecs, NaN, 'MainExperimentLoop', 'BeginLoop');
-CurveTracing_MainLoop(Hnd, Stm(1).tasksToCycle, 300, args);
+CurveTracing_MainLoop(Hnd, Stm(1).tasksToCycle, 1000, args);
 Log.events.add_entry(GetSecs, NaN, 'MainExperimentLoop', 'EndLoop');
 
 % = = =                                                               = = =
