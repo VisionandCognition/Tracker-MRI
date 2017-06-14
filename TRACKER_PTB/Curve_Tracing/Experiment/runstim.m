@@ -337,7 +337,9 @@ if Par.MRITriggeredStart
         end
     end
     received_time = Log.MRI.TriggerTime(end);
-    Log.events.add_entry(Par.WaitingForTriggerTime, 'NA', ...
+    % There was a mistake with this entry! Switching to NA, to make sure no
+    % code relies on it.
+    Log.events.add_entry(NaN, 'NA', ...
         'MRI_Trigger_Received', num2str(received_time-Par.WaitingForTriggerTime));
     fprintf(['MRI trigger received after ' ...
         num2str(received_time-Par.WaitingForTriggerTime) ' s after waiting\n']);
