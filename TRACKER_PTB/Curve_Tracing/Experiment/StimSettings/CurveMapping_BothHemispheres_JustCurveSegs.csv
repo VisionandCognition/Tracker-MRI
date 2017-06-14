@@ -11,3 +11,7 @@ Center,CurveSegDL,BlankR,CurveSegDL+BlankR,0,0,0,0,0,0,0,0,0,1,0,0,Square,Square
 Center,CurveSegUL,BlankR,CurveSegUL+BlankR,0,0,0,0,0,0,0,0,1,0,0,0,Square,Square,1,,,,,,,,
 Center,BlankL,CurveSegDR,BlankL+CurveSegDR,0,0,0,0,0,0,0,0,0,0,0,1,Square,Square,1,,,,,,,,
 Center,BlankL,CurveSegUR,BlankL+CurveSegUR,0,0,0,0,0,0,0,0,0,0,1,0,Square,Square,1,,,,,,,,
+Center,CurveSegDL,BlankR,CurveSegDL+BlankR,0,0,0,0,0,0,0,0,0,1,0,0,Diamond,Diamond,2,,,,,,,,
+Center,CurveSegUL,BlankR,CurveSegUL+BlankR,0,0,0,0,0,0,0,0,1,0,0,0,Diamond,Diamond,2,,,,,,,,
+Center,BlankL,CurveSegDR,BlankL+CurveSegDR,0,0,0,0,0,0,0,0,0,0,0,1,Diamond,Diamond,2,,,,,,,,
+Center,BlankL,CurveSegUR,BlankL+CurveSegUR,0,0,0,0,0,0,0,0,0,0,1,0,Diamond,Diamond,2,,,,,,,,
