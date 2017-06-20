@@ -85,6 +85,7 @@ Stm(1).SwitchDur = 2000; % (200) duration of alternative orientation
 %  post_switch_duration_in_which_nothing_happens]
 %Stm(1).EventPeriods = [2500 1500 300];
 Stm(1).EventPeriods = [1000 1000 1000];
+Stm(1).ITI = 500;
 
 Stm(1).ShowDistractBar = true; % show vertical bar [toggle with "D" key]
 
@@ -96,6 +97,7 @@ Stm(1).BreakOnFalseHit = true; % if AutoReward=true, trial is broken off on fals
 Stm(1).ResponseAllowed = [100 Stm(1).SwitchDur+100]; % [after_onset after_offset] in ms
 %Stm(1).ResponseAllowed = [100 4000]; % [after_onset after_offset] in ms
 Stm(1).BreakDuration = 0; % 1500 additional waiting period for early / false hits
+Stm(1).ErrorSound = false;
 
 % ---------------------------------------- Task related reward modifiers --
 Stm(1).PawRewardMultiplier = [1 1]; % [left hand response, right response]

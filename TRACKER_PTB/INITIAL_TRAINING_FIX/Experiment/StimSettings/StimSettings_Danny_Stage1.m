@@ -10,11 +10,11 @@ Stm(1).BackColor = [.5 .5 .5]; % [R G B] 0-1
 
 %% Fixation ---------------------------------------------------------------
 Stm(1).FixWinSize = 3; % in deg
-Stm(1).FixDotSize = 0.5; % 0.3;
+Stm(1).FixDotSize = 0.05; % 0.3;
 Stm(1).FixDotCol = [0 0 0; 0 0 0; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
 
 %% A vertical bar that is randomly set to horizontal ----------------------
-length = 2.5; %0.16;
+length = .75; %0.16;
 Stm(1).Size = length*[1, .25] + [0, 0.01]; % [length width] in deg
 Stm(1).Orientation = [1 0]; % [def a1lt] 0=hor, 1=vert
 Stm(1).Color = [0.6 0.7 0.7]; % [R G B] 0-1
@@ -33,17 +33,19 @@ Stm(1).DisconnectedCurveLength = 0.75;
 
 %% Paw indicator ----------------------------------------------------------
 Stm(1).RequireSpecificPaw = true;
-Stm(1).PawIndSize = 3;
+Stm(1).PawIndSize = 1.5;
 %Stm(1).PawIndOffset = [3.5 2.5];
 Stm(1).PawIndOffsetX = [-2 5]; % [min max]
 Stm(1).PawIndOffsetY = [0.0 0.0]; % [min max]
-Stm(1).PawIndPositions = [ -2 0; 2 0 ];
+Stm(1).PawIndPositions = [ -0 0; 0 0 ];
 Stm(1).LiftedPawIndPositions = [ -1 1; 1 1 ] * 5;
 Stm(1).LiftedPawIndSize = 0; % 2; ------------ Disable lifted paw indicator
 Stm(1).DisplayChosenTargetDur = 0;
 
 Stm(1).NumOfPawIndicators = 1; % Can't be more than the number of PawIndPositions!
-Stm(1).PawIndCol = [0 .7 0; .9 .2 .2]; % colors for the left and right target
+%Stm(1).PawIndCol = 0.2.*[0 .7 0; .9 .2 .2]; % colors for the left and right target
+%Stm(1).PawIndCol = 0.1*[.9 1 .9;1 .9 .9]; % colors for the left and right target
+Stm(1).PawIndCol = 0.2*[1 1 1;1 1 1]; % colors for the left and right target
 
 % You probably want Stm(1).SwitchToLPawProb(1) + Stm(1).SwitchToRPawProb(1) = 1.0.
 % This would mean that when a trial is correct, there is a probability
@@ -53,13 +55,13 @@ Stm(1).PawIndCol = [0 .7 0; .9 .2 .2]; % colors for the left and right target
 % and <= 0.5. Decreasing these probabilities will increase the probability
 % of repeating the incorrect trial - which you may want to do regardless of
 % which hand is used.
-if true
-    Stm(1).SwitchToLPawProb = [0.5 0.3]; % [prev. correct, prev. incorrect]
-    Stm(1).SwitchToRPawProb = [0.5 0.3]; % [prev. correct, prev. incorrect]
+if false
+    Stm(1).SwitchToLPawProb = [0.7 0.3]; % [prev. correct, prev. incorrect]
+    Stm(1).SwitchToRPawProb = [0.7 0.3]; % [prev. correct, prev. incorrect]
 else
     % Re-parameterize ....
     pLeftTarget = 0.5; % probability of left hand target when correct
-    pRepeatIncorrect = 0.75; % probability of repeating current target when incorrect
+    pRepeatIncorrect = .5; % probability of repeating current target when incorrect
     
     Stm(1).SwitchToLPawProb = [pLeftTarget, 1-pRepeatIncorrect]; % [prev. correct, prev. incorrect]
     Stm(1).SwitchToRPawProb = [1-pLeftTarget, 1-pRepeatIncorrect]; % [prev. correct, prev. incorrect]
@@ -86,14 +88,15 @@ Stm(1).NoiseContrast = 0.1; % 0-1
 Stm(1).NoiseDefaultOn = false; % [toggle with "B" key]
 
 %% Stimulus specific timing (in ms) ---------------------------------------
-Stm(1).SwitchDur = 8000; % (200) duration of alternative orientation
+Stm(1).SwitchDur = 15000; % (200) duration of alternative orientation
 
 % set time-windows in which something can happen (ms)
 % [baseduration_without_switch ... 
 %  period_in_which_switch_randomly_occurs ...
 %  post_switch_duration_in_which_nothing_happens]
 %Stm(1).EventPeriods = [2500 1500 300];
-Stm(1).EventPeriods = [0 100 0];
+Stm(1).EventPeriods = [0 10 10];
+Stm(1).ITI = 1000;
 
 Stm(1).ShowDistractBar = true; % show vertical bar [toggle with "D" key]
 
@@ -104,7 +107,8 @@ Stm(1).NumBeams = 2;
 Stm(1).BreakOnFalseHit = true; % if AutoReward=true, trial is broken off on false hit
 Stm(1).ResponseAllowed = [80 Stm(1).SwitchDur+100]; % [after_onset after_offset] in ms
 %Stm(1).ResponseAllowed = [100 4000]; % [after_onset after_offset] in ms
-Stm(1).BreakDuration = 3000; % 1500 additional waiting period for early / false hits
+Stm(1).BreakDuration = 2000; % 1500 additional waiting period for early / false hits
+Stm(1).ErrorSound = true;
 
 Stm(1).FalseHitRewardRatio = 0.00; % 0.75; % amount of reward for FH relative to true hit
 Stm(1).PawRewardMultiplier = [1 1]; % [left hand response, right hand response]

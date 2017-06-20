@@ -617,13 +617,10 @@ while ~Par.ESC %===========================================================
             all(~isnan(Par.FeedbackSoundPar(Par.CurrResponse,:)))
         if Par.FeedbackSoundPar(Par.CurrResponse)
             try
-                w = warning ('off','MATLAB:audiovideo:audioplayer:noAudioOutputDevice');
-                RewT=0:1/Par.FeedbackSoundPar(Par.CurrResponse,1):Par.FeedbackSoundPar(Par.CurrResponse,4);
-                RewY=Par.FeedbackSoundPar(Par.CurrResponse,3)*sin(2*pi*Par.FeedbackSoundPar(Par.CurrResponse,2)*RewT);
-                sound(RewY, Par.FeedbackSoundPar(Par.CurrResponse, 1));
-                warning(w) % return warning settings to previous state
+               % fprintf('trying to play a sound\n')
+                PsychPortAudio('Start', ...
+                    Par.FeedbackSoundSnd(Par.CurrResponse).h, 1, 0, 1);
             catch
-                warning(w) % return warning settings to previous state
             end
         end
     end
@@ -720,6 +717,7 @@ while ~Par.ESC %===========================================================
             GiveRewardAuto;
             Par.AutoRewardGiven = true;
         end
+        
     end
     Par.DrawPawIndNow = false;
     % no response or fix break during switch = miss
@@ -729,6 +727,20 @@ while ~Par.ESC %===========================================================
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
         Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
         Par.CorrStreakcount=[0 0];
+        if Par.CurrResponse > 0 && ...
+                isfield(Par, 'FeedbackSound') && ...
+                isfield(Par, 'FeedbackSoundPar') && ...
+                Par.FeedbackSound(Par.CurrResponse) && ...
+                all(~isnan(Par.FeedbackSoundPar(Par.CurrResponse,:)))
+            if Par.FeedbackSoundPar(Par.CurrResponse)
+                try
+                    % fprintf('trying to play a sound\n')
+                    PsychPortAudio('Start', ...
+                        Par.FeedbackSoundSnd(Par.CurrResponse).h, 1, 0, 1);
+                catch
+                end
+            end
+        end
     end
     Par.LastResponse = Par.CurrResponse;
     
@@ -769,11 +781,77 @@ while ~Par.ESC %===========================================================
         end
     end
     
+    %% ITI ----------------------------------------------------------------
+    Par.State='ITI';
+    Par.ITIStart=lft;
+    
+    while lft < Par.ITIStart + ...
+            Stm(1).ITI/1000 && ~Par.PosReset && ...
+            ~Par.ESC && ~Par.BreakTrial
+        
+        Par.DrawPawIndNow = false;
+        
+        % DrawStimuli
+        DrawStimuli;
+        
+        % Check eye fixation ----------------------------------------------
+        CheckFixation;
+        
+        % check for key-presses
+        CheckKeys; % internal function
+        
+        % check for manual responses
+        CheckManual;
+%         if Par.NewResponse
+%             % false hit / early response
+%             Par.RespValid = false;
+%             Par.CurrResponse = RESP_EARLY;
+%             Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
+%             Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
+%             
+%             % NewResponse indicates left or right responses
+%             Par.ManResp4Log = Par.NewResponse;
+%             Par.ResponseSide(Par.NewResponse, Par.CurrResponse) = ...
+%                 Par.ResponseSide(Par.NewResponse, Par.CurrResponse)+1;
+%             Par.FalseResponseGiven=true;
+%             Par.RespTimes=[Par.RespTimes;
+%                 lft-Par.ExpStart Par.RespValid];
+%             if Stm(1).BreakOnFalseHit
+%                 Par.BreakTrial=true;
+%             end
+%         elseif ~Par.FixIn && Par.RequireFixation
+%             % false
+%             Par.RespValid = false;
+%             Par.CurrResponse = RESP_BREAK_FIX;
+%             Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
+%             Par.ResponsePos(Par.CurrResponse)=Par.ResponsePos(Par.CurrResponse)+1;
+%             Par.FalseResponseGiven=false;
+%             Par.BreakTrial=true;
+%         end
+        
+        % Get and plot eye position
+        CheckTracker;
+        
+        % Change stimulus if required
+        ChangeStimulus;
+        
+        % give manual reward
+        if Par.ManualReward
+            GiveRewardManual;
+            Par.ManRewThisTrial=[Par.ManRewThisTrial ...
+                lft-Par.ExpStart];
+            Par.ManualReward=false;
+        end
+        
+    end
+    
     %% Break for false hit ------------------------------------------------
     if Par.BreakTrial
         Par.BreakStartTime=lft;
         %fprintf('Getting a time penalty...\n');
-        while lft < Par.BreakStartTime + Stm(1).BreakDuration/1000 && ~Par.ESC
+       
+        while lft < Par.BreakStartTime + ...
+                (Stm(1).BreakDuration+Stm(1).ITI)/1000 && ~Par.ESC
             CheckManual;
             CheckKeys; % internal function
             DrawNoiseOnly;
@@ -934,6 +1012,14 @@ end
 % Empty the screen
 Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
 lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
+
+% close audio devices
+for i=1:length(Par.FeedbackSoundSnd)
+    if ~isnan(Par.FeedbackSoundSnd(i).h)
+        PsychPortAudio('Close', Par.FeedbackSoundSnd(i).h);
+    end
+end
+
 if ~TestRunstimWithoutDAS
     dasjuice(0); %stop reward if its running
 end
@@ -1271,10 +1357,11 @@ end
                 %                 end
                 
                 % Semi-dark / brown background
-                Screen('FillRect',Par.window, [.5 .25 0].*Par.ScrWhite);
+                %Screen('FillRect',Par.window, [.5 .25 0].*Par.ScrWhite);
             else
                 % Dark background
-                Screen('FillRect',Par.window, 0.0 * Par.BG.*Par.ScrWhite);
+                %Screen('FillRect',Par.window, 0.0 * Par.BG.*Par.ScrWhite);
+                %Screen('FillRect',Par.window, [.5 .25 0].*Par.ScrWhite);
             end
         end
         if ~Par.BeamLIsBlocked && ~Par.BeamRIsBlocked && ~Par.Paused

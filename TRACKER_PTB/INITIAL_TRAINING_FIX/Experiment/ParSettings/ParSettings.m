@@ -28,7 +28,6 @@ Stm=StimObj.Stm;
 Par.FixWinSize = [1.8 1.8]; % [W H] in deg
 Par.RequireFixation = false;
 
-
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
 Par.SCx = 0.14; %initial scale in control window
@@ -137,13 +136,14 @@ Par.Reward = true; %boolean to enable reward stim bit or not
 
 Par.RewardSound = false; % give sound feedback about reward
 Par.RewSndPar = [44100 800 1];
+% duration matches 'open duration'
 
 % RESP_CORRECT = 1;
 % RESP_FALSE = 2;
 % RESP_MISS = 3;
 % RESP_EARLY = 4;
 % RESP_BREAK_FIX = 5;
-Par.FeedbackSound = [false true true true true];
+Par.FeedbackSound = [false false false false false];
 Par.FeedbackSoundPar = [ ...
     44100 800 1 NaN; ... CORRECT
     44100 200 1 NaN; ... FALSE
@@ -152,8 +152,28 @@ Par.FeedbackSoundPar = [ ...
     44100 400 1.5 0.01 ... FIXATION BREAK
     ];
 
-% [FS(Hz) TonePitch(Hz) Amplitude]
+% [FS(Hz) TonePitch(Hz) Amplitude Duration]
 % duration matches 'open duration'
+
+% Create audio buffers for low latency sounds 
+% (they are closed in runstim cleanup) 
+InitializePsychSound; % init driver
+for i=1:size(Par.FeedbackSoundPar,1)
+    Par.FeedbackSoundSnd(i).Wav=nan;
+    Par.FeedbackSoundSnd(i).Fs=nan;
+    Par.FeedbackSoundSnd(i).h = nan;
+    if Par.FeedbackSound(i)
+        RewT=0:1/Par.FeedbackSoundPar(i,1):Par.FeedbackSoundPar(i,4);
+        Par.FeedbackSoundSnd(i).Wav=...
+            Par.FeedbackSoundPar(i,3)*sin(2*pi*Par.FeedbackSoundPar(i,2)*RewT);
+        Par.FeedbackSoundSnd(i).Fs=Par.FeedbackSoundPar(i,1);
+        Par.FeedbackSoundSnd(i).h = PsychPortAudio('Open', [], [], 2,...
+            Par.FeedbackSoundSnd(i).Fs, 1);
+        PsychPortAudio('FillBuffer', Par.FeedbackSoundSnd(i).h, Par.FeedbackSoundSnd(i).Wav);
+        clc;
+    end
+end
+
 Par.RewardFixFeedBack = true;
 
 % Require hands in the box (reduces movement?)

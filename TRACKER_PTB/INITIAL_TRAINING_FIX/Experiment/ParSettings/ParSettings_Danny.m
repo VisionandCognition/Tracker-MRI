@@ -138,7 +138,50 @@ Par.RewardSound = false; % give sound feedback about reward
 Par.RewSndPar = [44100 800 1]; % [FS(Hz) TonePitch(Hz) Amplitude]
 % duration matches 'open duration'
 
-Par.FeedbackSound = [false false false false false];
+% RESP_CORRECT = 1;
+% RESP_FALSE = 2;
+% RESP_MISS = 3;
+% RESP_EARLY = 4;
+% RESP_BREAK_FIX = 5;
+Par.FeedbackSound = [false true true true false];
+Par.FeedbackSoundPar = [ ...
+    44100 800 1 0.02; ... CORRECT
+    44100 300 1 0.03; ... FALSE
+    44100 200 1 0.02; ... MISS
+    44100 300 1 0.02; ... EARLY
+    44100 400 1.5 0.02 ... FIXATION BREAK
+    ];
+
+% [FS(Hz) TonePitch(Hz) Amplitude Duration]
+% duration matches 'open duration'
+
+% Create audio buffers for low latency sounds 
+% (they are closed in runstim cleanup) 
+if Par.FeedbackSound
+    try
+        InitializePsychSound; % init driver
+        % if no speakers are connected, windows shuts down the snd device and
+        % this will return an error
+    catch
+        fprintf('There were no audio devices detected. Is the output connected?\n');
+    end
+end
+for i=1:size(Par.FeedbackSoundPar,1)
+    Par.FeedbackSoundSnd(i).Wav=nan;
+    Par.FeedbackSoundSnd(i).Fs=nan;
+    Par.FeedbackSoundSnd(i).h = nan;
+    if Par.FeedbackSound(i)
+        RewT=0:1/Par.FeedbackSoundPar(i,1):Par.FeedbackSoundPar(i,4);
+        Par.FeedbackSoundSnd(i).Wav=...
+            Par.FeedbackSoundPar(i,3)*sin(2*pi*Par.FeedbackSoundPar(i,2)*RewT);
+        Par.FeedbackSoundSnd(i).Fs=Par.FeedbackSoundPar(i,1);
+        Par.FeedbackSoundSnd(i).h = PsychPortAudio('Open', [], [], 2,...
+            Par.FeedbackSoundSnd(i).Fs, 1);
+        PsychPortAudio('FillBuffer', Par.FeedbackSoundSnd(i).h, Par.FeedbackSoundSnd(i).Wav);
+        clc;
+    end
+end
+
 Par.RewardFixFeedBack = true;
 
 % Require hands in the box (reduces movement?)
@@ -178,27 +221,25 @@ Par.MaxTimeBetweenRewardsMin = 10; % Give reward at least once every 30 seconds
 Par.GiveRewardForUnblockingBeam = false;
 
 %% Create Eye-check windows based on stimulus positions ===================
-for SetInitialWINs=1
-    % The code below is preloaded and will be overwritten on stimulus basis
-    % for every trial individually
-    %example window types, should be replaced by your own control windows
-    FIX = 0;  %this is the fixation window
-    TALT = 1; %this is an alternative/erroneous target window
-    TARG = 2; %this is the correct target window
-    
-    %Par.WIN = [xpos, ypos, pix width, pix height, window type]
-    Par.WIN = [...
-        0,  0, Par.PixPerDeg*Par.FixWdDeg, Par.PixPerDeg*Par.FixHtDeg, FIX; ...
-        100, 100, Par.PixPerDeg*Par.TargWdDeg, Par.PixPerDeg*Par.TargHtDeg, TARG; ...
-        -300, 300, Par.PixPerDeg*Par.TargWdDeg, Par.PixPerDeg*Par.TargHtDeg, TALT].';
-    
-    %when target and fixation windows change in position and dimension you will
-    %have to call two functions. The first is to show their position on the tracker screen.
-    %The second is to update das routines that detect eye movements entering
-    %and leaving these windows
-    % 1. ->refreshtracker( 1) %clear tracker screen and set fixation and target windows
-    % 2. ->SetWindowDas %set das control thresholds using global parameters : Par
-end
+% The code below is preloaded and will be overwritten on stimulus basis
+% for every trial individually
+%example window types, should be replaced by your own control windows
+FIX = 0;  %this is the fixation window
+TALT = 1; %this is an alternative/erroneous target window
+TARG = 2; %this is the correct target window
+
+%Par.WIN = [xpos, ypos, pix width, pix height, window type]
+Par.WIN = [...
+    0,  0, Par.PixPerDeg*Par.FixWdDeg, Par.PixPerDeg*Par.FixHtDeg, FIX; ...
+    100, 100, Par.PixPerDeg*Par.TargWdDeg, Par.PixPerDeg*Par.TargHtDeg, TARG; ...
+    -300, 300, Par.PixPerDeg*Par.TargWdDeg, Par.PixPerDeg*Par.TargHtDeg, TALT].';
+
+%when target and fixation windows change in position and dimension you will
+%have to call two functions. The first is to show their position on the tracker screen.
+%The second is to update das routines that detect eye movements entering
+%and leaving these windows
+% 1. ->refreshtracker( 1) %clear tracker screen and set fixation and target windows
+% 2. ->SetWindowDas %set das control thresholds using global parameters : Par
 
 %% Trial count inital =====================================================
 Par.Trlcount = [0 0]; %[this_position total]
