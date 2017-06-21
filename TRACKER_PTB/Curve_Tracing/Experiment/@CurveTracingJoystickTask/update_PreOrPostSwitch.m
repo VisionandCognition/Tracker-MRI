@@ -1,7 +1,6 @@
 function update_PreOrPostSwitch(obj)
 global Par;
 
-    PawIndSizePix = obj.param('PawIndSizePix');
     PawIndOffsetPix = obj.param('PawIndOffsetPix');
     
     pawIndCol = obj.param('PawIndCol');
@@ -22,11 +21,6 @@ global Par;
         for indpos = 1:obj.param('NumOfPawIndicators')
             offset = repmat( ...
                 PawIndOffsetPix(indpos,:), [4,1]);
-
-%             obj.drawPreSwitchFigure(Par, ...
-%                 fix_pos(1,:)+offset(1,:), ...
-%                 PawIndSizePix(indpos),  ...
-%                 pawIndAlpha(1, indpos));
 
             shapeIndex = preSwitchShapeIndices(indpos);
             if isnan(shapeIndex)

@@ -117,6 +117,7 @@ if Par.nFlipsRefresh==0 || ~Stm(1).UsePreDefFlipTime
 end
 
 %Par.BG = Stm(1).BackColor; % get from stimulus file
+% Stm(1).task should be defined in StimSettings
 Par.BG = Stm(1).task.param('BGColor');
 
 Par.ScrWhite=WhiteIndex(Par.window);

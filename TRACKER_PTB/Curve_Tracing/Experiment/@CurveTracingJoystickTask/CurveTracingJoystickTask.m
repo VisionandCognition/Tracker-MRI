@@ -2,14 +2,16 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
     % CURVETRACINGTASK The curve tracing task.
     properties (Access = protected)
         taskName = 'Curve tracing'
-        stimuli_params; % parameters for each individual stimulus
         curr_stim_index = -1;
         curr_stim = NaN;
+        stimuli_params; % parameters for each individual stimulus
+        stimuliParamsPath = NaN;
+        
         state = NaN;
         currStateStart = -Inf; 
         stateStart = struct('SWITCHED', -Inf);
         goBarOrient =  1; % 1=default, 2=switched
-        stimuliParamsPath = NaN;
+        
         
         iTrialOfBlock = 0;
         blockNum = 0;
@@ -193,6 +195,7 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
         checkResponses_PreFixation(obj, lft);
         checkResponses_PreSwitch(obj, lft);
         checkResponses_Switched(obj, lft);
+        checkResponses_PostSwitch(obj, lft);
         
         correctResponseGiven(obj, lft);
         falseResponseGiven(obj, lft);
