@@ -45,7 +45,7 @@ Stm(1).DisplayChosenTargetDur = 0;
 Stm(1).NumOfPawIndicators = 1; % Can't be more than the number of PawIndPositions!
 %Stm(1).PawIndCol = 0.2.*[0 .7 0; .9 .2 .2]; % colors for the left and right target
 %Stm(1).PawIndCol = 0.1*[.9 1 .9;1 .9 .9]; % colors for the left and right target
-Stm(1).PawIndCol = 0.2*[1 1 1;1 1 1]; % colors for the left and right target
+Stm(1).PawIndCol = 0.1*[1 1 1;1 1 1]; % colors for the left and right target
 
 % You probably want Stm(1).SwitchToLPawProb(1) + Stm(1).SwitchToRPawProb(1) = 1.0.
 % This would mean that when a trial is correct, there is a probability
@@ -61,7 +61,7 @@ if false
 else
     % Re-parameterize ....
     pLeftTarget = 0.5; % probability of left hand target when correct
-    pRepeatIncorrect = .5; % probability of repeating current target when incorrect
+    pRepeatIncorrect = .75; % probability of repeating current target when incorrect
     
     Stm(1).SwitchToLPawProb = [pLeftTarget, 1-pRepeatIncorrect]; % [prev. correct, prev. incorrect]
     Stm(1).SwitchToRPawProb = [1-pLeftTarget, 1-pRepeatIncorrect]; % [prev. correct, prev. incorrect]
