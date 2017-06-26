@@ -9,19 +9,18 @@ Stm = StimObj.Stm;
 
 % Checkerboard stimuli ----------------------------------------------------
 
-% CtrlParams = StimObj.DefaultCtrlParams;
-% CtrlParams.SwitchDur = 1300; % (200) duration of alternative orientation
-% 
-% % set time-windows in which something can happen (ms)
-% % [baseduration_without_switch ... 
-% %  period_in_which_switch_randomly_occurs ...
-% %  post_switch_duration_in_which_nothing_happens]
-% 
-% CtrlParams.EventPeriods = [1000 0 300]; % Params.EventPeriods = [3000 0 300];
-% CtrlParams.prefixPeriod = 500; % not just for fixation!
-% 
-% CtrlParams.rewardMultiplier = 0.6;
-% CtrlParams.BlockSize = 6;
+CtrlParams = StimObj.DefaultCtrlParams;
+%CtrlParams.SwitchDur = 1300; % (200) duration of alternative orientation
+
+% set time-windows in which something can happen (ms)
+% [baseduration_without_switch ... 
+%  period_in_which_switch_randomly_occurs ...
+%  post_switch_duration_in_which_nothing_happens]
+
+%CtrlParams.EventPeriods = [1000 0 300]; % Params.EventPeriods = [3000 0 300];
+%CtrlParams.prefixPeriod = 500; % not just for fixation!
+%CtrlParams.rewardMultiplier = 0.6;
+%CtrlParams.BlockSize = 6;
 
 CheckerboardParams = CtrlParams;
 CheckerboardParams.LoadFromFile = false;
@@ -53,6 +52,9 @@ Stm(1).KeepSubjectBusyTask = FullscreenCheckerboard(CheckerboardParams, ...
 checkerboard = FullscreenCheckerboard(CheckerboardParams, ...
     'StimSettings/HandResponseTask_NoStimulus.csv');
 
+curvecontrol = CurveTracingTitratedTask(CtrlParams, ...
+    'StimSettings/CurveTracingJoyStickTask-Control.csv', 'Control CT');
+
 Stm(1).RestingTask = CurveTracingBlockByTitratedTask(CtrlParams, ...
     'StimSettings/HandResponseTask_NoStimulus.csv', ...
     'No Stim Hand Response', ...
@@ -60,6 +62,7 @@ Stm(1).RestingTask = CurveTracingBlockByTitratedTask(CtrlParams, ...
 
 Stm(1).tasksToCycle = [...
     repmat({checkerboard}, 1, 1) ... checkerboard
+    repmat({curvecontrol}, 1, 1) ... checkerboard
     ];
 Stm(1).taskCycleInd = 1;
 %Stm(1).task = Stm(1).RestingTask;

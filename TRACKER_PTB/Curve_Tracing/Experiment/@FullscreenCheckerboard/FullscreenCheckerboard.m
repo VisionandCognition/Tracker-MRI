@@ -37,8 +37,6 @@ classdef FullscreenCheckerboard < FixationTrackingTask & HandResponseOnSwitchTas
             obj.stimuli_params = readtable(obj.stimuliParamsPath);
             if nargin >= 3
                 obj.taskName = taskName;
-            elseif all(strcmp(obj.stimuli_params.TargetLoc, 'Center'))
-                obj.taskName = 'Control CT';
             end
             obj.trial_log = TrialLog();
         end
@@ -47,7 +45,9 @@ classdef FullscreenCheckerboard < FixationTrackingTask & HandResponseOnSwitchTas
         end
         
         lft = drawStimuli(obj, lft);
+        drawFix(obj);
         drawTarget(obj, color, offset, which_side, pawIndSizePix);
+        drawBackgroundFixPoint(obj);
         update_PrepareStim(obj);
         
         function updateState(obj, state, time)

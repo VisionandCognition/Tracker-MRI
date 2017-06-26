@@ -1,6 +1,15 @@
 function lft = drawStimuli(obj, lft)
 global Par;
 global Log;
+
+    if strcmp(obj.state, 'PREFIXATION')==1
+        obj.drawBackgroundFixPoint();
+        % Draw on screen
+        lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
+        Log.events.screen_flip(lft, obj.taskName);
+        return;
+    end
+    
     PawIndOffsetPix = obj.param('PawIndOffsetPix');
     
     pawIndCol = obj.param('PawIndCol');
@@ -68,8 +77,8 @@ global Log;
             obj.drawTarget(Unattd_color, offset, shapeIndex, pawIndSizePix)
         end
     end
-    
-    if strcmp(obj.state, 'POSTSWITCH') ~= 1
+    if strcmp(obj.state, 'PRESWITCH') || strcmp(obj.state, 'SWITCHED')
+    %if strcmp(obj.state, 'POSTSWITCH') ~= 1
         % Target bar - "Go bar"
         if ~obj.taskParams.GoBarOrientation(obj.goBarOrient) %horizontal
             rect=[...

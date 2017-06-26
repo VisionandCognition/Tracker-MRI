@@ -6,9 +6,11 @@ global StimObj
 Stm = StimObj.Stm;
 
 %% Load defaults ==========================================================
-eval('StimSettings'); % loads the default parameters
+%eval('StimSettings'); % loads the default parameters
+eval('StimSettings__Defaults__'); % loads the default parameters
 
 % Stimulus specific timing (in ms)
+CtrlParams = StimObj.DefaultCtrlParams;
 CtrlParams.SwitchDur = 1300; % (200) duration of alternative orientation
 
 % set time-windows in which something can happen (ms)
@@ -22,11 +24,8 @@ CtrlParams.prefixPeriod = 500; % not just for fixation!
 CtrlParams.rewardMultiplier = 0.6;
 CtrlParams.BlockSize = 6;
 
-curvemapping = CurveTracingBlockByTitratedTask(CtrlParams, ...
-    ...'StimSettings/CurveMapping_BothHemispheres.csv', ...
-    'StimSettings/CurveMapping_BothHemispheres_JustCurveSegsWithTargets.csv', ...
-    'Curve Mapping', ...
-    'CombinedStim');
+curvecontrol = CurveTracingTitratedTask(CtrlParams, ...
+    'StimSettings/CurveTracingJoyStickTask-Control.csv', 'Control CT');
 
 Stm(1).RestingTask = CurveTracingBlockByTitratedTask(CtrlParams, ...
     'StimSettings/HandResponseTask_NoStimulus.csv', ...
@@ -35,8 +34,8 @@ Stm(1).RestingTask = CurveTracingBlockByTitratedTask(CtrlParams, ...
 
 Stm(1).KeepSubjectBusyTask = curvemapping;
 
-Stm(1).tasksToCycle = [...
-    {curvemapping} ... curve mapping
+Stm(1).tasksToCycle = [...t
+    {curvecontrol} ... curve control
     ];
 Stm(1).taskCycleInd = 1;
 %Stm(1).task = checksides;

@@ -42,7 +42,7 @@ global Par;
         if obj.taskParams.RetMap.Checker.SaveToFile
             fprintf('\nSaving checkerboard...\n');
             
-            if ~exist(fileparts(path), 'dir') == 7
+            if exist(fileparts(path), 'dir') ~= 7
                 mkdir(fileparts(path));
             end
             save(path,'chkimg');

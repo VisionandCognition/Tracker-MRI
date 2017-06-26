@@ -362,7 +362,7 @@ args.alternateWithRestingBlocks=false;
 
     
 Log.events.add_entry(GetSecs, NaN, 'WarmupLoop', 'BeginLoop');
-CurveTracing_MainLoop(Hnd, {Stm(1).RestingTask}, 2, args);
+CurveTracing_MainLoop(Hnd, {Stm(1).RestingTask}, 3, args);
 Log.events.add_entry(GetSecs, NaN, 'WarmupLoop', 'EndLoop');
 
 %% Stimulus presentation loop =============================================
@@ -390,11 +390,11 @@ fprintf('\n\n ---------------  Start Main tasks loop --------- \n');
 args=struct;
 args.alternateWithRestingBlocks=Stm(1).alternateWithRestingBlocks;
 
-hardStopTime = Log.MRI.TriggerTime(1) + Par.TR * Par.NumVols - 3*4;
-args.maxTimeSecs = hardStopTime - GetSecs;
+hardStopTime = Log.MRI.TriggerTime(1) + Par.TR * Par.NumVols;
+%args.maxTimeSecs = hardStopTime - GetSecs;
 
 % "Soft" stop time
-args.noNewBlocksAfterTime = hardStopTime - 9*4; % BlockSize * TrialDur
+args.noNewBlocksAfterTime = hardStopTime; % BlockSize * TrialDur
 
 Log.events.add_entry(GetSecs, NaN, 'MainExperimentLoop', 'BeginLoop');
 CurveTracing_MainLoop(Hnd, Stm(1).tasksToCycle, 1000, args);
@@ -421,7 +421,7 @@ args.maxTimeSecs = 8.0;
 
 Par.ESC=false; % Reset escape
 Log.events.add_entry(GetSecs, NaN, 'Cooldown', 'BeginLoop');
-CurveTracing_MainLoop(Hnd, {Stm(1).RestingTask}, 2, args);
+CurveTracing_MainLoop(Hnd, {Stm(1).RestingTask}, 3, args);
 Log.events.add_entry(GetSecs, NaN, 'Cooldown', 'EndLoop');
 
 % Clean up and Save Log ===================================================
