@@ -45,9 +45,8 @@ CheckerboardParams.RetMap = RetMap;
 
 
 %curvetracing = CurveTracingJoystickTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
-Stm(1).KeepSubjectBusyTask = FullscreenCheckerboard(CheckerboardParams, ...
-    'StimSettings/HandResponseTask_NoStimulus.csv', ...
-    'Keep busy');
+Stm(1).KeepSubjectBusyTask = CurveTracingTitratedTask(CtrlParams, ...
+    'StimSettings/CurveTracingJoyStickTask-Control.csv', 'Control CT');
 
 checkerboard = FullscreenCheckerboard(CheckerboardParams, ...
     'StimSettings/HandResponseTask_NoStimulus.csv');
@@ -62,7 +61,7 @@ Stm(1).RestingTask = CurveTracingBlockByTitratedTask(CtrlParams, ...
 
 Stm(1).tasksToCycle = [...
     repmat({checkerboard}, 1, 1) ... checkerboard
-    repmat({curvecontrol}, 1, 1) ... checkerboard
+    repmat({curvecontrol}, 1, 6) ... curve control test
     ];
 Stm(1).taskCycleInd = 1;
 %Stm(1).task = Stm(1).RestingTask;

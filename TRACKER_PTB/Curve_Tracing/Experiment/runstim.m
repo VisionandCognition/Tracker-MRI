@@ -190,7 +190,6 @@ for CodeControl=1 %allow code folding
     Log.Eye =[];
     Par.CurrEyePos = [];
     Par.CurrEyeZoom = [];
-    Par.Verbosity = 2;
     Par.exitOnKeyWaitForMRITrigger = false;
 end
 
@@ -391,10 +390,10 @@ args=struct;
 args.alternateWithRestingBlocks=Stm(1).alternateWithRestingBlocks;
 
 hardStopTime = Log.MRI.TriggerTime(1) + Par.TR * Par.NumVols;
-%args.maxTimeSecs = hardStopTime - GetSecs;
+args.maxTimeSecs = hardStopTime - GetSecs;
 
 % "Soft" stop time
-args.noNewBlocksAfterTime = hardStopTime; % BlockSize * TrialDur
+args.noNewBlocksAfterTime = hardStopTime - 16; % BlockSize * TrialDur
 
 Log.events.add_entry(GetSecs, NaN, 'MainExperimentLoop', 'BeginLoop');
 CurveTracing_MainLoop(Hnd, Stm(1).tasksToCycle, 1000, args);

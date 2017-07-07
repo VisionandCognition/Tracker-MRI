@@ -9,7 +9,9 @@ function correctResponseGiven(obj, lft)
     end
 
     Par.RespValid = true;
-    fprintf('%.0f ms\n', 1000*(lft - obj.stateStart.SWITCHED));
+    if Par.Verbosity >= 2
+        fprintf('%.0f ms\n', 1000*(lft - obj.stateStart.SWITCHED));
+    end
     
     obj.curr_response = 'correct';
     Par.CurrResponse = Par.RESP_CORRECT;

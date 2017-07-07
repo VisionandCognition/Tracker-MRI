@@ -20,6 +20,8 @@ Par.NumVols = 420;
 Par.MRITriggeredStart = true;
 Par.MRITrigger_OnlyOnce = true;
 
+Par.Verbosity = 1;
+
 Par.ProjectLogDir = 'Curve_Tracing';
 
 %% Get stimulus info ======================================================
@@ -49,7 +51,8 @@ Par.ScaleOff = [Par.OFFx; Par.OFFy; Par.SCx; Par.SCy];
 
 %if using eyelink set to -1.0 else 1.0
 Par.xdir = 1;
-Par.ydir = -1;
+%Par.ydir = -1;
+Par.ydir = 1;
 Par.Sdx = 0; %2* standard error on eyechannels in pixels
 Par.Sdy = 0;
 
