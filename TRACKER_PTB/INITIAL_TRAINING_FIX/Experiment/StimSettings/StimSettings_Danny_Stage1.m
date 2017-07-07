@@ -24,7 +24,7 @@ Stm(1).TraceCurveCol = Stm(1).BackColor;%[0 0 0];
 Stm(1).TraceCurveWidth = 6;
 Stm(1).UnattdAlpha = [0]; % min should go to 1, with better training
 Stm(1).UnattdAlpha_TargetAtFix = [0];
-Stm(1).AlphaPreSwitch = 0.0; %1.0;
+Stm(1).AlphaPreSwitch = 1.0; %1.0;
 Stm(1).PostSwitchJointAlpha = [1]; % max should go to 0, with better training
 
 Stm(1).CurveAngleGap = 90; % (0,90]
@@ -88,15 +88,15 @@ Stm(1).NoiseContrast = 0.1; % 0-1
 Stm(1).NoiseDefaultOn = false; % [toggle with "B" key]
 
 %% Stimulus specific timing (in ms) ---------------------------------------
-Stm(1).SwitchDur = 15000; % (200) duration of alternative orientation
+Stm(1).SwitchDur = 2000; % (200) duration of alternative orientation
 
 % set time-windows in which something can happen (ms)
 % [baseduration_without_switch ... 
 %  period_in_which_switch_randomly_occurs ...
 %  post_switch_duration_in_which_nothing_happens]
 %Stm(1).EventPeriods = [2500 1500 300];
-Stm(1).EventPeriods = [0 10 10];
-Stm(1).ITI = 1000;
+Stm(1).EventPeriods = [500 500 1000];
+Stm(1).ITI = 500;
 
 Stm(1).ShowDistractBar = true; % show vertical bar [toggle with "D" key]
 
