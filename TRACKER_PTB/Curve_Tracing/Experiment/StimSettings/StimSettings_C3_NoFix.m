@@ -23,7 +23,7 @@ Stm(1).RestingTask = curvecontrol;
     %{curvecatch} ... catch trial
 Stm(1).tasksToCycle = [...
     repmat({curvetracing}, 1, 4*2) ... curve tracing
-    repmat({curvecontrol}, 1, 2*2) ... center target condition
+    repmat({curvecontrol}, 1, 1*2) ... center target condition
     {curvecatch} ... catch trial
     ];
 Stm(1).taskCycleInd = 1;

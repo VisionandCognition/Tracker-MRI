@@ -416,7 +416,7 @@ fprintf('\n\n ---------------  Start cool-down --------- \n');
 
 args=struct;
 args.alternateWithRestingBlocks=false;
-args.maxTimeSecs = 8.0;
+args.maxTimeSecs = 16.0;
 
 Par.ESC=false; % Reset escape
 Log.events.add_entry(GetSecs, NaN, 'Cooldown', 'BeginLoop');
