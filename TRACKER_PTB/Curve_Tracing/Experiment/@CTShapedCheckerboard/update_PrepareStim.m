@@ -60,7 +60,7 @@ global Par;
             % the upper left of Screen
             [pts, pts_col] = obj.calcCurve(indpos);
              % adjust points to be relative to center
-            pts = pts - Par.ScrCenter;
+            pts = pts - repmat(Par.ScrCenter, [size(pts,1), 1]);
             for i=1:size(pts,1)
                 if isnan(pts_col(i,4))
                     continue
