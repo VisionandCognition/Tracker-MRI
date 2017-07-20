@@ -22,6 +22,9 @@ classdef FullscreenCheckerboard < FixationTrackingTask & HandResponseOnSwitchTas
         tLastCheckerContChange=-Inf;
         
         trial_log = nan;
+        
+        CB1 = nan;
+        CB2 = nan;
     end
     properties (Access = public)
         taskParams; % parameters that apply to every stimulus
@@ -45,10 +48,7 @@ classdef FullscreenCheckerboard < FixationTrackingTask & HandResponseOnSwitchTas
         end
         
         lft = drawStimuli(obj, lft);
-        drawFix(obj);
-        drawTarget(obj, color, offset, which_side, pawIndSizePix);
-        drawBackgroundFixPoint(obj);
-        update_PrepareStim(obj);
+        
         
         function updateState(obj, state, time)
             global Log;
@@ -176,6 +176,13 @@ classdef FullscreenCheckerboard < FixationTrackingTask & HandResponseOnSwitchTas
         end
     end
     methods (Access = protected)
+        
+        drawFix(obj);
+        drawCenterTarget(obj, lft);
+        drawTarget(obj, color, offset, which_side, pawIndSizePix);
+        drawBackgroundFixPoint(obj);
+        update_PrepareStim(obj);
+        
         function stim_index = selectTrialStimulus(obj)
             stim_index = randi(size(obj.stimuli_params, 1), 1);
         end

@@ -65,11 +65,10 @@ global Par;
     CB1B(chkimg(:,:,1)==0) = ...
         obj.taskParams.RetMap.Checker.Colors(2,3);
     CB1A = chkimg(:,:,3);
-    CB1 = CB1R.*Par.ScrWhite;
-    CB1(:,:,2)=CB1G.*Par.ScrWhite;
-    CB1(:,:,3)=CB1B.*Par.ScrWhite;
-    %CB1(:,:,4)=CB1A;
-    CB1(:,:,4)=CB1A *1; % Make more transparent
+    obj.CB1 = CB1R.*Par.ScrWhite;
+    obj.CB1(:,:,2)=CB1G.*Par.ScrWhite;
+    obj.CB1(:,:,3)=CB1B.*Par.ScrWhite;
+    obj.CB1(:,:,4)=CB1A;
 
     CB2R = chkimg(:,:,2)./Par.ScrWhite;
     CB2R(chkimg(:,:,2)==Par.ScrWhite) = ...
@@ -87,14 +86,13 @@ global Par;
     CB2B(chkimg(:,:,2)==0) = ...
         obj.taskParams.RetMap.Checker.Colors(2,3);
     CB2A = chkimg(:,:,3);
-    CB2 = CB2R.*Par.ScrWhite;
-    CB2(:,:,2)=CB2G.*Par.ScrWhite;
-    CB2(:,:,3)=CB2B.*Par.ScrWhite;
-    %CB2(:,:,4)=CB2A;
-    CB2(:,:,4)=CB2A *1; % Make more transparent
+    obj.CB2 = CB2R.*Par.ScrWhite;
+    obj.CB2(:,:,2)=CB2G.*Par.ScrWhite;
+    obj.CB2(:,:,3)=CB2B.*Par.ScrWhite;
+    obj.CB2(:,:,4)=CB2A;
 
-    obj.CheckTexture(1)=Screen('MakeTexture', Par.window, CB1);
-    obj.CheckTexture(2)=Screen('MakeTexture', Par.window, CB2);
+    obj.CheckTexture(1)=Screen('MakeTexture', Par.window, obj.CB1);
+    obj.CheckTexture(2)=Screen('MakeTexture', Par.window, obj.CB2);
     obj.TrackingCheckerContChange = false;
 end
 

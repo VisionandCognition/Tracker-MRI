@@ -1,7 +1,4 @@
 function [pts, pts_col] = calcCurve(obj, indpos)
-% CALCCURVE Calculates the points on a curve, with the points defined in
-% visual degrees.
-
     global Par;
     
     CurveAnglesAtFP = obj.param('CurveAnglesAtFP');

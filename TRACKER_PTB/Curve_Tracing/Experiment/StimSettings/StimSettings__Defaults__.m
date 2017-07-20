@@ -24,7 +24,7 @@ Params.GoBarColor = [0.6 0.7 0.7]; % [R G B] 0-1
 
 % Curve tracing stimulus
 Params.TraceCurveCol = [0 0 0];
-Params.TraceCurveWidth = 9; % 6;
+Params.TraceCurveWidth = 9; % 6; % in pixels
 %Params.AlphaPreSwitch = 0.0; % 0 = memory / curve tracing task
 % Stm(1).PostSwitchJointAlpha = 0; % max should go to 0, with better training
 Params.PostSwitchJointAlpha = 1; % max should go to 0, with better training
