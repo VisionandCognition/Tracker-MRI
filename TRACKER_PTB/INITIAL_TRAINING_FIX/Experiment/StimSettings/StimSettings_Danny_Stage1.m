@@ -14,7 +14,7 @@ Stm(1).FixDotSize = 0.05; % 0.3;
 Stm(1).FixDotCol = [0 0 0; 0 0 0; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
 
 %% A vertical bar that is randomly set to horizontal ----------------------
-length = .75; %0.16;
+length = 1.5; %0.16;
 Stm(1).Size = length*[1, .25] + [0, 0.01]; % [length width] in deg
 Stm(1).Orientation = [1 0]; % [def a1lt] 0=hor, 1=vert
 Stm(1).Color = [0.6 0.7 0.7]; % [R G B] 0-1
@@ -33,7 +33,7 @@ Stm(1).DisconnectedCurveLength = 0.75;
 
 %% Paw indicator ----------------------------------------------------------
 Stm(1).RequireSpecificPaw = true;
-Stm(1).PawIndSize = 1.5;
+Stm(1).PawIndSize = 3;
 %Stm(1).PawIndOffset = [3.5 2.5];
 Stm(1).PawIndOffsetX = [-2 5]; % [min max]
 Stm(1).PawIndOffsetY = [0.0 0.0]; % [min max]
@@ -95,7 +95,7 @@ Stm(1).SwitchDur = 2000; % (200) duration of alternative orientation
 %  period_in_which_switch_randomly_occurs ...
 %  post_switch_duration_in_which_nothing_happens]
 %Stm(1).EventPeriods = [2500 1500 300];
-Stm(1).EventPeriods = [500 500 1000];
+Stm(1).EventPeriods = [500 750 500];
 Stm(1).ITI = 500;
 
 Stm(1).ShowDistractBar = true; % show vertical bar [toggle with "D" key]
