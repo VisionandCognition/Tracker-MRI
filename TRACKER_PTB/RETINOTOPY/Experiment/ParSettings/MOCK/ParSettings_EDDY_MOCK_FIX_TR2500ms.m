@@ -146,6 +146,18 @@ Par.BlockedIndColor = [.7 .7 .7];
 
 Par.SwitchDur = 500; % (200) duration of alternative orientation
 Par.ResponseAllowed = [100 Par.SwitchDur+100]; % [after_onset after_offset] in ms
+Par.PostErrorDelay = 0; % extra wait time as punishment for error trials
+Par.DelayOnMiss = 0; % extra wait time as punishment for miss trials 
+
+Par.ProbSideRepeatOnCorrect = 0.5;
+Par.ProbSideRepeatOnError = 0.5;
+Par.ProbSideRepeatOnMiss = 0.5;
+Par.ProbSideRepeatOnEarly = 0.50;
+
+Par.CatchBlock.do = false;
+Par.CatchBlock.AfterNumberOfTrials = 50;
+Par.CatchBlock.NoCorrectPerSideNeeded = 3;
+Par.CatchBlock.StartWithCatch = true;
 
 % set time-windows in which something can happen (ms)
 % [baseduration_without_switch ... 

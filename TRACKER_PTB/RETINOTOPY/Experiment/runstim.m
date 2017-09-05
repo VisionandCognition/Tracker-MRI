@@ -766,7 +766,11 @@ for STIMNR = Log.StimOrder;
             PostStarted = false;
             CurrPostErrorDelay = 0;
             nNonCatchTrials = 0;
-            Prev_nNonCatchTrials = nNonCatchTrials;
+            if Par.CatchBlock.StartWithCatch
+                Prev_nNonCatchTrials = -1;
+            else
+                Prev_nNonCatchTrials = nNonCatchTrials;
+            end
             
             Log.dtm=[];
             
@@ -1489,10 +1493,11 @@ for STIMNR = Log.StimOrder;
             CatchSides = Shuffle([ones(1,Par.CatchBlock.NoCorrectPerSideNeeded) ...
                 2*ones(1,Par.CatchBlock.NoCorrectPerSideNeeded)]);
             Prev_nNonCatchTrials = nNonCatchTrials;
-        elseif Par.IsCatchBlock && isempty(CatchSides);
+        elseif Par.CatchBlock.do && Par.IsCatchBlock && isempty(CatchSides);
              Par.IsCatchBlock = false;
              fprintf('Catch block completed\n')
         end
+        
         %% Stop reward
         StopRewardIfNeeded();
     end
