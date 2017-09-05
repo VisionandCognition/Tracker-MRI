@@ -3,7 +3,7 @@ function runstim(Hnd)
 % Fixation & diverse retinotopic mapping stimuli
 global Par      %global parameters
 global StimObj  %stimulus objects
-global Log      %Logs 
+global Log      %Logs
 
 %% THIS SWITCH ALLOW TESTING THE RUNSTIM WITHOUT DASCARD & TRACKER ========
 TestRunstimWithoutDAS = false;
@@ -51,10 +51,10 @@ for define_square=1 % left / square
     tmost=-1/2;
     bmost= 1/2;
     left_square = [lmost,tmost; ...
-          rmost,tmost; ...
-          rmost,bmost; ...
-          lmost,bmost ...
-          ];
+        rmost,tmost; ...
+        rmost,bmost; ...
+        lmost,bmost ...
+        ];
 end
 for define_diamond=1 % right / diamond
     lmost=-sqrt(2)*1/2;
@@ -62,10 +62,10 @@ for define_diamond=1 % right / diamond
     tmost=-sqrt(2)*1/2;
     bmost= sqrt(2)*1/2;
     right_diamond = [lmost,0; ...
-          0,tmost; ...
-          rmost,0; ...
-          0,bmost ...
-          ];
+        0,tmost; ...
+        rmost,0; ...
+        0,bmost ...
+        ];
 end
 for define_circle=1 % shown when subject needs to release response
     lmost=-sqrt(1/pi);
@@ -73,7 +73,7 @@ for define_circle=1 % shown when subject needs to release response
     tmost=-sqrt(1/pi);
     bmost= sqrt(1/pi);
     blocked_circle = [lmost, tmost, rmost, bmost ...
-          ];
+        ];
 end
 
 %% initialize stuff
@@ -84,9 +84,23 @@ CollectPerformance=[];
 CloseTextures=false;
 
 Par.RewardStartTime=0;
-        
+
 % re-run parameter-file to update stim-settings without restarting Tracker
 eval(Par.PARSETFILE); % can be chosen in menu
+if ~isfield(Par,'PostErrorDelay');
+    Par.PostErrorDelay = 0;
+    fprintf('No PostErrorDelay defined: Setting it to 0\n');
+end
+if ~isfield(Par,'DelayOnMiss');
+    Par.DelayOnMiss = 0;
+    fprintf('No DelayOnMiss defined: Setting it to 0\n');
+end
+% Add keys to fix left/right/random responses
+Par.KeyLeftResp = KbName(',<');
+Par.KeyRightResp = KbName('.>');
+Par.KeyRandResp = KbName('/?');
+Par.RespProbSetting=0; % initialize with random left/right indicators
+
 Par.ScrCenter=Par.wrect(3:4)/2;
 DateString = datestr(clock,30);
 DateString = DateString(1:end-2);
@@ -184,7 +198,8 @@ for STIMNR = unique(Log.StimOrder);
                     Stm(STIMNR).RetMap.FileName '...\n']);
                 cd Stimuli
                 cd RetMap
-                load(Stm(STIMNR).RetMap.FileName);
+                D=load(Stm(STIMNR).RetMap.FileName);
+                stimulus=D.stimulus;fps=D.fps;
                 cd ..
                 cd ..
             else
@@ -405,6 +420,8 @@ if ~isinf(TotTime)
     NumVolNeeded=(Stm(1).nRepeatsStimSet*TotTime)/Par.TR;
     fprintf(['This StimSettings file requires at least ' num2str(NumVolNeeded) ...
         ' scanvolumes (check scanner)\n']);
+else
+    fprintf('NB: No end-time defined. This will keep running until stopped.\n')
 end
 
 %% Run this loop all stimuli the StimSettings file ========================
@@ -568,6 +585,7 @@ for STIMNR = Log.StimOrder;
         
         % Initialize the side of response
         Par.ResponseSide=0;
+        Par.CurrResponseSide=Par.ResponseSide;
         Par.CurrOrient=1; % 1=default, 2=switched
         Par.Orientation = [1 0]; % [def a1lt] 0=hor, 1=vert
         Par.ResponseState = Par.RESP_STATE_DONE;
@@ -699,7 +717,7 @@ for STIMNR = Log.StimOrder;
     
     %% Displaying the stimuli
     while ~Par.ESC && ~RunEnded
-        while ~Par.FirstInitDone        
+        while ~Par.FirstInitDone
             %set control window positions and dimensions
             if ~TestRunstimWithoutDAS
                 DefineEyeWin(STIMNR);
@@ -719,6 +737,8 @@ for STIMNR = Log.StimOrder;
             Par.CurrFixCol=Stm(STIMNR).FixDotCol(1,:).*Par.ScrWhite;
             Par.FixInOutTime=[0 0];
             Par.FirstStimDrawDone=false;
+            Par.ForceRespSide = false;
+            Par.IsCatchBlock = false;
             
             if StimLoopNr == 1 % allow time-outs to across runs
                 Par.Pause=false;
@@ -744,8 +764,22 @@ for STIMNR = Log.StimOrder;
             OnStarted = false;
             OffStarted = false;
             PostStarted = false;
+            CurrPostErrorDelay = 0;
+            nNonCatchTrials = 0;
+            Prev_nNonCatchTrials = nNonCatchTrials;
             
             Log.dtm=[];
+            
+            if strcmp(Par.ResponseBox.Task, 'DetectGoSignal')
+                RESP_NONE = 0;
+                RESP_CORRECT = 1;
+                RESP_FALSE = 2;
+                RESP_MISS = 3;
+                RESP_EARLY = 4;
+                RESP_BREAK_FIX = 5;
+                RespText = {'Correct', 'False', 'Miss', 'Early', 'Fix. break'};
+                Par.ManResponse = [0 0 0 0 0];
+            end
         end
         %% Check what to draw depending on time
         if RetMapStimuli
@@ -793,19 +827,19 @@ for STIMNR = Log.StimOrder;
                 if strcmp(Stm(STIMNR).RetMap.StimType{1},'ret') && posn
                     posn_adj = mod(posn-1,length(stimulus(1).img))+1;
                     texn = ceil(mod(GetSecs-Log.StartBlock,Par.TR)*...
-                        ret_vid(posn_adj).fps); 
+                        ret_vid(posn_adj).fps);
                     if ~texn; texn=1; end;
                     while texn>numel(ret_vid(posn_adj).text);
                         texn=texn-numel(ret_vid(posn_adj).text);
                     end
                 elseif posn
-%                     posn_adj = mod(posn-1,length(stimulus(1).img))+1;
-%                     texn = ceil(mod(GetSecs-Log.StartBlock,Par.TR)*...
-%                         ret_vid(Stm(STIMNR).Order(posn_adj)).fps);
-%                     if ~texn; texn=1; end;
-%                     while texn>numel(ret_vid(Stm(STIMNR).Order(posn_adj)).text);
-%                         texn=texn-numel(ret_vid(Stm(STIMNR).Order(posn_adj)).text);
-%                     end
+                    %                     posn_adj = mod(posn-1,length(stimulus(1).img))+1;
+                    %                     texn = ceil(mod(GetSecs-Log.StartBlock,Par.TR)*...
+                    %                         ret_vid(Stm(STIMNR).Order(posn_adj)).fps);
+                    %                     if ~texn; texn=1; end;
+                    %                     while texn>numel(ret_vid(Stm(STIMNR).Order(posn_adj)).text);
+                    %                         texn=texn-numel(ret_vid(Stm(STIMNR).Order(posn_adj)).text);
+                    %                     end
                     texn = ceil(mod(GetSecs-Log.StartBlock,Par.TR)*...
                         ret_vid(Stm(STIMNR).Order(posn)).fps);
                     if ~texn; texn=1; end;
@@ -813,7 +847,7 @@ for STIMNR = Log.StimOrder;
                         texn=texn-numel(ret_vid(Stm(STIMNR).Order(posn)).text);
                     end
                 end
-
+                
             elseif GetSecs < Log.StartBlock + Stm(STIMNR).RetMap.PreDur + ...
                     (Stm(STIMNR).RetMap.nCycles*size(Stm(STIMNR).RetMap.posmap,1)*...
                     Stm(STIMNR).RetMap.TRsPerStep*Par.TR) + ...
@@ -828,11 +862,10 @@ for STIMNR = Log.StimOrder;
                     Log.Events(Log.nEvents).StimName = [];
                     tPostStarted=GetSecs;
                 end
-            else 
+            else
                 RunEnded=true;
                 IsPre=false;
                 IsPost=false;
-                RunEnded = true;
                 Log.nEvents=Log.nEvents+1;
                 Log.Events(Log.nEvents).type='RunStop';
                 Log.Events(Log.nEvents).t=lft-Par.ExpStart;
@@ -1101,7 +1134,6 @@ for STIMNR = Log.StimOrder;
                 && ~Par.HideFix_BasedOnBeam(Par.BeamIsBlocked) ...
                 && ~Par.Pause
             DrawFix(STIMNR);
-            DrawGoBar(STIMNR);
         end
         
         if ~FixTimeThisFlip && ~NonFixTimeThisFlip
@@ -1167,65 +1199,206 @@ for STIMNR = Log.StimOrder;
         
         %% if doing Par.ResponseBox.Task of 'DetectGoSignal':
         if strcmp(Par.ResponseBox.Task, 'DetectGoSignal') && ~TestRunstimWithoutDAS
-            if Par.ResponseState == Par.RESP_STATE_DONE && Par.CanStartTrial(Par)
+            % ==== Start wait period ====
+            if Par.ResponseState == Par.RESP_STATE_DONE && ... 
+                    Par.CanStartTrial(Par)
                 UpdateHandTaskState(Par.RESP_STATE_WAIT);
                 %Par.ResponseState = Par.RESP_STATE_WAIT;
                 %Par.ResponseStateChangeTime = GetSecs;
-                if Par.ResponseSide == 0
-                    Par.ResponseSide = randi([1 2]);
+                if ~Par.IsCatchBlock
+                    if Par.ResponseSide == 0 || Par.ForceRespSide
+                        if Par.RespProbSetting % 0=random, 1=left, 2=right
+                            Par.ResponseSide = Par.RespProbSetting;
+                        else
+                            Par.ResponseSide = randi([1 2]);
+                            Par.ForceRespSide = false;
+                        end
+                    end
+                elseif Par.IsCatchBlock % catchblock
+                    Par.ResponseSide = CatchSides(1);
                 end
+                Par.CurrResponseSide = Par.ResponseSide;
                 Log.Events(Log.nEvents).StimName = num2str(Par.ResponseSide);
                 Par.GoBarOnset = rand(1)*Par.EventPeriods(2)/1000 + ...
-                    Par.EventPeriods(1)/1000;
+                    Par.EventPeriods(1)/1000 + CurrPostErrorDelay/1000;
                 
                 % Give side indicator (1 or 2) ... again
                 Log.nEvents=Log.nEvents+1;
                 Log.Events(Log.nEvents).type=strcat(...
                     'HandTask-TargetSide', num2str(Par.ResponseSide));
                 Log.Events(Log.nEvents).t=Par.ResponseStateChangeTime;
-                
-            elseif Par.ResponseState == Par.RESP_STATE_WAIT
+            % ==== During wait period ====
+            elseif Par.ResponseState == Par.RESP_STATE_WAIT 
                 if GetSecs >= Par.ResponseStateChangeTime + Par.GoBarOnset
                     UpdateHandTaskState(Par.RESP_STATE_GO);
                     %Par.ResponseState = Par.RESP_STATE_GO;
                     %Par.ResponseStateChangeTime = GetSecs;
                 end
-            elseif Par.ResponseState == Par.RESP_STATE_GO
+                % check for early responses before go-signal -----
                 t = GetSecs;
-                if Par.IncorrectResponseGiven(Par)
+                if (Par.CorrectResponseGiven(Par) || ... % Early during wait
+                        Par.IncorrectResponseGiven(Par))
+                    UpdateHandTaskState(Par.RESP_STATE_DONE);
+                    if Par.CorrectResponseGiven(Par)
+                        Log.Events(Log.nEvents).StimName = 'EarlyCorrect';
+                    else
+                        Log.Events(Log.nEvents).StimName = 'EarlyIncorrect';
+                    end
+                    Par.ManResponse(RESP_EARLY) = Par.ManResponse(RESP_EARLY)+1;
+                    %fprintf('Early during wait\n');
+                    CurrPostErrorDelay = Par.PostErrorDelay;
+                    if ~Par.ForceRespSide
+                        if rand(1) <= Par.ProbSideRepeatOnEarly % same side
+                            Par.ResponseSide=Par.ResponseSide; % keep same
+                        else
+                            if Par.ResponseSide==1
+                                Par.ResponseSide=2;
+                            else
+                                Par.ResponseSide=1;
+                            end
+                        end
+                    end
+                    if Par.IsCatchBlock
+                        CatchSides = Shuffle(CatchSides);
+                    else
+                        nNonCatchTrials = nNonCatchTrials+1;
+                    end
+                end
+                % -----
+            % ==== Go signal is given ====
+            elseif Par.ResponseState == Par.RESP_STATE_GO 
+                t = GetSecs;
+                % ---- Early after go ----
+                if (Par.CorrectResponseGiven(Par) || ... 
+                        Par.IncorrectResponseGiven(Par)) && ...
+                        t < Par.ResponseStateChangeTime + ...
+                        Par.ResponseAllowed(1)/1000
+                    % Early response after go-signal ------
+                    UpdateHandTaskState(Par.RESP_STATE_DONE);
+                    if Par.CorrectResponseGiven(Par)
+                        Log.Events(Log.nEvents).StimName = 'EarlyCorrect';
+                    else
+                        Log.Events(Log.nEvents).StimName = 'EarlyIncorrect';
+                    end
+                    Par.ManResponse(RESP_EARLY) = Par.ManResponse(RESP_EARLY)+1;
+                    %fprintf('Early after go\n');
+                    CurrPostErrorDelay = Par.PostErrorDelay;
+                    if ~Par.ForceRespSide
+                        if rand(1) <= Par.ProbSideRepeatOnEarly % same side
+                            Par.ResponseSide=Par.ResponseSide; % keep same
+                        else
+                            if Par.ResponseSide==1
+                                Par.ResponseSide=2;
+                            else
+                                Par.ResponseSide=1;
+                            end
+                        end
+                        if Par.IsCatchBlock
+                            CatchSides = Shuffle(CatchSides);
+                        else
+                            nNonCatchTrials = nNonCatchTrials+1;   
+                        end
+                    end
+                % ---- Incorrect ----    
+                elseif Par.IncorrectResponseGiven(Par) 
                     UpdateHandTaskState(Par.RESP_STATE_DONE);
                     Log.Events(Log.nEvents).StimName = 'Incorrect';
-                elseif (Par.CorrectResponseGiven(Par) && ...
-                         t < Par.ResponseStateChangeTime + Par.ResponseAllowed(1)/1000)
-                    UpdateHandTaskState(Par.RESP_STATE_DONE);
-                    Log.Events(Log.nEvents).StimName = 'Early';
-                
-                    %Par.ResponseState = Par.RESP_STATE_DONE;
-                    %Par.ResponseStateChangeTime = GetSecs;
-                    %Par.ResponseSide = 0;
-                elseif Par.CorrectResponseGiven(Par) && ...
-                        t >= Par.ResponseStateChangeTime + Par.ResponseAllowed(1)/1000
+                    if ~Par.ForceRespSide
+                        if rand(1) <= Par.ProbSideRepeatOnError % same side
+                            Par.ResponseSide=Par.ResponseSide; % keep same
+                        else
+                            if Par.ResponseSide==1
+                                Par.ResponseSide=2;
+                            else
+                                Par.ResponseSide=1;
+                            end
+                        end
+                    end
+                    % RESP_NONE =  0; RESP_CORRECT = 1;
+                    % RESP_FALSE = 2; RESP_MISS = 3;
+                    % RESP_EARLY = 4; RESP_BREAK_FIX = 5;
+                    Par.ManResponse(RESP_FALSE) = Par.ManResponse(RESP_FALSE)+1;
+                    %fprintf('Error\n');
+                    CurrPostErrorDelay = Par.PostErrorDelay;
+                    if Par.IsCatchBlock
+                        CatchSides = Shuffle(CatchSides);
+                    else
+                        nNonCatchTrials = nNonCatchTrials+1;
+                    end
+                % ---- Correct ----    
+                elseif Par.CorrectResponseGiven(Par) 
                     %Par.ResponseStateChangeTime = GetSecs;
                     %Par.ResponseState = Par.RESP_STATE_DONE;
                     UpdateHandTaskState(Par.RESP_STATE_DONE);
                     Log.Events(Log.nEvents).StimName = 'Hit';
                     GiveRewardAutoTask;
-                    Par.ResponseSide = 0;
-                elseif t >=  Par.ResponseStateChangeTime + Par.ResponseAllowed(2)/1000
+                    if ~Par.ForceRespSide
+                        if rand(1) <= Par.ProbSideRepeatOnCorrect % same side
+                            Par.ResponseSide=Par.ResponseSide; % keep same
+                        else
+                            if Par.ResponseSide==1
+                                Par.ResponseSide=2;
+                            else
+                                Par.ResponseSide=1;
+                            end
+                        end
+                    end                    
+                    % RESP_NONE =  0; RESP_CORRECT = 1;
+                    % RESP_FALSE = 2; RESP_MISS = 3;
+                    % RESP_EARLY = 4; RESP_BREAK_FIX = 5;
+                    Par.ManResponse(RESP_CORRECT) = Par.ManResponse(RESP_CORRECT)+1;
+                    %fprintf('Correct\n');
+                    CurrPostErrorDelay = 0;
+                    if Par.IsCatchBlock
+                        CatchSides(1) = [];
+                    else
+                        nNonCatchTrials = nNonCatchTrials+1;
+                    end
+                % ---- Miss ----
+                elseif t >=  Par.ResponseStateChangeTime + ... 
+                        Par.ResponseAllowed(2)/1000
                     UpdateHandTaskState(Par.RESP_STATE_DONE);
                     Log.Events(Log.nEvents).StimName = 'Miss';
                     %Par.ResponseState = Par.RESP_STATE_DONE;
                     %Par.ResponseStateChangeTime = GetSecs;
-                    %Par.ResponseSide = 0;
+                    if ~Par.ForceRespSide
+                        if rand(1) <= Par.ProbSideRepeatOnMiss % same side
+                            Par.ResponseSide=Par.ResponseSide; % keep same
+                        else
+                            if Par.ResponseSide==1
+                                Par.ResponseSide=2;
+                            else
+                                Par.ResponseSide=1;
+                            end
+                        end
+                    end
+                    % RESP_NONE =  0; RESP_CORRECT = 1;
+                    % RESP_FALSE = 2; RESP_MISS = 3;
+                    % RESP_EARLY = 4; RESP_BREAK_FIX = 5;
+                    Par.ManResponse(RESP_MISS) = Par.ManResponse(RESP_MISS)+1;
+                    %fprintf('Miss\n');
+                    CurrPostErrorDelay = Par.DelayOnMiss;
+                    if Par.IsCatchBlock
+                        CatchSides = Shuffle(CatchSides);
+                    else
+                        nNonCatchTrials = nNonCatchTrials+1;
+                    end
                 end
+            end
+            % draw the indicators
+            if ~Par.ToggleHideFix ...
+                    && ~Par.HideFix_BasedOnBeam(Par.BeamIsBlocked) ...
+                    && ~Par.Pause
+                DrawHandIndicator(STIMNR)   
+                DrawGoBar(STIMNR);
             end
         end
         
         %% refresh the screen
-        %lft=Screen('Flip', Par.window, prevlft+0.9*Par.fliptimeSec);         
+        %lft=Screen('Flip', Par.window, prevlft+0.9*Par.fliptimeSec);
         lft=Screen('Flip', Par.window); % as fast as possible
         nf=nf+1;
-
+        
         %% log eye-info if required
         LogEyeInfo;
         
@@ -1272,18 +1445,27 @@ for STIMNR = Log.StimOrder;
         %% Update Tracker window
         if ~TestRunstimWithoutDAS && update_trackerfix_now
             %SCNT = {'TRIALS'};
-            SCNT(1) = { ['F: ' num2str(Par.Response) ]};
-            SCNT(2) = { ['FC: ' num2str(Par.CorrStreakcount(2)) ] };
-            SCNT(3) = { ['%FixC: ' ...
+            SCNT(1) = { ['F: ' num2str(Par.Response) '  FC: ' num2str(Par.CorrStreakcount(2))]};
+            %SCNT(2) = { ['FC: ' num2str(Par.CorrStreakcount(2)) ] };
+            SCNT(2) = { ['%FixC: ' ...
                 sprintf('%0.1f',100*(Par.FixInOutTime(end,1)/sum(Par.FixInOutTime(end,:))))]};
             if size(Par.FixInOutTime,1)>=2
-                SCNT(4) = { ['%FixR: ' ...
+                SCNT(3) = { ['%FixR: ' ...
                     sprintf('%0.1f',100* ( sum(Par.FixInOutTime(2:end,1))/sum( sum(Par.FixInOutTime(2:end,:)))))]};
             else
-                SCNT(4) = { ['%FixR: ' ...
+                SCNT(3) = { ['%FixR: ' ...
                     sprintf('%0.1f',100* ( sum(Par.FixInOutTime(:,1))/sum( sum(Par.FixInOutTime) ) ))]};
             end
-            SCNT(5) = { ['Rew: ' num2str(Log.TotalReward) ] };
+            if strcmp(Par.ResponseBox.Task, 'DetectGoSignal')
+                SCNT(4) = { ['C: ' num2str(Par.ManResponse(RESP_CORRECT)) ...
+                    '  F: ' num2str(Par.ManResponse(RESP_FALSE))]};
+                SCNT(5) = { ['M: ' num2str(Par.ManResponse(RESP_MISS)) ...
+                    '  E: ' num2str(Par.ManResponse(RESP_EARLY))]};
+            else
+                SCNT(4) = { ['NO MANUAL']};
+                SCNT(5) = { ['NO MANUAL']};
+            end
+            SCNT(6) = { ['Rew: ' num2str(Log.TotalReward) ] };
             set(Hnd(1), 'String', SCNT ) %display updated numbers in GUI
             % Give noise-on-eye-channel info
             SD = dasgetnoise();
@@ -1297,7 +1479,20 @@ for STIMNR = Log.StimOrder;
         else
             update_trackerfix_now=false;
         end
-
+        
+        %% Catch block
+        if Par.CatchBlock.do && ~Par.IsCatchBlock && ...
+                nNonCatchTrials > Prev_nNonCatchTrials && ...
+                mod(nNonCatchTrials,Par.CatchBlock.AfterNumberOfTrials)==0
+            Par.IsCatchBlock = true;
+            fprintf('Catch block started\n')
+            CatchSides = Shuffle([ones(1,Par.CatchBlock.NoCorrectPerSideNeeded) ...
+                2*ones(1,Par.CatchBlock.NoCorrectPerSideNeeded)]);
+            Prev_nNonCatchTrials = nNonCatchTrials;
+        elseif Par.IsCatchBlock && isempty(CatchSides);
+             Par.IsCatchBlock = false;
+             fprintf('Catch block completed\n')
+        end
         %% Stop reward
         StopRewardIfNeeded();
     end
@@ -1592,35 +1787,53 @@ Par=Par_BU;
             Stm(STIMNR).Center(Par.PosNr,1)+Par.ScrCenter(1)+Stm(STIMNR).FixDotSurrSizePix/2, ...
             Stm(STIMNR).Center(Par.PosNr,2)+Par.ScrCenter(2)+Stm(STIMNR).FixDotSurrSizePix/2];
         
-        Screen('FillOval',Par.window,Par.BG.*Par.ScrWhite,rect2)
-        Screen('FillOval',Par.window,Par.CurrFixCol,rect)
+        Screen('FillOval',Par.window,Par.BG.*Par.ScrWhite,rect2);
+        Screen('FillOval',Par.window,Par.CurrFixCol,rect);
         
         cen = [Stm(STIMNR).Center(Par.PosNr,1)+Par.ScrCenter(1), ...
             Stm(STIMNR).Center(Par.PosNr,2)+Par.ScrCenter(2)];
-        
+    end
+% draw handindicator
+    function DrawHandIndicator(STIMNR)
+       cen = [Stm(STIMNR).Center(Par.PosNr,1)+Par.ScrCenter(1), ...
+            Stm(STIMNR).Center(Par.PosNr,2)+Par.ScrCenter(2)];
         if strcmp(Par.ResponseBox.Task, 'DetectGoSignal')
             if Par.ResponseState == Par.RESP_STATE_DONE && ...
                     ~Par.CanStartTrial(Par) && ...
                     GetSecs >= Par.ResponseStateChangeTime + 500/1000
-                Screen('FillOval',Par.window, [.5 .25 0].*Par.ScrWhite, ...
-                    [cen,cen] + Par.RespIndSizePix*blocked_circle)
-            elseif Par.ResponseSide == 1
+                if Par.DrawBlockedInd
+                    Screen('FillOval',Par.window, Par.BlockedIndColor.*Par.ScrWhite, ...
+                        [cen,cen] + Par.RespIndSizePix*blocked_circle)
+                end
+            elseif (Par.ResponseState == Par.RESP_STATE_WAIT || ...
+                    Par.ResponseState == Par.RESP_STATE_GO) && ...
+                    Par.ResponseSide == 1
                 Screen('FillPoly',Par.window, Par.RespIndColor(1,:).*Par.ScrWhite, ...
                     [cen;cen;cen;cen] + Par.RespIndSizePix*left_square)
-            elseif Par.ResponseSide == 2
+            elseif (Par.ResponseState == Par.RESP_STATE_WAIT || ...
+                    Par.ResponseState == Par.RESP_STATE_GO) && ...
+                    Par.ResponseSide == 2
+                Screen('FillPoly',Par.window, Par.RespIndColor(2,:).*Par.ScrWhite, ...
+                    [cen;cen;cen;cen] + Par.RespIndSizePix*right_diamond)
+            elseif Par.ResponseState == Par.RESP_STATE_DONE && ...
+                    Par.CurrResponseSide == 1
+                Screen('FillPoly',Par.window, Par.RespIndColor(1,:).*Par.ScrWhite, ...
+                    [cen;cen;cen;cen] + Par.RespIndSizePix*left_square)
+            elseif Par.ResponseState == Par.RESP_STATE_DONE && ...
+                    Par.CurrResponseSide == 2
                 Screen('FillPoly',Par.window, Par.RespIndColor(2,:).*Par.ScrWhite, ...
                     [cen;cen;cen;cen] + Par.RespIndSizePix*right_diamond)
             end
         end
     end
-% draw "go bar" 
+% draw "go bar"
     function DrawGoBar(STIMNR)
         if Par.ResponseSide==0
             return
         end
         % Target bar
-        %if ~Par.Orientation(Par.CurrOrient) 
-        if Par.ResponseState == Par.RESP_STATE_GO  %horizontal 
+        %if ~Par.Orientation(Par.CurrOrient)
+        if Par.ResponseState == Par.RESP_STATE_GO  %horizontal
             rect=[...
                 Stm(STIMNR).Center(Par.PosNr,1)+Par.ScrCenter(1)-Par.GoBarSizePix(1)/2, ...
                 Stm(STIMNR).Center(Par.PosNr,2)+Par.ScrCenter(2)-Par.GoBarSizePix(2)/2, ...
@@ -1693,8 +1906,8 @@ Par=Par_BU;
     end
 % interpret key presses
     function InterpretKeys(KeyCode)
-        % Par.KeyDetectedInTrackerWindow is true when key press is detected 
-        % in the Tracker window, false if it's not. Allows key-press isolation        
+        % Par.KeyDetectedInTrackerWindow is true when key press is detected
+        % in the Tracker window, false if it's not. Allows key-press isolation
         
         % interpret key presses
         if Par.KeyIsDown && ~Par.KeyWasDown
@@ -1855,6 +2068,36 @@ Par=Par_BU;
                                 % Par.WhichPos = 'Prev';
                             end
                         end
+                    case Par.KeyLeftResp
+                        if Par.KeyDetectedInTrackerWindow % only in Tracker
+                            fprintf('LEFT response indicators only\n');
+                            Log.nEvents=Log.nEvents+1;
+                            Log.Events(Log.nEvents).type='LeftRespOnly';
+                            Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
+                            Log.Events(Log.nEvents).StimName = [];
+                            Par.RespProbSetting=1;
+                            Par.ForceRespSide = true;
+                        end
+                    case Par.KeyRightResp
+                        if Par.KeyDetectedInTrackerWindow % only in Tracker
+                            fprintf('RIGHT response indicators only\n');
+                            Log.nEvents=Log.nEvents+1;
+                            Log.Events(Log.nEvents).type='RightRespOnly';
+                            Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
+                            Log.Events(Log.nEvents).StimName = [];
+                            Par.RespProbSetting=2;
+                            Par.ForceRespSide = true;
+                        end
+                    case Par.KeyRandResp
+                        if Par.KeyDetectedInTrackerWindow % only in Tracker
+                            fprintf('PROBABLISTIC response indicators\n');
+                            Log.nEvents=Log.nEvents+1;
+                            Log.Events(Log.nEvents).type='RandRespInd';
+                            Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
+                            Log.Events(Log.nEvents).StimName = [];
+                            Par.RespProbSetting=0;
+                            Par.ForceRespSide = true;
+                        end
                 end
                 Par.KeyWasDown=true;
             end
@@ -1876,7 +2119,7 @@ Par=Par_BU;
         ChanLevels=dasgetlevel;
         Log.RespSignal = ChanLevels(...
             Par.ConnectBox.PhotoAmp(Par.ConnectBox.PhotoAmp_used)-2);
-        % dasgetlevel starts reporting at channel 3, so 
+        % dasgetlevel starts reporting at channel 3, so
         % subtract 2 from the channel you want (1 based)
         
         % Log.RespSignal is a vector with as many channels as are in use
@@ -2047,12 +2290,12 @@ Par=Par_BU;
         end
         Par.RewardRunning=true;
         
-%         % Play back a sound
-%         if Par.RewardSound
-%             RewT=0:1/Par.RewSndPar(1):Par.RewardTimeCurrent;
-%             RewY=Par.RewSndPar(3)*sin(2*pi*Par.RewSndPar(2)*RewT);
-%             sound(RewY,Par.RewSndPar(1));
-%         end
+        %         % Play back a sound
+        %         if Par.RewardSound
+        %             RewT=0:1/Par.RewSndPar(1):Par.RewardTimeCurrent;
+        %             RewY=Par.RewSndPar(3)*sin(2*pi*Par.RewSndPar(2)*RewT);
+        %             sound(RewY,Par.RewSndPar(1));
+        %         end
         
         Log.nEvents=Log.nEvents+1;
         Log.Events(Log.nEvents).type='RewardAutoTask';
@@ -2164,7 +2407,7 @@ Par=Par_BU;
     end
 % check eye only (dascheck without tracker gui update)
     function [Hit, Time] = DasCheckEyeOnly
-        Hit = LPStat(1);   %Hit yes or no           
+        Hit = LPStat(1);   %Hit yes or no
         Time = LPStat(0);  %time
         POS = dasgetposition();
         P = POS.*Par.ZOOM; %average position over window initialized in DasIni
@@ -2186,6 +2429,7 @@ Par=Par_BU;
             Log.Eye(eye_i).ScaleOff = Par.ScaleOff;
         end
     end
+% Update hand task state
     function UpdateHandTaskState(NewState)
         Par.ResponseState = NewState;
         Par.ResponseStateChangeTime = GetSecs;
@@ -2203,7 +2447,7 @@ Par=Par_BU;
             otherwise
                 Log.Events(Log.nEvents).type=...
                     strcat('HandTaskState-Unknown-',NewState);
-        end              
+        end
         Log.Events(Log.nEvents).t=Par.ResponseStateChangeTime;
     end
 end
