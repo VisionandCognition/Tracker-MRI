@@ -25,7 +25,7 @@ Stm=StimObj.Stm;
 StimObj.Stm.FixDotCol = [.3 .3 .3 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
-Par.FixWinSize = 2*[1.8 1.8]; % [W H] in deg
+Par.FixWinSize = [2 2]; % [W H] in deg
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
@@ -133,29 +133,31 @@ Par.RESP_STATE_GO = 2; % Go signal given
 Par.RESP_STATE_DONE = 4;  % Go signal given and response no longer possible (hit or miss)
 
 % Go-bar (vertical / horizontal target bar) -------------------------------
-Gobar_length = 0.25; % .02
+Gobar_length = 0.50; % .02
 Par.GoBarSize = Gobar_length*[1, .25] + [0, 0.01]; % [length width] in deg
 Par.GoBarColor = [0.6 0.7 0.7]; % [R G B] 0-1
 
 % Color of the Response indicator
 Par.RespIndColor = 0.1*[1 1 1;1 1 1]; % colors for the left and right target
-Par.RespIndSize = 0.5;
+Par.RespIndSize = 1;
 
 Par.DrawBlockedInd = false;
 Par.BlockedIndColor = [.7 .7 .7];
 
-Par.SwitchDur = 1500; % (200) duration of alternative orientation
+Par.SwitchDur = 1000; % (200) duration of alternative orientation
 Par.ResponseAllowed = [80 Par.SwitchDur+100]; % [after_onset after_offset] in ms
 Par.PostErrorDelay = 3000; % extra wait time as punishment for error trials
-Par.DelayOnMiss = 2000; % extra wait time as punishment for miss trials 
+Par.DelayOnMiss = 0; % extra wait time as punishment for miss trials 
 
-Par.ProbSideRepeatOnCorrect = 0.5;
-Par.ProbSideRepeatOnError = 0.7;
-Par.ProbSideRepeatOnMiss = 1.00;
-Par.ProbSideRepeatOnEarly = 0.50;
+Par.NoIndicatorDuringPunishDelay=true;
+
+Par.ProbSideRepeatOnCorrect =   0.50;
+Par.ProbSideRepeatOnError =     0.50;
+Par.ProbSideRepeatOnMiss =      0.50;
+Par.ProbSideRepeatOnEarly =     0.50;
 
 Par.CatchBlock.do = true;
-Par.CatchBlock.AfterNumberOfTrials = 50;
+Par.CatchBlock.AfterNumberOfTrials = 25;
 Par.CatchBlock.NoCorrectPerSideNeeded = 3;
 Par.CatchBlock.StartWithCatch = true;
 
@@ -175,6 +177,50 @@ Par.Reward = true; %boolean to enable reward stim bit or not
 Par.RewardSound = false; % give sound feedback about reward
 Par.RewSndPar = [44100 800 1]; % [FS(Hz) TonePitch(Hz) Amplitude]
 Par.RewardFixFeedBack = true;
+
+% RESP_CORRECT = 1;
+% RESP_FALSE = 2;
+% RESP_MISS = 3;
+% RESP_EARLY = 4;
+% RESP_BREAK_FIX = 5;
+Par.FeedbackSound = [false true false true false];
+Par.FeedbackSoundPar = [ ...
+    44100 800 1 0.05; ... CORRECT
+    44100 300 1 0.05; ... FALSE
+    44100 200 1 0.05; ... MISS
+    44100 300 1 0.05; ... EARLY
+    44100 400 1 0.05 ... FIXATION BREAK
+    ];
+
+% [FS(Hz) TonePitch(Hz) Amplitude Duration]
+% duration matches 'open duration'
+
+% Create audio buffers for low latency sounds 
+% (they are closed in runstim cleanup) 
+if Par.FeedbackSound
+    try
+        InitializePsychSound; % init driver
+        % if no speakers are connected, windows shuts down the snd device and
+        % this will return an error
+    catch
+        fprintf('There were no audio devices detected. Is the output connected?\n');
+    end
+end
+for i=1:size(Par.FeedbackSoundPar,1)
+    Par.FeedbackSoundSnd(i).Wav=nan;
+    Par.FeedbackSoundSnd(i).Fs=nan;
+    Par.FeedbackSoundSnd(i).h = nan;
+    if Par.FeedbackSound(i)
+        RewT=0:1/Par.FeedbackSoundPar(i,1):Par.FeedbackSoundPar(i,4);
+        Par.FeedbackSoundSnd(i).Wav=...
+            Par.FeedbackSoundPar(i,3)*sin(2*pi*Par.FeedbackSoundPar(i,2)*RewT);
+        Par.FeedbackSoundSnd(i).Fs=Par.FeedbackSoundPar(i,1);
+        Par.FeedbackSoundSnd(i).h = PsychPortAudio('Open', [], [], 2,...
+            Par.FeedbackSoundSnd(i).Fs, 1);
+        PsychPortAudio('FillBuffer', Par.FeedbackSoundSnd(i).h, Par.FeedbackSoundSnd(i).Wav);
+        clc;
+    end
+end
 
 % Require hands in the box (reduces movement?)
 Par.HandSignalBothOrEither = 'Either'; 

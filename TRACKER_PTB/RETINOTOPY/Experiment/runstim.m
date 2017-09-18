@@ -766,6 +766,7 @@ for STIMNR = Log.StimOrder;
             PostStarted = false;
             CurrPostErrorDelay = 0;
             nNonCatchTrials = 0;
+            LastMissed = false;
             if Par.CatchBlock.StartWithCatch
                 Prev_nNonCatchTrials = -1;
             else
@@ -1221,6 +1222,7 @@ for STIMNR = Log.StimOrder;
                 elseif Par.IsCatchBlock % catchblock
                     Par.ResponseSide = CatchSides(1);
                 end
+                CurrPostErrorDelay
                 Par.CurrResponseSide = Par.ResponseSide;
                 Log.Events(Log.nEvents).StimName = num2str(Par.ResponseSide);
                 Par.GoBarOnset = rand(1)*Par.EventPeriods(2)/1000 + ...
@@ -1237,6 +1239,7 @@ for STIMNR = Log.StimOrder;
                     UpdateHandTaskState(Par.RESP_STATE_GO);
                     %Par.ResponseState = Par.RESP_STATE_GO;
                     %Par.ResponseStateChangeTime = GetSecs;
+                    CurrPostErrorDelay=0;
                 end
                 % check for early responses before go-signal -----
                 t = GetSecs;
@@ -1266,6 +1269,22 @@ for STIMNR = Log.StimOrder;
                         CatchSides = Shuffle(CatchSides);
                     else
                         nNonCatchTrials = nNonCatchTrials+1;
+                    end
+                    LastMissed = false;
+                    % play feedback sound
+                    if Par.ResponseState > 0 && ...
+                            isfield(Par, 'FeedbackSound') && ...
+                            isfield(Par, 'FeedbackSoundPar') && ...
+                            Par.FeedbackSound(4) && ...
+                            all(~isnan(Par.FeedbackSoundPar(4,:)))
+                        if Par.FeedbackSoundPar(4)
+                            try
+                                % fprintf('trying to play a sound\n')
+                                PsychPortAudio('Start', ...
+                                    Par.FeedbackSoundSnd(4).h, 1, 0, 1);
+                            catch
+                            end
+                        end
                     end
                 end
                 % -----
@@ -1303,6 +1322,22 @@ for STIMNR = Log.StimOrder;
                             nNonCatchTrials = nNonCatchTrials+1;   
                         end
                     end
+                    LastMissed = false;
+                    % play feedback sound
+                    if Par.ResponseState > 0 && ...
+                            isfield(Par, 'FeedbackSound') && ...
+                            isfield(Par, 'FeedbackSoundPar') && ...
+                            Par.FeedbackSound(4) && ...
+                            all(~isnan(Par.FeedbackSoundPar(4,:)))
+                        if Par.FeedbackSoundPar(4)
+                            try
+                                % fprintf('trying to play a sound\n')
+                                PsychPortAudio('Start', ...
+                                    Par.FeedbackSoundSnd(4).h, 1, 0, 1);
+                            catch
+                            end
+                        end
+                    end
                 % ---- Incorrect ----    
                 elseif Par.IncorrectResponseGiven(Par) 
                     UpdateHandTaskState(Par.RESP_STATE_DONE);
@@ -1328,6 +1363,22 @@ for STIMNR = Log.StimOrder;
                         CatchSides = Shuffle(CatchSides);
                     else
                         nNonCatchTrials = nNonCatchTrials+1;
+                    end
+                    LastMissed = false;
+                    % play feedback sound
+                    if Par.ResponseState > 0 && ...
+                            isfield(Par, 'FeedbackSound') && ...
+                            isfield(Par, 'FeedbackSoundPar') && ...
+                            Par.FeedbackSound(2) && ...
+                            all(~isnan(Par.FeedbackSoundPar(2,:)))
+                        if Par.FeedbackSoundPar(2)
+                            try
+                                % fprintf('trying to play a sound\n')
+                                PsychPortAudio('Start', ...
+                                    Par.FeedbackSoundSnd(2).h, 1, 0, 1);
+                            catch
+                            end
+                        end
                     end
                 % ---- Correct ----    
                 elseif Par.CorrectResponseGiven(Par) 
@@ -1358,6 +1409,22 @@ for STIMNR = Log.StimOrder;
                     else
                         nNonCatchTrials = nNonCatchTrials+1;
                     end
+                    LastMissed = false;
+                    % play feedback sound
+                    if Par.ResponseState > 0 && ...
+                            isfield(Par, 'FeedbackSound') && ...
+                            isfield(Par, 'FeedbackSoundPar') && ...
+                            Par.FeedbackSound(1) && ...
+                            all(~isnan(Par.FeedbackSoundPar(1,:)))
+                        if Par.FeedbackSoundPar(1)
+                            try
+                                % fprintf('trying to play a sound\n')
+                                PsychPortAudio('Start', ...
+                                    Par.FeedbackSoundSnd(1).h, 1, 0, 1);
+                            catch
+                            end
+                        end
+                    end
                 % ---- Miss ----
                 elseif t >=  Par.ResponseStateChangeTime + ... 
                         Par.ResponseAllowed(2)/1000
@@ -1380,12 +1447,28 @@ for STIMNR = Log.StimOrder;
                     % RESP_FALSE = 2; RESP_MISS = 3;
                     % RESP_EARLY = 4; RESP_BREAK_FIX = 5;
                     Par.ManResponse(RESP_MISS) = Par.ManResponse(RESP_MISS)+1;
+                    LastMissed = true;
                     %fprintf('Miss\n');
                     CurrPostErrorDelay = Par.DelayOnMiss;
-                    if Par.IsCatchBlock
+                    if Par.IsCatchBlock 
                         CatchSides = Shuffle(CatchSides);
                     else
                         nNonCatchTrials = nNonCatchTrials+1;
+                    end
+                    % play feedback sound
+                    if Par.ResponseState > 0 && ...
+                            isfield(Par, 'FeedbackSound') && ...
+                            isfield(Par, 'FeedbackSoundPar') && ...
+                            Par.FeedbackSound(3) && ...
+                            all(~isnan(Par.FeedbackSoundPar(3,:)))
+                        if Par.FeedbackSoundPar(3)
+                            try
+                                % fprintf('trying to play a sound\n')
+                                PsychPortAudio('Start', ...
+                                    Par.FeedbackSoundSnd(3).h, 1, 0, 1);
+                            catch
+                            end
+                        end
                     end
                 end
             end
@@ -1393,8 +1476,18 @@ for STIMNR = Log.StimOrder;
             if ~Par.ToggleHideFix ...
                     && ~Par.HideFix_BasedOnBeam(Par.BeamIsBlocked) ...
                     && ~Par.Pause
-                DrawHandIndicator(STIMNR)   
-                DrawGoBar(STIMNR);
+                if ~LastMissed && ...
+                        (isfield(Par,'NoIndicatorDuringPunishDelay') && ...
+                        Par.NoIndicatorDuringPunishDelay) && ...
+                        (GetSecs < Par.ResponseStateChangeTime + CurrPostErrorDelay/1000)
+                    % Display nothing
+                    if Par.ResponseState == Par.RESP_STATE_GO
+                        fprintf('not drawing\n')
+                    end
+                else
+                    DrawHandIndicator(STIMNR);
+                    DrawGoBar(STIMNR);
+                end
             end
         end
         
@@ -1466,8 +1559,8 @@ for STIMNR = Log.StimOrder;
                 SCNT(5) = { ['M: ' num2str(Par.ManResponse(RESP_MISS)) ...
                     '  E: ' num2str(Par.ManResponse(RESP_EARLY))]};
             else
-                SCNT(4) = { ['NO MANUAL']};
-                SCNT(5) = { ['NO MANUAL']};
+                SCNT(4) = { 'NO MANUAL'};
+                SCNT(5) = { 'NO MANUAL'};
             end
             SCNT(6) = { ['Rew: ' num2str(Log.TotalReward) ] };
             set(Hnd(1), 'String', SCNT ) %display updated numbers in GUI
@@ -1485,17 +1578,19 @@ for STIMNR = Log.StimOrder;
         end
         
         %% Catch block
-        if Par.CatchBlock.do && ~Par.IsCatchBlock && ...
+        if strcmp(Par.ResponseBox.Task,'DetectGoSignal') && ...
+                Par.CatchBlock.do && ~Par.IsCatchBlock && ...
                 nNonCatchTrials > Prev_nNonCatchTrials && ...
                 mod(nNonCatchTrials,Par.CatchBlock.AfterNumberOfTrials)==0
             Par.IsCatchBlock = true;
-            fprintf('Catch block started\n')
+            fprintf('Catch block started...')
             CatchSides = Shuffle([ones(1,Par.CatchBlock.NoCorrectPerSideNeeded) ...
                 2*ones(1,Par.CatchBlock.NoCorrectPerSideNeeded)]);
             Prev_nNonCatchTrials = nNonCatchTrials;
-        elseif Par.CatchBlock.do && Par.IsCatchBlock && isempty(CatchSides);
+        elseif strcmp(Par.ResponseBox.Task,'DetectGoSignal') && ...
+                Par.CatchBlock.do && Par.IsCatchBlock && isempty(CatchSides);
              Par.IsCatchBlock = false;
-             fprintf('Catch block completed\n')
+             fprintf('completed\n')
         end
         
         %% Stop reward
@@ -1643,6 +1738,13 @@ Screen('Flip', Par.window);
 fprintf('\n\n------------------------------\n');
 fprintf('Experiment ended as planned\n');
 fprintf('------------------------------\n');
+
+% close audio devices
+for i=1:length(Par.FeedbackSoundSnd)
+    if ~isnan(Par.FeedbackSoundSnd(i).h)
+        PsychPortAudio('Close', Par.FeedbackSoundSnd(i).h);
+    end
+end
 
 if TestRunstimWithoutDAS
     sca;
