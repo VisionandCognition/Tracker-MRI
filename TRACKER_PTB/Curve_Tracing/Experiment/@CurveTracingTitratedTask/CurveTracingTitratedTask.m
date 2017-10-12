@@ -5,6 +5,7 @@ classdef CurveTracingTitratedTask < CurveTracingJoystickTask
     
     properties (Access = protected)
         targetLoc = nan;
+        nextTarget = 0;
     end
     methods
         function obj = CurveTracingTitratedTask(commonParams, stimuliParams, taskName)
@@ -19,6 +20,14 @@ classdef CurveTracingTitratedTask < CurveTracingJoystickTask
                 class(obj)]);
             assert(commonParams.maxSideProb >= 0.5 && ...
                 commonParams.maxSideProb <= 1.0);
+            obj.nextTarget = 0;
+        end
+        
+        function setNextTargetLeft(obj)
+            obj.nextTarget = 1;
+        end
+        function setNextTargetRight(obj)
+            obj.nextTarget = 2;
         end
     end
     
@@ -34,7 +43,10 @@ classdef CurveTracingTitratedTask < CurveTracingJoystickTask
                 (nleft + nright + obj.taskParams.sideRespAprioriNum) + ...
                 (1 - obj.taskParams.maxSideProb);
             %fprintf('Probability of left response being correct: %0.1f%%\n', pleft*100);
-            if rand() < pleft
+            if obj.nextTarget > 0
+                iTargetShape = obj.nextTarget;
+                obj.nextTarget = 0;
+            elseif rand() < pleft
                 iTargetShape = 1; % make target shape the LH-shape (square)
             else
                 iTargetShape = 2; % make target shape the RH-shape (diamond)

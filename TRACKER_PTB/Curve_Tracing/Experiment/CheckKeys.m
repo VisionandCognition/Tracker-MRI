@@ -63,6 +63,18 @@ Stm = StimObj.Stm;
                         Par.ForpRespRight=true;
                         Log.events.add_entry(GetSecs, Stm(1).task.name, 'FORPResponse_Initiate', 'Right');
                         
+                    case Par.KeyNextTargetLeft
+                        if ismethod(Stm(1).task, 'setNextTargetLeft')
+                            Stm(1).task.setNextTargetLeft();
+                        end
+                        Log.events.add_entry(GetSecs, Stm(1).task.name, 'ManuallySetNextTarget', 'Left');
+                        
+                    case Par.KeyNextTargetRight
+                        if ismethod(Stm(1).task, 'setNextTargetRight')
+                            Stm(1).task.setNextTargetRight();
+                        end
+                        Log.events.add_entry(GetSecs, Stm(1).task.name, 'ManuallySetNextTarget', 'Right');
+                        
                     case Par.KeyJuice
                         Par.ManualReward = true;
                         Log.ManualRewardTime = ...

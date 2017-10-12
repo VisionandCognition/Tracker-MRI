@@ -246,6 +246,8 @@ Par.KeyCountDownMRITriger = KbName('Space'); % wait for trigger in ~7 s
 
 Par.KeyFORPResponseLeft = KbName('e'); % for human or testing
 Par.KeyFORPResponseRight = KbName('b');
+Par.KeyNextTargetLeft = KbName('s'); % for human or testing
+Par.KeyNextTargetRight = KbName('d');
 
 % Change stim position
 KbName('UnifyKeyNames');
