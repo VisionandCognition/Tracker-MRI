@@ -1,0 +1,11 @@
+Runstim: runstim
+StimSettings: StimSettings_pRF_8bars_3T_TR2500ms
+ParSettings: ParSettings_EDDY_3T_HAND_TR2500ms
+
+Stimulus: pRF_8bar
+
+Fixation perc over run (inc. pre/post): 1.0987
+Fixation perc over run (exc. pre/post): NaN
+Fixation perc PreStim: 1.0987
+
+Total reward: 0.06

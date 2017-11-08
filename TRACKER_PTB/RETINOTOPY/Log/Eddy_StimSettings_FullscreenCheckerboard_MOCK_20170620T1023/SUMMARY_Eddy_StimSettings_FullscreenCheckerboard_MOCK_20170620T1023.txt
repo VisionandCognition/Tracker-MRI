@@ -1,0 +1,13 @@
+Runstim: runstim
+StimSettings: StimSettings_FullscreenCheckerboard_MOCK
+ParSettings: ParSettings_EDDY_MOCK_HAND_TR2500ms
+
+1: Performance for FullChecker = 73.165 %
+2: Performance for FullChecker = 96.2171 %
+3: Performance for FullChecker = 96.4496 %
+4: Performance for FullChecker = 94.5506 %
+5: Performance for FullChecker = 90.2792 %
+6: Performance for FullChecker = 53.7235 %
+7: Performance for FullChecker = 53.7235 %
+Average performance: 79.7298% (std: 19.4854 %)
+Total reward: 32.39 s

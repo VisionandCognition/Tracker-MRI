@@ -1,5 +1,5 @@
 function runstim(Hnd)
-% Updated February 2016, Chris Klink (c.klink@nin.knaw.nl)
+% Updated November 2017, Chris Klink (c.klink@nin.knaw.nl)
 % Fixation & diverse retinotopic mapping stimuli
 global Par      %global parameters
 global StimObj  %stimulus objects
@@ -87,11 +87,11 @@ Par.RewardStartTime=0;
 
 % re-run parameter-file to update stim-settings without restarting Tracker
 eval(Par.PARSETFILE); % can be chosen in menu
-if ~isfield(Par,'PostErrorDelay');
+if ~isfield(Par,'PostErrorDelay')
     Par.PostErrorDelay = 0;
     fprintf('No PostErrorDelay defined: Setting it to 0\n');
 end
-if ~isfield(Par,'DelayOnMiss');
+if ~isfield(Par,'DelayOnMiss')
     Par.DelayOnMiss = 0;
     fprintf('No DelayOnMiss defined: Setting it to 0\n');
 end
@@ -171,7 +171,7 @@ end
 % Load retinotopic mapping stimuli
 FaceRingsLoaded=false; FaceWedgeLoaded=false;
 WalkerRingsLoaded=false; WalkerWedgeLoaded=false;
-for STIMNR = unique(Log.StimOrder);
+for STIMNR = unique(Log.StimOrder)
     switch Stm(STIMNR).RetMap.StimType{1}
         case 'none'
             Stm(STIMNR).Descript = 'NoStim';
@@ -218,7 +218,7 @@ for STIMNR = unique(Log.StimOrder);
             %% img to textures
             pos=0; %Stm(STIMNR).RetMap.posmap = [];
             if strcmp(Stm(STIMNR).RetMap.StimType{2},'pRF_8bar')
-                for rv=1:length(stimulus(1).orient); %length(stimulus) % directions
+                for rv=1:length(stimulus(1).orient) %length(stimulus) % directions
                     for ii=1:length(stimulus(1).img) % positions
                         pos=pos+1;
                         for jj = 1:size(stimulus(1).img{ii},3) % frame
@@ -427,7 +427,7 @@ end
 %% Run this loop all stimuli the StimSettings file ========================
 Par.ESC=false; Log.TotalTimeOut = 0; Par.Pause = false;
 update_trackerfix_now = true;
-for STIMNR = Log.StimOrder;
+for STIMNR = Log.StimOrder
     %% Cycles of stimuli
     nCyclesDone=0;
     nCyclesReported=0;
@@ -446,7 +446,7 @@ for STIMNR = Log.StimOrder;
         Stm(STIMNR).FixDotSurrSizePix = round(Stm(STIMNR).FixDotSurrSize*Par.PixPerDeg);
         Par.GoBarSizePix = round(Par.GoBarSize*Par.PixPerDeg);
         Stm(STIMNR).Center =[];
-        for i=1:size(Stm(STIMNR).Position,2);
+        for i=1:size(Stm(STIMNR).Position,2)
             Stm(STIMNR).Center =[Stm(STIMNR).Center; ...
                 round(Stm(STIMNR).Position{i}.*Par.PixPerDeg)];
         end
@@ -485,7 +485,7 @@ for STIMNR = Log.StimOrder;
                 Stm(STIMNR).Descript = 'FullChecker';
                 RetMapStimuli=false;
                 DispChecker=true;
-                if Stm(STIMNR).RetMap.Checker.LoadFromFile;
+                if Stm(STIMNR).RetMap.Checker.LoadFromFile
                     fprintf(['\nLoading checkerboard ' ...
                         Stm(STIMNR).RetMap.Checker.FileName '...\n']);
                     cd Stimuli
@@ -568,12 +568,11 @@ for STIMNR = Log.StimOrder;
         Par.FixStatToCMD=true;
         
         % Some intitialization of control parameters
-        if Par.MRITrigger_OnlyOnce && StimLoopNr == 1;
+        if Par.MRITrigger_OnlyOnce && StimLoopNr == 1
             Log.MRI.TriggerReceived = false;
         elseif ~Par.MRITrigger_OnlyOnce
             Log.MRI.TriggerReceived = false;
         end
-        
         Log.MRI.TriggerTime = [];
         Log.ManualReward = false;
         Log.ManualRewardTime = [];
@@ -620,7 +619,11 @@ for STIMNR = Log.StimOrder;
         
         % Initialize photosensor manual response
         Par.BeamIsBlocked=false(size(Par.ConnectBox.PhotoAmp_used));
-        
+        Par.HandIsIn =[false false];
+        Par.HandWasIn = Par.HandIsIn;
+        Par.LeverIsUp = [false false];
+        Par.LeverWasUp = Par.LeverIsUp;
+                      
         %video control
         Par.VideoLoaded=false;
         Par.VideoPlaying=false;
@@ -661,9 +664,7 @@ for STIMNR = Log.StimOrder;
         
         EyeRecMsgShown=false;
         RunEnded=false;
-        
-        %% Stimulus presentation loop =====================================
-        
+               
         %% Eye-tracker recording
         if Par.EyeRecAutoTrigger
             if ~FirstEyeRecSet
@@ -739,6 +740,7 @@ for STIMNR = Log.StimOrder;
             Par.FirstStimDrawDone=false;
             Par.ForceRespSide = false;
             Par.IsCatchBlock = false;
+            Par.RewHandStart = GetSecs;
             
             if StimLoopNr == 1 % allow time-outs to across runs
                 Par.Pause=false;
@@ -785,6 +787,8 @@ for STIMNR = Log.StimOrder;
                 RespText = {'Correct', 'False', 'Miss', 'Early', 'Fix. break'};
                 Par.ManResponse = [0 0 0 0 0];
             end
+            
+            RewardGivenForHandPos=false;
         end
         %% Check what to draw depending on time
         if RetMapStimuli
@@ -818,7 +822,7 @@ for STIMNR = Log.StimOrder;
                 prevposn=posn;
                 posn = ceil(TRn/Stm(STIMNR).RetMap.TRsPerStep);
                 
-                while posn>size(Stm(STIMNR).RetMap.posmap,1);
+                while posn>size(Stm(STIMNR).RetMap.posmap,1)
                     posn=posn-size(Stm(STIMNR).RetMap.posmap,1);
                 end
                 posn=Stm(STIMNR).RetMap.posmap(posn,2);
@@ -833,22 +837,22 @@ for STIMNR = Log.StimOrder;
                     posn_adj = mod(posn-1,length(stimulus(1).img))+1;
                     texn = ceil(mod(GetSecs-Log.StartBlock,Par.TR)*...
                         ret_vid(posn_adj).fps);
-                    if ~texn; texn=1; end;
-                    while texn>numel(ret_vid(posn_adj).text);
+                    if ~texn; texn=1; end
+                    while texn>numel(ret_vid(posn_adj).text)
                         texn=texn-numel(ret_vid(posn_adj).text);
                     end
                 elseif posn
-                    %                     posn_adj = mod(posn-1,length(stimulus(1).img))+1;
-                    %                     texn = ceil(mod(GetSecs-Log.StartBlock,Par.TR)*...
-                    %                         ret_vid(Stm(STIMNR).Order(posn_adj)).fps);
-                    %                     if ~texn; texn=1; end;
-                    %                     while texn>numel(ret_vid(Stm(STIMNR).Order(posn_adj)).text);
-                    %                         texn=texn-numel(ret_vid(Stm(STIMNR).Order(posn_adj)).text);
-                    %                     end
+%                     posn_adj = mod(posn-1,length(stimulus(1).img))+1;
+%                     texn = ceil(mod(GetSecs-Log.StartBlock,Par.TR)*...
+%                         ret_vid(Stm(STIMNR).Order(posn_adj)).fps);
+%                     if ~texn; texn=1; end;
+%                     while texn>numel(ret_vid(Stm(STIMNR).Order(posn_adj)).text);
+%                         texn=texn-numel(ret_vid(Stm(STIMNR).Order(posn_adj)).text);
+%                     end
                     texn = ceil(mod(GetSecs-Log.StartBlock,Par.TR)*...
                         ret_vid(Stm(STIMNR).Order(posn)).fps);
-                    if ~texn; texn=1; end;
-                    while texn>numel(ret_vid(Stm(STIMNR).Order(posn)).text);
+                    if ~texn; texn=1; end
+                    while texn>numel(ret_vid(Stm(STIMNR).Order(posn)).text)
                         texn=texn-numel(ret_vid(Stm(STIMNR).Order(posn)).text);
                     end
                 end
@@ -1073,11 +1077,18 @@ for STIMNR = Log.StimOrder;
                 Par.ManualReward=false;
             end
             
+            %% give reward for hand in box
+            if Par.RewardForHandsIn && any(Par.HandIsIn) &&...
+                    GetSecs-Par.RewHandStart > Par.RewardForHandIn_MinInterval
+                GiveRewardAutoHandIn;
+            end
             %% check photosensor
             if ~TestRunstimWithoutDAS
                 CheckManual;
                 if ~strcmp(Par.ResponseBox.Task,'DetectGoSignal') && ...
-                        Par.StimNeedsHandInBox && ~Par.HandIsIn
+                        Par.StimNeeds.HandIsIn && ...
+                        ((strcmp(Par.HandInBothOrEither,'Both') && ~any(Par.HandIsIn)) || ...
+                        (strcmp(Par.HandInBothOrEither,'Either') && ~all(Par.HandIsIn)))
                     % assumes only 1 photo-channel in use, or only checks
                     % first defined channel
                     Par.FixIn = false;
@@ -1100,7 +1111,7 @@ for STIMNR = Log.StimOrder;
             if RetMapStimuli
                 DrawStimuli;
                 if ~IsPre && ~IsPost && ~RunEnded && ~Par.ToggleHideStim ...
-                        && ~Par.HideStim_BasedOnBeam(Par.BeamIsBlocked) ...
+                        && ~Par.HideStim_BasedOnHandIn(Par) ...
                         && ~Par.Pause
                     if strcmp(Stm(STIMNR).RetMap.StimType{1},'ret')
                         posn_adj = (mod(posn-1,length(stimulus(1).img))+1);
@@ -1125,7 +1136,7 @@ for STIMNR = Log.StimOrder;
                 end
             elseif DrawChecker
                 DrawStimuli;
-                if ~Par.HideStim_BasedOnBeam(Par.BeamIsBlocked) && ~Par.Pause
+                if ~Par.HideStim_BasedOnHandIn(Par) && ~Par.Pause
                     Screen('DrawTexture',Par.window,CheckTexture(ChkNum),[],...
                         [],[],1);
                 end
@@ -1136,7 +1147,7 @@ for STIMNR = Log.StimOrder;
         
         %% Draw fixation dot
         if ~Par.ToggleHideFix ...
-                && ~Par.HideFix_BasedOnBeam(Par.BeamIsBlocked) ...
+                && ~Par.HideFix_BasedOnHandIn(Par) ...
                 && ~Par.Pause
             DrawFix(STIMNR);
         end
@@ -1177,8 +1188,8 @@ for STIMNR = Log.StimOrder;
             if GetSecs >= Par.LastFixInTime+Par.Times.TargCurrent/1000 % fixated long enough
                 % start Reward
                 if ~Par.RewardRunning && ~TestRunstimWithoutDAS && ~Par.Pause && ...
-                        ( (Par.RewNeedsHandInBox && Par.HandIsIn) || ~Par.RewNeedsHandInBox)
-                    % nCons correct fixations
+                        Par.Rew_BasedOnHandIn(Par)
+                     % nCons correct fixations
                     Par.CorrStreakcount=Par.CorrStreakcount+1;
                     Par.Response=Par.Response+1;
                     Par.ResponsePos=Par.ResponsePos+1;
@@ -1210,6 +1221,7 @@ for STIMNR = Log.StimOrder;
                 UpdateHandTaskState(Par.RESP_STATE_WAIT);
                 %Par.ResponseState = Par.RESP_STATE_WAIT;
                 %Par.ResponseStateChangeTime = GetSecs;
+                StartWaitTime = Par.ResponseStateChangeTime;
                 if ~Par.IsCatchBlock
                     if Par.ResponseSide == 0 || Par.ForceRespSide
                         if Par.RespProbSetting % 0=random, 1=left, 2=right
@@ -1222,7 +1234,6 @@ for STIMNR = Log.StimOrder;
                 elseif Par.IsCatchBlock % catchblock
                     Par.ResponseSide = CatchSides(1);
                 end
-                CurrPostErrorDelay
                 Par.CurrResponseSide = Par.ResponseSide;
                 Log.Events(Log.nEvents).StimName = num2str(Par.ResponseSide);
                 Par.GoBarOnset = rand(1)*Par.EventPeriods(2)/1000 + ...
@@ -1338,8 +1349,8 @@ for STIMNR = Log.StimOrder;
                             end
                         end
                     end
-                % ---- Incorrect ----    
-                elseif Par.IncorrectResponseGiven(Par) 
+                % ---- Incorrect ----
+                elseif Par.IncorrectResponseGiven(Par) && Par.RespLeverMatters 
                     UpdateHandTaskState(Par.RESP_STATE_DONE);
                     Log.Events(Log.nEvents).StimName = 'Incorrect';
                     if ~Par.ForceRespSide
@@ -1381,11 +1392,55 @@ for STIMNR = Log.StimOrder;
                         end
                     end
                 % ---- Correct ----    
-                elseif Par.CorrectResponseGiven(Par) 
+                elseif Par.CorrectResponseGiven(Par) && Par.RespLeverMatters
                     %Par.ResponseStateChangeTime = GetSecs;
                     %Par.ResponseState = Par.RESP_STATE_DONE;
                     UpdateHandTaskState(Par.RESP_STATE_DONE);
                     Log.Events(Log.nEvents).StimName = 'Hit';
+                    GiveRewardAutoTask;
+                    if ~Par.ForceRespSide
+                        if rand(1) <= Par.ProbSideRepeatOnCorrect % same side
+                            Par.ResponseSide=Par.ResponseSide; % keep same
+                        else
+                            if Par.ResponseSide==1
+                                Par.ResponseSide=2;
+                            else
+                                Par.ResponseSide=1;
+                            end
+                        end
+                    end                    
+                    % RESP_NONE =  0; RESP_CORRECT = 1;
+                    % RESP_FALSE = 2; RESP_MISS = 3;
+                    % RESP_EARLY = 4; RESP_BREAK_FIX = 5;
+                    Par.ManResponse(RESP_CORRECT) = Par.ManResponse(RESP_CORRECT)+1;
+                    %fprintf('Correct\n');
+                    CurrPostErrorDelay = 0;
+                    if Par.IsCatchBlock
+                        CatchSides(1) = [];
+                    else
+                        nNonCatchTrials = nNonCatchTrials+1;
+                    end
+                    LastMissed = false;
+                    % play feedback sound
+                    if Par.ResponseState > 0 && ...
+                            isfield(Par, 'FeedbackSound') && ...
+                            isfield(Par, 'FeedbackSoundPar') && ...
+                            Par.FeedbackSound(1) && ...
+                            all(~isnan(Par.FeedbackSoundPar(1,:)))
+                        if Par.FeedbackSoundPar(1)
+                            try
+                                % fprintf('trying to play a sound\n')
+                                PsychPortAudio('Start', ...
+                                    Par.FeedbackSoundSnd(1).h, 1, 0, 1);
+                            catch
+                            end
+                        end
+                    end
+                % Correct if side doesn't matter
+                elseif ~Par.RespLeverMatters && ...
+                        (Par.CorrectResponseGiven(Par) || Par.IncorrectResponseGiven(Par))
+                    UpdateHandTaskState(Par.RESP_STATE_DONE);
+                    Log.Events(Log.nEvents).StimName = 'HitEither';
                     GiveRewardAutoTask;
                     if ~Par.ForceRespSide
                         if rand(1) <= Par.ProbSideRepeatOnCorrect % same side
@@ -1473,17 +1528,11 @@ for STIMNR = Log.StimOrder;
                 end
             end
             % draw the indicators
-            if ~Par.ToggleHideFix ...
-                    && ~Par.HideFix_BasedOnBeam(Par.BeamIsBlocked) ...
-                    && ~Par.Pause
-                if ~LastMissed && ...
+            if ~Par.ToggleHideFix && ~Par.HideFix_BasedOnHandIn(Par) && ~Par.Pause
+                if Par.ResponseState == Par.RESP_STATE_WAIT  && ~LastMissed && ...
                         (isfield(Par,'NoIndicatorDuringPunishDelay') && ...
                         Par.NoIndicatorDuringPunishDelay) && ...
-                        (GetSecs < Par.ResponseStateChangeTime + CurrPostErrorDelay/1000)
-                    % Display nothing
-                    if Par.ResponseState == Par.RESP_STATE_GO
-                        fprintf('not drawing\n')
-                    end
+                        (GetSecs < StartWaitTime + CurrPostErrorDelay/1000)
                 else
                     DrawHandIndicator(STIMNR);
                     DrawGoBar(STIMNR);
@@ -1503,8 +1552,8 @@ for STIMNR = Log.StimOrder;
         if DrawChecker
             if TrackingCheckerContChange
                 if lft-tLastCheckerContChange >= ...
-                        1/Stm(1).RetMap.Checker.FlickFreq_Approx;
-                    if ChkNum==1;
+                        1/Stm(1).RetMap.Checker.FlickFreq_Approx
+                    if ChkNum==1
                         ChkNum=2;
                     elseif ChkNum==2
                         ChkNum=1;
@@ -1583,14 +1632,14 @@ for STIMNR = Log.StimOrder;
                 nNonCatchTrials > Prev_nNonCatchTrials && ...
                 mod(nNonCatchTrials,Par.CatchBlock.AfterNumberOfTrials)==0
             Par.IsCatchBlock = true;
-            fprintf('Catch block started...')
+            %fprintf('Catch block started...')
             CatchSides = Shuffle([ones(1,Par.CatchBlock.NoCorrectPerSideNeeded) ...
                 2*ones(1,Par.CatchBlock.NoCorrectPerSideNeeded)]);
             Prev_nNonCatchTrials = nNonCatchTrials;
         elseif strcmp(Par.ResponseBox.Task,'DetectGoSignal') && ...
-                Par.CatchBlock.do && Par.IsCatchBlock && isempty(CatchSides);
+                Par.CatchBlock.do && Par.IsCatchBlock && isempty(CatchSides)
              Par.IsCatchBlock = false;
-             fprintf('completed\n')
+             %fprintf('completed\n')
         end
         
         %% Stop reward
@@ -1642,7 +1691,7 @@ for STIMNR = Log.StimOrder;
             FileName=['Log_NODAS_' Par.MONKEY '_' Par.STIMSETFILE '_' ...
                 Stm(STIMNR).Descript '_' DateString '_Run' num2str(StimLoopNr)];
         end
-        warning off; %#ok<WNOFF>
+        warning off; 
         if TestRunstimWithoutDAS; cd ..;end
         mkdir('Log');cd('Log');
         StimObj.Stm=Stm;
@@ -1690,7 +1739,7 @@ for STIMNR = Log.StimOrder;
         cd ..
         
         if TestRunstimWithoutDAS; cd Experiment;end
-        warning on; %#ok<WNON>
+        warning on; 
         
         % if running without DAS close ptb windows
         if TestRunstimWithoutDAS
@@ -1902,13 +1951,23 @@ Par=Par_BU;
     end
 % draw handindicator
     function DrawHandIndicator(STIMNR)
-       cen = [Stm(STIMNR).Center(Par.PosNr,1)+Par.ScrCenter(1), ...
+       if any(any(Par.RespIndPos)) % stimuli not centered
+           cen = [Par.ScrCenter(1),Par.ScrCenter(2)];
+           cen1 = [Par.RespIndPos(1,1)*Par.PixPerDeg+Par.ScrCenter(1), ...
+            Par.RespIndPos(1,2)*Par.PixPerDeg+Par.ScrCenter(2)];
+           cen2 = [Par.RespIndPos(2,1)*Par.PixPerDeg+Par.ScrCenter(1), ...
+            Par.RespIndPos(2,2)*Par.PixPerDeg+Par.ScrCenter(2)];
+       else % stimulus centered (but can be cycled)
+           cen = [Stm(STIMNR).Center(Par.PosNr,1)+Par.ScrCenter(1), ...
             Stm(STIMNR).Center(Par.PosNr,2)+Par.ScrCenter(2)];
+            cen1=cen;cen2=cen;
+       end
+       
         if strcmp(Par.ResponseBox.Task, 'DetectGoSignal')
             if Par.ResponseState == Par.RESP_STATE_DONE && ...
                     ~Par.CanStartTrial(Par) && ...
                     GetSecs >= Par.ResponseStateChangeTime + 500/1000
-                if Par.DrawBlockedInd
+                if Par.DrawBlockedInd && (Par.TrialNeeds.LeversAreDown && any(Par.LeverIsUp))
                     Screen('FillOval',Par.window, Par.BlockedIndColor.*Par.ScrWhite, ...
                         [cen,cen] + Par.RespIndSizePix*blocked_circle)
                 end
@@ -1916,20 +1975,20 @@ Par=Par_BU;
                     Par.ResponseState == Par.RESP_STATE_GO) && ...
                     Par.ResponseSide == 1
                 Screen('FillPoly',Par.window, Par.RespIndColor(1,:).*Par.ScrWhite, ...
-                    [cen;cen;cen;cen] + Par.RespIndSizePix*left_square)
+                    [cen1;cen1;cen1;cen1] + Par.RespIndSizePix*left_square)
             elseif (Par.ResponseState == Par.RESP_STATE_WAIT || ...
                     Par.ResponseState == Par.RESP_STATE_GO) && ...
                     Par.ResponseSide == 2
                 Screen('FillPoly',Par.window, Par.RespIndColor(2,:).*Par.ScrWhite, ...
-                    [cen;cen;cen;cen] + Par.RespIndSizePix*right_diamond)
+                    [cen2;cen2;cen2;cen2] + Par.RespIndSizePix*right_diamond)
             elseif Par.ResponseState == Par.RESP_STATE_DONE && ...
                     Par.CurrResponseSide == 1
                 Screen('FillPoly',Par.window, Par.RespIndColor(1,:).*Par.ScrWhite, ...
-                    [cen;cen;cen;cen] + Par.RespIndSizePix*left_square)
+                    [cen1;cen1;cen1;cen1] + Par.RespIndSizePix*left_square)
             elseif Par.ResponseState == Par.RESP_STATE_DONE && ...
                     Par.CurrResponseSide == 2
                 Screen('FillPoly',Par.window, Par.RespIndColor(2,:).*Par.ScrWhite, ...
-                    [cen;cen;cen;cen] + Par.RespIndSizePix*right_diamond)
+                    [cen2;cen2;cen2;cen2] + Par.RespIndSizePix*right_diamond)
             end
         end
     end
@@ -1964,7 +2023,10 @@ Par=Par_BU;
     end
 % auto-dim the screen if hand is out
     function AutoDim
-        if Par.HandOutDimsScreen && ~Par.HandIsIn
+        if Par.HandOutDimsScreen && (...
+                (strcmp(Par.HandInBothOrEither,'Both') && ~all(Par.HandIsIn)) || ...
+                (strcmp(Par.HandInBothOrEither,'Either') && ~any(Par.HandIsIn)) ...
+                )
             Screen('FillRect',Par.window,...
                 [0 0 0 (Par.HandOutDimsScreen_perc)].*Par.ScrWhite,....
                 [Par.wrect(1:2) Par.wrect(3:4)+1]);
@@ -2043,7 +2105,7 @@ Par=Par_BU;
                         end
                     case Par.KeyStim
                         if Par.KeyDetectedInTrackerWindow % only in Tracker
-                            if ~Par.ToggleHideStim;
+                            if ~Par.ToggleHideStim
                                 Par.ToggleHideStim = true;
                                 Log.nEvents=Log.nEvents+1;
                                 Log.Events(Log.nEvents).type='StimOff';
@@ -2059,7 +2121,7 @@ Par=Par_BU;
                         end
                     case Par.KeyFix
                         if Par.KeyDetectedInTrackerWindow % only in Tracker
-                            if ~Par.ToggleHideFix;
+                            if ~Par.ToggleHideFix
                                 Par.ToggleHideFix = true;
                                 Log.nEvents=Log.nEvents+1;
                                 Log.Events(Log.nEvents).type='FixOff';
@@ -2205,6 +2267,68 @@ Par=Par_BU;
                             Par.RespProbSetting=0;
                             Par.ForceRespSide = true;
                         end
+                    case Par.KeyBeam
+                        if Par.KeyDetectedInTrackerWindow % only in Tracker
+                            Par.KeyBeamInd = Par.KeyBeamInd+1;
+                            if Par.KeyBeamInd > size(Par.KeyBeamStates,1)-1
+                                Par.KeyBeamInd =  Par.KeyBeamInd - ...
+                                    (size(Par.KeyBeamStates,1)-1);
+                            end
+                            switch Par.KeyBeamInd
+                                case 1
+                                    fprintf(['BEAMSTATE: ' Par.KeyBeamStates{Par.KeyBeamInd+1,1} ...
+                                        ' - ' Par.KeyBeamStates{Par.KeyBeamInd+1,2} ...
+                                        ' - TRIAL & FIX need hand in\n']);
+                                case 2
+                                    fprintf(['BEAMSTATE: ' Par.KeyBeamStates{Par.KeyBeamInd+1,1} ...
+                                        ' - ' Par.KeyBeamStates{Par.KeyBeamInd+1,2} ...
+                                        ' - ONLY TRIAL needs hand in\n']);
+                                case 3
+                                    fprintf(['BEAMSTATE: ' Par.KeyBeamStates{Par.KeyBeamInd+1,1} ...
+                                        ' - ' Par.KeyBeamStates{Par.KeyBeamInd+1,2} ...
+                                        ' - ONLY FIX needs hand in\n']);
+                                case 4
+                                    fprintf(['BEAMSTATE: ' Par.KeyBeamStates{Par.KeyBeamInd+1,1} ...
+                                        ' - ' Par.KeyBeamStates{Par.KeyBeamInd+1,2} ...
+                                        ' - TRIAL & FIX need hand in\n']);
+                                case 5
+                                    fprintf(['BEAMSTATE: ' Par.KeyBeamStates{Par.KeyBeamInd+1,1} ...
+                                        ' - ' Par.KeyBeamStates{Par.KeyBeamInd+1,2} ...
+                                        ' - TRIAL & FIX need hand in\n']);
+                                case 6
+                                    fprintf(['BEAMSTATE: ' Par.KeyBeamStates{Par.KeyBeamInd+1,1} ...
+                                        ' - ' Par.KeyBeamStates{Par.KeyBeamInd+1,2} ...
+                                        ' - ONLY TRIAL needs hand in\n']);
+                                case 7
+                                    fprintf(['BEAMSTATE: ' Par.KeyBeamStates{Par.KeyBeamInd+1,1} ...
+                                        ' - ' Par.KeyBeamStates{Par.KeyBeamInd+1,2} ...
+                                        ' - ONLY FIX needs hand in\n']);
+                            end
+                            Par.HandInBothOrEither = Par.KeyBeamStates{Par.KeyBeamInd+1,2};
+                            Par.TrialNeeds.HandIsIn = Par.KeyBeamStates{Par.KeyBeamInd+1,3};
+                            Par.FixNeeds.HandIsIn = Par.KeyBeamStates{Par.KeyBeamInd+1,4};
+                            
+                            % set-up function to check whether to draw fixation
+                            if Par.FixNeeds.HandIsIn && strcmp(Par.HandInBothOrEither,'Both')
+                                Par.HideFix_BasedOnHandIn = @(Par) ~all(Par.HandIsIn);
+                            elseif Par.FixNeeds.HandIsIn && strcmp(Par.HandInBothOrEither,'Either')
+                                Par.HideFix_BasedOnHandIn = @(Par) ~any(Par.HandIsIn);
+                            else
+                                Par.HideFix_BasedOnHandIn = @(Par) false;
+                            end
+
+                            % functions for lever task
+                            if Par.TrialNeeds.HandIsIn && Par.TrialNeeds.LeversAreDown % hands in / levers down
+                                Par.CanStartTrial = @(Par) (all(Par.HandIsIn) && ~any(Par.LeverIsUp));
+                            elseif Par.TrialNeeds.HandIsIn % only hands in
+                                Par.CanStartTrial = @(Par) all(Par.HandIsIn);
+                            elseif Par.TrialNeeds.LeversAreDown % only levers down
+                                Par.CanStartTrial = @(Par) ~any(Par.LeverIsUp);
+                            else % independent of hand and lever position
+                                Par.CanStartTrial = @(Par) true;
+                            end
+                            
+                        end
                 end
                 Par.KeyWasDown=true;
             end
@@ -2224,13 +2348,10 @@ Par=Par_BU;
         % NB dasgetlevel only starts counting at the third channel (#2)
         daspause(5);
         ChanLevels=dasgetlevel;
-        Log.RespSignal = ChanLevels(...
-            Par.ConnectBox.PhotoAmp(Par.ConnectBox.PhotoAmp_used)-2);
+        Log.RespSignal = ChanLevels(Par.ConnectBox.PhotoAmp(:)-2);
         % dasgetlevel starts reporting at channel 3, so
         % subtract 2 from the channel you want (1 based)
-        
         % Log.RespSignal is a vector with as many channels as are in use
-        
         InterpretManual;
     end
 % interpret manual response signal
@@ -2243,9 +2364,8 @@ Par=Par_BU;
         end
         
         Par.BeamWasBlocked = Par.BeamIsBlocked;
-        
         % vector that tells us for all used channels whether blocked
-        Par.BeamIsBlocked = (Log.RespSignal > Threshold)==0;
+        Par.BeamIsBlocked = Log.RespSignal < Threshold;
         
         % Log any changes
         if any(Par.BeamWasBlocked(:) ~= Par.BeamIsBlocked(:))
@@ -2253,69 +2373,75 @@ Par=Par_BU;
             Log.Events(Log.nEvents).type=...
                 strcat('BeamStateChange ', mat2str(Par.BeamIsBlocked));
             Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-        end
+            Par.HandIsIn =Par.BeamIsBlocked(Par.ConnectBox.PhotoAmp_HandIn);
+            Par.LeverIsUp=Par.BeamIsBlocked(Par.ConnectBox.PhotoAmp_Levers);
+        end        
         
         if ~strcmp(Par.ResponseBox.Task, 'DetectGoSignal')
             % interpret depending on response box type
             switch Par.ResponseBox.Type
-                case 'Beam'
-                    if strcmp(Par.HandSignalBothOrEither, 'Both') && ...
-                            mean(Par.BeamIsBlocked)<1 % at least 1 not blocked
-                        if Par.HandIsIn
-                            % only do this if 1 channel is used
-                            Log.nEvents=Log.nEvents+1;
-                            Log.Events(Log.nEvents).type='HandOut';
-                            Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-                            Par.HandIsIn=false;
-                        end
-                    elseif strcmp(Par.HandSignalBothOrEither, 'Either') && ...
-                            mean(Par.BeamIsBlocked)==0 % neither blocked
-                        if Par.HandIsIn
-                            % only do this if 1 channel is used
-                            Log.nEvents=Log.nEvents+1;
-                            Log.Events(Log.nEvents).type='HandOut';
-                            Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-                            Par.HandIsIn=false;
-                        end
-                    else
-                        if ~Par.HandIsIn
-                            Log.nEvents=Log.nEvents+1;
-                            Log.Events(Log.nEvents).type='HandIn';
-                            Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-                            Par.HandIsIn=true;
-                        end
-                    end
+%                 case 'Beam'
+%                     if strcmp(Par.HandSignalBothOrEither, 'Both') && ...
+%                             mean(Par.BeamIsBlocked)<1 % at least 1 not blocked
+%                         if Par.HandIsIn
+%                             % only do this if 1 channel is used
+%                             Log.nEvents=Log.nEvents+1;
+%                             Log.Events(Log.nEvents).type='HandOut';
+%                             Log.Events(Log.nEvents).t=lft-Par.ExpStart;
+%                             Par.HandIsIn=false;
+%                         end
+%                     elseif strcmp(Par.HandSignalBothOrEither, 'Either') && ...
+%                             mean(Par.BeamIsBlocked)==0 % neither blocked
+%                         if Par.HandIsIn
+%                             % only do this if 1 channel is used
+%                             Log.nEvents=Log.nEvents+1;
+%                             Log.Events(Log.nEvents).type='HandOut';
+%                             Log.Events(Log.nEvents).t=lft-Par.ExpStart;
+%                             Par.HandIsIn=false;
+%                         end
+%                     else
+%                         if ~Par.HandIsIn
+%                             Log.nEvents=Log.nEvents+1;
+%                             Log.Events(Log.nEvents).type='HandIn';
+%                             Log.Events(Log.nEvents).t=lft-Par.ExpStart;
+%                             Par.HandIsIn=true;
+%                         end
+%                     end
                 case 'Lift'
                     if strcmp(Par.HandSignalBothOrEither, 'Both') && ...
-                            mean(Par.BeamIsBlocked)==1 % both blocked
-                        if ~Par.HandIsIn
+                            all(Par.HandIsIn) % both in
+                        if ~any(Par.HandWasIn)
                             % only do this if 1 channel is used
                             Log.nEvents=Log.nEvents+1;
-                            Log.Events(Log.nEvents).type='HandIn';
+                            Log.Events(Log.nEvents).type='BothHandsIn';
                             Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-                            Par.HandIsIn=true;
+                            Par.HandWasIn=Par.HandIsIn;
                         end
                     elseif strcmp(Par.HandSignalBothOrEither, 'Either') && ...
-                            mean(Par.BeamIsBlocked)>0 % at least one blocked
-                        if ~Par.HandIsIn
+                            any(Par.HandIsIn) % both in % at least one blocked
+                        if ~all(Par.HandWasIn)
                             % only do this if 1 channel is used
                             Log.nEvents=Log.nEvents+1;
-                            Log.Events(Log.nEvents).type='HandIn';
+                            if Par.HandIsIn(1)
+                                Log.Events(Log.nEvents).type='LeftHandIn';
+                            else
+                                Log.Events(Log.nEvents).type='RightHandIn';
+                            end
                             Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-                            Par.HandIsIn=true;
+                            Par.HandWasIn=Par.HandIsIn;
                         end
-                    else
-                        if Par.HandIsIn
+                    elseif ~all(Par.HandIsIn)
+                        if any(Par.HandWasIn)
                             Log.nEvents=Log.nEvents+1;
-                            Log.Events(Log.nEvents).type='HandOut';
+                            Log.Events(Log.nEvents).type='HandsOut';
                             Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-                            Par.HandIsIn=false;
+                            Par.HandWasIn=Par.HandIsIn;
                         end
                     end
             end
         end
     end
-% give automated reward
+% give automated reward for fixation
     function GiveRewardAutoFix
         % Get correct reward duration
         switch Par.RewardType
@@ -2339,7 +2465,7 @@ Par=Par_BU;
             end
         end
         
-        if size(Par.Times.Targ,2)>1;
+        if size(Par.Times.Targ,2)>1
             rownr= find(Par.Times.Targ(:,1)<Par.CorrStreakcount(2),1,'last');
             Par.Times.TargCurrent=Par.Times.Targ(rownr,2);
         else
@@ -2381,7 +2507,7 @@ Par=Par_BU;
             Log.Events(Log.nEvents).StimName = [];
         end
     end
-% give manual reward
+% give automated reward for task
     function GiveRewardAutoTask
         if ~isempty(Par.RewardTaskMultiplier)
             Par.RewardTimeCurrent = Par.RewardTaskMultiplier * Par.RewardTime;
@@ -2406,6 +2532,24 @@ Par=Par_BU;
         
         Log.nEvents=Log.nEvents+1;
         Log.Events(Log.nEvents).type='RewardAutoTask';
+        Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
+        Log.Events(Log.nEvents).StimName = [];
+    end
+% give automated reward for hand in
+    function GiveRewardAutoHandIn
+        Par.RewardTimeCurrent = Par.RewardForHandsIn_Quant(sum(Par.HandIsIn));
+        % Give the reward
+        Par.RewardStartTime=GetSecs;
+        Par.RewHandStart=Par.RewardStartTime;
+        if strcmp(computer,'PCWIN64')
+            dasjuice(10); % 64bit das card
+        else
+            dasjuice(5) %old card dasjuice(5)
+        end
+        Par.RewardRunning=true;
+       
+        Log.nEvents=Log.nEvents+1;
+        Log.Events(Log.nEvents).type='RewardAutoHand';
         Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
         Log.Events(Log.nEvents).StimName = [];
     end

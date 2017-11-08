@@ -1,0 +1,7 @@
+Runstim: runstim
+StimSettings: StimSettings_FixDotOnly
+ParSettings: ParSettings_DANNY_MOCK_HAND_TR2500ms
+
+1: Performance for NoStim = 0 %
+Average performance: 0% (std: 0 %)
+Total reward: 0 s

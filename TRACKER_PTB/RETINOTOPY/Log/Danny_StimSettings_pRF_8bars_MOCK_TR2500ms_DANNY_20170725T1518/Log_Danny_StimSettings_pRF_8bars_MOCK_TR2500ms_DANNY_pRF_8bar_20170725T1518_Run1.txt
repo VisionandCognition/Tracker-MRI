@@ -1,0 +1,11 @@
+Runstim: runstim
+StimSettings: StimSettings_pRF_8bars_MOCK_TR2500ms_DANNY
+ParSettings: ParSettings_DANNY_MOCK_HAND_TR2500ms
+
+Stimulus: pRF_8bar
+
+Fixation perc over run (inc. pre/post): 30.2807
+Fixation perc over run (exc. pre/post): NaN
+Fixation perc PreStim: 30.2807
+
+Total reward: 0.46

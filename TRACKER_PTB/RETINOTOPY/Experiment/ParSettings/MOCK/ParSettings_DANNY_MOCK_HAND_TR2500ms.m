@@ -1,4 +1,4 @@
-function ParSettings_EDDY_MOCK
+function ParSettings_MOCK_NEW_TR2500ms
 
 % ParSettings gives all parameters for the experiment in global Par
 global Par
@@ -25,12 +25,12 @@ Stm=StimObj.Stm;
 StimObj.Stm.FixDotCol = [.3 .3 .3 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
-Par.FixWinSize = [2 2]; % [W H] in deg
+Par.FixWinSize = [1.5 1.5]; % [W H] in deg
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
-Par.SCx = 0.1; %initial scale in control window
-Par.SCy = 0.09;
+Par.SCx = 0.135; %initial scale in control window
+Par.SCy = 0.135;
 Par.OFFx = 0; %initial eye offset x => (center) of camera das output
 Par.OFFy = 0; %initial eye offset y
 Par.ScaleOff = [Par.OFFx; Par.OFFy; Par.SCx; Par.SCy]; 
@@ -127,27 +127,30 @@ Par.ResponseBox.Type='Lift'; % 'Beam' or'Lift'
 
 %% Response task ==========================================================
 Par.ResponseBox.Task = 'DetectGoSignal';
-
+%Par.ResponseBox.Task = 'Fixate';    % doesn't really matter as long as 
+                                    % it's not DetectGoSignal
 Par.RESP_STATE_WAIT = 1; % Go signal not yet given
 Par.RESP_STATE_GO = 2; % Go signal given
 Par.RESP_STATE_DONE = 4;  % Go signal given and response no longer possible (hit or miss)
 
 % Go-bar (vertical / horizontal target bar) -------------------------------
-Gobar_length = 0.50; % .02
+Gobar_length = 0.15; % .02
 Par.GoBarSize = Gobar_length*[1, .25] + [0, 0.01]; % [length width] in deg
 Par.GoBarColor = [0.6 0.7 0.7]; % [R G B] 0-1
 
-% Color of the Response indicator
+% Color of the Response indicator (which hand)
+Par.RespLeverMatters = false;
 Par.RespIndColor = 0.1*[1 1 1;1 1 1]; % colors for the left and right target
-Par.RespIndSize = 1;
+Par.RespIndSize = 0.3;
+Par.RespIndPos = [0 0; 0 0]; % deg
 
-Par.DrawBlockedInd = false;
+Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
 Par.BlockedIndColor = [.7 .7 .7];
 
-Par.SwitchDur = 1000; % (200) duration of alternative orientation
+Par.SwitchDur = 1500; % (200) duration of alternative orientation
 Par.ResponseAllowed = [80 Par.SwitchDur+100]; % [after_onset after_offset] in ms
 Par.PostErrorDelay = 3000; % extra wait time as punishment for error trials
-Par.DelayOnMiss = 0; % extra wait time as punishment for miss trials 
+Par.DelayOnMiss = 500; % extra wait time as punishment for miss trials 
 
 Par.NoIndicatorDuringPunishDelay=true;
 
@@ -157,39 +160,39 @@ Par.ProbSideRepeatOnMiss =      0.50;
 Par.ProbSideRepeatOnEarly =     0.50;
 
 Par.CatchBlock.do = true;
-Par.CatchBlock.AfterNumberOfTrials = 25;
-Par.CatchBlock.NoCorrectPerSideNeeded = 3;
+Par.CatchBlock.AfterNumberOfTrials = 1;
+Par.CatchBlock.NoCorrectPerSideNeeded = 10;
 Par.CatchBlock.StartWithCatch = true;
 
 % set time-windows in which something can happen (ms)
 % [baseduration_without_switch ... 
 %  period_in_which_switch_randomly_occurs]
-Par.EventPeriods = [1000 3000]; % Determines Go-bar onset (was 600 to 1600)
+Par.EventPeriods = [1000 1500]; % Determines Go-bar onset (was 600 to 1600)
 
-%% connection box port assignment =========================================
-Par.ConnectBox.PhotoAmp = [4 5]; % 2 photo-amps can be connected
-Par.ConnectBox.PhotoAmp_used = 1:2; % vector with indeces to used channels
-Par.ConnectBox.EyeRecStat = 6;
+%% Connection box port assignment =========================================
+Par.ConnectBox.PhotoAmp = [4 5 7 8];    % channels for photo-amps 
+Par.ConnectBox.EyeRecStat = 6;          % channel for eye-tracker signal
+Par.ConnectBox.PhotoAmp_Levers = 1:2;   % indeces to PhotoAmp channels
+Par.ConnectBox.PhotoAmp_HandIn = 3:4;   % indeces to PhotoAmp channels
 
 %% Reward scheme ==========================================================
 Par.Reward = true; %boolean to enable reward stim bit or not
-
 Par.RewardSound = false; % give sound feedback about reward
 Par.RewSndPar = [44100 800 1]; % [FS(Hz) TonePitch(Hz) Amplitude]
 Par.RewardFixFeedBack = true;
 
-% RESP_CORRECT = 1;
-% RESP_FALSE = 2;
-% RESP_MISS = 3;
-% RESP_EARLY = 4;
-% RESP_BREAK_FIX = 5;
+% RESP_CORRECT      = 1;
+% RESP_FALSE        = 2;
+% RESP_MISS         = 3;
+% RESP_EARLY        = 4;
+% RESP_BREAK_FIX    = 5;
 Par.FeedbackSound = [false true false true false];
 Par.FeedbackSoundPar = [ ...
-    44100 800 1 0.05; ... CORRECT
-    44100 300 1 0.05; ... FALSE
-    44100 200 1 0.05; ... MISS
-    44100 300 1 0.05; ... EARLY
-    44100 400 1 0.05 ... FIXATION BREAK
+    44100 800 1 0.03; ... CORRECT
+    44100 300 1 0.03; ... FALSE
+    44100 200 1 0.03; ... MISS
+    44100 300 1 0.03; ... EARLY
+    44100 400 1.5 0.03 ... FIXATION BREAK
     ];
 
 % [FS(Hz) TonePitch(Hz) Amplitude Duration]
@@ -197,7 +200,7 @@ Par.FeedbackSoundPar = [ ...
 
 % Create audio buffers for low latency sounds 
 % (they are closed in runstim cleanup) 
-if Par.FeedbackSound
+if any(Par.FeedbackSound)
     try
         InitializePsychSound; % init driver
         % if no speakers are connected, windows shuts down the snd device and
@@ -222,26 +225,6 @@ for i=1:size(Par.FeedbackSoundPar,1)
     end
 end
 
-% Require hands in the box (reduces movement?)
-Par.HandSignalBothOrEither = 'Either'; 
-% if two channels are used, should 'Both' or 'Either' be ok?
-
-% Needed for initiation of tracker since it's in the gui now
-Par.RewNeedsHandInBox=false;
-Par.StimNeedsHandInBox=false;
-Par.FixNeedsHandInBox=false;
-Par.HandOutDimsScreen = false;
-Par.HandOutDimsScreen_perc = 0.9; %(0-1, fraction dimming)
-
-Par.HandIsIn=[false false];
-
-% task related
-Par.HideFix_BasedOnBeam = @(BeamIsBlocked) false; % any(BeamIsBlocked) or all(BeamIsBlocked)
-Par.HideStim_BasedOnBeam = @(BeamIsBlocked) false;
-Par.CorrectResponseGiven = @(Par) Par.ResponseSide > 0 && Par.BeamIsBlocked(Par.ResponseSide);
-Par.IncorrectResponseGiven = @(Par) Par.ResponseSide > 0 && Par.BeamIsBlocked(mod(Par.ResponseSide,2)+1);
-Par.CanStartTrial = @(Par) ~any(Par.BeamIsBlocked);
-
 Par.RewardTaskMultiplier = 1.0;
 Par.RewardFixMultiplier = 0.0;
 
@@ -249,7 +232,7 @@ Par.RewardFixMultiplier = 0.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.060;
+        Par.RewardTimeSet = 0.040;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -271,17 +254,79 @@ Par.RewardTimeManual = 0.02; % amount of reward when given manually
 Par.RewardFixHoldTimeProg = true;
 if Par.RewardFixHoldTimeProg
     Par.RewardFixHoldTime = [...
-        0 2000;...
-        5 1800;...   
-        10 1600;...
-        20 1400;...
-        30 1250;...
+        0 1500;...
+        5 1250;...   
+        10 1000;...
+        20 750;...
+        30 500;...
         ];
 else
     Par.RewardFixHoldTime = 1250; %time to maintain fixation for reward
 end
 
 Par.RewardTime=Par.RewardTimeSet;
+
+%% Hand requirements ======================================================
+% Require hands in the box (reduces movement?)
+Par.HandInBothOrEither = 'Both'; % 'Both' or 'Either'
+
+% Needed for initiation of tracker since it's in the gui now
+Par.RewNeeds.HandIsIn =         false;
+Par.StimNeeds.HandIsIn =        false;
+Par.FixNeeds.HandIsIn =         false;
+Par.TrialNeeds.HandIsIn =       true;   % manual response task
+Par.TrialNeeds.LeversAreDown =  true;   % manual response task
+
+Par.HandOutDimsScreen = false;
+Par.HandOutDimsScreen_perc = 0.9; %(0-1, fraction dimming)
+
+% set-up function to check whether to draw stimulus
+if Par.StimNeeds.HandIsIn && strcmp(Par.HandInBothOrEither,'Both')
+    Par.HideStim_BasedOnHandIn = @(Par) ~all(Par.HandIsIn);
+elseif Par.StimNeeds.HandIsIn && strcmp(Par.HandInBothOrEither,'Either')
+    Par.HideStim_BasedOnHandIn = @(Par) ~any(Par.HandIsIn);
+else
+    Par.HideStim_BasedOnHandIn = @(Par) false;
+end
+
+% set-up function to check whether to draw fixation
+if Par.FixNeeds.HandIsIn && strcmp(Par.HandInBothOrEither,'Both')
+    Par.HideFix_BasedOnHandIn = @(Par) ~all(Par.HandIsIn);
+elseif Par.FixNeeds.HandIsIn && strcmp(Par.HandInBothOrEither,'Either')
+    Par.HideFix_BasedOnHandIn = @(Par) ~any(Par.HandIsIn);
+else
+    Par.HideFix_BasedOnHandIn = @(Par) false;
+end
+
+% set-up function to check whether to allow reward
+if Par.RewNeeds.HandIsIn && strcmp(Par.HandInBothOrEither,'Both')
+    Par.Rew_BasedOnHandIn = @(Par) all(Par.HandIsIn);
+elseif Par.RewNeeds.HandIsIn && strcmp(Par.HandInBothOrEither,'Either')
+    Par.Rew_BasedOnHandIn = @(Par) any(Par.HandIsIn);
+else
+    Par.Rew_BasedOnHandIn = @(Par) true;
+end
+
+% functions for lever task
+if Par.TrialNeeds.HandIsIn && Par.TrialNeeds.LeversAreDown % hands in / levers down
+    Par.CanStartTrial = @(Par) (all(Par.HandIsIn) && ~any(Par.LeverIsUp));
+elseif Par.TrialNeeds.HandIsIn % only hands in
+    Par.CanStartTrial = @(Par) all(Par.HandIsIn);
+elseif Par.TrialNeeds.LeversAreDown % only levers down
+    Par.CanStartTrial = @(Par) ~any(Par.LeverIsUp);
+else % independent of hand and lever position
+    Par.CanStartTrial = @(Par) true;
+end
+
+Par.CorrectResponseGiven    = ...
+    @(Par) Par.ResponseSide > 0 && Par.BeamIsBlocked(Par.ResponseSide);
+Par.IncorrectResponseGiven  = ...
+    @(Par) Par.ResponseSide > 0 && Par.BeamIsBlocked(mod(Par.ResponseSide,2)+1);
+
+% Reward for keeping hand in the box
+Par.RewardForHandsIn = false;
+Par.RewardForHandsIn_Quant = [0.04 0.08]; % 1 hand, both hands
+Par.RewardForHandIn_MinInterval = 2; %s
 
 %% Create Eye-check windows based on stimulus positions ===================
 % The code below is preloaded and will be overwritten on stimulus basis
@@ -309,14 +354,14 @@ Par.Trlcount = [0 0]; %[this_position total]
 Par.CorrStreakcount = [0 0];
 
 %% Keyboard initialization ================================================
-Par.KeyEscape = KbName('Escape'); % allows breaking out of the experiment
-Par.KeyTriggerMR = KbName('t'); % MRI sends a sync pulse as a 't' keypress
-Par.KeyJuice = KbName('j'); % Manual juice reward
-Par.KeyStim = KbName('s'); % toggle stimulus on/off
-Par.KeyFix = KbName('f'); % toggle fix dot on/off
-Par.KeyPause = KbName('p'); % switch on/off stimuli & reward
-Par.KeyRewTimeSet = KbName('r'); % switch to reward timing as defined in ParSettings
-Par.KeyShowRewTime = KbName('w'); % Shows the current reward scheme
+Par.KeyEscape = KbName('Escape');   % allows breaking out of the experiment
+Par.KeyTriggerMR = KbName('t');     % MRI sends a sync pulse as a 't' keypress
+Par.KeyJuice = KbName('j');         % Manual juice reward
+Par.KeyStim = KbName('s');          % toggle stimulus on/off
+Par.KeyFix = KbName('f');           % toggle fix dot on/off
+Par.KeyPause = KbName('p');         % switch on/off stimuli & reward
+Par.KeyRewTimeSet = KbName('r');    % switch to reward timing as defined in ParSettings
+Par.KeyShowRewTime = KbName('w');   % Shows the current reward scheme
 % using the slider in tracker window overrules the initialize reward timing
 
 % Change stim position
@@ -330,11 +375,22 @@ Par.Key5 = KbName('5%');
 % ARROW KEYS, adn 'Z' ARE USED BY TRACKER WINDOW
 % Par.KeyNext = KbName('RightArrow');
 % Par.KeyPrevious = KbName('LeftArrow');
-Par.KeyNext = KbName('n');
-Par.KeyCyclePos = KbName('0)'); % toggle cycle position automatically
-Par.KeyLockPos = KbName('l'); % lock current position (switching keys will have no effect)
-
+Par.KeyNext = KbName('n');          % next position
+Par.KeyCyclePos = KbName('0)');     % toggle cycle position automatically
+Par.KeyLockPos = KbName('l');       % lock current position (switching keys will have no effect)
 Par.PositionLocked=true;
+
+Par.KeyBeam = KbName('b');          % cycle through possible beam requirements 
+Par.KeyBeamInd = 0;
+Par.KeyBeamStates = {...
+    'BeamState','Both/Either','TrialNeedsHand','FixNeedsHand';...
+    '1','Both',     1,1;...
+    '2','Both',     1,0;...
+    '3','Both',     0,1;...
+    '4','Either',   1,1;...
+    '5','Either',   1,0;...
+    '6','Either',   0,1;...    
+    '7','None',     0,0};
 
 %% Trial timing information (CvdT) ========================================
 % NB: Most of this is not used, but tracker may need it in initialization
