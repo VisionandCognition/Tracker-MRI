@@ -32,7 +32,7 @@ Stm = StimObj.Stm;
                 end
             elseif Par.KeyDetectedInTrackerWindow || Par.TestRunstimWithoutDAS % only in Tracker
                 switch Key
-                    case Par.KeyEscape % Never caught - caught by tracker?
+                    case Par.KeyEscape % Never caught - caught by tracker
                         fprintf('\n ------------- Escape Key Received!\n');
                         Par.ESC = true;
                     case Par.KeyTriggerMR
@@ -87,6 +87,18 @@ Stm = StimObj.Stm;
                             Par.ToggleCyclePos = true;
                             fprintf('Toggle position cycling: ON\n');
                         end
+%                     case Par.KeyTogglePause
+%                         if ~Par.Pause
+%                             Par.Pause=true;
+%                             Log.events.add_entry(GetSecs, Stm(1).task.name, 'TimeOut_Start');
+%                             fprintf('Time-out ON\n');
+%                             Par.PauseStartTime=Par.KeyTime;
+%                         else
+%                             Par.Pause=false;
+%                             Par.PauseStopTime=Par.KeyTime-Par.PauseStartTime;
+%                             Log.events.add_entry(GetSecs, Stm(1).task.name, 'TimeOut_Stop', Par.PauseStopTime);
+%                             fprintf(['Time-out OFF (' num2str(Par.PauseStopTime) ' s)\n']);
+%                         end
                     case Par.Key1
                         Par.SwitchPos = true;
                         Par.WhichPos = '1';
@@ -120,6 +132,17 @@ Stm = StimObj.Stm;
                             Par.WaitForFixation = false;
                             fprintf('Not requiring fixation for reward.\n')
                             Log.events.add_entry(time, Stm(1).task.name, 'FixationRequirement', 'Stop');
+                        end
+                    case Par.KeyRequireHandsIn
+                        time = GetSecs;
+                        if ~Par.RequireHandsIn;
+                            Par.RequireHandsIn = true;
+                            fprintf('Requiring hands to be in box.\n')
+                            Log.events.add_entry(time, Stm(1).task.name, 'HandsInRequirement', 'Start');
+                        else
+                            Par.RequireHandsIn = false;
+                            fprintf('Not requiring hands to be in box.\n')
+                            Log.events.add_entry(time, Stm(1).task.name, 'HandsInRequirement', 'Stop');
                         end
                 end
             end

@@ -17,9 +17,11 @@ Params.PawIndCol = satLevel * Params.PawIndCol + (1 - satLevel) * unsaturatedCol
 
 QuickParams = Params;
 
-QuickParams.EventPeriods = [2200 1000 300];
+%QuickParams.EventPeriods = [2200 1000 300];
+QuickParams.EventPeriods = [1500 700 300];
 %QuickParams.rewardMultiplier = .5; % 0.5;
-QuickParams.SwitchDur = 600000;
+QuickParams.SwitchDur = 600;
+QuickParams.ResponseAllowed = [100 QuickParams.SwitchDur+100]; % [after_onset after_offset] in ms
 QuickParams.maxSideProb = 0.75;
 QuickParams.sideRespAprioriNum = 2;
 

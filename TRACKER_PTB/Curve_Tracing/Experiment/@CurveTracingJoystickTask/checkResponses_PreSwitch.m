@@ -10,6 +10,7 @@ function checkResponses_PreSwitch( obj, lft )
         Par.RespValid = false;
         obj.curr_response = 'early';
         Par.CurrResponse = Par.RESP_EARLY;
+        % count the number of this type of responses
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
         obj.curr_hand = Par.NewResponse; % save which hand
         Par.FalseResponseGiven=true;
@@ -18,11 +19,21 @@ function checkResponses_PreSwitch( obj, lft )
             obj.updateState('POSTSWITCH', lft);
         end
     elseif ~Par.FixIn && Par.WaitForFixation
-        % false
         Par.RespValid = false;
         obj.curr_response = 'break_fix';
         Par.CurrResponse = Par.RESP_BREAK_FIX;
         obj.curr_hand = Par.NewResponse; % save which hand
+        % count the number of this type of responses
+        Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
+        Par.FalseResponseGiven=false;
+        
+        obj.updateState('POSTSWITCH', lft);
+    elseif ~Par.HandsInPosition && Par.RequireHandsIn
+        Par.RespValid = false;
+        obj.curr_response = 'remove_hand';
+        Par.CurrResponse = Par.RESP_REMOVE_HAND;
+        obj.curr_hand = Par.NewResponse; % save which hand
+        % count the number of this type of responses
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
         Par.FalseResponseGiven=false;
         

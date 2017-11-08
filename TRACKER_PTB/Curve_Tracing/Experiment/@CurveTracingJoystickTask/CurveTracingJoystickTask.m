@@ -12,6 +12,7 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
         stateStart = struct('SWITCHED', -Inf);
         goBarOrient =  1; % 1=default, 2=switched
         
+        nextTarget = 0;
         
         iTrialOfBlock = 0;
         blockNum = 0;
@@ -64,6 +65,14 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
                 obj.taskName = 'Control CT';
             end
             obj.trial_log = TrialLog();
+            obj.nextTarget = 0;
+        end
+        
+        function setNextTargetLeft(obj)
+            obj.nextTarget = 1;
+        end
+        function setNextTargetRight(obj)
+            obj.nextTarget = 2;
         end
 
         lft = drawStimuli(obj, lft);
@@ -225,7 +234,17 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
         end
         
         function stim_index = selectTrialStimulus(obj)
-            stim_index = randi(size(obj.stimuli_params, 1), 1);
+            if obj.nextTarget > 0 % if next target was manually chosen
+                iTargetShape = obj.nextTarget;
+                obj.nextTarget = 0;
+                
+                side_mask = obj.stimuli_params.iTargetShape == iTargetShape;
+            
+                mask_indices = find(side_mask);
+                stim_index = mask_indices(randi(sum(side_mask)));
+            else
+                stim_index = randi(size(obj.stimuli_params, 1), 1);
+            end
         end
     end
     

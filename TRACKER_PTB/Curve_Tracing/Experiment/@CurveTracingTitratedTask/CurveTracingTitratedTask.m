@@ -5,7 +5,6 @@ classdef CurveTracingTitratedTask < CurveTracingJoystickTask
     
     properties (Access = protected)
         targetLoc = nan;
-        nextTarget = 0;
     end
     methods
         function obj = CurveTracingTitratedTask(commonParams, stimuliParams, taskName)
@@ -20,14 +19,6 @@ classdef CurveTracingTitratedTask < CurveTracingJoystickTask
                 class(obj)]);
             assert(commonParams.maxSideProb >= 0.5 && ...
                 commonParams.maxSideProb <= 1.0);
-            obj.nextTarget = 0;
-        end
-        
-        function setNextTargetLeft(obj)
-            obj.nextTarget = 1;
-        end
-        function setNextTargetRight(obj)
-            obj.nextTarget = 2;
         end
     end
     

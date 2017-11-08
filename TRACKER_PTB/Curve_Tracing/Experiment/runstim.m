@@ -17,6 +17,7 @@ Par.RESP_FALSE = 2;
 Par.RESP_MISS = 3;
 Par.RESP_EARLY = 4;
 Par.RESP_BREAK_FIX = 5;
+Par.RESP_REMOVE_HAND = 6;
 
 RespText = {'Correct', 'False', 'Miss', 'Early', 'Fix. break'};
 
@@ -123,6 +124,7 @@ end
 for CodeControl=1 %allow code folding
     % Some intitialization of control parameters
     Par.ESC = false; %escape has not been pressed
+    Par.Pause = false;
     Par.endExperiment  = false;
     Log.MRI.TriggerReceived = false;
     Log.MRI.TriggerTime = [];
@@ -177,7 +179,7 @@ for CodeControl=1 %allow code folding
     % Trial Logging
     Par.CurrResponse = Par.RESP_NONE;
     
-    Par.Response = [0 0 0 0 0]; % counts [correct false-hit miss early fix.break]
+    Par.Response = [0 0 0 0 0 0]; % counts [correct false-hit miss early fix.break hand-removed]
 
     Par.FirstInitDone=false;
     Par.CheckFixIn=false;
@@ -509,6 +511,7 @@ for CleanUp=1 % code folding
         fprintf(fid, 'Early response: %d\n', Par.Response(Par.RESP_EARLY));
         fprintf(fid, 'Late / no response: %d\n', Par.Response(Par.RESP_MISS));
         fprintf(fid, 'Fix. breaks: %d\n\n', Par.Response(Par.RESP_BREAK_FIX));
+        fprintf(fid, 'Hand removals: %d\n\n', Par.Response(Par.RESP_REMOVE_HAND));
         totalResp = sum(Par.Response([Par.RESP_CORRECT Par.RESP_FALSE Par.RESP_EARLY]));
         fprintf(fid, 'Responses: %d\n\n', totalResp);
         

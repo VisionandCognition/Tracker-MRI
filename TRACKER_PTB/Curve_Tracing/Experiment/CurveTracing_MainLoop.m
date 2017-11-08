@@ -72,6 +72,7 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
     Par.CorrectThisTrial=false;
     Par.BreakTrial=false;
     Par.TrialResponse = false;
+    Par.HandRemoved = false;
     
     % Eye Window preparation ----------------------------------------------
     for PrepareEyeWin=1
@@ -79,6 +80,14 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
     end
     if ~Par.TestRunstimWithoutDAS
         dasreset( 0 );
+    end
+    
+    while ~Par.ESC && (~Par.GoNewTrial) % Par.Pause || 
+        CheckManual(Stm);
+        CheckKeys;
+        Par.lft = Stm(1).task.drawStimuli(Par.lft);
+        CheckFixation;
+        CheckTracker; % Get and plot eye position
     end
     
     % Check eye fixation --------------------------------------------------
@@ -95,7 +104,7 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
     %
     %     Go through all of the different states of the current trial
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    while ~Stm(1).task.endOfTrial() && ~Par.PosReset && ~Par.endExperiment && ~Par.BreakTrial
+    while ~Stm(1).task.endOfTrial() && ~Par.PosReset && ~Par.endExperiment && ~Par.BreakTrial  %&& ~Par.Pause
         if GetSecs >= stopAt || Par.ESC
             if Par.FixStart ~= Inf
                 % Give subject a reward if not waiting for fixation
@@ -143,7 +152,10 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
     
     % no response or fix break during switch = miss
     % ~Par.ResponseGiven && ~Par.FalseResponseGiven && ...
-    if Par.CurrResponse == Par.RESP_NONE            
+    if Par.HandRemoved
+        Par.CurrResponse = Par.RESP_REMOVE_HAND;
+        
+    elseif Par.CurrResponse == Par.RESP_NONE
         Par.CurrResponse = Par.RESP_MISS;
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
         Par.CorrStreakcount=[0 0];

@@ -11,6 +11,10 @@ function checkResponses_PreFixation( obj, time )
 
         obj.startTrackingFixationTime(time, Par.FixIn);
         obj.updateState('PRESWITCH', time);
+        
+    elseif ~Par.HandsInPosition && Par.RequireHandsIn
+        obj.updateState('TRIAL_END', time);
+        
     elseif ~Par.FixIn && Par.WaitForFixation % if fixation lost, restart prefix period
         obj.updateState('PREFIXATION', time);
     end

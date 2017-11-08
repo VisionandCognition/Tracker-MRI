@@ -20,7 +20,7 @@ Par.NumVols = 420;
 Par.MRITriggeredStart = true;
 Par.MRITrigger_OnlyOnce = true;
 
-Par.Verbosity = 1;
+Par.Verbosity = 2;
 
 Par.ProjectLogDir = 'Curve_Tracing';
 
@@ -156,6 +156,7 @@ Par.RewSndPar = [44100 800 1];
 % RESP_MISS = 3;
 % RESP_EARLY = 4;
 % RESP_BREAK_FIX = 5;
+% RESP_REMOVE_HAND = 6;
 Par.FeedbackSound = [false true true true true];
 Par.FeedbackSoundPar = [ ...
     44100 800 1 NaN; ... CORRECT
@@ -179,7 +180,17 @@ Par.FixNeedsHandInBox=false;
 Par.HandOutDimsScreen = false;
 Par.HandOutDimsScreen_perc = 0.9; %(0-1, fraction dimming)
 
-Par.HandIsIn=[false false];
+Par.HandResponse=[false false];
+Par.HandsIn=[false false]; % Hands in position ready to respond
+Par.RequireHandsIn = true;
+Par.SingleHandInReward = 0.1; % 0 to disable
+Par.BothHandsInReward = 0.5;
+Par.MinSecsBetweenSingleHandInRewards = 10;
+Par.MinSecsBetweenBothHandsInRewards = 10;
+Par.SingleHandInRewardTime = -Inf;
+Par.BothHandsInRewardTime = -Inf;
+% Par.MinSecSinceReward = 10;
+
 
 Par.ManualRewardTargetOnly = false; % only give manual reward during target presentation
 % prevents me from mistiming the manual reward during training
@@ -241,6 +252,7 @@ Par.KeyTriggerMR = KbName('t'); % MRI sends a sync pulse as a 't' keypress
 Par.KeyJuice = KbName('j'); % Manual juice reward
 Par.KeyCyclePos = KbName('p'); % toggle cycle position
 Par.KeyRequireFixation = KbName('f'); % toggle cycle position
+Par.KeyRequireHandsIn = KbName('h');
 Par.KeyWaitForMRITrigger = KbName('w'); % proceed to wait for trigger
 Par.KeyCountDownMRITriger = KbName('Space'); % wait for trigger in ~7 s
 
@@ -248,6 +260,7 @@ Par.KeyFORPResponseLeft = KbName('e'); % for human or testing
 Par.KeyFORPResponseRight = KbName('b');
 Par.KeyNextTargetLeft = KbName('s'); % for human or testing
 Par.KeyNextTargetRight = KbName('d');
+Par.KeyTogglePause = KbName('Space'); % allows breaking out of the experiment
 
 % Change stim position
 KbName('UnifyKeyNames');
