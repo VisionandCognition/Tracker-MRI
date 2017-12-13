@@ -7,16 +7,13 @@ eval('StimSettings__Defaults__'); % loads the default parameters
 
 Stm = StimObj.Stm;
 
-%curvetracing = CurveTracingJoystickTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
-Stm(1).KeepSubjectBusyTask = CurveTracingTitratedTask(StimObj.DefaultParams, ...
-     'StimSettings/CurveTracingJoyStickTask.csv', ...
-     'Keep busy');
+curvetracing = CurveTracingJoystickTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
 
-curvetracing = CurveTracingBlockTitratedTask(StimObj.DefaultParams, 'StimSettings/CurveTracingJoyStickTask.csv');
-curvecatch = CurveTracingCatchBlockTask(StimObj.DefaultParams, 'StimSettings/CurveTracingJoyStickTask.csv');
-curvecontrol = CurveTracingTitratedTask(StimObj.DefaultCtrlParams, 'StimSettings/CurveTracingJoyStickTask-Control.csv', 'Control CT');
+%  curvecatch = CurveTracingCatchBlockTask(StimObj.DefaultParams, 'StimSettings/CurveTracingJoyStickTask.csv');
+curvecontrol = CurveTracingJoystickTask(StimObj.DefaultCtrlParams, 'StimSettings/CurveTracingJoyStickTask-Control.csv', 'Control CT');
 fixation = FixationTask(StimObj.DefaultFixParams);
 Stm(1).RestingTask = fixation;
+Stm(1).KeepSubjectBusyTask = fixation;
 
     %repmat({curvetracing}, 1, 4*4) ... curve tracing
     %repmat({curvecontrol}, 1, 1*4) ... control
@@ -26,7 +23,7 @@ Stm(1).tasksToCycle = [...
     repmat({curvetracing}, 1, 4*2) ... curve tracing
     repmat({curvecontrol}, 1, 1*2) ... control
     repmat({fixation}, 1, 1*2) ... fixation
-    {curvecatch} ... catch trial
+    ... {curvecatch} ... catch trial
     ];
 Stm(1).taskCycleInd = 1;
 %Stm(1).task = Stm(1).RestingTask;

@@ -52,25 +52,39 @@ CheckerboardParams.PawIndSizeDeg = [3.5, 3.5, 3.5, 3.5, CheckerboardParams.FixDo
 % target. It's horrible, I know.
 CheckerboardParams.NumOfPawIndicators = 4;
 
-checkerboard = CTShapedCheckerboard(CheckerboardParams, ...
-    'StimSettings/HandResponseTask_NoStimulus.csv', ...
-    'StimSettings/CheckerboardCurveStimulus_IndividualStimuli.csv');
+CheckerboardParams.subtrialsInTrial = 4;   % just for fixation task
+CheckerboardParams.fixationPeriod = 4000.0 / CheckerboardParams.subtrialsInTrial;
+CheckerboardParams.postfixPeriod = 0;      % just for fixation task
+CheckerboardParams.rewardMultiplier = 1.0 / CheckerboardParams.subtrialsInTrial;
+CheckerboardParams.BlockSize = 3;
 
-Stm(1).RestingTask = CurveTracingBlockByTitratedTask(CtrlParams, ...
-    'StimSettings/HandResponseTask_NoStimulus.csv', ...
-    'No Stim Hand Response', ...
-    'CombinedStim');
+if false
+    checkerboard = CTShapedCheckerboard(CheckerboardParams, ...
+        'StimSettings/CheckerboardCurveStimulus_IndividualStimuli.csv');
+    Stm(1).tasksToCycle = [...
+        repmat({checkerboard}, 1, 1) ... checkerboard
+        ];
+else
+    map_left = CTShapedCheckerboard(CheckerboardParams, ...
+        'StimSettings/CheckerboardCurveStimulus_LeftHemisphere.csv', 'CT-Shaped Checkerboard LH');
+    map_right = CTShapedCheckerboard(CheckerboardParams, ...
+        'StimSettings/CheckerboardCurveStimulus_RightHemisphere.csv', 'CT-Shaped Checkerboard RH');
+    Stm(1).tasksToCycle = [...
+        repmat({map_left}, 1, 1) ... checkerboard LH
+        repmat({map_right}, 1, 1) ... checkerboard RH
+        ];
+end
+
+fixation = FixationTask(StimObj.DefaultFixParams);
+
+Stm(1).RestingTask = fixation;
 
 Stm(1).KeepSubjectBusyTask = Stm(1).RestingTask;
 
-Stm(1).tasksToCycle = [...
-    repmat({checkerboard}, 1, 1) ... checkerboard
-    ];
 Stm(1).taskCycleInd = 1;
 %Stm(1).task = Stm(1).RestingTask;
-Stm(1).alternateWithRestingBlocks = true;
-
-Stm(1).checkerboard = checkerboard;
+Stm(1).alternateWithRestingBlocks = false;
+Stm(1).iterateTasks = true;
 
 Stm(1).task = Stm(1).RestingTask; % task used for initialization
 

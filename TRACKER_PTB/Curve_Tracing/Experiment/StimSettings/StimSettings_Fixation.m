@@ -15,12 +15,10 @@ satLevel = 0.075/12;
 Params.PawIndCol = satLevel * Params.PawIndCol + (1 - satLevel) * unsaturatedColor;
 
 FixParams = Params;
-FixParams.rewardMultiplier = 1.0; % 0.5;
-FixParams.subtrialsInTrial = 8;
-FixParams.fixationPeriod = 500;  % just for fixation task
-FixParams.postfixPeriod = 0;  % just for fixation task
-
-FixParams.rewardMultiplier = .12; % 0.5;
+FixParams.subtrialsInTrial = 8;   % just for fixation task
+FixParams.fixationPeriod = 500;   % just for fixation task
+FixParams.postfixPeriod = 0;      % just for fixation task
+FixParams.rewardMultiplier = .12;
 FixParams.BlockSize = 3; %round(3* 3500 / FixParams.fixationPeriod * FixParams.subtrialsInTrial);
 
 % use non-blocked curvetracing

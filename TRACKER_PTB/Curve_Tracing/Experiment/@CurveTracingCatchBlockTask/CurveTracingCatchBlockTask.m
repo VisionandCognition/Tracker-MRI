@@ -16,26 +16,24 @@ classdef CurveTracingCatchBlockTask < CurveTracingJoystickTask
     
     methods (Access = protected)
         function stim_index = selectTrialStimulus(obj)
-            if obj.iTrialOfBlock == 1 || any(isnan(obj.iTargetLoc)) % if new block
-
-                obj.iTargetLoc(1) = randi(4, 1);
-                notchosen = [1:4];
-                notchosen = notchosen(notchosen ~= obj.iTargetLoc(1));
-                if rand() < 0.5 % make next target something other than 1
-                    obj.iTargetLoc(2) = notchosen(randi(length(notchosen), 1));
-                    % location 3 can be anything
-                    obj.iTargetLoc(3) = randi(4, 1);
-                else
-                    obj.iTargetLoc(2) = obj.iTargetLoc(1);
-                    % location 3 has to be different
-                    obj.iTargetLoc(3) = notchosen(randi(length(notchosen), 1));
-                end
+            % only act different from super when last trial of block
+            if obj.iTrialOfBlock < obj.param('BlockSize') || any(isnan(obj.iTargetLoc))
+                stim_index = selectTrialStimulus@CurveTracingJoystickTask(...
+                    obj);
+                return
             end
             % subset of stimuli that has target at obj.targetLoc
-            stim_mask = strcmp(obj.stimuli_params.TargetLoc, ...
-                obj.targetLocNames{obj.iTargetLoc(obj.iTrialOfBlock)});
+            paramval = obj.stimuli_params(obj.block_example_ind,:).(obj.sampleBy){1};
+
+            % invert previous
+            stim_mask = ~strcmp( ...
+                obj.stimuli_params.(obj.sampleBy), ...
+                paramval);
+            dbstop;
+            
             mask_indices = find(stim_mask);
-            stim_index = mask_indices(randi(sum(stim_mask)));
+            ind = randi(numel(mask_indices));
+            stim_index = mask_indices(ind);
         end
     end
 end

@@ -6,35 +6,36 @@ classdef CTShapedCheckerboard < FullscreenCheckerboard
         curves = nan;
         %maskedCB = nan; % checkboard with masks applied
         maskedCBTexture = nan; % all the checkerboard patterns
-        
+
         % The stimuli_params are used by the Fullscreen Checkerboard
         % for the center target. The following are for the stimuli outside
         % of the center target. They have "curve" in the name, because the
         % stimuli outside of the target contain curves, although it also
         % includes the target shapes.
-        curve_stimuli_params; % parameters for each individual stimulus
+        %   stimuli_params; % parameters for each individual stimulus
         curveStimuliParamsPath = NaN;
-        curr_curve_stim = NaN; % parameters for the stimulus of the current trial
-        curr_curve_stim_index = -1; % indexes curve_stimuli_params
+        curr_stim_index = NaN; % indexes stimuli_params
+        %   curr_stim = NaN; % parameters for the stimulus of the current trial
+
+        remain_stim_ind = []; % remaining stimuli indices for sampling
     end
-    
+
     methods
         function obj = CTShapedCheckerboard(commonParams, ...
-                checkerboardParams, ...
                 curveStimParams, ...
                 taskName)
-            if nargin < 4
+            if nargin < 3
                 taskName = 'CT-Shaped Checkerboard';
             end
-            obj = obj@FullscreenCheckerboard(commonParams, checkerboardParams, taskName);
+            obj = obj@FullscreenCheckerboard(commonParams, taskName);
             
             obj.curveStimuliParamsPath = which(curveStimParams);
-            obj.curve_stimuli_params = readtable(obj.curveStimuliParamsPath);
+            obj.stimuli_params = readtable(obj.curveStimuliParamsPath);
         end
-        
+
         function [val, status] = param(obj, var, varargin)
             try
-                val = obj.curr_curve_stim(var);
+                val = obj.curr_stim(var);
                 status = true;
             catch ME
                 % Only catch errors due to the key not being found
@@ -53,6 +54,25 @@ classdef CTShapedCheckerboard < FullscreenCheckerboard
                 error('Parameter variable %s does not exist!', var);
             end
         end
+
+        function updateState(obj, state, time)
+            global Log;
+            obj.state = state;
+            
+            obj.currStateStart = time;
+            obj.stateStart.(obj.state) = time;
+            
+            Log.events.save_next_flip();
+            Log.events.add_entry(time, obj.taskName, 'DecideNewState', obj.state);
+            Log.events.queue_entry(obj.taskName, 'NewState', obj.state);
+
+            switch obj.state
+                case 'PREPARE_STIM'
+                    obj.update_PrepareStim();
+                case 'INIT_TRIAL'
+                    obj.update_InitTrial();
+            end
+        end
         
         lft = drawStimuli(obj, lft);
     end
@@ -60,5 +80,7 @@ classdef CTShapedCheckerboard < FullscreenCheckerboard
     methods (Access = protected)
         update_PrepareStim(obj);
         [pts, pts_col] = calcCurve(obj, indpos);
+        
+        stim_index = selectTrialStimulus(obj);
     end
 end

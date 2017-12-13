@@ -6,6 +6,11 @@ Params = struct;
 Stm(1).UsePreDefFlipTime=false; %else as fast as possible
 Stm(1).FlipTimePredef = 1/75;
 
+% Default ordering of the tasks
+
+Stm(1).alternateWithRestingBlocks = false;
+Stm(1).iterateTasks = false;
+
 % Background --------------------------------------------------------------
 Params.BGColor = [.5 .5 .5]; % [R G B] 0-1
 

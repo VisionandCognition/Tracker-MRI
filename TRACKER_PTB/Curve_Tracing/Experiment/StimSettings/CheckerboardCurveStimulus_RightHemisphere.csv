@@ -1,0 +1,8 @@
+LeftStim,RightStim,CombinedStim,GapL,GapR,GapUL,GapDL,GapUR,GapDR,CurveSegL,CurveSegR,CurveSegUL,CurveSegDL,CurveSegUR,CurveSegDR,PreSwitchUL,IndicatorUL,PreSwitchDL,IndicatorDL,PreSwitchUR,IndicatorUR,PreSwitchDR,IndicatorDR
+BlankL,CircleDR,BlankL+CircleDR,0,0,0,0,0,0,0,0,0,0,0,0,,,,,,,Circle,Circle
+BlankL,CircleUR,BlankL+CircleUR,0,0,0,0,0,0,0,0,0,0,0,0,,,,,Circle,Circle,,
+BlankL,CurveSegDR,BlankL+CurveSegDR,0,0,0,0,0,0,0,0,0,0,0,1,,,,,,,,
+BlankL,CurveSegUR,BlankL+CurveSegUR,0,0,0,0,0,0,0,0,0,0,1,0,,,,,,,,
+BlankL,GapDR,BlankL+GapDR,0,0,0,0,0,1,0,0,0,0,0,0,,,,,,,,
+BlankL,GapR,BlankL+GapR,0,1,0,0,0,0,0,0,0,0,0,0,,,,,,,,
+BlankL,GapUR,BlankL+GapUR,0,0,0,0,1,0,0,0,0,0,0,0,,,,,,,,

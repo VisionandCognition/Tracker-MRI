@@ -26,6 +26,12 @@ Stm = StimObj.Stm;
 CheckerboardParams = CtrlParams;
 CheckerboardParams.LoadFromFile = false;
 
+CheckerboardParams.subtrialsInTrial = 4;   % just for fixation task
+CheckerboardParams.fixationPeriod = 4000.0 / CheckerboardParams.subtrialsInTrial;
+CheckerboardParams.postfixPeriod = 0;      % just for fixation task
+CheckerboardParams.rewardMultiplier = 1.0 / CheckerboardParams.subtrialsInTrial;
+CheckerboardParams.BlockSize = 3;
+
 RetMap.PreDur_TRs = 5; % TR's NB! With a TR of 3 sec, this is 15 s
 RetMap.PostDur_TRs = 5; % TR's scan a few more volumes for HRF to catch up
 RetMap.StimType{1} = 'checkerboard'; % face / walker / checkerboard / none
@@ -46,24 +52,21 @@ CheckerboardParams.RetMap = RetMap;
 
 
 %curvetracing = CurveTracingJoystickTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv');
-Stm(1).KeepSubjectBusyTask = FullscreenCheckerboard(CheckerboardParams, ...
-    'StimSettings/HandResponseTask_NoStimulus.csv', ...
-    'Keep busy');
 
-checkerboard = FullscreenCheckerboard(CheckerboardParams, ...
-    'StimSettings/HandResponseTask_NoStimulus.csv');
+checkerboard = FullscreenCheckerboard(CheckerboardParams);
 
-Stm(1).RestingTask = CurveTracingBlockByTitratedTask(CtrlParams, ...
-    'StimSettings/HandResponseTask_NoStimulus.csv', ...
-    'No Stim Hand Response', ...
-    'CombinedStim');
+
+fixation = FixationTask(StimObj.DefaultFixParams);
+Stm(1).RestingTask = fixation;
+Stm(1).KeepSubjectBusyTask = fixation;
+Stm(1).KeepSubjectBusyTask = checkerboard;  % <-- just for testing!!!
 
 Stm(1).tasksToCycle = [...
     repmat({checkerboard}, 1, 1) ... checkerboard
     ];
 Stm(1).taskCycleInd = 1;
 %Stm(1).task = Stm(1).RestingTask;
-Stm(1).alternateWithRestingBlocks = true;
+Stm(1).alternateWithRestingBlocks = true; % <------
 
 Stm(1).checkerboard = checkerboard;
 

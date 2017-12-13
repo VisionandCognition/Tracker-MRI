@@ -34,12 +34,12 @@
     end
     
     Screen('DrawTexture', Par.window, ...
-        obj.maskedCBTexture(obj.ChkNum, obj.curr_curve_stim_index),[],[],[],1);
+        obj.maskedCBTexture(obj.ChkNum, obj.curr_stim_index),[],[],[],1);
    
     
-    %%% ======================================   Draw center task   ==========
+    %%% ======================================   Draw fixation point   ==========
     
-    obj.drawCenterTarget(lft);
+    obj.drawFix();
     
     % ================================= Draw on screen
     lft = Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);

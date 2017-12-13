@@ -12,7 +12,7 @@
         case 'FIXATION_PERIOD'
             obj.drawFix();
         case 'POSTFIXATION'
-        case 'END_TRIAL'
+        case 'TRIAL_END'
         otherwise
             assert(false); % there are no other states
     end

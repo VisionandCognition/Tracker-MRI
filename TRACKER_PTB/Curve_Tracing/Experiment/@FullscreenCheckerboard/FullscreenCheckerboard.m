@@ -1,21 +1,11 @@
-classdef FullscreenCheckerboard < FixationTrackingTask & HandResponseOnSwitchTask
+classdef FullscreenCheckerboard < FixationTask
     % FULLSCREENCHECKERBOARD From the Retinotopy experiment
-    properties
-        taskName = 'Fullscreen checkerboard'
-        curr_stim_index = -1;
-        curr_stim = NaN;
-        stimuli_params; % parameters for each individual stimulus
-        stimuliParamsPath = NaN;
+    properties (Access = protected)
+        % curr_stim_index = -1; % should be moved to CTShapedCheckerboard
         
         drawChecker = true;
-        state = NaN;
-        currStateStart = -Inf; 
-        stateStart = struct('SWITCHED', -Inf);
         ChkNum=1;
         startTrial = -Inf;
-        
-        iTrialOfBlock = 0;
-        blockNum = 0;
         
         CheckTexture;
         TrackingCheckerContChange=false;
@@ -26,21 +16,17 @@ classdef FullscreenCheckerboard < FixationTrackingTask & HandResponseOnSwitchTas
         CB1 = nan;
         CB2 = nan;
     end
-    properties (Access = public)
-        taskParams; % parameters that apply to every stimulus
-    end
     
     methods
-        function obj = FullscreenCheckerboard(commonParams, stimuliParams, taskName)
-            obj.taskParams = commonParams;
+        function obj = FullscreenCheckerboard(commonParams, taskName)
+            obj = obj@FixationTask(commonParams);
             
-            % Use which to search Matlab path - allows to read csv when
-            % starting up tracker. Needed for Matlab 2016B.
-            obj.stimuliParamsPath = which(stimuliParams);
-            obj.stimuli_params = readtable(obj.stimuliParamsPath);
-            if nargin >= 3
+            if nargin >= 2
                 obj.taskName = taskName;
+            else
+                obj.taskName = 'Fullscreen checkerboard';
             end
+            
             obj.trial_log = TrialLog();
         end
         function name = name(obj)
@@ -61,35 +47,9 @@ classdef FullscreenCheckerboard < FixationTrackingTask & HandResponseOnSwitchTas
             Log.events.add_entry(time, obj.taskName, 'DecideNewState', obj.state);
             Log.events.queue_entry(obj.taskName, 'NewState', obj.state);
 
-
             switch obj.state
                 case 'PREPARE_STIM' % only called once, at beginning
                     obj.update_PrepareStim();
-                case 'INIT_TRIAL'
-                    obj.update_InitTrial();
-                case 'PRESWITCH'
-                    %obj.update_UpdateStimulus();
-                case 'SWITCHED'
-                    %obj.update_UpdateStimulus();
-                case 'POSTSWITCH'
-                    %obj.update_UpdateStimulus();
-            end
-            %obj.stateStart.(obj.state) = time;
-        end
-        function checkResponses(obj, lft)
-            switch obj.state
-                case 'PREPARE_STIM'
-                case 'INIT_TRIAL'
-                case 'PREFIXATION'
-                    obj.checkResponses_PreFixation(lft);
-                case 'PRESWITCH'
-                    obj.checkResponses_PreSwitch(lft);
-                case 'SWITCHED'
-                    obj.checkResponses_Switched(lft);
-                case 'POSTSWITCH'
-                    obj.checkResponses_PostSwitch(lft);
-                otherwise
-                    print(obj.state)
             end
         end
         function isEnd = endOfTrial(obj)
@@ -134,38 +94,15 @@ classdef FullscreenCheckerboard < FixationTrackingTask & HandResponseOnSwitchTas
                 error('Parameter variable %s does not exist!', var);
             end
         end
+        
         function write_trial_log_csv(obj, common_base_fn)
+            obj.trial_log.write_csv([common_base_fn '_' obj.taskName(obj.taskName ~= ' ') '.csv'])
+            obj.write_param_csv(common_base_fn)
         end
-        function SCNT = trackerWindowDisplay(obj)
-            if strcmp(obj.taskName, 'Control CT')
-                SCNT(1) = { ['Control ' num2str(obj.blockNum)] };
-            else
-                SCNT(1) = { ['Curve tr. ' num2str(obj.blockNum)] };
-            end
-            SCNT(2) = { ['C:  ' num2str(sum(obj.responses_hand.correct)) ...
-                ' ' num2str(sum(obj.responses_hand.correct(1))) '+' ...
-                num2str(sum(obj.responses_hand.correct(2))) ...
-                ] };
-            SCNT(3) = { ['F: ' num2str(sum(obj.responses_hand.false)) ...
-                ' ' num2str(sum(obj.responses_hand.false(1))) '+' ...
-                num2str(sum(obj.responses_hand.false(2))) ...
-                ] };
-            SCNT(4) = { ['M:  ' num2str(sum(obj.responses_hand.miss) + ...
-                sum(obj.responses_hand.early) + sum(obj.responses_hand.break_fix))] };
-            
-            SCNT(5) = { ['C+F: ' num2str(...
-                sum(obj.responses_hand.correct) + ...
-                sum(obj.responses_hand.false)) ]};
-            
-            if strcmp(obj.curr_response, 'none')~=1
-                SCNT(6) = { [obj.curr_response]};
-            else
-                SCNT(6) = {''};
-            end
-            SCNT(7) = { ['C/(C+F): ' num2str(...
-                100*sum(obj.responses_hand.correct) / ...
-                (sum(obj.responses_hand.false) + sum(obj.responses_hand.correct))) ...
-                '%']};
+        function write_param_csv(obj, common_base_fn)
+            % Nothing to write, there is no stimuli_params for full screeen
+            % checkerboard.
+            %writetable(obj.stimuli_params, [common_base_fn '.stimulus-params.csv'])
         end
         
         function obj = set_param(obj, var, val)
@@ -177,10 +114,6 @@ classdef FullscreenCheckerboard < FixationTrackingTask & HandResponseOnSwitchTas
     end
     methods (Access = protected)
         
-        drawFix(obj);
-        drawCenterTarget(obj, lft);
-        drawTarget(obj, color, offset, which_side, pawIndSizePix);
-        drawBackgroundFixPoint(obj);
         update_PrepareStim(obj);
         
         function stim_index = selectTrialStimulus(obj)

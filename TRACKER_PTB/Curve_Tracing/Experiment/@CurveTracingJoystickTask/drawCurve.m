@@ -1,4 +1,5 @@
 function drawCurve(obj, indpos)
+% Draw a single curve from fixation to index position indpos
     global Par;
     
     fix_offset = obj.taskParams.FixPositionsPix(Par.PosNr,:);

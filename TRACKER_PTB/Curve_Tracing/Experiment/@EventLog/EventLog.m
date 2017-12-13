@@ -1,6 +1,7 @@
 classdef EventLog < handle
     %EVENTLOG Creates a list of events
-    %   Detailed explanation goes here
+    %   This is typically the most important log file. Has the time stamps
+    %   for every event.
     
     properties( Access = private)
         log = [];

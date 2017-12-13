@@ -1,4 +1,5 @@
-function update_PreOrPostSwitch(obj)
+function drawCurvesAndTargets(obj)
+% Draws all curves
 global Par;
 
     PawIndOffsetPix = obj.param('PawIndOffsetPix');

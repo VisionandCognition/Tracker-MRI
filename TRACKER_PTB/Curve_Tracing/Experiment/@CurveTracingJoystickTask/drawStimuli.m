@@ -17,7 +17,7 @@
     if strcmp(obj.state, 'INIT_TRIAL')==1 ||  ...
             strcmp(obj.state, 'TRIAL_END')==1 || ...
             strcmp(obj.state, 'POSTSWITCH')==1 || ...
-            strcmp(obj.state, 'END_TRIAL')==1
+            strcmp(obj.state, 'TRIAL_END')==1
         
         lft = Screen('Flip', Par.window,lft+.9*Par.fliptimeSec); 
         Log.events.screen_flip(lft, obj.taskName);
@@ -26,8 +26,12 @@
 
     obj.drawFix();  % -------------- Fixation point
     
-    obj.update(); % Draws some of the stimuli (curves, targets)
-
+    %obj.update(); % Draws some of the stimuli (curves, targets)
+    if strcmp(obj.state, 'PRESWITCH') || ...
+            strcmp(obj.state, 'SWITCHED')
+        
+        obj.drawCurvesAndTargets();
+    end
     
     if strcmp(obj.state, 'POSTSWITCH') ~= 1
         % Target bar - "Go bar"
@@ -49,6 +53,7 @@
     end
     
     % Draw on screen
+    debug = GetSecs;
     lft = Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
     Log.events.screen_flip(lft, obj.taskName);
 end

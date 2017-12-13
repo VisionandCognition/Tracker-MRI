@@ -3,7 +3,7 @@ global Par;
 
     update_PrepareStim@FullscreenCheckerboard(obj)
 
-    num_stim = size(obj.curve_stimuli_params, 1);
+    num_stim = size(obj.stimuli_params, 1);
     obj.curves = cell( ...
         num_stim, ... number of curve stimuli (does not control center target)
         obj.param('NumOfPawIndicators'), ... targets
@@ -25,11 +25,11 @@ global Par;
     for stim_index=1:num_stim
         % should read parameters for the curve_stimuli, not the center
         % target
-        %obj.readStimulusParamsForTrial(stim_index, obj.curve_stimuli_params);
+        %obj.readStimulusParamsForTrial(stim_index, obj.stimuli_params);
         
-        obj.curr_curve_stim = containers.Map(...
-            obj.curve_stimuli_params.Properties.VariableNames, ...
-            table2cell(obj.curve_stimuli_params(stim_index, :)));
+        obj.curr_stim = containers.Map(...
+            obj.stimuli_params.Properties.VariableNames, ...
+            table2cell(obj.stimuli_params(stim_index, :)));
         
         targetIndicators = ...
             { obj.param('IndicatorUL'), obj.param('IndicatorDL'), ...
@@ -69,7 +69,7 @@ global Par;
                     ((X - pts(i,1)).^2 + (Y - pts(i,2)).^2) < ...
                     (curve_width_px./2).^2) = 255;
             end
-            if ~isempty(targetIndicators{indpos})
+            if ~isempty(targetIndicators{indpos}) && ~any(isnan(targetIndicators{indpos}))
                 pt = pawIndOffsetPix(indpos,:);
                 % ignore the actual shape
                 curr_mask( ...

@@ -18,7 +18,7 @@ global Par;
     
     obj.taskParams.FixPositionsPix = zeros(...
         size(obj.taskParams.FixPositionsDeg,2), 2);
-    for stim_index=1:size(obj.taskParams.FixPositionsDeg,2);
+    for stim_index=1:size(obj.taskParams.FixPositionsDeg,2)
         obj.taskParams.FixPositionsPix(stim_index,:) = round(...
             obj.taskParams.FixPositionsDeg{stim_index}.*Par.PixPerDeg);
     end

@@ -258,7 +258,7 @@ Par.KeyCountDownMRITriger = KbName('Space'); % wait for trigger in ~7 s
 
 Par.KeyFORPResponseLeft = KbName('e'); % for human or testing
 Par.KeyFORPResponseRight = KbName('b');
-Par.KeyNextTargetLeft = KbName('s'); % for human or testing
+Par.KeyNextTargetLeft = KbName('s'); 
 Par.KeyNextTargetRight = KbName('d');
 Par.KeyTogglePause = KbName('Space'); % allows breaking out of the experiment
 

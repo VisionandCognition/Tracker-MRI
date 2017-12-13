@@ -1,5 +1,7 @@
 classdef TrialLog < handle
-    %Log for each trial
+    % Log for each trial
+    % Each experiment class has its own TrialLog, as the columns of the log
+    % table depends on the stimulus.
     
     properties %(Access = private)
         stim_entries = table;
@@ -27,7 +29,6 @@ classdef TrialLog < handle
         end
         
         function write_csv(obj, filename)
-            % to be written ...
             writetable(obj.stim_entries, filename);
         end
     end

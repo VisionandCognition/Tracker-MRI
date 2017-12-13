@@ -45,11 +45,22 @@ for DoThisOnlyForTestingWithoutDAS=1
         Par.scr=Screen('screens');
         Par.ScrNr=max(Par.scr); % use the screen with the highest #
 
-        [W, H] = WindowSize(Par.window);
-        DesiredWidth = 1920;
-        DesiredHeight = 1080;
+        try
+            DesiredWidth = 1920;
+            DesiredHeight = 1080;
+            [W, H] = WindowSize(Par.window);
+        catch ME
+            [Par.window, Par.wrect] = Screen('OpenWindow', 0, 0,...
+                    [0 0 DesiredWidth DesiredHeight], ... rect
+                    [], 2, ... pixelSize, numberOfBuffers
+                    [], [], [], ... stereomode, multisample, imagingmode
+                    kPsychGUIWindow); % specialFlags
+            [W, H] = Par.wrect(3:4);
+        end
         if abs(W-DesiredWidth) + abs(H-DesiredHeight) > 10
-            %Par.window = Screen(Par.window,'Close'); causes errors
+            Screen('CloseAll');
+            Par.window = 0;
+            %Screen(Par.window,'Close'); causes errors
             [Par.window, Par.wrect] = Screen('OpenWindow', Par.window, 0,...
                     [0 0 DesiredWidth DesiredHeight], ... rect
                     [], 2, ... pixelSize, numberOfBuffers
@@ -360,7 +371,6 @@ fprintf('\n\n ---------------  Start warm-up --------- \n');
 
 args=struct;
 args.alternateWithRestingBlocks=false;
-
     
 Log.events.add_entry(GetSecs, NaN, 'WarmupLoop', 'BeginLoop');
 CurveTracing_MainLoop(Hnd, {Stm(1).RestingTask}, 3, args);

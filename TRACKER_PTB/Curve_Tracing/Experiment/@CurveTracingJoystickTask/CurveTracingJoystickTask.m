@@ -5,7 +5,14 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
         curr_stim_index = -1;
         curr_stim = NaN;
         stimuli_params; % parameters for each individual stimulus
+        
+        remain_stim_ind = []; % remaining stimuli indices for sampling
+        sampleBy = 'GroupConnections';
+        curr_sample_by = [];
+        block_example_ind = NaN;
+        
         stimuliParamsPath = NaN;
+        blocked = true;
         
         state = NaN;
         currStateStart = -Inf; 
@@ -50,7 +57,7 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
         function time = stateStartTime(obj, state)
             time = obj.stateStart.(state);
         end
-        function obj = CurveTracingJoystickTask(commonParams, stimuliParams, taskName)
+        function obj = CurveTracingJoystickTask(commonParams, stimuliParams, taskName, sampleBy, blocked)
             % INPUT commonParams: should be a container.Map
             %       stimuliParams: should be the path to the stimuli params
             %                      in CSV format.
@@ -63,6 +70,12 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
                 obj.taskName = taskName;
             elseif all(strcmp(obj.stimuli_params.TargetLoc, 'Center'))
                 obj.taskName = 'Control CT';
+            end
+            if nargin >= 4
+                obj.sampleBy = sampleBy;
+            end
+            if nargin >= 5
+                obj.blocked = blocked; % block by sampleBy
             end
             obj.trial_log = TrialLog();
             obj.nextTarget = 0;
@@ -82,14 +95,20 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
             global Log;
             obj.state = state;
             obj.currStateStart = time;
+            obj.stateStart.(obj.state) = time;
             
             Log.events.save_next_flip();
             Log.events.add_entry(time, obj.taskName, 'DecideNewState', obj.state);
             Log.events.queue_entry(obj.taskName, 'NewState', obj.state);
 
-            obj.update();
-            obj.stateStart.(obj.state) = time;
-            %fprintf('New state: %s\n', state);
+            %obj.update();
+            
+            switch obj.state
+                case 'PREPARE_STIM'
+                    obj.update_PrepareStim();
+                case 'INIT_TRIAL'
+                    obj.update_InitTrial();
+            end
         end
         function isEnd = endOfTrial(obj)
             STR_IDENTICAL = true;
@@ -199,7 +218,7 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
         
         update_InitTrial(obj);
         update_PrepareStim(obj);
-        update_PreOrPostSwitch(obj);
+        drawCurvesAndTargets(obj);
         
         checkResponses_PreFixation(obj, lft);
         checkResponses_PreSwitch(obj, lft);
@@ -217,33 +236,77 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
         drawCurve(obj, indpos);
         drawPreSwitchFigure(obj, Par, pos, SizePix, alpha);
         
-        function update(obj)
-            switch obj.state
-                case 'PREPARE_STIM'
-                    obj.update_PrepareStim();
-                case 'INIT_TRIAL'
-                    obj.update_InitTrial();
-                case 'PREFIXATION'
-                case 'PRESWITCH'
-                    obj.update_PreOrPostSwitch();
-                case 'SWITCHED'
-                    obj.update_PreOrPostSwitch();
-                case 'POSTSWITCH'
-                    %obj.update_PreOrPostSwitch();
-            end
-        end
-        
         function stim_index = selectTrialStimulus(obj)
-            if obj.nextTarget > 0 % if next target was manually chosen
-                iTargetShape = obj.nextTarget;
-                obj.nextTarget = 0;
-                
-                side_mask = obj.stimuli_params.iTargetShape == iTargetShape;
+% Previous version ...
+%            if obj.nextTarget > 0 % if next target was manually chosen
+%                iTargetShape = obj.nextTarget;
+%                obj.nextTarget = 0;
+%                
+%                side_mask = obj.stimuli_params.iTargetShape == iTargetShape;
+%            
+%                mask_indices = find(side_mask);
+%                stim_index = mask_indices(randi(sum(side_mask)));
+%            else
+%                stim_index = randi(size(obj.stimuli_params, 1), 1);
+
+            % stim_index = randi(size(obj.stimuli_params, 1), 1);
             
-                mask_indices = find(side_mask);
-                stim_index = mask_indices(randi(sum(side_mask)));
+            %sampleby_params = obj.stimuli_params.(obj.sampleBy);
+            %uniq_sample_params = unique(sampleby_params);
+%             
+%             if ~obj.blocked  % if not blocking trials
+%                 % NOT YET WRITTEN
+%                 %t = sampleby_params;
+%                 assert(false);
+%             else
+            if obj.iTrialOfBlock == 1 || ...
+                    isnan(obj.block_example_ind) % if new block
+                
+                % Need to choose the first trial for this block, which
+                % determine the block type.
+                
+                % not enough remaining samples
+                if numel(obj.remain_stim_ind) == 0
+                    obj.remain_stim_ind = 1:height(obj.stimuli_params);
+                end
+                % choose random example
+                ind = randi(length(obj.remain_stim_ind));
+                obj.block_example_ind = obj.remain_stim_ind(ind);
+                stim_index            = obj.remain_stim_ind(ind);
+                
+                obj.remain_stim_ind(ind) = [];
+                
             else
-                stim_index = randi(size(obj.stimuli_params, 1), 1);
+                % trials are being blocked and this trial is part of a
+                % block that was already started.
+                
+                % subset of stimuli that has target at obj.targetLoc
+                paramval = obj.stimuli_params(obj.block_example_ind,:).(obj.sampleBy){1};
+                                
+                stim_mask = strcmp( ...
+                    obj.stimuli_params.(obj.sampleBy), ...
+                    paramval);
+                mask_indices = find(stim_mask);
+                
+                remain_indices = intersect(mask_indices, obj.remain_stim_ind);
+                
+                if numel(remain_indices) > 0
+                    ind = randi(numel(remain_indices));
+                    stim_index = remain_indices(ind);
+                    
+                    obj.remain_stim_ind(ind) = [];  % remove chosen index
+                else
+                    % if not enough remaining trials of desired type, just
+                    % sample from all of the trials of desired type.
+                    ind = randi(numel(mask_indices));
+                    stim_index = mask_indices(ind);
+                end
+            end
+            if obj.blocked  % print debugging info
+                paramval = obj.stimuli_params.(obj.sampleBy){stim_index};
+                target = obj.stimuli_params.TargetShape{stim_index};
+                fprintf('Block %d.%d: {%s} stim[%d]\tTarget: %s   Remaining: %d\n', ...
+                    obj.blockNum, obj.iTrialOfBlock, paramval, stim_index, target, numel(obj.remain_stim_ind));
             end
         end
     end

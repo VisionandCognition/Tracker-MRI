@@ -2,7 +2,7 @@ classdef FixationTask < FixationTrackingTask
     %FIXATIONTASK Summary of this class goes here
     %   Detailed explanation goes here
 
-    properties (Access = private)
+    properties (Access = protected)
         taskName = 'Fixation'
         stimuli_params; % parameters for each individual stimulus
         state = NaN;
@@ -11,7 +11,7 @@ classdef FixationTask < FixationTrackingTask
         currStateStart = -Inf; 
         stateStart = struct('PREFIXATION', -Inf, 'FIXATION_PERIOD', -Inf, 'POSTFIXATION', -Inf);
         
-        iTrialOfBlock = 0;
+        iTrialOfBlock = 1;
         iSubtrial = 0;
         
         curr_response = 'none'; % response of current trial
@@ -35,8 +35,6 @@ classdef FixationTask < FixationTrackingTask
             obj.stimuli_params = table();
         end
         
-        drawFix(obj);
-        drawBackgroundFixPoint(obj);
         drawCurve(obj, pos, connection1, connection2, indpos, Par, Stm);
         drawPreSwitchFigure(obj, Par, pos, SizePix, alpha);
         lft = drawStimuli(obj, lft);
@@ -56,7 +54,7 @@ classdef FixationTask < FixationTrackingTask
         end
         function isEnd = endOfTrial(obj)
             STR_IDENTICAL = true;
-            isEnd = (strcmp(obj.state, 'END_TRIAL') == STR_IDENTICAL);
+            isEnd = (strcmp(obj.state, 'TRIAL_END') == STR_IDENTICAL);
         end
         function isEnd = endOfBlock(obj)
             if ~obj.endOfTrial()
@@ -72,7 +70,7 @@ classdef FixationTask < FixationTrackingTask
             if strcmp(obj.state, 'POSTFIXATION')
                 if time > obj.stateStart.POSTFIXATION + obj.taskParams.postfixPeriod/1000
                     obj.responses.(obj.curr_response) = obj.responses.(obj.curr_response) + 1;
-                    obj.updateState('END_TRIAL', time);
+                    obj.updateState('TRIAL_END', time);
                 end
             end
             if strcmp(obj.state, 'PREFIXATION')
@@ -124,7 +122,7 @@ classdef FixationTask < FixationTrackingTask
                             obj.updateState('FIXATION_PERIOD', time);
                             obj.startTrackingFixationTime(time, Par.FixIn);
                         else
-                            obj.updateState('END_TRIAL', time);
+                            obj.updateState('TRIAL_END', time);
                         end
                     end
                 end
@@ -174,6 +172,8 @@ classdef FixationTask < FixationTrackingTask
     end
     methods(Access = protected)
         update_PrepareStim(obj);
+        drawFix(obj);
+        drawBackgroundFixPoint(obj);
         
         function update(obj)          
             switch obj.state
@@ -191,6 +191,7 @@ classdef FixationTask < FixationTrackingTask
         function update_InitSubtrial(obj)
             obj.curr_response = 'none';
             obj.iSubtrial = obj.iSubtrial + 1;
+            % if finished with all subtrials of a trial, increment trial
             if obj.iSubtrial > obj.taskParams.subtrialsInTrial
                 obj.iSubtrial = 0;
                 obj.iTrialOfBlock = mod(obj.iTrialOfBlock, obj.param('BlockSize')) + 1;

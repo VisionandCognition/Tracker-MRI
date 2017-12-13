@@ -22,12 +22,13 @@ QuickParams.EventPeriods = [1500 700 300];
 %QuickParams.rewardMultiplier = .5; % 0.5;
 QuickParams.SwitchDur = 600;
 QuickParams.ResponseAllowed = [100 QuickParams.SwitchDur+100]; % [after_onset after_offset] in ms
+
 QuickParams.maxSideProb = 0.75;
 QuickParams.sideRespAprioriNum = 2;
 
 % use non-blocked curvetracing
 %curvetracing = CurveTracingJoystickTask(QuickParams, 'StimSettings/CurveTracingJoyStickTask.csv');
-curvetracing = CurveTracingTitratedTask(QuickParams, 'StimSettings/CurveTracingJoyStickTask.csv', 'Quick CT');
+curvetracing = CurveTracingJoystickTask(QuickParams, 'StimSettings/CurveTracingJoyStickTask.csv', 'Quick CT', 'GroupConnections', true);
 Stm(1).KeepSubjectBusyTask = curvetracing;
 Stm(1).RestingTask = curvetracing;
 
