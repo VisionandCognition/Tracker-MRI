@@ -34,10 +34,13 @@ Stm(1).DisconnectedCurveLength = 0.75;
 %% Paw indicator ----------------------------------------------------------
 Stm(1).RequireSpecificPaw = true;
 Stm(1).PawIndSize = 3;
-%Stm(1).PawIndOffset = [3.5 2.5];
-Stm(1).PawIndOffsetX = [-2 5]; % [min max]
-Stm(1).PawIndOffsetY = [0.0 0.0]; % [min max]
+%Stm(1).PawIndOffset = [3.5 2.5]; % not used
+Stm(1).PawIndOffsetX = [-2 5]; % [min max] % no longer used used!
+Stm(1).PawIndOffsetY = [0.0 0.0]; % [min max] % no longer used used!
 Stm(1).PawIndPositions = [ -0 0; 0 0 ];
+
+% Show the subject which response he is currently giving
+% Doesn't seem to help.
 Stm(1).LiftedPawIndPositions = [ -1 1; 1 1 ] * 5;
 Stm(1).LiftedPawIndSize = 0; % 2; ------------ Disable lifted paw indicator
 Stm(1).DisplayChosenTargetDur = 0;

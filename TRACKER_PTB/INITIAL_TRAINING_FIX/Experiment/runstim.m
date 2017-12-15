@@ -1411,14 +1411,15 @@ end
         bmost= sqrt(1/pi);
         wait_circle = [lmost, tmost, rmost, bmost];
         color = (1 - alpha)*Stm(1).BackColor + ...
-            [0.6, 0.6, 0.6].* alpha;
+            Stm(1).PawIndCol(3,:).* alpha;
         Screen('FillOval', Par.window, color .*Par.ScrWhite, ...
             repmat(pos(1,:),[1,2]) + wait_circle*SizePix);
     end
 % draw curves -------------------------------------------------------------
     function DrawCurve2(pos, connection1, connection2, indpos)
         if ~isfield(Par, 'CurveAngles') || ~isfield(Stm(1), 'BranchDistDeg')
-            return
+            DrawCurve(pos, connection1, connection2, indpos);
+            return;
         end
         npoints = 500;
         distractor = ~(connection1 && connection2);
@@ -1477,6 +1478,12 @@ end
     end
     function DrawCurve(pos, connection1, connection2, indpos)
         distractor = ~(connection1 && connection2);
+        if ~isfield(Stm(1), 'CurveConnectionPosX')
+            if ~distractor
+                DrawLine(pos, indpos);
+            end
+            return
+        end
         alpha = Stm(1).CurveAlpha(~strcmp(Par.State, 'PRESWITCH')+1, ...
             indpos);
         if connection1 && connection2
@@ -1599,6 +1606,17 @@ end
             vfix + pos(1,2), ...
             hfix + pos(1,1), ...
             vfix + pos(1,2),...
+            Stm(1).TraceCurveWidth);
+    end
+    function DrawLine(pos, indpos)
+        hfix = Stm(1).Center(Par.PosNr,1)+Par.ScrCenter(1);
+        vfix = Stm(1).Center(Par.PosNr,2)+Par.ScrCenter(2);
+        alpha = Stm(1).CurveAlpha(~strcmp(Par.State, 'PRESWITCH')+1, ...
+            indpos);
+        Screen('DrawLine', Par.window, ...
+            [Stm(1).TraceCurveCol alpha] * Par.ScrWhite, ...
+            hfix, vfix, ...
+            hfix + pos(1,1), vfix + pos(1,2), ...
             Stm(1).TraceCurveWidth);
     end
 % draw lifted button indicators -------------------------------------------

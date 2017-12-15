@@ -127,8 +127,8 @@ Par.CorrectB = 7;
 Par.ResponseBox.Type='Lift'; % 'Beam' or 'Lift'
 
 %% connection box port assignment =========================================
-Par.ConnectBox.PhotoAmp = [4 5]; % 2 photo-amps can be connected
-Par.ConnectBox.PhotoAmp_used = 1; % vector with indeces to used channels
+Par.ConnectBox.PhotoAmp = [4 5 7 8]; % 2 photo-amps can be connected
+Par.ConnectBox.PhotoAmp_used = 1:4; % vector with indeces to used channels
 Par.ConnectBox.EyeRecStat = 6;
 
 %% Reward scheme ==========================================================
