@@ -136,24 +136,28 @@ global Log;
         end
     end
     
-    % Reward for putting hand in
-    if Par.RequireHandsIn && sum(HandsInNow) > sum(Par.HandsIn)
-        now = GetSecs;
+    % Reward for putting hand in, even if not "required"
+    now = GetSecs;
+    if sum(HandsInNow) > sum(Par.HandsIn)  % Par.RequireHandsIn && 
         % A hand(s) was put in box
         switch(sum(HandsInNow))
             case 1
-                if now - Par.SingleHandInRewardTime > Par.MinSecsBetweenSingleHandInRewards
+                if now - Par.SingleHandInTime > Par.MinSecsBetweenSingleHandInRewards
                     Par.GiveRewardAmount = Par.GiveRewardAmount + Par.SingleHandInReward;
                     GiveRewardAuto;
-                    Par.SingleHandInRewardTime = now;
                 end
             case 2
-                if now - Par.BothHandsInRewardTime > Par.MinSecsBetweenBothHandsInRewards
+                if now - Par.BothHandsInTime > Par.MinSecsBetweenBothHandsInRewards
                     Par.GiveRewardAmount = Par.GiveRewardAmount + Par.BothHandsInReward;
                     GiveRewardAuto;
-                    Par.BothHandsInRewardTime = now;
                 end
         end
+    end
+    if sum(HandsInNow) >= 1
+        Par.SingleHandInTime = now;
+    end
+    if sum(HandsInNow) >= 2
+        Par.BothHandsInTime = now;
     end
     Par.HandsIn = HandsInNow;
     if hand_pos_changed

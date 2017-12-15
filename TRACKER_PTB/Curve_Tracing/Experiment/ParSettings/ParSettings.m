@@ -183,12 +183,17 @@ Par.HandOutDimsScreen_perc = 0.9; %(0-1, fraction dimming)
 Par.HandResponse=[false false];
 Par.HandsIn=[false false]; % Hands in position ready to respond
 Par.RequireHandsIn = true;
-Par.SingleHandInReward = 0.1; % 0 to disable
-Par.BothHandsInReward = 0.5;
+Par.SingleHandInReward = 0; % 0 to disable
+Par.BothHandsInReward = 0.15;
+% Min time between removing hands and placing them back in
+% Don't want to reward for taking hands out and putting them back in real
+% fast. Reward should be much lower than what subject could get from
+% working.
 Par.MinSecsBetweenSingleHandInRewards = 10;
-Par.MinSecsBetweenBothHandsInRewards = 10;
-Par.SingleHandInRewardTime = -Inf;
-Par.BothHandsInRewardTime = -Inf;
+Par.MinSecsBetweenBothHandsInRewards = 60;
+
+Par.SingleHandInTime = -Inf;
+Par.BothHandsInTime = -Inf;
 % Par.MinSecSinceReward = 10;
 
 

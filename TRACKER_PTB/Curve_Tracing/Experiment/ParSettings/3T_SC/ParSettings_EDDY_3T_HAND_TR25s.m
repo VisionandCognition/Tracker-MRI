@@ -29,4 +29,4 @@ Par.MRITrigger_OnlyOnce = true;
 Par.EyeRecAutoTrigger = true;
 
 %% Logging ================================================================
-Par.PlotPerformance = true;
+Par.PlotPerformance = false;
