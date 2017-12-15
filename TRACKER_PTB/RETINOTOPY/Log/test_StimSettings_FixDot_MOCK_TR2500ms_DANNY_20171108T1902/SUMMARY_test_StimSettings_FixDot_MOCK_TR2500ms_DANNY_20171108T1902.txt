@@ -1,7 +1,0 @@
-Runstim: runstim
-StimSettings: StimSettings_FixDot_MOCK_TR2500ms_DANNY
-ParSettings: ParSettings_DANNY_MOCK_NEW_TR2500ms
-
-1: Performance for NoStim = 59.6923 %
-Average performance: 59.6923% (std: 0 %)
-Total reward: 0 s

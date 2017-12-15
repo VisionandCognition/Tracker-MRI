@@ -1,7 +1,0 @@
-Runstim: runstim
-StimSettings: StimSettings_pRF_8bars_MOCK_TR2500ms_DANNY
-ParSettings: ParSettings_DANNY_MOCK_FIX_TR2500ms
-
-1: Performance for pRF_8bar = 14.8066 %
-Average performance: 14.8066% (std: 0 %)
-Total reward: 5 s

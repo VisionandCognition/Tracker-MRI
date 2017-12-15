@@ -62,7 +62,7 @@ Stm(1).RetMap.chksize = Stm(1).RetMap.BarWidth/4; % bar checker size in deg
 Stm(1).RetMap.LoadFromFile = true;
 % NB! loading a stimulus overwrites all settings with the ones saved!
 Stm(1).RetMap.SaveToFile = false;
-Stm(1).RetMap.FileName = 'pRF_8bars_MOCK_TR2500ms_DANNY_TRAIN.mat';
+Stm(1).RetMap.FileName = 'pRF_8bars_MOCK_TR2500ms_DANNY_TRAIN_INVERT.mat';
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

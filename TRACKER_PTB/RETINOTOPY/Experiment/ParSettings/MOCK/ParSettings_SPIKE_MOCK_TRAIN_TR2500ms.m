@@ -420,3 +420,4 @@ Par.P1 = 1; Par.P2 = 1;
 
 %% Logging ================================================================
 Par.PlotPerformance = false;
+Par.LogFolder = 'C:\Users\NINuser\Documents\Log_CK\Retinotopy\pRF';

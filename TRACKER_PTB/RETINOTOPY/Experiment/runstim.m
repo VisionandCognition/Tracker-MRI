@@ -43,6 +43,7 @@ clc;
 % set PTB priority to max
 priorityLevel=MaxPriority(Par.window);
 oldPriority=Priority(priorityLevel);
+Par.ExpFolder = pwd;
 
 %% set up the manual response task ========================================
 for define_square=1 % left / square
@@ -1678,25 +1679,40 @@ for STIMNR = Log.StimOrder
         Priority(oldPriority);
         
         % save stuff
+        LogPath = fullfile(Par.LogFolder,Par.SetUp,[Par.MONKEY '_' DateString]);
+        warning off;mkdir(LogPath);warning on;
+        LogFn = [Par.SetUp '_' Par.MONKEY '_' DateString];
+        cd(LogPath)
+        
         if ~TestRunstimWithoutDAS
-            FileName=['Log_' Par.MONKEY '_' Par.STIMSETFILE '_' ...
-                Stm(STIMNR).Descript '_' DateString '_Run' num2str(StimLoopNr)];
+            FileName=['Log_' LogFn '_' ...
+                Stm(STIMNR).Descript '_Run' num2str(StimLoopNr)];
         else
-            FileName=['Log_NODAS_' Par.MONKEY '_' Par.STIMSETFILE '_' ...
-                Stm(STIMNR).Descript '_' DateString '_Run' num2str(StimLoopNr)];
+            FileName=['Log_NODAS_' LogFn '_' ...
+                Stm(STIMNR).Descript '_Run' num2str(StimLoopNr)];
         end
         warning off; 
         if TestRunstimWithoutDAS; cd ..;end
-        mkdir('Log');cd('Log');
         StimObj.Stm=Stm;
         % 1st is PreStim, last is PostStim
         Log.FixPerc=100*(Par.FixInOutTime(:,1)./sum(Par.FixInOutTime,2));
         
-        mkdir([ Par.MONKEY '_' Par.STIMSETFILE '_' DateString]);
-        cd([ Par.MONKEY '_' Par.STIMSETFILE '_' DateString]);
-        fn=['Runstim_'  Par.MONKEY '_' Par.STIMSETFILE '_' DateString];
+        % copy the originally used files
+        % runstim
+        fn=['Runstim_'  LogFn '.m'];
         cfn=[mfilename('fullpath') '.m'];
         copyfile(cfn,fn);
+        % parsettings
+        parsetpath = which(Par.PARSETFILE);
+        copyfile(parsetpath,[Par.PARSETFILE '.m']);
+        % stimsettings
+        stimsetpath = which(Par.STIMSETFILE);
+        copyfile(stimsetpath,[Par.STIMSETFILE '.m']);
+        % stimulus
+        if RetMapStimuli
+            save('RetMap_Stimulus','ret_vid');
+        end
+        
         if ~TestRunstimWithoutDAS
             temp_hTracker=Par.hTracker;
             Par=rmfield(Par,'hTracker');
@@ -1729,9 +1745,8 @@ for STIMNR = Log.StimOrder
             fprintf(fid,['\nTotal reward: ' num2str(Log.TotalReward) '\n']);
             fclose(fid);
         end
-        cd ..
-        cd ..
-        
+        cd(Par.ExpFolder)        
+
         if TestRunstimWithoutDAS; cd Experiment;end
         warning on; 
         
@@ -1806,12 +1821,13 @@ end
 %% Process performance ====================================================
 if ~isempty(CollectPerformance) && ~TestRunstimWithoutDAS
     ColPerf=[];
-    cd Log
-    cd([ Par.MONKEY '_' Par.STIMSETFILE '_' DateString]);
-    fid2=fopen(['SUMMARY_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString '.txt'],'w');
+
+    cd(LogPath);
+    fid2=fopen(['SUMMARY_' LogFn '.txt'],'w');
     fprintf(fid2,['Runstim: ' Par.RUNFUNC '\n']);
     fprintf(fid2,['StimSettings: ' Par.STIMSETFILE '\n']);
     fprintf(fid2,['ParSettings: ' Par.PARSETFILE '\n\n']);
+    
     for rr = 1:size(CollectPerformance,1)
         fprintf([num2str(rr) ': Performance for ' CollectPerformance{rr,1} ' = ' num2str(CollectPerformance{rr,2}) ' %%\n']);
         fprintf(fid2,[num2str(rr) ': Performance for ' CollectPerformance{rr,1} ' = ' num2str(CollectPerformance{rr,2}) ' %%\n']);
@@ -1896,13 +1912,15 @@ if ~isempty(CollectPerformance) && ~TestRunstimWithoutDAS
             CP,'FontSize',10,'interpreter','none')
         set(figperf,'Color','w');
         
-        saveas(figperf,['PERFORM_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString],'fig');
-        export_fig(['PERFORM_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString],...
-            '-pdf','-nocrop',figperf);
+%         saveas(figperf,['PERFORM_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString],'fig');
+%         export_fig(['PERFORM_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString],...
+%             '-pdf','-nocrop',figperf);
+        saveas(figperf,['PERFORM_' LogFn],'fig');
+        export_fig(['PERFORM_' LogFn],'-pdf','-nocrop',figperf);
         close(figperf);
     end
-    save(['PERFORM_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString],'CollectPerformance');
-    cd ..;cd ..;
+    save(['PERFORM_' LogFn],'CollectPerformance');
+    cd(Par.ExpFolder)
 end
 clear Log
 Par=Par_BU;
