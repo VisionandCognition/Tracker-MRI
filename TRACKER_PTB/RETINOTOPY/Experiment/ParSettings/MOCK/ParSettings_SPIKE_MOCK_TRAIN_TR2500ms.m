@@ -1,4 +1,4 @@
-function ParSettings_MOCK_TR2500ms
+function ParSettings_SPIKE_MOCK_TRAIN_TR2500ms
 
 % ParSettings gives all parameters for the experiment in global Par
 global Par
@@ -22,10 +22,10 @@ eval(Par.STIMSETFILE); % loads the chosen stimfile
 Stm=StimObj.Stm;
 
 % overwrites the stimsetting!
-StimObj.Stm.FixDotCol = [.3 .3 .3 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
+StimObj.Stm.FixDotCol = [Stm(1).BackColor;Stm(1).BackColor];%[.1 .1 .1 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
-Par.FixWinSize = [1.5 1.5]; % [W H] in deg
+Par.FixWinSize = [4 4]; % [W H] in deg
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
@@ -126,33 +126,33 @@ Par.CorrectB = 7;
 Par.ResponseBox.Type='Lift'; % 'Beam' or'Lift'
 
 %% Response task ==========================================================
-%Par.ResponseBox.Task = 'DetectGoSignal';
-Par.ResponseBox.Task = 'Fixate';    % doesn't really matter as long as 
+Par.ResponseBox.Task = 'DetectGoSignal';
+%Par.ResponseBox.Task = 'Fixate';    % doesn't really matter as long as 
                                     % it's not DetectGoSignal
 Par.RESP_STATE_WAIT = 1; % Go signal not yet given
 Par.RESP_STATE_GO = 2; % Go signal given
 Par.RESP_STATE_DONE = 4;  % Go signal given and response no longer possible (hit or miss)
 
 % Go-bar (vertical / horizontal target bar) -------------------------------
-Gobar_length = 0.15; % .02
+Gobar_length = 8; % .02
 Par.GoBarSize = Gobar_length*[1, .25] + [0, 0.01]; % [length width] in deg
-Par.GoBarColor = [0.6 0.7 0.7]; % [R G B] 0-1
+Par.GoBarColor = [0.8 0.8 0.8]; % [R G B] 0-1
 
 % Color of the Response indicator (which hand)
 Par.RespLeverMatters = false;
-Par.RespIndColor = 0.1*[1 1 1;1 1 1]; % colors for the left and right target
-Par.RespIndSize = 0.3;
+Par.RespIndColor = [Stm(1).BackColor;Stm(1).BackColor]; %0.1*[1 1 1;1 1 1]; % colors for the left and right target
+Par.RespIndSize = 3;
 Par.RespIndPos = [0 0; 0 0]; % deg
 
 Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
 Par.BlockedIndColor = [.7 .7 .7];
 
-Par.SwitchDur = 1500; % (200) duration of alternative orientation
+Par.SwitchDur = 60000; % (200) duration of alternative orientation
 Par.ResponseAllowed = [80 Par.SwitchDur+100]; % [after_onset after_offset] in ms
-Par.PostErrorDelay = 3000; % extra wait time as punishment for error trials
-Par.DelayOnMiss = 500; % extra wait time as punishment for miss trials 
+Par.PostErrorDelay = 0; % extra wait time as punishment for error trials
+Par.DelayOnMiss = 0; % extra wait time as punishment for miss trials 
 
-Par.NoIndicatorDuringPunishDelay=true;
+Par.NoIndicatorDuringPunishDelay=false;
 
 Par.ProbSideRepeatOnCorrect =   0.50;
 Par.ProbSideRepeatOnError =     0.50;
@@ -167,7 +167,7 @@ Par.CatchBlock.StartWithCatch = true;
 % set time-windows in which something can happen (ms)
 % [baseduration_without_switch ... 
 %  period_in_which_switch_randomly_occurs]
-Par.EventPeriods = [1000 1500]; % Determines Go-bar onset (was 600 to 1600)
+Par.EventPeriods = [200 0]; % Determines Go-bar onset (was 600 to 1600)
 
 %% Connection box port assignment =========================================
 Par.ConnectBox.PhotoAmp = [4 5 7 8];    % channels for photo-amps 
@@ -186,7 +186,7 @@ Par.RewardFixFeedBack = true;
 % RESP_MISS         = 3;
 % RESP_EARLY        = 4;
 % RESP_BREAK_FIX    = 5;
-Par.FeedbackSound = [false true false true false];
+Par.FeedbackSound = [false false false false false];
 Par.FeedbackSoundPar = [ ...
     44100 800 1 0.03; ... CORRECT
     44100 300 1 0.03; ... FALSE
@@ -225,14 +225,14 @@ for i=1:size(Par.FeedbackSoundPar,1)
     end
 end
 
-Par.RewardTaskMultiplier = 0.0;
-Par.RewardFixMultiplier = 1.0;
+Par.RewardTaskMultiplier = 1.0;
+Par.RewardFixMultiplier = 0.0;
 
 % duration matches 'open duration'
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.040;
+        Par.RewardTimeSet = 0.0;%250;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -249,9 +249,9 @@ switch Par.RewardType
         Par.RewardTimeSet = 0; %no reward
 end
 
-Par.RewardTimeManual = 0.02; % amount of reward when given manually
+Par.RewardTimeManual = 0.1; % amount of reward when given manually
 
-Par.RewardFixHoldTimeProg = true;
+Par.RewardFixHoldTimeProg = false;
 if Par.RewardFixHoldTimeProg
     Par.RewardFixHoldTime = [...
         0 1500;...
@@ -274,7 +274,7 @@ Par.HandInBothOrEither = 'Both'; % 'Both' or 'Either'
 Par.RewNeeds.HandIsIn =         false;
 Par.StimNeeds.HandIsIn =        false;
 Par.FixNeeds.HandIsIn =         false;
-Par.TrialNeeds.HandIsIn =       true;   % manual response task
+Par.TrialNeeds.HandIsIn =       false;   % manual response task
 Par.TrialNeeds.LeversAreDown =  true;   % manual response task
 
 Par.HandOutDimsScreen = false;
@@ -325,8 +325,9 @@ Par.IncorrectResponseGiven  = ...
 
 % Reward for keeping hand in the box
 Par.RewardForHandsIn = false;
-Par.RewardForHandsIn_Quant = [0.04 0.08]; % 1 hand, both hands
-Par.RewardForHandIn_MinInterval = 2; %s
+Par.RewardForHandsIn_Quant = [0.00 0.08]; % 1 hand, both hands
+Par.RewardForHandsIn_Delay = 0.500; %s 
+Par.RewardForHandIn_MinInterval = 3; %s
 
 %% Create Eye-check windows based on stimulus positions ===================
 % The code below is preloaded and will be overwritten on stimulus basis

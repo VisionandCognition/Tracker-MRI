@@ -19,10 +19,10 @@ Stm(1).FixDotCol = [1 0 0;1 0 0]; %[RGB if not fixating; RGB fixating]
 
 %% Stimulus position can be toggled with 1-5 keys --------------------------
 Stm(1).Position{1} = [0 0]; % deg from center [vert hor] (-=left/down)
-Stm(1).Position{2} = [-8 0]; % deg from center (-=left/down)
-Stm(1).Position{3} = [0 -5]; % deg from center (-=left/down)
-Stm(1).Position{4} = [+8 0]; % deg from center (-=left/down)
-Stm(1).Position{5} = [0 +5]; % deg from center (-=left/down)
+Stm(1).Position{2} = [-4 0]; % deg from center (-=left/down)
+Stm(1).Position{3} = [0 -4]; % deg from center (-=left/down)
+Stm(1).Position{4} = [4 0]; % deg from center (-=left/down)
+Stm(1).Position{5} = [0 4]; % deg from center (-=left/down)
 
 % Stimulus position can be cycled automatically every n-th trial
 Stm(1).CyclePosition = 0; % set zero for manual cycling
@@ -40,7 +40,7 @@ Stm(1).RetMap.Dir = 1; % +1 = expanding / ccw, -1 = contracting / cw
 Stm(1).RetMap.TRsPerStep = 1; %s
 Stm(1).RetMap.PreDur_TRs = 5; % volumes
 Stm(1).RetMap.PostDur_TRs = 5; % volumes
-Stm(1).RetMap.nCycles = 1000; % 0=unlimited << ONLY WORKS FOR CHECKERBOARDS
+Stm(1).RetMap.nCycles = 1; % 0=unlimited << ONLY WORKS FOR CHECKERBOARDS
 
 % This only applies to newly created stim =================================
 Stm(1).RetMap.StimSize = 16; % [15] degrees (square) >> diameter

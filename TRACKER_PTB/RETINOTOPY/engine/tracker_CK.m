@@ -144,9 +144,9 @@ set(handles.ScrWid, 'String', num2str(Par.ScreenWidthD2 * 2));
 set(handles.PixDeg, 'String', num2str(Par.PixPerDeg, 4));
 
 % some hand control and fix parameters
-set(handles.RewHIB,'Value',Par.RewNeedsHandInBox);
-set(handles.StimHIB,'Value',Par.StimNeedsHandInBox);
-set(handles.FixHIB,'Value',Par.FixNeedsHandInBox);
+set(handles.RewHIB,'Value',Par.RewNeeds.HandIsIn);
+set(handles.StimHIB,'Value',Par.StimNeeds.HandIsIn);
+set(handles.FixHIB,'Value',Par.FixNeeds.HandIsIn);
 set(handles.SecFixCol,'Value',Par.RewardFixFeedBack);
 set(handles.AutoDim,'Value',Par.HandOutDimsScreen);
 set(handles.AutoDimPerc,'Value',Par.HandOutDimsScreen_perc);
@@ -415,9 +415,9 @@ if exist(Pf)
     set(handles.PixDeg, 'String', num2str(Par.PixPerDeg, 4));
     
     % some hand control and fix parameters
-    set(handles.RewHIB,'Value',Par.RewNeedsHandInBox);
-    set(handles.StimHIB,'Value',Par.StimNeedsHandInBox);
-    set(handles.FixHIB,'Value',Par.FixNeedsHandInBox);
+    set(handles.RewHIB,'Value',Par.RewNeeds.HandIsIn);
+    set(handles.StimHIB,'Value',Par.StimNeeds.HandIsIn);
+    set(handles.FixHIB,'Value',Par.FixNeeds.HandIsIn);
     set(handles.SecFixCol,'Value',Par.RewardFixFeedBack);
     set(handles.AutoDim,'Value',Par.HandOutDimsScreen);
     set(handles.AutoDimPerc,'Value',Par.HandOutDimsScreen_perc);

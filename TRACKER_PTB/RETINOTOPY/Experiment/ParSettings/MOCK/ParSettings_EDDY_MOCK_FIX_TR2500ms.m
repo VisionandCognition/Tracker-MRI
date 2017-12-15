@@ -1,4 +1,4 @@
-function ParSettings_MOCK_TR2500ms
+function ParSettings_EDDY_MOCK_FIX_TR2500ms
 
 % ParSettings gives all parameters for the experiment in global Par
 global Par
@@ -186,7 +186,7 @@ Par.RewardFixFeedBack = true;
 % RESP_MISS         = 3;
 % RESP_EARLY        = 4;
 % RESP_BREAK_FIX    = 5;
-Par.FeedbackSound = [false true false true false];
+Par.FeedbackSound = [false false false false false];
 Par.FeedbackSoundPar = [ ...
     44100 800 1 0.03; ... CORRECT
     44100 300 1 0.03; ... FALSE
@@ -232,7 +232,7 @@ Par.RewardFixMultiplier = 1.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.040;
+        Par.RewardTimeSet = 0.025;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -249,16 +249,16 @@ switch Par.RewardType
         Par.RewardTimeSet = 0; %no reward
 end
 
-Par.RewardTimeManual = 0.02; % amount of reward when given manually
+Par.RewardTimeManual = 0.015; % amount of reward when given manually
 
 Par.RewardFixHoldTimeProg = true;
 if Par.RewardFixHoldTimeProg
     Par.RewardFixHoldTime = [...
-        0 1500;...
-        5 1250;...   
-        10 1000;...
+        0 1300;...
+        5 1100;...   
+        10 850;...
         20 750;...
-        30 500;...
+        30 650;...
         ];
 else
     Par.RewardFixHoldTime = 1250; %time to maintain fixation for reward
@@ -317,7 +317,6 @@ elseif Par.TrialNeeds.LeversAreDown % only levers down
 else % independent of hand and lever position
     Par.CanStartTrial = @(Par) true;
 end
-
 Par.CorrectResponseGiven    = ...
     @(Par) Par.ResponseSide > 0 && Par.BeamIsBlocked(Par.ResponseSide);
 Par.IncorrectResponseGiven  = ...

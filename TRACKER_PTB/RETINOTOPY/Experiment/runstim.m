@@ -44,39 +44,24 @@ clc;
 priorityLevel=MaxPriority(Par.window);
 oldPriority=Priority(priorityLevel);
 
-%% set up the manual response task
+%% set up the manual response task ========================================
 for define_square=1 % left / square
-    lmost=-1/2;
-    rmost= 1/2;
-    tmost=-1/2;
-    bmost= 1/2;
-    left_square = [lmost,tmost; ...
-        rmost,tmost; ...
-        rmost,bmost; ...
-        lmost,bmost ...
-        ];
+    lmost=-1/2; rmost= 1/2;
+    tmost=-1/2; bmost= 1/2;
+    left_square = [lmost,tmost; rmost,tmost; rmost,bmost; lmost,bmost ];
 end
 for define_diamond=1 % right / diamond
-    lmost=-sqrt(2)*1/2;
-    rmost= sqrt(2)*1/2;
-    tmost=-sqrt(2)*1/2;
-    bmost= sqrt(2)*1/2;
-    right_diamond = [lmost,0; ...
-        0,tmost; ...
-        rmost,0; ...
-        0,bmost ...
-        ];
+    lmost=-sqrt(2)*1/2; rmost= sqrt(2)*1/2;
+    tmost=-sqrt(2)*1/2; bmost= sqrt(2)*1/2;
+    right_diamond = [lmost,0; 0,tmost; rmost,0; 0,bmost ];
 end
 for define_circle=1 % shown when subject needs to release response
-    lmost=-sqrt(1/pi);
-    rmost= sqrt(1/pi);
-    tmost=-sqrt(1/pi);
-    bmost= sqrt(1/pi);
-    blocked_circle = [lmost, tmost, rmost, bmost ...
-        ];
+    lmost=-sqrt(1/pi); rmost= sqrt(1/pi);
+    tmost=-sqrt(1/pi); bmost= sqrt(1/pi);
+    blocked_circle = [lmost, tmost, rmost, bmost ];
 end
 
-%% initialize stuff
+%% initialize stuff =======================================================
 Par.ESC = false; %escape has not been pressed
 GrandTotalReward=0;
 LastRewardAdded=false;
@@ -95,6 +80,11 @@ if ~isfield(Par,'DelayOnMiss')
     Par.DelayOnMiss = 0;
     fprintf('No DelayOnMiss defined: Setting it to 0\n');
 end
+if ~isfield(Par,'RewardForHandsIn_Delay')
+    Par.RewardForHandsIn_Delay = 0;
+    fprintf('No RewardForHandsIn_Delay defined: Setting it to 0\n');
+end
+
 % Add keys to fix left/right/random responses
 Par.KeyLeftResp = KbName(',<');
 Par.KeyRightResp = KbName('.>');
@@ -428,7 +418,7 @@ end
 Par.ESC=false; Log.TotalTimeOut = 0; Par.Pause = false;
 update_trackerfix_now = true;
 for STIMNR = Log.StimOrder
-    %% Cycles of stimuli
+    %% Cycles of stimuli --------------------------------------------------
     nCyclesDone=0;
     nCyclesReported=0;
     Log.TimeOutThisRun=0;
@@ -618,7 +608,7 @@ for STIMNR = Log.StimOrder
         Par.RewardRunning=false;
         
         % Initialize photosensor manual response
-        Par.BeamIsBlocked=false(size(Par.ConnectBox.PhotoAmp_used));
+        Par.BeamIsBlocked=false(size(Par.ConnectBox.PhotoAmp));
         Par.HandIsIn =[false false];
         Par.HandWasIn = Par.HandIsIn;
         Par.LeverIsUp = [false false];
@@ -714,9 +704,10 @@ for STIMNR = Log.StimOrder
                 fprintf(['MRI trigger received after ' num2str(GetSecs-Par.ExpStart) ' s\n']);
             end
         end
+        
     end
     
-    %% Displaying the stimuli
+    %% Displaying the stimuli ---------------------------------------------
     while ~Par.ESC && ~RunEnded
         while ~Par.FirstInitDone
             %set control window positions and dimensions
@@ -741,6 +732,7 @@ for STIMNR = Log.StimOrder
             Par.ForceRespSide = false;
             Par.IsCatchBlock = false;
             Par.RewHandStart = GetSecs;
+            Par.HandInNew_Moment = GetSecs;
             
             if StimLoopNr == 1 % allow time-outs to across runs
                 Par.Pause=false;
@@ -790,7 +782,7 @@ for STIMNR = Log.StimOrder
             
             RewardGivenForHandPos=false;
         end
-        %% Check what to draw depending on time
+        %% Check what to draw depending on time ---------------------------
         if RetMapStimuli
             if GetSecs < Log.StartBlock + Stm(STIMNR).RetMap.PreDur % PreDur
                 IsPre=true;
@@ -1013,7 +1005,7 @@ for STIMNR = Log.StimOrder
         FixTimeThisFlip = 0; NonFixTimeThisFlip = 0;
         Par.LastFlipFix = Par.FixIn;
         
-        %% Check if eye enters fixation window
+        %% Check if eye enters fixation window ----------------------------
         if ~Par.FixIn %not fixating
             if ~Par.CheckFixIn && ~TestRunstimWithoutDAS
                 dasreset(0); % start testing for eyes moving into fix window
@@ -1034,7 +1026,7 @@ for STIMNR = Log.StimOrder
             Par.CheckTarget=false;
         end
         
-        %% Check eye position
+        %% Check eye position ---------------------------------------------
         %Hit=0;
         if ~TestRunstimWithoutDAS
             dasrun(5); % takes max 5 ms
@@ -1043,7 +1035,7 @@ for STIMNR = Log.StimOrder
             %Time = LPStat(0);  %time
         end
         
-        %% interpret
+        %% interpret ------------------------------------------------------
         if Par.CheckFixIn && Hit~=0
             % add time to fixation duration
             NonFixTimeThisFlip = NonFixTimeThisFlip+Time;
@@ -1060,29 +1052,31 @@ for STIMNR = Log.StimOrder
             Par.LastFixOutTime=GetSecs;
         end
         
-        %% Do this routine for all remaining flip time
+        %% Do this routine for all remaining flip time --------------------
         DoneOnce=false;
         while ~DoneOnce || GetSecs < prevlft+0.80*Par.fliptimeSec
             DoneOnce=true;
             
-            %% check for key-presses
+            %% check for key-presses --------------------------------------
             CheckKeys; % internal function
             
-            %% Change stimulus if required
+            %% Change stimulus if required --------------------------------
             ChangeStimulus(STIMNR);
             
-            %% give manual reward
+            %% give manual reward -----------------------------------------
             if Par.ManualReward && ~TestRunstimWithoutDAS
                 GiveRewardManual;
                 Par.ManualReward=false;
             end
             
-            %% give reward for hand in box
-            if Par.RewardForHandsIn && any(Par.HandIsIn) &&...
-                    GetSecs-Par.RewHandStart > Par.RewardForHandIn_MinInterval
+            %% give reward for hand in box --------------------------------
+            if Par.RewardForHandsIn && any(Par.HandIsIn) && ~Par.Pause && ...
+                    GetSecs - Par.HandInNew_Moment > Par.RewardForHandsIn_Delay && ...
+                    GetSecs - Par.RewHandStart > Par.RewardForHandIn_MinInterval
                 GiveRewardAutoHandIn;
             end
-            %% check photosensor
+            
+            %% check photosensor ------------------------------------------
             if ~TestRunstimWithoutDAS
                 CheckManual;
                 if ~strcmp(Par.ResponseBox.Task,'DetectGoSignal') && ...
@@ -1102,11 +1096,11 @@ for STIMNR = Log.StimOrder
                 end
             end
             
-            %% Stop reward
+            %% Stop reward ------------------------------------------------
             StopRewardIfNeeded();
         end
         
-        %% Draw stimulus
+        %% Draw stimulus --------------------------------------------------
         if ~Par.Pause
             if RetMapStimuli
                 DrawStimuli;
@@ -1145,7 +1139,7 @@ for STIMNR = Log.StimOrder
             end
         end
         
-        %% Draw fixation dot
+        %% Draw fixation dot ----------------------------------------------
         if ~Par.ToggleHideFix ...
                 && ~Par.HideFix_BasedOnHandIn(Par) ...
                 && ~Par.Pause
@@ -1168,15 +1162,15 @@ for STIMNR = Log.StimOrder
             end
         end
         
-        %% darken the screen if on time-out
+        %% darken the screen if on time-out -------------------------------
         if Par.Pause
             Screen('FillRect',Par.window,[0 0 0]);
         end
         
-        %% dim the screen if requested due to hand position
+        %% dim the screen if requested due to hand position ---------------
         AutoDim; % checks by itself if it's required
         
-        %% Calculate proportion fixation for this flip-time and label it
+        %% Calculate proportion fixation for this flip-time and label it --
         % fix or no-fix
         if Par.FixIn
             if Par.RewardFixFeedBack
@@ -1210,10 +1204,10 @@ for STIMNR = Log.StimOrder
             %refreshtracker(1);
         end
         
-        %% Stop reward
+        %% Stop reward ----------------------------------------------------
         StopRewardIfNeeded();
         
-        %% if doing Par.ResponseBox.Task of 'DetectGoSignal':
+        %% if doing Par.ResponseBox.Task of 'DetectGoSignal': -------------
         if strcmp(Par.ResponseBox.Task, 'DetectGoSignal') && ~TestRunstimWithoutDAS
             % ==== Start wait period ====
             if Par.ResponseState == Par.RESP_STATE_DONE && ... 
@@ -1540,15 +1534,15 @@ for STIMNR = Log.StimOrder
             end
         end
         
-        %% refresh the screen
+        %% refresh the screen ---------------------------------------------
         %lft=Screen('Flip', Par.window, prevlft+0.9*Par.fliptimeSec);
         lft=Screen('Flip', Par.window); % as fast as possible
         nf=nf+1;
         
-        %% log eye-info if required
+        %% log eye-info if required ---------------------------------------
         LogEyeInfo;
         
-        %% change the checkerboard contrast if required
+        %% change the checkerboard contrast if required -------------------
         if DrawChecker
             if TrackingCheckerContChange
                 if lft-tLastCheckerContChange >= ...
@@ -1566,7 +1560,7 @@ for STIMNR = Log.StimOrder
             end
         end
         
-        %% Switch position if required to do this automatically
+        %% Switch position if required to do this automatically -----------
         if Par.ToggleCyclePos && Stm(STIMNR).CyclePosition && ...
                 Par.Trlcount(1) >= Stm(STIMNR).CyclePosition
             % next position
@@ -1576,7 +1570,7 @@ for STIMNR = Log.StimOrder
             Par.SwitchPos = false;
         end
         
-        %% update fixation times
+        %% update fixation times ------------------------------------------
         if nf>1 %&& ~Stm(STIMNR).IsPreDur
             dt=lft-prevlft;
             % log the screen flip timing
@@ -1588,7 +1582,7 @@ for STIMNR = Log.StimOrder
             end
         end
         
-        %% Update Tracker window
+        %% Update Tracker window ------------------------------------------
         if ~TestRunstimWithoutDAS && update_trackerfix_now
             %SCNT = {'TRIALS'};
             SCNT(1) = { ['F: ' num2str(Par.Response) '  FC: ' num2str(Par.CorrStreakcount(2))]};
@@ -1626,7 +1620,7 @@ for STIMNR = Log.StimOrder
             update_trackerfix_now=false;
         end
         
-        %% Catch block
+        %% Catch block ----------------------------------------------------
         if strcmp(Par.ResponseBox.Task,'DetectGoSignal') && ...
                 Par.CatchBlock.do && ~Par.IsCatchBlock && ...
                 nNonCatchTrials > Prev_nNonCatchTrials && ...
@@ -1642,11 +1636,11 @@ for STIMNR = Log.StimOrder
              %fprintf('completed\n')
         end
         
-        %% Stop reward
+        %% Stop reward ----------------------------------------------------
         StopRewardIfNeeded();
     end
     
-    %% Clean up and Save Log ==============================================
+    %% Clean up and Save Log ----------------------------------------------
     % end eye recording if necessary
     if Par.EyeRecAutoTrigger && ~EyeRecMsgShown
         cn=0;
@@ -1747,14 +1741,14 @@ for STIMNR = Log.StimOrder
         end
     end
     
-    %% diagnostics to cmd
+    %% diagnostics to cmd -------------------------------------------------
     if ~Par.ESC && ~TestRunstimWithoutDAS
         GrandTotalReward=GrandTotalReward+Log.TotalReward;
-        fprintf(['\nTotal reward this run: ' num2str(Log.TotalReward) '\n']);
+        fprintf(['Total reward this run: ' num2str(Log.TotalReward) '\n']);
         fprintf(['Total reward thusfar: ' num2str(GrandTotalReward) '\n']);
-        
-        fprintf(['\nTotal time-out this run: ' num2str(Log.TimeOutThisRun) '\n']);
+        fprintf(['Total time-out this run: ' num2str(Log.TimeOutThisRun) '\n']);
         fprintf(['Total time-out thusfar: ' num2str(Log.TotalTimeOut) '\n']);
+        fprintf(['Fixation percentage: ' num2str(nanmean(Log.FixPerc)) '\n']);
         
         CollectPerformance{StimLoopNr,1} = Stm(STIMNR).Descript;
         CollectPerformance{StimLoopNr,2} = nanmean(Log.FixPerc);
@@ -1763,12 +1757,12 @@ for STIMNR = Log.StimOrder
         CollectPerformance{StimLoopNr,5} = Log.TimeOutThisRun;
     elseif Par.ESC && ~LastRewardAdded && ~TestRunstimWithoutDAS
         GrandTotalReward=GrandTotalReward+Log.TotalReward;
-        fprintf(['\nTotal reward this run: ' num2str(Log.TotalReward) '\n']);
+        fprintf(['Total reward this run: ' num2str(Log.TotalReward) '\n']);
         fprintf(['Total reward thusfar: ' num2str(GrandTotalReward) '\n']);
-        
-        fprintf(['\nTotal time-out this run: ' num2str(Log.TimeOutThisRun) '\n']);
+        fprintf(['Total time-out this run: ' num2str(Log.TimeOutThisRun) '\n']);
         fprintf(['Total time-out thusfar: ' num2str(Log.TotalTimeOut) '\n']);
-        
+        fprintf(['Fixation percentage: ' num2str(nanmean(Log.FixPerc)) '\n']);
+
         CollectPerformance{StimLoopNr,1} = Stm(STIMNR).Descript;
         CollectPerformance{StimLoopNr,2} = nanmean(Log.FixPerc);
         CollectPerformance{StimLoopNr,3} = nanstd(Log.FixPerc);
@@ -1796,12 +1790,10 @@ for i=1:length(Par.FeedbackSoundSnd)
 end
 
 if TestRunstimWithoutDAS
-    sca;
-    cd Experiment;
-    rmpath(genpath(cd));
+    sca; cd Experiment; rmpath(genpath(cd));
 end
 
-%% close textures to clean memory
+%% Close textures to clean memory =========================================
 if CloseTextures
     fprintf('Cleaning up textures...\n\n');
     for rv = 1:length(ret_vid)
@@ -1811,7 +1803,7 @@ if CloseTextures
     end
 end
 
-%% Process performance
+%% Process performance ====================================================
 if ~isempty(CollectPerformance) && ~TestRunstimWithoutDAS
     ColPerf=[];
     cd Log
@@ -2381,34 +2373,12 @@ Par=Par_BU;
             % interpret depending on response box type
             switch Par.ResponseBox.Type
 %                 case 'Beam'
-%                     if strcmp(Par.HandSignalBothOrEither, 'Both') && ...
-%                             mean(Par.BeamIsBlocked)<1 % at least 1 not blocked
-%                         if Par.HandIsIn
-%                             % only do this if 1 channel is used
-%                             Log.nEvents=Log.nEvents+1;
-%                             Log.Events(Log.nEvents).type='HandOut';
-%                             Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-%                             Par.HandIsIn=false;
-%                         end
-%                     elseif strcmp(Par.HandSignalBothOrEither, 'Either') && ...
-%                             mean(Par.BeamIsBlocked)==0 % neither blocked
-%                         if Par.HandIsIn
-%                             % only do this if 1 channel is used
-%                             Log.nEvents=Log.nEvents+1;
-%                             Log.Events(Log.nEvents).type='HandOut';
-%                             Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-%                             Par.HandIsIn=false;
-%                         end
-%                     else
-%                         if ~Par.HandIsIn
-%                             Log.nEvents=Log.nEvents+1;
-%                             Log.Events(Log.nEvents).type='HandIn';
-%                             Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-%                             Par.HandIsIn=true;
-%                         end
-%                     end
                 case 'Lift'
-                    if strcmp(Par.HandSignalBothOrEither, 'Both') && ...
+                    if ~all(Par.HandWasIn) && any(Par.HandIsIn) % from none to any
+                        Par.HandInNew_Moment = GetSecs; 
+                    end
+                    
+                    if strcmp(Par.HandInBothOrEither, 'Both') && ...
                             all(Par.HandIsIn) % both in
                         if ~any(Par.HandWasIn)
                             % only do this if 1 channel is used
@@ -2417,7 +2387,7 @@ Par=Par_BU;
                             Log.Events(Log.nEvents).t=lft-Par.ExpStart;
                             Par.HandWasIn=Par.HandIsIn;
                         end
-                    elseif strcmp(Par.HandSignalBothOrEither, 'Either') && ...
+                    elseif strcmp(Par.HandInBothOrEither, 'Either') && ...
                             any(Par.HandIsIn) % both in % at least one blocked
                         if ~all(Par.HandWasIn)
                             % only do this if 1 channel is used
@@ -2509,49 +2479,53 @@ Par=Par_BU;
     end
 % give automated reward for task
     function GiveRewardAutoTask
-        if ~isempty(Par.RewardTaskMultiplier)
-            Par.RewardTimeCurrent = Par.RewardTaskMultiplier * Par.RewardTime;
-        else
-            Par.RewardTimeCurrent = Par.RewardTime;
+        if Par.Rew_BasedOnHandIn(Par) && ~Par.Pause
+            if ~isempty(Par.RewardTaskMultiplier)
+                Par.RewardTimeCurrent = Par.RewardTaskMultiplier * Par.RewardTime;
+            else
+                Par.RewardTimeCurrent = Par.RewardTime;
+            end
+            % Give the reward
+            Par.RewardStartTime=GetSecs;
+            if strcmp(computer,'PCWIN64')
+                dasjuice(10); % 64bit das card
+            else
+                dasjuice(5) %old card dasjuice(5)
+            end
+            Par.RewardRunning=true;
+            
+            %         % Play back a sound
+            %         if Par.RewardSound
+            %             RewT=0:1/Par.RewSndPar(1):Par.RewardTimeCurrent;
+            %             RewY=Par.RewSndPar(3)*sin(2*pi*Par.RewSndPar(2)*RewT);
+            %             sound(RewY,Par.RewSndPar(1));
+            %         end
+            
+            Log.nEvents=Log.nEvents+1;
+            Log.Events(Log.nEvents).type='RewardAutoTask';
+            Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
+            Log.Events(Log.nEvents).StimName = [];
         end
-        % Give the reward
-        Par.RewardStartTime=GetSecs;
-        if strcmp(computer,'PCWIN64')
-            dasjuice(10); % 64bit das card
-        else
-            dasjuice(5) %old card dasjuice(5)
-        end
-        Par.RewardRunning=true;
-        
-        %         % Play back a sound
-        %         if Par.RewardSound
-        %             RewT=0:1/Par.RewSndPar(1):Par.RewardTimeCurrent;
-        %             RewY=Par.RewSndPar(3)*sin(2*pi*Par.RewSndPar(2)*RewT);
-        %             sound(RewY,Par.RewSndPar(1));
-        %         end
-        
-        Log.nEvents=Log.nEvents+1;
-        Log.Events(Log.nEvents).type='RewardAutoTask';
-        Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-        Log.Events(Log.nEvents).StimName = [];
     end
 % give automated reward for hand in
     function GiveRewardAutoHandIn
         Par.RewardTimeCurrent = Par.RewardForHandsIn_Quant(sum(Par.HandIsIn));
         % Give the reward
-        Par.RewardStartTime=GetSecs;
-        Par.RewHandStart=Par.RewardStartTime;
-        if strcmp(computer,'PCWIN64')
-            dasjuice(10); % 64bit das card
-        else
-            dasjuice(5) %old card dasjuice(5)
+        if Par.RewardTimeCurrent>0
+            Par.RewardStartTime=GetSecs;
+            Par.RewHandStart=Par.RewardStartTime;
+            if strcmp(computer,'PCWIN64')
+                dasjuice(10); % 64bit das card
+            else
+                dasjuice(5) %old card dasjuice(5)
+            end
+            Par.RewardRunning=true;
+            
+            Log.nEvents=Log.nEvents+1;
+            Log.Events(Log.nEvents).type='RewardAutoHand';
+            Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
+            Log.Events(Log.nEvents).StimName = [];
         end
-        Par.RewardRunning=true;
-       
-        Log.nEvents=Log.nEvents+1;
-        Log.Events(Log.nEvents).type='RewardAutoHand';
-        Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-        Log.Events(Log.nEvents).StimName = [];
     end
 % give manual reward
     function GiveRewardManual

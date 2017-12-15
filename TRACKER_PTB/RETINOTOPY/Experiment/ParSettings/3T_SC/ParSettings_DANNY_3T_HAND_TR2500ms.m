@@ -1,4 +1,4 @@
-function ParSettings_MOCK_NEW_TR2500ms
+function ParSettings_DANNY_3T_HAND_TR2500ms
 
 % ParSettings gives all parameters for the experiment in global Par
 global Par

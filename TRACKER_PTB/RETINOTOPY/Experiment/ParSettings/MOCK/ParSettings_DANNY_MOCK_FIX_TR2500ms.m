@@ -1,4 +1,4 @@
-function ParSettings_MOCK_NEW_TR2500ms
+function ParSettings_DANNY_MOCK_FIX_TR2500ms
 
 % ParSettings gives all parameters for the experiment in global Par
 global Par
@@ -225,14 +225,14 @@ for i=1:size(Par.FeedbackSoundPar,1)
     end
 end
 
-Par.RewardTaskMultiplier = 1.0;
-Par.RewardFixMultiplier = 0.0;
+Par.RewardTaskMultiplier = 0.0;
+Par.RewardFixMultiplier = 1.0;
 
 % duration matches 'open duration'
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.040;
+        Par.RewardTimeSet = 0.025;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -254,11 +254,11 @@ Par.RewardTimeManual = 0.02; % amount of reward when given manually
 Par.RewardFixHoldTimeProg = true;
 if Par.RewardFixHoldTimeProg
     Par.RewardFixHoldTime = [...
-        0 1500;...
-        5 1250;...   
-        10 1000;...
-        20 750;...
-        30 500;...
+        0 1600;...
+        5 1400;...   
+        10 1200;...
+        20 900;...
+        30 600;...
         ];
 else
     Par.RewardFixHoldTime = 1250; %time to maintain fixation for reward
@@ -317,7 +317,6 @@ elseif Par.TrialNeeds.LeversAreDown % only levers down
 else % independent of hand and lever position
     Par.CanStartTrial = @(Par) true;
 end
-
 Par.CorrectResponseGiven    = ...
     @(Par) Par.ResponseSide > 0 && Par.BeamIsBlocked(Par.ResponseSide);
 Par.IncorrectResponseGiven  = ...

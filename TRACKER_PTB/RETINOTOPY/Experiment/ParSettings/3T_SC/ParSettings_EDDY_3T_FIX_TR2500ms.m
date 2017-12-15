@@ -1,4 +1,4 @@
-function ParSettings_MOCK_TR2500ms
+function ParSettings_EDDY_3T_FIX_TR2500ms
 
 % ParSettings gives all parameters for the experiment in global Par
 global Par
@@ -14,7 +14,7 @@ end
 
 %% Triggering =============================================================
 Par.TR = 2.5; % Not important during training
-Par.MRITriggeredStart = false;
+Par.MRITriggeredStart = true;
 Par.MRITrigger_OnlyOnce = true;
 
 %% Get stimulus info ======================================================
@@ -25,7 +25,7 @@ Stm=StimObj.Stm;
 StimObj.Stm.FixDotCol = [.3 .3 .3 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
-Par.FixWinSize = [1.5 1.5]; % [W H] in deg
+Par.FixWinSize = [3 3]; % [W H] in deg
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
@@ -60,7 +60,7 @@ if ~exist('Par','var') || ~isfield(Par,'Mouserun')
 end
 
 % parameters for interfacing with ISCAN
-Par.EyeRecAutoTrigger = false;
+Par.EyeRecAutoTrigger = true;
 Par.EyeRecStatus = 0; % recording status initially to 'not recording'
 Par.EyeRecTriggerLevel = 1; % 1 = stop recording, 0 = start recording
 
@@ -186,7 +186,7 @@ Par.RewardFixFeedBack = true;
 % RESP_MISS         = 3;
 % RESP_EARLY        = 4;
 % RESP_BREAK_FIX    = 5;
-Par.FeedbackSound = [false true false true false];
+Par.FeedbackSound = [false false false false false];
 Par.FeedbackSoundPar = [ ...
     44100 800 1 0.03; ... CORRECT
     44100 300 1 0.03; ... FALSE
@@ -232,7 +232,7 @@ Par.RewardFixMultiplier = 1.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.040;
+        Par.RewardTimeSet = 0.04;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -249,16 +249,16 @@ switch Par.RewardType
         Par.RewardTimeSet = 0; %no reward
 end
 
-Par.RewardTimeManual = 0.02; % amount of reward when given manually
+Par.RewardTimeManual = 0.015; % amount of reward when given manually
 
 Par.RewardFixHoldTimeProg = true;
 if Par.RewardFixHoldTimeProg
     Par.RewardFixHoldTime = [...
-        0 1500;...
-        5 1250;...   
-        10 1000;...
-        20 750;...
-        30 500;...
+        0 1200;...
+        5 1000;...   
+        10 800;...
+        20 700;...
+        30 600;...
         ];
 else
     Par.RewardFixHoldTime = 1250; %time to maintain fixation for reward
