@@ -47,6 +47,8 @@ Temporary Items
 ####################
 
 Log
+TRACKER_PTB/RETINOTOPY/Stimuli/faces/
+TRACKER_PTB/RETINOTOPY/Stimuli/walkers/
 
 # File types #
 ##############
@@ -55,7 +57,3 @@ Log
 *._
 .DS_Store*
 *.bak
-
-TRACKER_PTB/RETINOTOPY/Stimuli/faces/
-
-TRACKER_PTB/RETINOTOPY/Stimuli/walkers/
