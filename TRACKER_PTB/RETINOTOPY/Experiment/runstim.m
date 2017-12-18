@@ -431,6 +431,7 @@ for STIMNR = Log.StimOrder
         % Fixation
         if StimLoopNr == 1 % only defining the fix window on first loop allows setting it via gui
             Stm(STIMNR).FixWinSizePix = round(Stm(STIMNR).FixWinSize*Par.PixPerDeg);
+            RunParStim_Saved = false;
         end
         Stm(STIMNR).FixDotSizePix = round(Stm(STIMNR).FixDotSize*Par.PixPerDeg);
         Par.RespIndSizePix = round(Par.RespIndSize*Par.PixPerDeg);
@@ -752,9 +753,7 @@ for STIMNR = Log.StimOrder
             Log.Events(Log.nEvents).t=Log.StartBlock-Par.ExpStart;
             Log.Events(Log.nEvents).StimName = [];
             if TestRunstimWithoutDAS; Hit=0; end
-            
-            Par.FirstInitDone=true;
-            
+                      
             PreStarted = false;
             OnStarted = false;
             OffStarted = false;
@@ -782,6 +781,8 @@ for STIMNR = Log.StimOrder
             end
             
             RewardGivenForHandPos=false;
+            
+            Par.FirstInitDone=true;
         end
         %% Check what to draw depending on time ---------------------------
         if RetMapStimuli
@@ -1698,19 +1699,22 @@ for STIMNR = Log.StimOrder
         Log.FixPerc=100*(Par.FixInOutTime(:,1)./sum(Par.FixInOutTime,2));
         
         % copy the originally used files
-        % runstim
-        fn=['Runstim_'  LogFn '.m'];
-        cfn=[mfilename('fullpath') '.m'];
-        copyfile(cfn,fn);
-        % parsettings
-        parsetpath = which(Par.PARSETFILE);
-        copyfile(parsetpath,[Par.PARSETFILE '.m']);
-        % stimsettings
-        stimsetpath = which(Par.STIMSETFILE);
-        copyfile(stimsetpath,[Par.STIMSETFILE '.m']);
-        % stimulus
-        if RetMapStimuli
-            save('RetMap_Stimulus','ret_vid');
+        if ~RunParStim_Saved
+            % runstim
+            fn=['Runstim_'  LogFn '.m'];
+            cfn=[mfilename('fullpath') '.m'];
+            copyfile(cfn,fn);
+            % parsettings
+            parsetpath = which(Par.PARSETFILE);
+            copyfile(parsetpath,[Par.PARSETFILE '.m']);
+            % stimsettings
+            stimsetpath = which(Par.STIMSETFILE);
+            copyfile(stimsetpath,[Par.STIMSETFILE '.m']);
+            % stimulus
+            if RetMapStimuli
+                save('RetMap_Stimulus','ret_vid');
+            end
+            RunParStim_Saved=true;
         end
         
         if ~TestRunstimWithoutDAS
