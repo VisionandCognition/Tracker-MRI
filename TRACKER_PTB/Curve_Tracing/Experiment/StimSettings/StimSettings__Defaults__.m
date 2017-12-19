@@ -34,19 +34,38 @@ Params.TraceCurveWidth = 9; % 6; % in pixels
 % Stm(1).PostSwitchJointAlpha = 0; % max should go to 0, with better training
 Params.PostSwitchJointAlpha = 1; % max should go to 0, with better training
 
-gap = 1;
-Params.BranchDistDeg = 1.2;
-Params.Gap1_deg = [0 gap];
-Params.Gap2_deg = [0 Params.BranchDistDeg] + gap;
-Params.CurveTargetDistDeg = 1.5;
 
 % Paw indicator
 Params.RequireSpecificPaw = true;
-Params.PawIndPositions = [...
-    -6 -3; -6 3; ...
-    6 -3; 6 3; ...
-    0 0 ... center
-    ] * 1.1;
+
+extend_curves = true;
+
+if extend_curves
+    % Extend more of the visual field
+    Params.PawIndPositions = [...
+        -8 -4; -8 4; ...
+        8 -4; 8 4; ...
+        0 0 ... center
+        ];
+    Params.BranchDistDeg = 1.5;
+    Params.CurveTargetDistDeg = 1.8;
+
+    gap = 1;
+    Params.Gap1_deg = [0 gap/2]; % decrease gap at fixation point
+    Params.Gap2_deg = [0 Params.BranchDistDeg] + gap;
+else
+    Params.PawIndPositions = [...
+        -6.6 -3.3; -6.6 3.3; ...
+        6.6 -3.3; 6.6 3.3; ...
+        0 0 ... center
+        ];
+    Params.BranchDistDeg = 1.2;
+    Params.CurveTargetDistDeg = 1.5;
+    
+    gap = 1;
+    Params.Gap1_deg = [0 gap];
+    Params.Gap2_deg = [0 Params.BranchDistDeg] + gap;
+end
 
 % Stm(1).PawIndAlpha = [ PreSwitchAlpha target 1 target 2 ... ; 
 %                        PostSwitchAlpha target 1 target 2 ... ]

@@ -10,12 +10,12 @@ Stm = StimObj.Stm;
 curvetracing = CurveTracingJoystickTask(StimObj.DefaultParams, 'StimSettings/CurveTracingJoyStickTask.csv');
 
 %  curvecatch = CurveTracingCatchBlockTask(StimObj.DefaultParams, 'StimSettings/CurveTracingJoyStickTask.csv');
-curvecontrol = CurveTracingJoystickTask(StimObj.DefaultCtrlParams, 'StimSettings/CurveTracingJoyStickTask-Control.csv', 'Control CT');
+curvecontrol = CurveTracingJoystickTask(StimObj.DefaultCtrlParams, 'StimSettings/CurveTracingJoyStickTask-Control.csv', 'Control CT', 'TargetLoc');
 fixation = FixationTask(StimObj.DefaultFixParams);
 
 Stm(1).KeepSubjectBusyTask = curvetracing;
 Stm(1).RestingTask = fixation;
-Stm(1).KeepSubjectBusyTask = fixation;
+% Stm(1).KeepSubjectBusyTask = fixation;
 
 Stm(1).tasksToCycle = [...
     repmat({curvetracing}, 1, 4*2) ... curve tracing
