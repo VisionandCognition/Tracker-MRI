@@ -13,7 +13,7 @@ curvetracing = CurveTracingJoystickTask(StimObj.DefaultParams, 'StimSettings/Cur
 curvecontrol = CurveTracingJoystickTask(StimObj.DefaultCtrlParams, 'StimSettings/CurveTracingJoyStickTask-Control.csv', 'Control CT', 'TargetLoc');
 fixation = FixationTask(StimObj.DefaultFixParams);
 
-Stm(1).KeepSubjectBusyTask = curvetracing;
+Stm(1).KeepSubjectBusyTask = curvecontrol;
 Stm(1).RestingTask = fixation;
 % Stm(1).KeepSubjectBusyTask = fixation;
 
@@ -24,8 +24,8 @@ Stm(1).tasksToCycle = [...
     ... {curvecatch} ... catch trial
     ];
 Stm(1).taskCycleInd = 1;
-%Stm(1).task = Stm(1).RestingTask;
-Stm(1).task = curvecontrol; % This task is good for fixation calibration
+Stm(1).task = Stm(1).RestingTask;
+% Stm(1).task = curvecontrol; % This task is good for fixation calibration
 Stm(1).alternateWithRestingBlocks = false;
 
 Stm(1).curvetracing = curvetracing;

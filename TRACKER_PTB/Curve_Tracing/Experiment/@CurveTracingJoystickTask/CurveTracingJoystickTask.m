@@ -303,7 +303,7 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
                 end
             end
             if obj.blocked  % print debugging info
-                paramval = obj.stimuli_params.(obj.sampleBy){stim_index};
+                paramval = obj.stimuli_params.(obj.sampleBy){stim_index};  % Unrecognized variable name 'GroupConnections'.
                 target = obj.stimuli_params.TargetShape{stim_index};
                 fprintf('Block %d.%d: {%s} stim[%d]\tTarget: %s   Remaining: %d\n', ...
                     obj.blockNum, obj.iTrialOfBlock, paramval, stim_index, target, numel(obj.remain_stim_ind));

@@ -44,6 +44,20 @@ RetMap.Checker.SaveToFile = true;
 RetMap.Checker.FileName = 'Checkerboard_[MRI_SETUP].mat';
 CheckerboardParams.RetMap = RetMap;
 
+
+% Extend more of the visual field
+CheckerboardParams.PawIndPositions = [...
+    -8 -4; -8 4; ...
+    8 -4; 8 4; ...
+    0 0 ... center
+    ];
+CheckerboardParams.BranchDistDeg = 1.5;
+CheckerboardParams.CurveTargetDistDeg = 1.8;
+
+gap = 1;
+CheckerboardParams.Gap1_deg = [0 gap/2];
+CheckerboardParams.Gap2_deg = [0 CheckerboardParams.BranchDistDeg] + gap;
+
 CheckerboardParams.TraceCurveWidthDeg = 0.5;
 CheckerboardParams.PawIndSizeDeg = [3.5, 3.5, 3.5, 3.5, CheckerboardParams.FixDotSizeDeg];
 

@@ -17,17 +17,6 @@ Params.PawIndCol = satLevel * Params.PawIndCol + (1 - satLevel) * unsaturatedCol
 
 QuickParams = Params;
 
-% Testing ...
-QuickParams.PawIndPositions = [...
-    -9 -4; -9 4; ...
-    9 -4; 9 4; ...
-    0 0 ... center
-    ];
-gap = 1;
-QuickParams.BranchDistDeg = 1.2;
-QuickParams.Gap1_deg = [0 gap/2];
-QuickParams.Gap2_deg = [0 QuickParams.BranchDistDeg] + gap;
-
 %QuickParams.EventPeriods = [2200 1000 300];
 QuickParams.EventPeriods = [1500 700 300];
 %QuickParams.rewardMultiplier = .5; % 0.5;
