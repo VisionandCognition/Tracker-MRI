@@ -43,7 +43,6 @@ if isfield(Stm(1), 'CurveConnectionPosX')
     Stm(1) = rmfield(Stm(1), 'CurveConnectionPosX'); % disable
 end
 Stm(1).CurveAngleGap = 90; % (0,90]
-
 Stm(1).DisconnectedCurveLength = 0.75;
 
 %% Paw indicator ----------------------------------------------------------
@@ -110,7 +109,7 @@ Stm(1).NoiseContrast = 0.1; % 0-1
 Stm(1).NoiseDefaultOn = false; % [toggle with "B" key]
 
 %% Stimulus specific timing (in ms) ---------------------------------------
-Stm(1).SwitchDur = 2000; % (200) duration of alternative orientation
+Stm(1).SwitchDur = 5000; % (200) duration of alternative orientation
 
 % set time-windows in which something can happen (ms)
 % [baseduration_without_switch ... 
