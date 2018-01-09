@@ -330,12 +330,21 @@ while ~Par.ESC %===========================================================
         Par.unattended_alpha = min(1.0, Par.unattended_alpha);
         Par.unattended_alpha = max(0.0, Par.unattended_alpha);
         
-        
         min_alpha = min(Stm(1).AlphaPreSwitch);
         max_alpha = max(Stm(1).AlphaPreSwitch);
         Par.trial_preswitch_alpha = (max_alpha-min_alpha)*rand() + min_alpha;
         Par.trial_preswitch_alpha = min(1.0, Par.trial_preswitch_alpha);
         Par.trial_preswitch_alpha = max(0.0, Par.trial_preswitch_alpha);
+        
+        if Stm(1).AlphaPreSwitch_NeutralEqualsIndicator
+            Par.trial_preswitch_alpha_dist = 1-Par.unattended_alpha;
+        else
+            min_alpha = min(Stm(1).AlphaPreSwitch_dist);
+            max_alpha = max(Stm(1).AlphaPreSwitch_dist);
+            Par.trial_preswitch_alpha_dist = (max_alpha-min_alpha)*rand() + min_alpha;
+            Par.trial_preswitch_alpha_dist = min(1.0, Par.trial_preswitch_alpha_dist);
+            Par.trial_preswitch_alpha_dist = max(0.0, Par.trial_preswitch_alpha_dist);
+        end
     end
     Par.TaskSwitched = false;
     Par.PawWrongSide=mod(Par.PawSides(1),2)+1;
@@ -1223,14 +1232,12 @@ end
                     hfix, vfix];
                 if alpha1 < 1.0
                     DrawPreSwitchFigure(fix_pos(1,:)+attd_offset(1,:), ...
-                        PawIndSizePix,...
-                        1-Par.trial_preswitch_alpha);
+                        PawIndSizePix,1-Par.trial_preswitch_alpha);
                 end
                 
                 for indpos = 2:Stm(1).NumOfPawIndicators
                     alpha1 = (1-Stm(1).PawIndAlpha(1, indpos)) * ...
-                        Par.unattended_alpha * ...
-                        Par.trial_preswitch_alpha;
+                        Par.unattended_alpha * Par.trial_preswitch_alpha;
                     
                     discon_offset = repmat( ...
                         Stm(1).PawIndOffsetPix(indpos,:), [4,1]);
@@ -1247,7 +1254,7 @@ end
                     if alpha1 < 0.5 % draw ambiguous pre-switch placeholder
                         DrawPreSwitchFigure(fix_pos(1,:)+discon_offset(1,:), ...
                             PawIndSizePix,  ...
-                            (1-Par.trial_preswitch_alpha)*Stm(1).PawIndAlpha(1, indpos));
+                            (1-Par.trial_preswitch_alpha_dist)*Stm(1).PawIndAlpha(1, indpos));
                     end
                 end
             else % ------------------------------- POSTSWITCH

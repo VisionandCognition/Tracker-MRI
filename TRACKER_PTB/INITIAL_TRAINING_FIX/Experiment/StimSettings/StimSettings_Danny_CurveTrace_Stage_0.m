@@ -37,6 +37,9 @@ Stm(1).TraceCurveWidth = 6;
 Stm(1).UnattdAlpha = [0 0.1]; % min should go to 1, with better training
 Stm(1).UnattdAlpha_TargetAtFix = [0];
 Stm(1).AlphaPreSwitch = 0.0; %1.0;
+Stm(1).AlphaPreSwitch_dist = [0.5 0.5]; 
+% alternatively make it consistent with following indicator
+Stm(1).AlphaPreSwitch_NeutralEqualsIndicator = true;
 Stm(1).PostSwitchJointAlpha = [1]; % max should go to 0, with better training
 
 if isfield(Stm(1), 'CurveConnectionPosX')

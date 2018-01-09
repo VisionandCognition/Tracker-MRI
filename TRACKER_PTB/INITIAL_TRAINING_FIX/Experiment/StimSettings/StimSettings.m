@@ -26,7 +26,10 @@ Stm(1).UnattdAlpha = 1; % min should go to 1, with better training
 Stm(1).UnattdAlpha_TargetAtFix = 1;
 Stm(1).AlphaPreSwitch = 0.0; % 0 = memory / curve tracing task
 % Stm(1).PostSwitchJointAlpha = 0; % max should go to 0, with better training
-Stm(1).PostSwitchJointAlpha = 0.5; % max should go to 0, with better training
+Stm(1).AlphaPreSwitch_dist = [0.5 0.5]; 
+% alternatively make it consistent with following indicator
+Stm(1).AlphaPreSwitch_NeutralEqualsIndicator = true;
+Stm(1).PostSwitchJointAlpha = [0.5]; % max should go to 0, with better training
 % Horizontal positions of "Connections" in Curve (edges of gaps)
 % [End_of_Fix_Gap/Start_of_straight_line, 
 %  End_of_straight_line/start of curve,
