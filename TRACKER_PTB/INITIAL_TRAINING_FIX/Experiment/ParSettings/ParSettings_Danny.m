@@ -143,13 +143,13 @@ Par.RewSndPar = [44100 800 1]; % [FS(Hz) TonePitch(Hz) Amplitude]
 % RESP_MISS = 3;
 % RESP_EARLY = 4;
 % RESP_BREAK_FIX = 5;
-Par.FeedbackSound = [false true false true false];
+Par.FeedbackSound = [false false false false false];
 Par.FeedbackSoundPar = [ ...
-    44100 800 1 0.02; ... CORRECT
-    44100 300 1 0.03; ... FALSE
-    44100 200 1 0.02; ... MISS
-    44100 300 1 0.02; ... EARLY
-    44100 400 1.5 0.02 ... FIXATION BREAK
+    44100 800 0.01 0.02; ... CORRECT
+    44100 300 0.1 0.03; ... FALSE
+    44100 200 0.1 0.02; ... MISS
+    44100 300 0.1 0.02; ... EARLY
+    44100 400 0.15 0.02 ... FIXATION BREAK
     ];
 
 % [FS(Hz) TonePitch(Hz) Amplitude Duration]

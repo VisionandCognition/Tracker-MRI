@@ -48,11 +48,10 @@ Stm(1).DisconnectedCurveLength = 0.75;
 
 %% Paw indicator ----------------------------------------------------------
 Stm(1).RequireSpecificPaw = true;
-Stm(1).PawIndSize = 1;
-%Stm(1).PawIndOffset = [3.5 2.5]; % not used
-Stm(1).PawIndOffsetX = [-2 5]; % [min max] % no longer used used!
-Stm(1).PawIndOffsetY = [0.0 0.0]; % [min max] % no longer used used!
-Stm(1).PawIndPositions = [ -1 0; 1 0 ];
+
+target_offset = 0.8; % start with 0, go to 1 or higher
+Stm(1).PawIndPositions = [ -target_offset 0; target_offset 0 ];
+Stm(1).PawIndSize = target_offset/4 + 0.5;
 
 % Show the subject which response he is currently giving
 % Doesn't seem to help.
@@ -60,14 +59,14 @@ Stm(1).LiftedPawIndPositions = [ -1 1; 1 1 ] * 5;
 Stm(1).LiftedPawIndSize = 0; % 2; ------------ Disable lifted paw indicator
 Stm(1).DisplayChosenTargetDur = 0;
 
-
+% curves
 Stm(1).CurveAlpha = [1 1 1 1; 1 1 1 1];
 Stm(1).PawIndAlpha = [1 1 1 1; 1 1 1 1];
 Stm(1).NumOfPawIndicators = 1; % Can't be more than the number of PawIndPositions!
 Stm(1).DistractBranchConnAlpha = 1;
 
-%Stm(1).PawIndCol = 0.2.*[0 .7 0; .9 .2 .2]; % colors for the left and right target
-%Stm(1).PawIndCol = 0.1*[.9 1 .9;1 .9 .9]; % colors for the left and right target
+%Stm(1).PawIndCol = 0.2.*[0 .7 0; .9 .2 .2; 1 1 1]; % colors for the left and right target
+%Stm(1).PawIndCol = 0.1*[.9 1 .9; 1 .9 .9; 1 1 1]; % colors for the left and right target
 Stm(1).PawIndCol = 0.1*[1 1 1;1 1 1; 1 1 1]; % colors for the left and right target and place holder
 
 % You probably want Stm(1).SwitchToLPawProb(1) + Stm(1).SwitchToRPawProb(1) = 1.0.
@@ -131,7 +130,6 @@ Stm(1).BreakOnFalseHit = true; % if AutoReward=true, trial is broken off on fals
 Stm(1).ResponseAllowed = [80 Stm(1).SwitchDur+100]; % [after_onset after_offset] in ms
 %Stm(1).ResponseAllowed = [100 4000]; % [after_onset after_offset] in ms
 Stm(1).BreakDuration = 2000; % 1500 additional waiting period for early / false hits
-Stm(1).ErrorSound = true;
 
 Stm(1).FalseHitRewardRatio = 0.00; % 0.75; % amount of reward for FH relative to true hit
 Stm(1).PawRewardMultiplier = [1 1]; % [left hand response, right hand response]

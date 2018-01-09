@@ -324,8 +324,8 @@ Par.IncorrectResponseGiven  = ...
     @(Par) Par.ResponseSide > 0 && Par.BeamIsBlocked(mod(Par.ResponseSide,2)+1);
 
 % Reward for keeping hand in the box
-Par.RewardForHandsIn = false;
-Par.RewardForHandsIn_Quant = [0.00 0.08]; % 1 hand, both hands
+Par.RewardForHandsIn = true;
+Par.RewardForHandsIn_Quant = [0.00 0.1]; % 1 hand, both hands
 Par.RewardForHandsIn_Delay = 0.500; %s 
 Par.RewardForHandIn_MinInterval = 3; %s
 
