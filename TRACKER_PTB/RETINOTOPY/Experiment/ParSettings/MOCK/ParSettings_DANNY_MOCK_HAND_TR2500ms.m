@@ -328,6 +328,7 @@ Par.IncorrectResponseGiven  = ...
 % Reward for keeping hand in the box
 Par.RewardForHandsIn = false;
 Par.RewardForHandsIn_Quant = [0.04 0.08]; % 1 hand, both hands
+Par.RewardForHandsIn_MultiplierPerHand = [1.5 1]; % if only one hand in is rewarded [L R]
 Par.RewardForHandIn_MinInterval = 2; %s
 
 %% Create Eye-check windows based on stimulus positions ===================

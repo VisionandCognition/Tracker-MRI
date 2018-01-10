@@ -2532,6 +2532,10 @@ Par=Par_BU;
 % give automated reward for hand in
     function GiveRewardAutoHandIn
         Par.RewardTimeCurrent = Par.RewardForHandsIn_Quant(sum(Par.HandIsIn));
+        if ~all(Par.HandIsIn) % only one hand in
+            Par.RewardTimeCurrent = ...
+                Par.RewardForHandsIn_MultiplierPerHand(Par.HandIsIn)*Par.RewardTimeCurrent;
+        end    
         % Give the reward
         if Par.RewardTimeCurrent>0
             Par.RewardStartTime=GetSecs;
