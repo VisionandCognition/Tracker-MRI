@@ -61,6 +61,8 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
         
         fprintf('-- Start mini-block %d: %s --\n', Log.numMiniBlocks, Stm(1).task.name);
         Log.events.add_entry(Par.lft, Stm(1).task.name, 'NewMiniBlock', num2str(Log.numMiniBlocks));
+        
+        Par.CorrStreakcount(1) = 0; % Reset the per-block streak count
     end
     
     % ----------------------------------------------- Start new trial -----
@@ -153,15 +155,17 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
     %
     % ---------------------------------------------------------------------
     
-    % no response or fix break during switch = miss
-    % ~Par.ResponseGiven && ~Par.FalseResponseGiven && ...
+    % no response or fix break during switch = miss        
     if Par.HandRemoved
         Par.CurrResponse = Par.RESP_REMOVE_HAND;
         
     elseif Par.CurrResponse == Par.RESP_NONE
         Par.CurrResponse = Par.RESP_MISS;
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
-        Par.CorrStreakcount=[0 0];
+    end
+    
+    if Par.CurrResponse ~= Par.RESP_CORRECT
+        Par.CorrStreakcount = [0 0];
     end
     
     % Performance info on screen
@@ -171,7 +175,6 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
             
             % reset
             Par.Trlcount(1) = 0;
-            Par.CorrStreakcount(1)=0;
             Par.PosReset=false; %start new trial when switching position
         else
             Log.events.add_entry(Par.lft, Stm(1).task.name, 'TrialCompleted');

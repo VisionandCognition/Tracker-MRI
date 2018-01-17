@@ -183,14 +183,14 @@ Par.HandOutDimsScreen_perc = 0.9; %(0-1, fraction dimming)
 Par.HandResponse=[false false];
 Par.HandsIn=[false false]; % Hands in position ready to respond
 Par.RequireHandsIn = true;
-Par.SingleHandInReward = 0; % 0 to disable
-Par.BothHandsInReward = 0.15;
+Par.SingleHandInReward = 0.10; % 0 to disable
+Par.BothHandsInReward = 0.20;
 % Min time between removing hands and placing them back in
 % Don't want to reward for taking hands out and putting them back in real
 % fast. Reward should be much lower than what subject could get from
 % working.
-Par.MinSecsBetweenSingleHandInRewards = 10;
-Par.MinSecsBetweenBothHandsInRewards = 60;
+Par.MinSecsBetweenSingleHandInRewards = 60;
+Par.MinSecsBetweenBothHandsInRewards = 120;
 
 Par.SingleHandInTime = -Inf;
 Par.BothHandsInTime = -Inf;
@@ -223,6 +223,8 @@ end
 % end
 
 Par.RewardTimeManual = 0.04; % amount of reward when given manually
+
+Par.StreakRewardMult = 2; % Give 50% more reward when an entire block is correct
 
 %% Create Eye-check windows based on stimulus positions ===================
 for SetInitialWINs=1

@@ -114,6 +114,10 @@ if isfield(Stm(1), 'KeepSubjectBusyTask') && ...
         Stm(1).RestingTask ~= Stm(1).KeepSubjectBusyTask
     Stm(1).tasksUnique{end+1} = Stm(1).KeepSubjectBusyTask;
 end
+if isfield(Stm(1), 'KeepSubjectBusyTask_PreScan') && ...
+        Stm(1).RestingTask ~= Stm(1).KeepSubjectBusyTask_PreScan
+    Stm(1).tasksUnique{end+1} = Stm(1).KeepSubjectBusyTask_PreScan;
+end
 for i = 1:length(Stm(1).tasksToCycle)
     unique = true;
     for j = 1:length(Stm(1).tasksUnique)
@@ -309,15 +313,19 @@ end
 %==========================================================================
 
 fprintf('\n\n ------- Begin pre-trigger busy-tasks (press ''W'' key to wait for trigger) -------\n');
-if isfield(Stm(1),'KeepSubjectBusyTask')
+if isfield(Stm(1),'KeepSubjectBusyTask_PreScan') || isfield(Stm(1),'KeepSubjectBusyTask')
     Par.exitOnKeyWaitForMRITrigger = true;
     PreviousVerbosity = Par.Verbosity;
     Par.Verbosity = 0;
     args=struct;
     args.alternateWithRestingBlocks=false;
-    args.maxTimeSecs = 600.0;
-                            
-    CurveTracing_MainLoop(Hnd, {Stm(1).KeepSubjectBusyTask}, 100, args);
+    args.maxTimeSecs = 600000.0;
+
+    if isfield(Stm(1),'KeepSubjectBusyTask_PreScan')
+        CurveTracing_MainLoop(Hnd, {Stm(1).KeepSubjectBusyTask_PreScan}, 1000, args);
+    else
+        CurveTracing_MainLoop(Hnd, {Stm(1).KeepSubjectBusyTask}, 1000, args);
+    end
     
     Par.Verbosity = PreviousVerbosity;
     Par.ESC=false; % Reset escape
@@ -541,6 +549,24 @@ for CleanUp=1 % code folding
 
     %if Par.TestRunstimWithoutDAS; cd Experiment;end
     warning on; %#ok<WNON>
+    
+    % save a copy of the current runstim
+    thisfile = mfilename('fullpath');
+    copyfile( [thisfile '.m'], logPath );
+    
+    % save a copy of the current stim settings and par settings
+    copyfile( ...
+        fullfile(Par.CurveTracingRoot, 'Experiment', 'StimSettings', [Par.STIMSETFILE, '.m']), ...
+        logPath );
+    copyfile( ... probably also depends on base StimSettings.m
+        fullfile(Par.CurveTracingRoot, 'Experiment', 'StimSettings', 'StimSettings.m'), ...
+        logPath );
+    copyfile( ... and default settings
+        fullfile(Par.CurveTracingRoot, 'Experiment', 'StimSettings', 'StimSettings__Defaults__.m'), ...
+        logPath );
+    copyfile( ...
+        fullfile(Par.CurveTracingRoot, 'Experiment', 'ParSettings', [Par.PARSETFILE, '.m']), ...
+        logPath );
     
     % if running without DAS close ptb windows
     %if Par.TestRunstimWithoutDAS

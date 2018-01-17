@@ -29,6 +29,16 @@ function correctResponseGiven(obj, lft)
     else
         RewardAmount = Par.RewardTime;
     end
+    Par.CorrStreakcount=Par.CorrStreakcount+1;
+    
+    % Give bonus for getting all of the trials in block correct
+    % The bonus is relative to the cases w/o bonus
+    N = obj.param('BlockSize');
+    fprintf('Current streak = %d / %d\n', Par.CorrStreakcount(1), obj.param('BlockSize'));
+    if Par.CorrStreakcount(1) == N
+        RewardAmount = Par.StreakRewardMult * RewardAmount;
+    end        
+    
     RewardAmount = RewardAmount * obj.taskParams.rewardMultiplier  * ...
         obj.taskParams.rewardSideRespMultiplier(obj.curr_hand);
 
@@ -44,5 +54,8 @@ function correctResponseGiven(obj, lft)
         %Log.events.add_entry(lft, obj.taskName, 'ResponseReward', RewardAmount);
     end
     Par.ResponseGiven=true;
-    Par.CorrStreakcount=Par.CorrStreakcount+1;
+    
+    if ~isnan(obj.curr_stim_index_ind) % Remove stimulus index from remaining sample
+        obj.remain_stim_ind(obj.curr_stim_index_ind) = [];
+    end
 end

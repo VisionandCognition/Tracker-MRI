@@ -12,7 +12,8 @@ Stm(1).alternateWithRestingBlocks = false;
 Stm(1).iterateTasks = false;
 
 % Background --------------------------------------------------------------
-Params.BGColor = [.5 .5 .5]; % [R G B] 0-1
+% Params.BGColor = [.5 .5 .5]; % [R G B] 0-1
+Params.BGColor = [.667 .667 .667]; % [R G B] 0-1, from Retinotopy
 
 % Fixation ----------------------------------------------------------------
 Params.FixWinSizeDeg = 3.5; % <- testing   2.5; % in deg
@@ -77,7 +78,10 @@ Params.DistractBranchConnAlpha = 1;
 Params.PawIndCol = [0 .7 0; .9 .2 .2; .6 .6 .6]; % colors for the left and right target
 %unsaturatedColor = [0.6 0.6 0.6; 0.6 0.6 0.6];
 unsaturatedColor = [0.3 0.3 0.3; 0.3 0.3 0.3; .6 .6 .6];
-satLevel = 5/6;
+
+%satLevel = 5/6;
+%satLevel = 1/12;
+satLevel = 0.075/12;
 Params.PawIndCol = satLevel * Params.PawIndCol + (1 - satLevel) * unsaturatedColor;
 
 %Stm(1).SwitchToLPawProb = [0.55 0.15]; % [prev. correct, prev. incorrect]

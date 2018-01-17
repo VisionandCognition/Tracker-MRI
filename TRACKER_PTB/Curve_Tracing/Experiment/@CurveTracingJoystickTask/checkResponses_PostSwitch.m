@@ -2,7 +2,7 @@ function checkResponses_PostSwitch(obj, lft)
 %CHECKRESPONSES_POSTSWITCH Read new responses via DAS and check timing.
 %   Detailed explanation goes here
     global Par;
-    
+    correctRespGiven = false;
     if Par.NewResponse && ...
         lft < obj.stateStart.SWITCHED + obj.taskParams.ResponseAllowed(2)/1000
 
@@ -10,6 +10,7 @@ function checkResponses_PostSwitch(obj, lft)
         if ~obj.param('RequireSpecificPaw') || Par.NewResponse == obj.param('iTargetShape')
             
             obj.correctResponseGiven(lft);
+            correctRespGiven = true;
             
         else %if ~obj.param('RequireSpecificPaw') || Par.NewResponse ~= obj.param('iTargetShape')
 
@@ -28,6 +29,9 @@ function checkResponses_PostSwitch(obj, lft)
         end
         %Par.ResponseGiven=true;
         %Don't break trial, this would speed it up and be positive
+    end
+    if ~correctRespGiven
+        % add current trial back into 
     end
     
     %fix_broke = strcmp(obj.curr_response, 'break_fix');

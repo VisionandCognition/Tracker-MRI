@@ -13,7 +13,7 @@ global Par
             Screen('FillRect',Par.window, [.5 .25 0].*Par.ScrWhite);
         else
             % Dark background
-            Screen('FillRect',Par.window, 0.5 .* Par.ScrWhite);
+            %Screen('FillRect',Par.window, 0.5 .* Par.ScrWhite);
         end
     end
     if ~Par.Paused % ~Par.BeamLIsBlocked && ~Par.BeamRIsBlocked && 

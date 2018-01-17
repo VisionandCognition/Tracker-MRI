@@ -10,6 +10,7 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
         sampleBy = 'GroupConnections';
         curr_sample_by = [];
         block_example_ind = NaN;
+        curr_stim_index_ind = NaN;
         
         stimuliParamsPath = NaN;
         blocked = true;
@@ -237,28 +238,6 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
         drawPreSwitchFigure(obj, Par, pos, SizePix, alpha);
         
         function stim_index = selectTrialStimulus(obj)
-% Previous version ...
-%            if obj.nextTarget > 0 % if next target was manually chosen
-%                iTargetShape = obj.nextTarget;
-%                obj.nextTarget = 0;
-%                
-%                side_mask = obj.stimuli_params.iTargetShape == iTargetShape;
-%            
-%                mask_indices = find(side_mask);
-%                stim_index = mask_indices(randi(sum(side_mask)));
-%            else
-%                stim_index = randi(size(obj.stimuli_params, 1), 1);
-
-            % stim_index = randi(size(obj.stimuli_params, 1), 1);
-            
-            %sampleby_params = obj.stimuli_params.(obj.sampleBy);
-            %uniq_sample_params = unique(sampleby_params);
-%             
-%             if ~obj.blocked  % if not blocking trials
-%                 % NOT YET WRITTEN
-%                 %t = sampleby_params;
-%                 assert(false);
-%             else
             if obj.iTrialOfBlock == 1 || ...
                     isnan(obj.block_example_ind) % if new block
                 
@@ -273,8 +252,10 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
                 ind = randi(length(obj.remain_stim_ind));
                 obj.block_example_ind = obj.remain_stim_ind(ind);
                 stim_index            = obj.remain_stim_ind(ind);
+                obj.curr_stim_index   = obj.remain_stim_ind(ind);
+                obj.curr_stim_index_ind = ind;
                 
-                obj.remain_stim_ind(ind) = [];
+                % obj.remain_stim_ind(ind) = [];
                 
             else
                 % trials are being blocked and this trial is part of a
@@ -294,12 +275,14 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
                     ind = randi(numel(remain_indices));
                     stim_index = remain_indices(ind);
                     
-                    obj.remain_stim_ind(ind) = [];  % remove chosen index
+                    % obj.remain_stim_ind(ind) = [];  % remove chosen index
+                    obj.curr_stim_index_ind = ind;
                 else
                     % if not enough remaining trials of desired type, just
                     % sample from all of the trials of desired type.
                     ind = randi(numel(mask_indices));
                     stim_index = mask_indices(ind);
+                    obj.curr_stim_index_ind = NaN;
                 end
             end
             if obj.blocked  % print debugging info
