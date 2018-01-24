@@ -159,6 +159,22 @@ global Log;
     if sum(HandsInNow) >= 2
         Par.BothHandsInTime = now;
     end
+    % Reward periodically for having hands in
+    if sum(HandsInNow) >= 2
+        if now - Par.HandOutOrRewardTime > Par.NextHandsRemainInRewardSec
+            Par.GiveRewardAmount = Par.GiveRewardAmount + Par.BothHandsRemainInReward;
+            GiveRewardAuto;
+            % number of seconds of keeping hands in until next reward
+            Par.NextHandsRemainInRewardSec = ...
+                min(Par.SecsBetweenBothHandsRemainInRewards) + ...
+                rand()*( ...
+                   max(Par.SecsBetweenBothHandsRemainInRewards) - ...
+                   min(Par.SecsBetweenBothHandsRemainInRewards));
+            Par.HandOutOrRewardTime = now;
+        end
+    else
+        Par.HandOutOrRewardTime = now;
+    end
     Par.HandsIn = HandsInNow;
     if hand_pos_changed
         fprintf('Hand position: [ ');

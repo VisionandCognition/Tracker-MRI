@@ -75,14 +75,16 @@ Params.PawIndAlpha = [1 1 1 1 1; 1 1 1 1 1];
 Params.NumOfPawIndicators = 4; % Can't be more than the number of PawIndPositions!
 Params.DistractBranchConnAlpha = 1;
 
-Params.PawIndCol = [0 .7 0; .9 .2 .2; .6 .6 .6]; % colors for the left and right target
+ambigCir = 0.35; % was 0.6 -> should be 0.3?
+Params.SaturatedPawIndCol = [0 .7 0; .9 .2 .2; ambigCir ambigCir ambigCir]; % colors for the left and right target
 %unsaturatedColor = [0.6 0.6 0.6; 0.6 0.6 0.6];
-unsaturatedColor = [0.3 0.3 0.3; 0.3 0.3 0.3; .6 .6 .6];
+unsaturatedColor = [0.3 0.3 0.3; 0.3 0.3 0.3; ambigCir ambigCir ambigCir];
 
 %satLevel = 5/6;
 %satLevel = 1/12;
-satLevel = 0.075/12;
-Params.PawIndCol = satLevel * Params.PawIndCol + (1 - satLevel) * unsaturatedColor;
+%satLevel = 0.075/12;
+satLevel = 0;
+Params.PawIndCol = satLevel * Params.SaturatedPawIndCol + (1 - satLevel) * unsaturatedColor;
 
 %Stm(1).SwitchToLPawProb = [0.55 0.15]; % [prev. correct, prev. incorrect]
 %Stm(1).SwitchToRPawProb = [0.55 0.15]; % [prev. correct, prev. incorrect]
