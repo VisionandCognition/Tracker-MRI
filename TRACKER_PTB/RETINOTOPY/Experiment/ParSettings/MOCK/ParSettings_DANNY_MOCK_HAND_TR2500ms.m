@@ -422,4 +422,5 @@ Par.P1 = 1; Par.P2 = 1;
 
 %% Logging ================================================================
 Par.PlotPerformance = false;
-Par.LogFolder = 'C:\Users\NINuser\Documents\Log_CK\Retinotopy\pRF';
+% log folder should be defined in stimsettings
+Par.LogFolder = Stm(1).LogFolder; 

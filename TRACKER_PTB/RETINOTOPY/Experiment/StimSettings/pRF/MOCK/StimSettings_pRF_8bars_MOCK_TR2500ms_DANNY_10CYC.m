@@ -64,6 +64,9 @@ Stm(1).RetMap.LoadFromFile = true;
 Stm(1).RetMap.SaveToFile = false;
 Stm(1).RetMap.FileName = 'pRF_8bars_MOCK_TR2500ms_DANNY_TRAIN.mat';
 
+% Logfolder
+Stm(1).LogFolder = 'C:\Users\NINuser\Documents\Log_CK\Retinotopy\pRF';
+
 %% ========================================================================
 % Write stimulus settings to global variable StimObj
 StimObj.Stm = Stm;

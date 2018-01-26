@@ -30,7 +30,7 @@ Par.FixWinSize = [2 2]; % [W H] in deg
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
 Par.SCx = 0.135; %initial scale in control window
-Par.SCy = 0.135;
+Par.SCy = 0.11;
 Par.OFFx = 0; %initial eye offset x => (center) of camera das output
 Par.OFFy = 0; %initial eye offset y
 Par.ScaleOff = [Par.OFFx; Par.OFFy; Par.SCx; Par.SCy]; 
@@ -232,7 +232,7 @@ Par.RewardFixMultiplier = 1.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.03;
+        Par.RewardTimeSet = 0.045;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -420,4 +420,5 @@ Par.P1 = 1; Par.P2 = 1;
 
 %% Logging ================================================================
 Par.PlotPerformance = false;
-Par.LogFolder = 'C:\Users\NINuser\Documents\Log_CK\Retinotopy\pRF';
+% log folder should be defined in stimsettings
+Par.LogFolder = Stm(1).LogFolder; 

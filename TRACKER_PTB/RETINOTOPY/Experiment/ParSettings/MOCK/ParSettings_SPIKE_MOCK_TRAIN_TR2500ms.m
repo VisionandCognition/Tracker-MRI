@@ -232,7 +232,7 @@ Par.RewardFixMultiplier = 0.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.300;%250;
+        Par.RewardTimeSet = 0.250;%250;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -325,10 +325,10 @@ Par.IncorrectResponseGiven  = ...
 
 % Reward for keeping hand in the box
 Par.RewardForHandsIn = true;
-Par.RewardForHandsIn_Quant = [0.15 0.350]; % 1 hand, both hands
-Par.RewardForHandsIn_MultiplierPerHand = [1.5 1]; % if only one hand in is rewarded [L R]
+Par.RewardForHandsIn_Quant = [0.08 0.150]; % 1 hand, both hands
+Par.RewardForHandsIn_MultiplierPerHand = [1 1]; % if only one hand in is rewarded [L R]
 Par.RewardForHandsIn_Delay = 0.500; %s 
-Par.RewardForHandIn_MinInterval = 2; %s
+Par.RewardForHandIn_MinInterval = 4; %s
 
 %% Create Eye-check windows based on stimulus positions ===================
 % The code below is preloaded and will be overwritten on stimulus basis
@@ -421,4 +421,5 @@ Par.P1 = 1; Par.P2 = 1;
 
 %% Logging ================================================================
 Par.PlotPerformance = false;
-Par.LogFolder = 'C:\Users\NINuser\Documents\Log_CK\Retinotopy\pRF';
+% log folder should be defined in stimsettings
+Par.LogFolder = Stm(1).LogFolder; 

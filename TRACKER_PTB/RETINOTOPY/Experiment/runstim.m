@@ -1680,7 +1680,8 @@ for STIMNR = Log.StimOrder
         Priority(oldPriority);
         
         % save stuff
-        LogPath = fullfile(Par.LogFolder,Par.SetUp,[Par.MONKEY '_' DateString]);
+        LogPath = fullfile(Par.LogFolder,Par.SetUp,Par.MONKEY,...
+            [Par.MONKEY '_' DateString(1:8)],[Par.MONKEY '_' DateString]);
         warning off;mkdir(LogPath);warning on;
         LogFn = [Par.SetUp '_' Par.MONKEY '_' DateString];
         cd(LogPath)
