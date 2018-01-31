@@ -19,6 +19,7 @@ Stm(1).KeepSubjectBusyTask = busy;
 Stm(1).RestingTask = fixation;
 % Stm(1).KeepSubjectBusyTask = fixation;
 
+% tasksToCycle contain the tasks presented during scan
 Stm(1).tasksToCycle = [...
     repmat({curvetracing}, 1, 4*2) ... curve tracing
     %repmat({fixation}, 1, 1*2) ... fixation

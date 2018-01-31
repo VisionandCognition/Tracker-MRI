@@ -184,20 +184,21 @@ Par.HandResponse=[false false];
 Par.HandsIn=[false false]; % Hands in position ready to respond
 Par.RequireHandsIn = true;
 Par.SingleHandInReward = 0.10; % 0 to disable
-Par.BothHandsInReward = 0.20;
-Par.BothHandsRemainInReward = 0.08; % Reward at random periods for keeping hands in
+Par.BothHandsInReward = 0.20; % Reward for PUTTING both hands in
+
+Par.BothHandsRemainInReward = 0.08; % Reward at random periods for KEEPING hands in
 
 % Min time between removing hands and placing them back in
 % Don't want to reward for taking hands out and putting them back in real
 % fast. Reward should be much lower than what subject could get from
 % working.
-Par.MinSecsBetweenSingleHandInRewards = 60;
+Par.MinSecsBetweenSingleHandInRewards= 60;
 Par.MinSecsBetweenBothHandsInRewards = 120;
 
 % Reward at random periods for keeping hands in
-Par.SecsBetweenBothHandsRemainInRewards = [1 10];
+Par.SecsBetweenBothHandsRemainInRewards = [3 10];
 Par.NextHandsRemainInRewardSec = min(Par.SecsBetweenBothHandsRemainInRewards);
-Par.HandOutOrRewardTime = Inf;
+Par.HandOutOrRewardTime = -Inf;
 
 Par.SingleHandInTime = -Inf;
 Par.BothHandsInTime = -Inf;

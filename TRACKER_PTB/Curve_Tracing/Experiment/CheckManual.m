@@ -160,7 +160,8 @@ global Log;
         Par.BothHandsInTime = now;
     end
     % Reward periodically for having hands in
-    if sum(HandsInNow) >= 2
+    if sum(HandsInNow) >= 2 && ...
+            sum(Par.HandResponse)==0 % as long as not lifting response
         if now - Par.HandOutOrRewardTime > Par.NextHandsRemainInRewardSec
             Par.GiveRewardAmount = Par.GiveRewardAmount + Par.BothHandsRemainInReward;
             GiveRewardAuto;
