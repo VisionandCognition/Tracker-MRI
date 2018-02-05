@@ -364,6 +364,8 @@ for STIMNR = unique(Log.StimOrder)
         case 'checkerboard'
             %% fullscreen checkerboard
             Stm(STIMNR).Descript = 'FullChecker';
+        case 'movie'
+            Stm(STIMNR).Descript = 'movie';
     end
 end
 
@@ -379,6 +381,14 @@ for i=1:length(Stm)
         TotTime = TotTime + ...
             (sum(Stm(i).RetMap.Checker.OnOff)*Stm(i).RetMap.nCycles)+...
             Stm(i).RetMap.PreDur+Stm(i).RetMap.PostDur;
+    elseif strcmp(Stm(i).RetMap.StimType{1},'movie')
+        Stm(i).RetMap.PreDur = ...
+            Stm(i).RetMap.PreDur_TRs*Par.TR;
+        Stm(i).RetMap.PostDur = ...
+            Stm(i).RetMap.PostDur_TRs*Par.TR;
+        TotTime = TotTime + ...
+                    (Stm(i).RetMap.moviedur/Stm(i).RetMap.movierate) + ...
+                    Stm(i).RetMap.PreDur + Stm(i).RetMap.PostDur;
     else
         Stm(i).RetMap.PreDur = ...
             Stm(i).RetMap.PreDur_TRs*Par.TR;
@@ -409,7 +419,7 @@ for i=1:length(Stm)
 end
 if ~isinf(TotTime)
     NumVolNeeded=(Stm(1).nRepeatsStimSet*TotTime)/Par.TR;
-    fprintf(['This StimSettings file requires at least ' num2str(NumVolNeeded) ...
+    fprintf(['This StimSettings file requires at least ' num2str(ceil(NumVolNeeded)) ...
         ' scanvolumes (check scanner)\n']);
 else
     fprintf('NB: No end-time defined. This will keep running until stopped.\n')
@@ -449,14 +459,17 @@ for STIMNR = Log.StimOrder
                 %% only fixation
                 RetMapStimuli=false;
                 DispChecker=false;
+                MovieRun=false;
             case 'ret'
                 %% Population receptive field stim
                 RetMapStimuli=true;
                 DispChecker=false;
+                MovieRun=false;
             case 'face'
                 %% Classic retinotopy: faces
                 RetMapStimuli=true;
                 DispChecker=false;
+                MovieRun=false;
                 if strcmp(Stm(STIMNR).RetMap.StimType{2},'circle')
                     ret_vid=vid_face_ring.ret_vid;
                 elseif strcmp(Stm(STIMNR).RetMap.StimType{2},'wedge')
@@ -466,6 +479,7 @@ for STIMNR = Log.StimOrder
                 %% Classic retinotopy: walkers
                 RetMapStimuli=true;
                 DispChecker=false;
+                MovieRun=false;
                 if strcmp(Stm(STIMNR).RetMap.StimType{2},'circle')
                     ret_vid=vid_walker_ring.ret_vid;
                 elseif strcmp(Stm(STIMNR).RetMap.StimType{2},'wedge')
@@ -477,6 +491,7 @@ for STIMNR = Log.StimOrder
                 Stm(STIMNR).Descript = 'FullChecker';
                 RetMapStimuli=false;
                 DispChecker=true;
+                MovieRun=false;
                 if Stm(STIMNR).RetMap.Checker.LoadFromFile
                     fprintf(['\nLoading checkerboard ' ...
                         Stm(STIMNR).RetMap.Checker.FileName '...\n']);
@@ -551,6 +566,17 @@ for STIMNR = Log.StimOrder
                 CheckTexture(1)=Screen('MakeTexture', Par.window, CB1);
                 CheckTexture(2)=Screen('MakeTexture', Par.window, CB2);
                 TrackingCheckerContChange = false;
+            case 'movie'
+                %% only fixation
+                RetMapStimuli=false;
+                DispChecker=false;
+                MovieRun=true;
+                moviename = Stm(STIMNR).RetMap.FileName;
+                % prepare the movie
+                [Log.movie.name, Log.movie.duration, ...
+                    Log.movie.fps, Log.movie.imgw, Log.movie.imgh] = ...
+                    Screen('OpenMovie', Par.window, moviename, [], [], [], [], []);
+                MovieRunning=false;
         end
         
         fprintf(['\nRun: ' num2str(Log.RunNr)]);
@@ -785,7 +811,7 @@ for STIMNR = Log.StimOrder
             Par.FirstInitDone=true;
         end
         %% Check what to draw depending on time ---------------------------
-        if RetMapStimuli
+        if RetMapStimuli || MovieRun
             if GetSecs < Log.StartBlock + Stm(STIMNR).RetMap.PreDur % PreDur
                 IsPre=true;
                 IsPost=false;
@@ -798,7 +824,8 @@ for STIMNR = Log.StimOrder
                     Log.Events(Log.nEvents).StimName = [];
                     posn=0;
                 end
-            elseif GetSecs >= Log.StartBlock + Stm(STIMNR).RetMap.PreDur && ...
+            elseif RetMapStimuli && ...
+                    GetSecs >= Log.StartBlock + Stm(STIMNR).RetMap.PreDur && ...
                     GetSecs < Log.StartBlock + Stm(STIMNR).RetMap.PreDur + ...
                     (Stm(STIMNR).RetMap.nCycles*size(Stm(STIMNR).RetMap.posmap,1)*...
                     Stm(STIMNR).RetMap.TRsPerStep*Par.TR) % in stimulus cycle
@@ -850,8 +877,21 @@ for STIMNR = Log.StimOrder
                         texn=texn-numel(ret_vid(Stm(STIMNR).Order(posn)).text);
                     end
                 end
-                
-            elseif GetSecs < Log.StartBlock + Stm(STIMNR).RetMap.PreDur + ...
+            elseif MovieRun && ...
+                    GetSecs >= Log.StartBlock + Stm(STIMNR).RetMap.PreDur && ...
+                    GetSecs < Log.StartBlock + Stm(STIMNR).RetMap.PreDur + ...
+                    (Stm(STIMNR).RetMap.moviedur/Stm(STIMNR).RetMap.movierate)
+                IsPre=false;
+                IsPost=false;
+                if ~OnStarted
+                    OnStarted=true;
+                    Log.nEvents=Log.nEvents+1;
+                    Log.Events(Log.nEvents).type='StimON';
+                    Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
+                    Log.Events(Log.nEvents).StimName = Stm(STIMNR).Descript;
+                end
+            elseif RetMapStimuli && ...
+                    GetSecs < Log.StartBlock + Stm(STIMNR).RetMap.PreDur + ...
                     (Stm(STIMNR).RetMap.nCycles*size(Stm(STIMNR).RetMap.posmap,1)*...
                     Stm(STIMNR).RetMap.TRsPerStep*Par.TR) + ...
                     Stm(STIMNR).RetMap.PostDur % PostDur
@@ -865,6 +905,25 @@ for STIMNR = Log.StimOrder
                     Log.Events(Log.nEvents).StimName = [];
                     tPostStarted=GetSecs;
                 end
+            elseif MovieRun && ...
+                    GetSecs < Log.StartBlock + Stm(STIMNR).RetMap.PreDur + ...
+                    (Stm(STIMNR).RetMap.moviedur/Stm(STIMNR).RetMap.movierate) + ...
+                    Stm(STIMNR).RetMap.PostDur % PostDur
+                IsPre=false;
+                IsPost = true;
+                if ~PostStarted
+                    PostStarted=true;
+                    Log.nEvents=Log.nEvents+1;
+                    Log.Events(Log.nEvents).type='PostDurStart';
+                    Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
+                    Log.Events(Log.nEvents).StimName = [];
+                    tPostStarted=GetSecs;
+                    % Done. Stop playback:
+                    Screen('PlayMovie', Log.movie.name, 0);
+                    % Close movie object:
+                    Screen('CloseMovie', Log.movie.name);
+                end
+                
             else
                 RunEnded=true;
                 IsPre=false;
@@ -1128,6 +1187,30 @@ for STIMNR = Log.StimOrder
                                 Par.ScrCenter(1)+Par.wrect(4)/2 Par.wrect(4)],...
                                 [],1);
                         end
+                    end
+                end
+            elseif MovieRun
+                DrawStimuli;
+                if ~IsPre && ~IsPost && ~RunEnded && ~Par.ToggleHideStim ...
+                        && ~Par.HideStim_BasedOnHandIn(Par) ...
+                        && ~Par.Pause
+                    % start the movie if it hasn't started yet
+                    if ~MovieRunning
+                        Screen('PlayMovie', Log.movie.name, Stm(STIMNR).RetMap.movierate, 1, 0); 
+                        % looping avoid early stops (duration is regulated
+                        % based on movieduration separately)
+                        MovieRunning=true;
+                    end
+                    % grab a texture
+                    movietex = Screen('GetMovieImage', Par.window, Log.movie.name, 1);
+                    % draw that texture 
+                    if movietex>0
+                           Stm(STIMNR).RetMap.PlaySize
+                        PlayWindow = [ (Par.wrect(3)-Stm(STIMNR).RetMap.PlaySize(2))/2 0 ...
+                            Par.wrect(3)-(Par.wrect(3)-Stm(STIMNR).RetMap.PlaySize(2))/2  ...
+                            Stm(STIMNR).RetMap.PlaySize(2)];
+                        Screen('DrawTexture', Par.window, movietex, [], ...
+                            PlayWindow, [], [], [], [], []);
                     end
                 end
             elseif DrawChecker
