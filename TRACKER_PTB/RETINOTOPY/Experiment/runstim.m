@@ -1183,11 +1183,6 @@ for STIMNR = Log.StimOrder
                             if strcmp(Stm(STIMNR).RetMap.StimType{2},'pRF_8bar')
                                 Screen('DrawTexture',Par.window,ret_vid(posn_adj).text(texn),...
                                     [],[],ret_vid(posn).orient(orinum),1);
-                                % Send word if position changed
-
-                                dasword()
-
-
                             else
                                 Screen('DrawTexture',Par.window,ret_vid(posn).text(texn),...
                                     [],[],[],1);
