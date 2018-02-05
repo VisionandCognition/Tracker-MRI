@@ -100,6 +100,11 @@ if ~TestRunstimWithoutDAS
     refreshtracker(1);
 end
 
+if strcmp(Par.SetUp,'NIN')
+    blockstr = inputdlg('BlockNr','BlockNr',1,{'000'});
+    blockstr=blockstr{1};
+end
+
 % output stimsettings filename to cmd
 fprintf(['Setup selected: ' Par.SetUp '\n']);
 %fprintf(['Screen selected: ' Par.ScreenChoice '\n']);
@@ -852,6 +857,8 @@ for STIMNR = Log.StimOrder
                     Log.Events(Log.nEvents).type='NewPosition';
                     Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
                     Log.Events(Log.nEvents).StimName = posn;
+                    % dasword
+                    dasword(posn);
                 end
                 
                 if strcmp(Stm(STIMNR).RetMap.StimType{1},'ret') && posn
@@ -1175,6 +1182,11 @@ for STIMNR = Log.StimOrder
                             if strcmp(Stm(STIMNR).RetMap.StimType{2},'pRF_8bar')
                                 Screen('DrawTexture',Par.window,ret_vid(posn_adj).text(texn),...
                                     [],[],ret_vid(posn).orient(orinum),1);
+                                % Send word if position changed
+
+                                dasword()
+
+
                             else
                                 Screen('DrawTexture',Par.window,ret_vid(posn).text(texn),...
                                     [],[],[],1);
@@ -1770,8 +1782,14 @@ for STIMNR = Log.StimOrder
         cd(LogPath)
         
         if ~TestRunstimWithoutDAS
-            FileName=['Log_' LogFn '_' ...
-                Stm(STIMNR).Descript '_Run' num2str(StimLoopNr)];
+            if strcmp(Par.SetUp,'NIN')
+                blockstr
+                FileName=['Log_' LogFn '_' ...
+                    Stm(STIMNR).Descript '_Run' num2str(StimLoopNr) '_Block' num2str(blockstr)];
+            else
+                FileName=['Log_' LogFn '_' ...
+                    Stm(STIMNR).Descript '_Run' num2str(StimLoopNr)];
+            end
         else
             FileName=['Log_NODAS_' LogFn '_' ...
                 Stm(STIMNR).Descript '_Run' num2str(StimLoopNr)];

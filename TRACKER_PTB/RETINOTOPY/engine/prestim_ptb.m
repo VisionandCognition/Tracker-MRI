@@ -34,6 +34,8 @@ for InitializeDasAndPTB=1 %allows code folding
             fprintf([Par.ScreenChoice ' BOLD display: Flipping the screen\n']);
         elseif strcmp(Par.ScreenChoice,'Mock')% mock
             % specific mock stuff?
+        elseif strcmp(Par.ScreenChoice,'NIN')% ephys setup
+            % specific ephys stuff?    
         else
         end
         %[Par.window, Par.wrect] = Screen('OpenWindow',Par.ScrNr,0,[],[],2,[],[],1);

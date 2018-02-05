@@ -16,8 +16,8 @@ end
 % Ask to select screen and configure accordingly
 % BOLD screen at 3T needs to be flipped
 % PTB will take care of this
-Par.ScreenChoice = questdlg('Which setup (3T/Mock)?', 'Select Setup',...
-    '3T','Mock','Mock');
+Par.ScreenChoice = questdlg('Which setup (3T/Mock/NIN)?', 'Select Setup',...
+    '3T','Mock','NIN','Mock');
 
 % remember the startfolder
 Par.StartFolder=cd;
