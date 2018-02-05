@@ -576,7 +576,7 @@ for STIMNR = Log.StimOrder
                 RetMapStimuli=false;
                 DispChecker=false;
                 MovieRun=true;
-                moviename = Stm(STIMNR).RetMap.FileName;
+                moviename = [Par.ExpFolder '\Stimuli\Movies\' Stm(STIMNR).RetMap.FileName];
                 % prepare the movie
                 [Log.movie.name, Log.movie.duration, ...
                     Log.movie.fps, Log.movie.imgw, Log.movie.imgh] = ...
@@ -929,6 +929,7 @@ for STIMNR = Log.StimOrder
                     Screen('PlayMovie', Log.movie.name, 0);
                     % Close movie object:
                     Screen('CloseMovie', Log.movie.name);
+                    MovieRunning=false;
                 end
                 
             else
@@ -1212,15 +1213,16 @@ for STIMNR = Log.StimOrder
                         % looping avoid early stops (duration is regulated
                         % based on movieduration separately)
                         MovieRunning=true;
+                        % calculate movie presentation size
+                        PlayWindow = [ (Par.wrect(3)-Stm(STIMNR).RetMap.PlaySize(1))/2 0 ...
+                            Par.wrect(3)-(Par.wrect(3)-Stm(STIMNR).RetMap.PlaySize(1))/2  ...
+                            Stm(STIMNR).RetMap.PlaySize(2)];
+                        Par.BG
                     end
                     % grab a texture
                     movietex = Screen('GetMovieImage', Par.window, Log.movie.name, 1);
                     % draw that texture 
                     if movietex>0
-                           Stm(STIMNR).RetMap.PlaySize
-                        PlayWindow = [ (Par.wrect(3)-Stm(STIMNR).RetMap.PlaySize(2))/2 0 ...
-                            Par.wrect(3)-(Par.wrect(3)-Stm(STIMNR).RetMap.PlaySize(2))/2  ...
-                            Stm(STIMNR).RetMap.PlaySize(2)];
                         Screen('DrawTexture', Par.window, movietex, [], ...
                             PlayWindow, [], [], [], [], []);
                     end
@@ -1239,7 +1241,7 @@ for STIMNR = Log.StimOrder
         %% Draw fixation dot ----------------------------------------------
         if ~Par.ToggleHideFix ...
                 && ~Par.HideFix_BasedOnHandIn(Par) ...
-                && ~Par.Pause
+                && ~Par.Pause && ~MovieRun
             DrawFix(STIMNR);
         end
         
@@ -1757,6 +1759,16 @@ for STIMNR = Log.StimOrder
             fprintf('\n>> Alert! Could not find a running eye-recording!\n');
         end
         EyeRecMsgShown=true;
+    end
+    
+    if MovieRun
+        if MovieRunning
+            % Done. Stop playback:
+            Screen('PlayMovie', Log.movie.name, 0);
+            % Close movie object:
+            Screen('CloseMovie', Log.movie.name);
+            MovieRunning=false;
+        end
     end
     
     if ~isempty(Stm(STIMNR).Descript) && ~TestRunstimWithoutDAS

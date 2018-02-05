@@ -1,4 +1,4 @@
-function ParSettings_SPIKE_MOCK_TRAIN_TR2500ms
+jfunction ParSettings_SPIKE_MOCK_TRAIN_TR2500ms
 
 % ParSettings gives all parameters for the experiment in global Par
 global Par
@@ -325,7 +325,7 @@ Par.IncorrectResponseGiven  = ...
 
 % Reward for keeping hand in the box
 Par.RewardForHandsIn = true;
-Par.RewardForHandsIn_Quant = [0.08 0.150]; % 1 hand, both hands
+Par.RewardForHandsIn_Quant = [0.02 0.100]; % 1 hand, both hands
 Par.RewardForHandsIn_MultiplierPerHand = [1 1]; % if only one hand in is rewarded [L R]
 Par.RewardForHandsIn_Delay = 0.500; %s 
 Par.RewardForHandIn_MinInterval = 4; %s

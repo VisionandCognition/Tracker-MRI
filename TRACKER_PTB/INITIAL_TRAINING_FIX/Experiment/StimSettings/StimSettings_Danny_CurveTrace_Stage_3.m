@@ -32,7 +32,7 @@ Stm(1).CurveAnglesAtFP = [...
     ];
 
 Stm(1).TraceCurveCol = [0.1 0.1 0.1];
-Stm(1).TraceCurveWidth = 6;
+Stm(1).TraceCurveWidth = 6; % pixels
 Stm(1).UnattdAlpha = [1.0 1.0]; % min should go to 1, with better training
 Stm(1).UnattdAlpha_TargetAtFix = [0];
 Stm(1).AlphaPreSwitch = 0.0; %1.0;
@@ -53,7 +53,7 @@ Stm(1).RequireSpecificPaw = true;
 
 Stm(1).PawIndSize = 1;
 
-target_offset = 0.8; % start with 0, go to 1 or higher
+target_offset = 1.2; % start with 0, go to 1 or higher
 Stm(1).PawIndPositions = [ -target_offset 0; target_offset 0 ];
 Stm(1).PawIndSize = target_offset/4 + 0.5;
 
@@ -69,10 +69,11 @@ Stm(1).LiftedPawIndSize = 0; % 2; ------------ Disable lifted paw indicator
 Stm(1).DisplayChosenTargetDur = 0;
 
 
-Stm(1).CurveAlpha = [1 1 1 1; 1 1 1 1];
+Stm(1).CurveAlpha = [1 1 1 1; 1 1 1 1]; % [preswitch; postswitch] ?????
 Stm(1).PawIndAlpha = [1 1 1 1; 1 1 1 1];
 Stm(1).NumOfPawIndicators = 2; % Can't be more than the number of PawIndPositions!
 Stm(1).DistractBranchConnAlpha = 1;
+Stm(1).CurveConnectionPosX = [1 1 1 1];
 
 %Stm(1).PawIndCol = 0.2.*[0 .7 0; .9 .2 .2]; % colors for the left and right target
 %Stm(1).PawIndCol = 0.1*[.9 1 .9;1 .9 .9]; % colors for the left and right target
@@ -92,7 +93,7 @@ if false
 else
     % Re-parameterize ....
     pLeftTarget = 0.5; % probability of left hand target when correct
-    pRepeatIncorrect = .75; % probability of repeating current target when incorrect
+    pRepeatIncorrect = .5; % probability of repeating current target when incorrect
     
     Stm(1).SwitchToLPawProb = [pLeftTarget, 1-pRepeatIncorrect]; % [prev. correct, prev. incorrect]
     Stm(1).SwitchToRPawProb = [1-pLeftTarget, 1-pRepeatIncorrect]; % [prev. correct, prev. incorrect]

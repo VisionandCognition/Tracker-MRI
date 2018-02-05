@@ -1423,7 +1423,7 @@ end
             repmat(pos(1,:),[1,2]) + wait_circle*SizePix);
     end
 % draw curves -------------------------------------------------------------
-    function DrawCurve2(pos, connection1, connection2, indpos)
+    function DrawCurve2(pos, connection1, connection2, indpos) % second version
         if ~isfield(Par, 'CurveAngles') || ~isfield(Stm(1), 'BranchDistDeg')
             DrawCurve(pos, connection1, connection2, indpos);
             return;
