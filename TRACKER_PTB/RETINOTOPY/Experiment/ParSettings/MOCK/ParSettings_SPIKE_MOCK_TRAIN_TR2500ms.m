@@ -1,4 +1,4 @@
-jfunction ParSettings_SPIKE_MOCK_TRAIN_TR2500ms
+function ParSettings_SPIKE_MOCK_TRAIN_TR2500ms
 
 % ParSettings gives all parameters for the experiment in global Par
 global Par
@@ -232,7 +232,7 @@ Par.RewardFixMultiplier = 0.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.250;%250;
+        Par.RewardTimeSet = 0.000;%250;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -249,7 +249,7 @@ switch Par.RewardType
         Par.RewardTimeSet = 0; %no reward
 end
 
-Par.RewardTimeManual = 0.05; % amount of reward when given manually
+Par.RewardTimeManual = 0.100; % amount of reward when given manually
 
 Par.RewardFixHoldTimeProg = false;
 if Par.RewardFixHoldTimeProg
@@ -324,8 +324,8 @@ Par.IncorrectResponseGiven  = ...
     @(Par) Par.ResponseSide > 0 && Par.BeamIsBlocked(mod(Par.ResponseSide,2)+1);
 
 % Reward for keeping hand in the box
-Par.RewardForHandsIn = true;
-Par.RewardForHandsIn_Quant = [0.02 0.100]; % 1 hand, both hands
+Par.RewardForHandsIn = false;
+Par.RewardForHandsIn_Quant = [0.00 0.000]; % 1 hand, both hands
 Par.RewardForHandsIn_MultiplierPerHand = [1 1]; % if only one hand in is rewarded [L R]
 Par.RewardForHandsIn_Delay = 0.500; %s 
 Par.RewardForHandIn_MinInterval = 4; %s

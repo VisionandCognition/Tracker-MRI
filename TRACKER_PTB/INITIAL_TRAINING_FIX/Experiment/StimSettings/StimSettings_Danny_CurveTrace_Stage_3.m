@@ -53,7 +53,7 @@ Stm(1).RequireSpecificPaw = true;
 
 Stm(1).PawIndSize = 1;
 
-target_offset = 1.2; % start with 0, go to 1 or higher
+target_offset = 2.25; % start with 0, go to 1 or higher
 Stm(1).PawIndPositions = [ -target_offset 0; target_offset 0 ];
 Stm(1).PawIndSize = target_offset/4 + 0.5;
 
@@ -93,7 +93,7 @@ if false
 else
     % Re-parameterize ....
     pLeftTarget = 0.5; % probability of left hand target when correct
-    pRepeatIncorrect = .5; % probability of repeating current target when incorrect
+    pRepeatIncorrect = 0.5; % probability of repeating current target when incorrect
     
     Stm(1).SwitchToLPawProb = [pLeftTarget, 1-pRepeatIncorrect]; % [prev. correct, prev. incorrect]
     Stm(1).SwitchToRPawProb = [1-pLeftTarget, 1-pRepeatIncorrect]; % [prev. correct, prev. incorrect]
