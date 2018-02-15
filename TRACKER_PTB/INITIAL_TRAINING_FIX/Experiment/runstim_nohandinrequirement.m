@@ -1809,66 +1809,59 @@ end
         % reset to false
         Par.KeyDetectedInTrackerWindow=false;
     end
-% check DAS for manual responses
+% check DAS for manual responses ------------------------------------------
     function CheckManual
-        %check the incoming signal on DAS channel #3
+        %check the incoming signal on DAS channel #3  (#4 base 1)
         % NB dasgetlevel only starts counting at the third channel (#2)
-        daspause(5);
         ChanLevels=dasgetlevel;
-        Log.RespSignal = ChanLevels(Par.ConnectBox.PhotoAmp(:)-2);
-        % dasgetlevel starts reporting at channel 3, so
-        % subtract 2 from the channel you want (1 based)
-        % Log.RespSignal is a vector with as many channels as are in use
-        InterpretManual;
-    end
-% interpret manual response signal
-    function InterpretManual
-        % levels are different for differnet das cards
-        if strcmp(computer,'PCWIN64')
-            Threshold=40000;
-        elseif strcmp(computer,'PCWIN')
-            Threshold=2750;
-        end
+        Log.RespSignal = ChanLevels(4-2);
+        % dasgetlevel starts reporting at channel 3, so subtract 2 from the channel you want (1 based)
         
-        Par.BeamWasBlocked = Par.BeamIsBlocked;
-        % vector that tells us for all used channels whether blocked
-        Par.BeamIsBlocked = Log.RespSignal < Threshold;
-        
-        % Log any changes
-        if any(Par.BeamWasBlocked(:) ~= Par.BeamIsBlocked(:))
-            Log.nEvents=Log.nEvents+1;
-            Log.Events(Log.nEvents).type=...
-                strcat('BeamStateChange ', mat2str(Par.BeamIsBlocked));
-            Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-            Par.HandIsIn =Par.BeamIsBlocked(Par.ConnectBox.PhotoAmp_HandIn);
-            Par.LeverIsUp=Par.BeamIsBlocked(Par.ConnectBox.PhotoAmp_Levers);
-        end        
-        
-
-        if Par.LeverIsUp(1) % new left lift
-            Par.BeamLIsBlocked = true;
-            if ~Par.LeverIsUp(1)
-                Par.LeverIsUp(1)=true;
-            end
-        elseif ~Par.LeverIsUp(1)
+        % it's a slightly noisy signal
+        % on 32 bit windows
+        % 3770-3800 means uninterrupted light beam
+        % 2080-2090 means interrupted light beam
+        % to be safe: take the cut-off halfway @2750
+        % values are different for 64 bit windows
+        if strcmp(computer,'PCWIN64') && Log.RespSignal > 40000 % 64bit das card
             Par.BeamLIsBlocked = false;
-            if Par.LeverIsUp(1)
-                Par.LeverIsUp(1)=false;
+            if Par.HandIsIn
+                Par.HandIsIn=false;
+            end
+        elseif strcmp(computer,'PCWIN') && Log.RespSignal > 2750 % old das card
+            Par.BeamLIsBlocked = false;
+            if Par.HandIsIn
+                Par.HandIsIn=false;
+            end
+        else
+            Par.BeamLIsBlocked = true;
+            if ~Par.HandIsIn
+                Par.HandIsIn=true;
             end
         end
-
-        if Par.LeverIsUp(2) % new right lift
-            Par.BeamRIsBlocked = true;
-            if ~Par.LeverIsUp(2)
-                Par.LeverIsUp(2)=true;
-            end
-        elseif ~Par.LeverIsUp(2)
-            Par.BeamRIsBlocked = false;
-            if Par.LeverIsUp(2)
-                Par.LeverIsUp(2)=false;
+        
+        if Stm(1).NumBeams >= 2
+            %check the incoming signal on DAS channel #4 (#5 base 1)
+            % NB dasgetlevel only starts counting at the third channel (#2)
+            % Right / Secondary beam
+            Log.RespSignal = ChanLevels(5-2);
+            if strcmp(computer,'PCWIN64') && Log.RespSignal > 40000 % 64bit das card
+                Par.BeamRIsBlocked = false;
+                if Par.HandIsIn
+                    Par.HandIsIn=false;
+                end
+            elseif strcmp(computer,'PCWIN') && Log.RespSignal > 2750 % old das card
+                Par.BeamRIsBlocked = false;
+                if Par.HandIsIn
+                    Par.HandIsIn=false;
+                end
+            else
+                Par.BeamRIsBlocked = true;
+                if ~Par.HandIsIn
+                    Par.HandIsIn=true;
+                end
             end
         end
-    
         
         Par.NewResponse = false;
         % interpret left side
@@ -1893,15 +1886,8 @@ end
             Par.TrialResponse = Par.NewResponse;
         end
         
-        % check if we can stat a new trial
-        if Par.StimNeedsHandInBox
-            Par.GoNewTrial = all(Par.HandIsIn) && ~any(Par.LeverIsUp); % hands in & levers up
-        else
-            Par.GoNewTrial = ~any(Par.LeverIsUp); % levers up
-        end
-
+        Par.GoNewTrial = ~Par.BeamLIsBlocked && ~Par.BeamRIsBlocked;
     end
-% check fixation    
     function CheckFixation
         % Check if eye enters fixation window =============================
         if ~Par.FixIn %not fixating

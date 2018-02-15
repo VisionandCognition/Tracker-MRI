@@ -130,6 +130,8 @@ Par.ResponseBox.Type='Lift'; % 'Beam' or 'Lift'
 Par.ConnectBox.PhotoAmp = [4 5 7 8]; % 2 photo-amps can be connected
 Par.ConnectBox.PhotoAmp_used = 1:4; % vector with indeces to used channels
 Par.ConnectBox.EyeRecStat = 6;
+Par.ConnectBox.PhotoAmp_Levers = 1:2;   % indeces to PhotoAmp channels
+Par.ConnectBox.PhotoAmp_HandIn = 3:4;   % indeces to PhotoAmp channels
 
 %% Reward scheme ==========================================================
 Par.Reward = true; %boolean to enable reward stim bit or not
@@ -187,10 +189,13 @@ Par.RewardFixFeedBack = true;
 % Require hands in the box (reduces movement?)
 % Needed for initiation of tracker since it's in the gui now
 Par.RewNeedsHandInBox=false;
-Par.StimNeedsHandInBox=false;
+Par.StimNeedsHandInBox=true; % << use this one to require BOTH hands in the response box to start trial
 Par.FixNeedsHandInBox=false;
 Par.HandOutDimsScreen = false;
 Par.HandOutDimsScreen_perc = 0.9; %(0-1, fraction dimming)
+
+
+
 
 Par.HandIsIn=false;
 
