@@ -190,12 +190,10 @@ Par.RewardFixFeedBack = true;
 % Needed for initiation of tracker since it's in the gui now
 Par.RewNeedsHandInBox=false;
 Par.StimNeedsHandInBox=true; % << use this one to require BOTH hands in the response box to start trial
+% it also breaks any ongoing trial 
 Par.FixNeedsHandInBox=false;
 Par.HandOutDimsScreen = false;
 Par.HandOutDimsScreen_perc = 0.9; %(0-1, fraction dimming)
-
-
-
 
 Par.HandIsIn=false;
 

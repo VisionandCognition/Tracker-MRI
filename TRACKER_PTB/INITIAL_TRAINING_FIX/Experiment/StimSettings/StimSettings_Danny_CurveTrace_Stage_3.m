@@ -68,7 +68,6 @@ Stm(1).LiftedPawIndPositions = [ -1 1; 1 1 ] * 5;
 Stm(1).LiftedPawIndSize = 0; % 2; ------------ Disable lifted paw indicator
 Stm(1).DisplayChosenTargetDur = 0;
 
-
 Stm(1).CurveAlpha = [1 1 1 1; 1 1 1 1]; % [preswitch; postswitch] ?????
 Stm(1).PawIndAlpha = [1 1 1 1; 1 1 1 1];
 Stm(1).NumOfPawIndicators = 2; % Can't be more than the number of PawIndPositions!
@@ -120,7 +119,7 @@ Stm(1).NoiseContrast = 0.1; % 0-1
 Stm(1).NoiseDefaultOn = false; % [toggle with "B" key]
 
 %% Stimulus specific timing (in ms) ---------------------------------------
-Stm(1).SwitchDur = 5000; % (200) duration of alternative orientation
+Stm(1).SwitchDur = 2500; % (200) duration of alternative orientation
 
 % set time-windows in which something can happen (ms)
 % [baseduration_without_switch ... 

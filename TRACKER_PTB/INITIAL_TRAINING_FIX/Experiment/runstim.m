@@ -146,6 +146,7 @@ Par.KeyDetectedInTrackerWindow=false;
 % Initialize photosensor manual response
 Par.BeamLIsBlocked=false;  Par.BeamRIsBlocked=false;
 Par.BeamLWasBlocked=false; Par.BeamRWasBlocked=false;
+Par.BeamIsBlocked = zeros(1,size(Par.ConnectBox.PhotoAmp,2));
 Par.NewResponse = false; % updated every CheckManual
 Par.TrialResponse = false; % updated with NewResponse when not false
 Par.GoNewTrial = false;
@@ -1066,6 +1067,7 @@ end
         refreshtracker( 1) %clear tracker screen and set fixation and target windows
         SetWindowDas; %set das control thresholds using global parameters : Par
     end
+% Draw targets
     function DrawTarget(color, offset, which_side, size_pix)
         if nargin < 4
             size_pix = Stm(1).PawIndSizePix;
@@ -1833,13 +1835,8 @@ end
         Par.BeamWasBlocked = Par.BeamIsBlocked;
         % vector that tells us for all used channels whether blocked
         Par.BeamIsBlocked = Log.RespSignal < Threshold;
-        
         % Log any changes
         if any(Par.BeamWasBlocked(:) ~= Par.BeamIsBlocked(:))
-            Log.nEvents=Log.nEvents+1;
-            Log.Events(Log.nEvents).type=...
-                strcat('BeamStateChange ', mat2str(Par.BeamIsBlocked));
-            Log.Events(Log.nEvents).t=lft-Par.ExpStart;
             Par.HandIsIn =Par.BeamIsBlocked(Par.ConnectBox.PhotoAmp_HandIn);
             Par.LeverIsUp=Par.BeamIsBlocked(Par.ConnectBox.PhotoAmp_Levers);
         end        
@@ -1896,10 +1893,11 @@ end
         % check if we can stat a new trial
         if Par.StimNeedsHandInBox
             Par.GoNewTrial = all(Par.HandIsIn) && ~any(Par.LeverIsUp); % hands in & levers up
+            Par.BreakTrial = ~all(Par.HandIsIn); % not both hands in
         else
             Par.GoNewTrial = ~any(Par.LeverIsUp); % levers up
         end
-
+        
     end
 % check fixation    
     function CheckFixation
@@ -2056,6 +2054,7 @@ end
         dasrun(5);
         DasCheck;
     end
+% Randomize paw offset
     function RandomizePawIndOffset
         if Stm(1).Task == Stm(1).TASK_FIXED_TARGET_LOCATIONS || ...
                 Stm(1).NumOfPawIndicators <= 1
