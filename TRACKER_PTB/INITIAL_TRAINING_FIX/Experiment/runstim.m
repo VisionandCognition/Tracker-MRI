@@ -147,6 +147,8 @@ Par.KeyDetectedInTrackerWindow=false;
 Par.BeamLIsBlocked=false;  Par.BeamRIsBlocked=false;
 Par.BeamLWasBlocked=false; Par.BeamRWasBlocked=false;
 Par.BeamIsBlocked = zeros(1,size(Par.ConnectBox.PhotoAmp,2));
+Par.LeverIsUp = [false false];
+Par.HandIsIn = [false false];
 Par.NewResponse = false; % updated every CheckManual
 Par.TrialResponse = false; % updated with NewResponse when not false
 Par.GoNewTrial = false;

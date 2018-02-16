@@ -50,10 +50,9 @@ Stm(1).DisconnectedCurveLength = 0.75;
 
 %% Paw indicator ----------------------------------------------------------
 Stm(1).RequireSpecificPaw = true;
-
 Stm(1).PawIndSize = 1;
 
-target_offset = 2.25; % start with 0, go to 1 or higher
+target_offset = 3.50; % start with 0, go to 1 or higher
 Stm(1).PawIndPositions = [ -target_offset 0; target_offset 0 ];
 Stm(1).PawIndSize = target_offset/4 + 0.5;
 
@@ -72,7 +71,9 @@ Stm(1).CurveAlpha = [1 1 1 1; 1 1 1 1]; % [preswitch; postswitch] ?????
 Stm(1).PawIndAlpha = [1 1 1 1; 1 1 1 1];
 Stm(1).NumOfPawIndicators = 2; % Can't be more than the number of PawIndPositions!
 Stm(1).DistractBranchConnAlpha = 1;
-Stm(1).CurveConnectionPosX = [1 1 1 1];
+
+%Stm(1).CurveConnectionPosX = [1 1 1 1];
+Stm(1).CurveConnectionPosX = [0.5 1 1 1]; % << 1st value creates distractor gap: larger is larger gap
 
 %Stm(1).PawIndCol = 0.2.*[0 .7 0; .9 .2 .2]; % colors for the left and right target
 %Stm(1).PawIndCol = 0.1*[.9 1 .9;1 .9 .9]; % colors for the left and right target
@@ -155,5 +156,5 @@ Stm(1).TasksToCycle = [Stm(1).TASK_TARGET_AT_CURVE]; %[Stm(1).TASK_FIXED_TARGET_
 Stm(1).TaskCycleInd = 1;
 Stm(1).Task = Stm(1).TasksToCycle(Stm(1).TaskCycleInd);
 
-%% Write stimulus settings to global variable StimObj
+%% Write stimulus settings to global variable StimObj ---------------------
 StimObj.Stm = Stm;
