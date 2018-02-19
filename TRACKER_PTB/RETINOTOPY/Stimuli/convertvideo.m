@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 cd ~/Desktop/faces
 fprintf('converting faces rings \n');
 fn=dir('faces01_rings_*');
@@ -120,5 +119,4 @@ end
 fprintf ('\nsaving mat file\n\n')
 save('walker01_wedge.mat','ret_vid');
 
->>>>>>> Stashed changes
 cd ~/Desktop

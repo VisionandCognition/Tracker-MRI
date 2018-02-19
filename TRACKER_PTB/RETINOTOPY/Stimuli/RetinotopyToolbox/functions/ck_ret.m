@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 function stimulus = ck_ret(Stm,STIMNR)
 % ck_ret - toolbox for retinotopic mapping stimuli
 % based on Harvey/Dumoulin code
@@ -102,5 +101,4 @@ switch params.experiment
         stimulus= ck_MakeRetMapStim_bars8Pass(params, Stm, STIMNR);
     otherwise
         stimulus = ck_MakeRetMapStim(params, Stm, STIMNR);
->>>>>>> Stashed changes
 end

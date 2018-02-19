@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 function params = ck_SetRetMapParams(expName, params, Stm, STIMNR)
 % set parameters for different retinotopy stimuli
 %
@@ -148,5 +147,4 @@ params.wedgeWidth = params.wedgeDeg * (pi/180);
 % params.numSubRings = (params.radius)/(2*params.subRingDeg);
 
 % Number of wedges in each ring
->>>>>>> Stashed changes
 params.numSubWedges = params.wedgeDeg/(2*params.subWedgeDeg);
