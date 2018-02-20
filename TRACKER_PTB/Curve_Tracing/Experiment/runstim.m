@@ -226,9 +226,25 @@ if ~Par.TestRunstimWithoutDAS
     end
 end
 
-%get the monkeyname
-FSTR = inputdlg('Specify primate''s name','Primate''s Name',1,{Par.MONKEY});
-Par.MONKEY = FSTR{1};
+if 0
+    if ~isfield(Par, 'RunNum')
+        Par.RunNum=1;
+    else
+        Par.RunNum=Par.RunNum+1;
+    end
+    %get the monkeyname
+    prompt = {'Primate''s Name', 'Run number'};
+    default = {Par.MONKEY, str(Par.RunNum)};
+    FSTR = inputdlg(prompt,...
+        'Run info', ...
+        1, default);
+    Par.MONKEY = FSTR{1};
+    Par.RunNum = FSTR{2};
+else
+    %get the monkeyname
+    FSTR = inputdlg('Specify primate''s name','Primate''s Name',1,{Par.MONKEY});
+    Par.MONKEY = FSTR{1};
+end
 
 % output stimsettings filename to cmd
 fprintf(['Setup selected: ' Par.SetUp '\n']);
@@ -375,14 +391,14 @@ end
 %                                 |_|    http://patorjk.com/software/taag
 %==========================================================================
 
-fprintf('\n\n ---------------  Start warm-up --------- \n');
-
-args=struct;
-args.alternateWithRestingBlocks=false;
-    
-Log.events.add_entry(GetSecs, NaN, 'WarmupLoop', 'BeginLoop');
-CurveTracing_MainLoop(Hnd, {Stm(1).RestingTask}, 3, args);
-Log.events.add_entry(GetSecs, NaN, 'WarmupLoop', 'EndLoop');
+% fprintf('\n\n ---------------  Start warm-up --------- \n');
+% 
+% args=struct;
+% args.alternateWithRestingBlocks=false;
+%     
+% Log.events.add_entry(GetSecs, NaN, 'WarmupLoop', 'BeginLoop');
+% CurveTracing_MainLoop(Hnd, {Stm(1).RestingTask}, 3, args);
+% Log.events.add_entry(GetSecs, NaN, 'WarmupLoop', 'EndLoop');
 
 %% Stimulus presentation loop =============================================
 % keep doing this until escape is pressed or stop is clicked

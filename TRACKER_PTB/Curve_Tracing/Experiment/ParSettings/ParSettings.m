@@ -35,6 +35,8 @@ Stm=StimObj.Stm;
 % Fixation window set by StimSettings with FixWinSizeDeg, not sure what ...
 %    Par.FixWinSize does?
 Par.FixWinSize = [1.8 1.8]; % [W H] in deg
+Stm(1).FixWinSizeDeg = Par.FixWinSize(1);
+
 Par.WaitForFixation = true; % Used to be Par.RequireFixation
 Par.RequireFixationForReward = true;
 Par.EndTrialOnResponse = true; % Make responsive

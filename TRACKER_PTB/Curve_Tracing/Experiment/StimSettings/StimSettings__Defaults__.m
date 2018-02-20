@@ -16,7 +16,7 @@ Stm(1).iterateTasks = false;
 Params.BGColor = [.667 .667 .667]; % [R G B] 0-1, from Retinotopy
 
 % Fixation ----------------------------------------------------------------
-Params.FixWinSizeDeg = 3.5; % <- testing   2.5; % in deg
+Params.FixWinSizeDeg = 3; % <- testing   2.5; % in deg
 Params.FixDotSizeDeg = 0.3;
 
 %[RGB if not fixating; RGB fixating; Fixation not required]
@@ -44,7 +44,7 @@ extend_curves = true;
 if extend_curves
     % Extend more of the visual field
     Params.PawIndPositions = [...
-        -7.2 -3.6; -7.2 3.6; ...
+        -8 -4; -8 4; ...
         8 -4; 8 4; ...
         0 0 ... center
         ];

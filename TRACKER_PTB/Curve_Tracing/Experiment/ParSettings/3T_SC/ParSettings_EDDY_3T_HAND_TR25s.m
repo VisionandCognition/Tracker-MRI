@@ -6,9 +6,11 @@ global StimObj
 
 %% Load defaults ==========================================================
 eval('ParSettings'); % loads the default parameters
-
+Stm = StimObj.Stm;
 
 Par.FixWinSize = [3 3]; % [W H] in deg
+Stm(1).FixWinSizeDeg = Par.FixWinSize(1);
+
 Par.FixWdDeg = Par.FixWinSize(1);
 Par.FixHtDeg = Par.FixWinSize(2);
 
