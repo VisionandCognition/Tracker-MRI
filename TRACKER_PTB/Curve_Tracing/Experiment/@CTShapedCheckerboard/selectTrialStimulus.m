@@ -1,4 +1,9 @@
 function curve_stim_index = selectTrialStimulus(obj)
+    fprintf('Selecting stim for trial %d of block.\n', obj.iTrialOfBlock);
+    
+    if obj.iTrialOfBlock == 0
+        fprintf('Shouldn''t get here!\n')
+    end
     
     if obj.iTrialOfBlock == 1 || isnan(obj.curr_stim_index) % if new block
         
@@ -20,5 +25,5 @@ function curve_stim_index = selectTrialStimulus(obj)
         % For fixation task, don't need to account for side response.
         curve_stim_index = obj.curr_stim_index;
     end
-    obj.iTrialOfBlock = mod(obj.iTrialOfBlock, obj.param('BlockSize')) + 1;
+    % obj.iTrialOfBlock is incremented in FixationTask!
 end

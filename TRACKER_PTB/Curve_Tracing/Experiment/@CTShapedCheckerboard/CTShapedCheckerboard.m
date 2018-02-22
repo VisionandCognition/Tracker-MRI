@@ -73,6 +73,15 @@ classdef CTShapedCheckerboard < FullscreenCheckerboard
                     obj.update_InitTrial();
             end
         end
+        function write_trial_log_csv(obj, common_base_fn)
+            obj.trial_log.write_csv([common_base_fn '_' obj.taskName(obj.taskName ~= ' ') '.csv'])
+            obj.write_param_csv(common_base_fn)
+        end
+        function write_param_csv(obj, common_base_fn)
+            % This function ignored in FullscreenCheckerboard, the
+            % superclass
+            writetable(obj.stimuli_params, [fileparts(common_base_fn) '/' obj.taskName '.stimulus-params.csv'])
+        end
         
         lft = drawStimuli(obj, lft);
     end

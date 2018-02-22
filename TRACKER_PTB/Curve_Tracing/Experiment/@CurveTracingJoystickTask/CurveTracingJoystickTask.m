@@ -212,7 +212,7 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
             obj.write_param_csv(common_base_fn)
         end
         function write_param_csv(obj, common_base_fn)
-            writetable(obj.stimuli_params, [common_base_fn '.stimulus-params.csv'])
+            writetable(obj.stimuli_params, [fileparts(common_base_fn) '/' obj.taskName '.stimulus-params.csv'])
         end
     end
     methods (Access = protected)

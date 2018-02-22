@@ -37,6 +37,7 @@ classdef FullscreenCheckerboard < FixationTask
         
         
         function updateState(obj, state, time)
+            fprintf('FullscreenCheckerboard:updateState(%s)\n', state);
             global Log;
             obj.state = state;
             
@@ -50,18 +51,6 @@ classdef FullscreenCheckerboard < FixationTask
             switch obj.state
                 case 'PREPARE_STIM' % only called once, at beginning
                     obj.update_PrepareStim();
-            end
-        end
-        function isEnd = endOfTrial(obj)
-            STR_IDENTICAL = true;
-            % temporary
-            isEnd = (strcmp(obj.state, 'TRIAL_END') == STR_IDENTICAL);
-        end
-        function isEnd = endOfBlock(obj)
-            if ~obj.endOfTrial()
-                isEnd = false;
-            else
-                isEnd = obj.iTrialOfBlock >= obj.param('BlockSize');
             end
         end
         function [val, status] = param(obj, var, default_value)
