@@ -1,16 +1,8 @@
-function ParSettings_SPIKE_MOCK_TRAIN_TR2500ms
+function ParSettings_SPIKE_MOCK_FIX_TR2500ms
 
 % ParSettings gives all parameters for the experiment in global Par
 global Par
 global StimObj
-
-%% Setup ==================================================================
-% Spinoza_Mock / Spinoza_3T / NIN
-if strcmp(Par.ScreenChoice,'3T')
-    Par.SetUp = 'Spinoza_3T';
-elseif strcmp(Par.ScreenChoice,'Mock')
-    Par.SetUp = 'Spinoza_MOCK';
-end
 
 %% Triggering =============================================================
 Par.TR = 2.5; % Not important during training
@@ -22,10 +14,10 @@ eval(Par.STIMSETFILE); % loads the chosen stimfile
 Stm=StimObj.Stm;
 
 % overwrites the stimsetting!
-StimObj.Stm.FixDotCol = [Stm(1).BackColor;Stm(1).BackColor];%[.1 .1 .1 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
+StimObj.Stm.FixDotCol = [.1 .1 .1 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
-Par.FixWinSize = [4 4]; % [W H] in deg
+Par.FixWinSize = [3 3]; % [W H] in deg
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
@@ -126,8 +118,8 @@ Par.CorrectB = 7;
 Par.ResponseBox.Type='Lift'; % 'Beam' or'Lift'
 
 %% Response task ==========================================================
-Par.ResponseBox.Task = 'DetectGoSignal';
-%Par.ResponseBox.Task = 'Fixate';    % doesn't really matter as long as 
+%Par.ResponseBox.Task = 'DetectGoSignal';
+Par.ResponseBox.Task = 'Fixate';    % doesn't really matter as long as 
                                     % it's not DetectGoSignal
 Par.RESP_STATE_WAIT = 1; % Go signal not yet given
 Par.RESP_STATE_GO = 2; % Go signal given
@@ -225,23 +217,23 @@ for i=1:size(Par.FeedbackSoundPar,1)
     end
 end
 
-Par.RewardTaskMultiplier = 1.0;
-Par.RewardFixMultiplier = 0.0;
+Par.RewardTaskMultiplier = 0.0;
+Par.RewardFixMultiplier = 1.0;
 
 % duration matches 'open duration'
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.200;%250;
+        Par.RewardTimeSet = 0.04;%250;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
         % rows stating: [nCorrectTrials RewardTime]
         Par.RewardTimeSet = [...
-            0   0.025;...
-            5   0.1;...
-            10  0.100;...
-            15  0.150;...
+            0   0.1;...
+            5   0.12;...
+            10  0.140;...
+            15  0.160;...
             20  0.200];
         % NB! this will be overruled once you manually set the reward time
         % with the slider in the Tracker window
@@ -261,7 +253,7 @@ if Par.RewardFixHoldTimeProg
         30 500;...
         ];
 else
-    Par.RewardFixHoldTime = 1250; %time to maintain fixation for reward
+    Par.RewardFixHoldTime =400; %time to maintain fixation for reward
 end
 
 Par.RewardTime=Par.RewardTimeSet;
@@ -325,10 +317,10 @@ Par.IncorrectResponseGiven  = ...
 
 % Reward for keeping hand in the box
 Par.RewardForHandsIn = false;
-Par.RewardForHandsIn_Quant = [0.00 0.050]; % 1 hand, both hands
+Par.RewardForHandsIn_Quant = [0.00 0.000]; % 1 hand, both hands
 Par.RewardForHandsIn_MultiplierPerHand = [1 1]; % if only one hand in is rewarded [L R]
-Par.RewardForHandsIn_Delay = 1.000; %s 
-Par.RewardForHandIn_MinInterval = 5; %s
+Par.RewardForHandsIn_Delay = 0.500; %s 
+Par.RewardForHandIn_MinInterval = 4; %s
 
 %% Create Eye-check windows based on stimulus positions ===================
 % The code below is preloaded and will be overwritten on stimulus basis

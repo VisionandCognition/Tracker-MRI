@@ -54,7 +54,8 @@ Stm = StimObj.Stm;
 
 %% Stimulus preparation ===================================================
 % Fixation ----------------------------------------------------------------
-Stm(1).FixWinSizePix = round(Stm(1).FixWinSize*Par.PixPerDeg);
+%Stm(1).FixWinSizePix = round(Stm(1).FixWinSize*Par.PixPerDeg);
+Stm(1).FixWinSizePix = round(Par.FixWinSize*Par.PixPerDeg);
 Stm(1).FixDotSizePix = round(Stm(1).FixDotSize*Par.PixPerDeg);
 
 % Bar

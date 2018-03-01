@@ -25,7 +25,7 @@ Stm=StimObj.Stm;
 %StimObj.Stm.FixDotCol = [.3 .3 .3 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
-Par.FixWinSize = [1.8 1.8]; % [W H] in deg
+Par.FixWinSize = [5 5]; % [W H] in deg
 Par.RequireFixation = false;
 
 %% Eyetracking parameters =================================================
@@ -204,7 +204,7 @@ Par.OneRewardPerTrial = false; % for training allow multiple rewards/target
 Par.RewardType = 0; % 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTime = 0.100; %0.04;
+        Par.RewardTime = 0.200; %0.04;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as

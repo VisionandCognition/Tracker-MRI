@@ -73,7 +73,7 @@ Stm(1).NumOfPawIndicators = 2; % Can't be more than the number of PawIndPosition
 Stm(1).DistractBranchConnAlpha = 1;
 
 %Stm(1).CurveConnectionPosX = [1 1 1 1];
-Stm(1).CurveConnectionPosX = [0.5 1 1 1]; % << 1st value creates distractor gap: larger is larger gap
+Stm(1).CurveConnectionPosX = [0.15 1 1 1]; % << 1st value creates distractor gap: larger is larger gap
 
 %Stm(1).PawIndCol = 0.2.*[0 .7 0; .9 .2 .2]; % colors for the left and right target
 %Stm(1).PawIndCol = 0.1*[.9 1 .9;1 .9 .9]; % colors for the left and right target
