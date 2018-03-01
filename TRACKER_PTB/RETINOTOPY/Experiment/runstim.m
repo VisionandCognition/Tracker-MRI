@@ -1790,7 +1790,6 @@ for STIMNR = Log.StimOrder
         
         if ~TestRunstimWithoutDAS
             if strcmp(Par.SetUp,'NIN')
-                blockstr
                 FileName=['Log_' LogFn '_' ...
                     Stm(STIMNR).Descript '_Run' num2str(StimLoopNr) '_Block' num2str(blockstr)];
             else
@@ -1827,6 +1826,54 @@ for STIMNR = Log.StimOrder
         end
         
         if ~TestRunstimWithoutDAS
+            % save json file ===========
+            Par.jf.Project      = 'RETINOTOPY';
+            Par.jf.Method       = 'MRI'; 
+            Par.jf.Protocol     = '17.25.01'; 
+            Par.jf.Dataset      = 'PRF';
+            Par.jf.Date         = datestr(now,'yyyymmdd');
+            Par.jf.Subject      = Par.MONKEY;
+            Par.jf.Researcher   = 'ChrisKlink';
+            Par.jf.Setup        = Par.SetUp;
+            Par.jf.Group        = 'awake';
+            Par.jf.Stimulus     = Stm(STIMNR).Descript;
+            Par.jf.LogFolder    = [Par.MONKEY '_' DateString];
+            Par.jf.logfile_name = FileName;
+            Par.jf.fixperc      = Log.FixPerc;
+            % give the possibility to change
+            % only when at scanner
+            if strcmp(Par.SetUp, 'Spinoza_3T')
+                json_answer = inputdlg(...
+                   {'Project','Method','Protocol',...
+                   'Dataset','Subject','Reseacher',...
+                   'SetUp','Group'},'JSON SPECS',1,...
+                   {Par.jf.Project,Par.jf.Method,Par.jf.Protocol,...
+                   Par.jf.Dataset,Par.jf.Subject,Par.jf.Reseacher,...
+                   Par.jf.SetUp,Par.jf.Group},'on');
+               Par.jf.Project      = json_answer{1};
+               Par.jf.Method       = json_answer{2};
+               Par.jf.Protocol     = json_answer{3};
+               Par.jf.Dataset      = json_answer{4};
+               Par.jf.Subject      = json_answer{5};
+               Par.jf.Researcher   = json_answer{6};
+               Par.jf.Setup        = json_answer{7};
+               Par.jf.Group        = json_answer{8};
+            end
+            json.project.title      = Par.jf.Project;
+            json.project.method     = Par.jf.Method;
+            json.dataset.protocol   = Par.jf.Protocol; 
+            json.dataset.name       = Par.jf.Dataset;  
+            json.session.date       = Par.jf.Date;
+            json.session.subjectId  = Par.jf.Subject;
+            json.session.investigator = Par.jf.Researcher;
+            json.session.setup      = Par.jf.Setup;
+            json.session.group      = Par.jf.Group;  
+            json.session.stimulus   = Par.jf.Stimulus;
+            json.session.logfile    = Par.jf.logfile_name;
+            json.session.logfolder  = Par.jf.LogFolder;
+            json.session.fixperc    = Par.jf.fixperc;
+            savejson('', json, [FileName '.json']);
+            % save log mat-file ============
             temp_hTracker=Par.hTracker;
             Par=rmfield(Par,'hTracker');
             save(FileName,'Log','Par','StimObj');
