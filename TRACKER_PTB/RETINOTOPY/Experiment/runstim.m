@@ -1825,12 +1825,14 @@ for STIMNR = Log.StimOrder
             RunParStim_Saved=true;
         end
         
+        % save mat and json files
         if ~TestRunstimWithoutDAS
             % save json file ===========
-            Par.jf.Project      = 'RETINOTOPY';
+            Par.jf.Project      = 'Retinotopy';
             Par.jf.Method       = 'MRI'; 
             Par.jf.Protocol     = '17.25.01'; 
-            Par.jf.Dataset      = 'PRF';
+            Par.jf.Dataset      = Par.LogFolder(...
+                find(Par.LogFolder=='\',1,'last')+1:end);
             Par.jf.Date         = datestr(now,'yyyymmdd');
             Par.jf.Subject      = Par.MONKEY;
             Par.jf.Researcher   = 'ChrisKlink';
@@ -1842,14 +1844,14 @@ for STIMNR = Log.StimOrder
             Par.jf.fixperc      = Log.FixPerc;
             % give the possibility to change
             % only when at scanner
-            if strcmp(Par.SetUp, 'Spinoza_3T')
+            if strcmp(Par.SetUp, 'Spinoza_3T') || strcmp(Par.SetUp, 'NIN')
                 json_answer = inputdlg(...
                    {'Project','Method','Protocol',...
-                   'Dataset','Subject','Reseacher',...
-                   'SetUp','Group'},'JSON SPECS',1,...
+                   'Dataset','Subject','Researcher',...
+                   'Setup','Group'},'JSON SPECS',1,...
                    {Par.jf.Project,Par.jf.Method,Par.jf.Protocol,...
-                   Par.jf.Dataset,Par.jf.Subject,Par.jf.Reseacher,...
-                   Par.jf.SetUp,Par.jf.Group},'on');
+                   Par.jf.Dataset,Par.jf.Subject,Par.jf.Researcher,...
+                   Par.jf.Setup,Par.jf.Group},'on');
                Par.jf.Project      = json_answer{1};
                Par.jf.Method       = json_answer{2};
                Par.jf.Protocol     = json_answer{3};
@@ -1872,7 +1874,7 @@ for STIMNR = Log.StimOrder
             json.session.logfile    = Par.jf.logfile_name;
             json.session.logfolder  = Par.jf.LogFolder;
             json.session.fixperc    = Par.jf.fixperc;
-            savejson('', json, [FileName '.json']);
+            savejson('', json, ['Log_' DateString '.json']);
             % save log mat-file ============
             temp_hTracker=Par.hTracker;
             Par=rmfield(Par,'hTracker');
@@ -2620,26 +2622,29 @@ Par=Par_BU;
             Par.Times.TargCurrent=Par.Times.Targ;
         end
         
-        % Give the reward
-        Par.RewardStartTime=GetSecs;
-        if strcmp(computer,'PCWIN64')
-            dasjuice(10); % 64bit das card
-        else
-            dasjuice(5) %old card dasjuice(5)
+        % only give reward when Reward time >0
+        if Par.RewardTimeCurrent>0
+            % Give the reward
+            Par.RewardStartTime=GetSecs;
+            if strcmp(computer,'PCWIN64')
+                dasjuice(10); % 64bit das card
+            else
+                dasjuice(5) %old card dasjuice(5)
+            end
+            Par.RewardRunning=true;
+            
+            % Play back a sound
+            if Par.RewardSound
+                RewT=0:1/Par.RewSndPar(1):Par.RewardTimeCurrent;
+                RewY=Par.RewSndPar(3)*sin(2*pi*Par.RewSndPar(2)*RewT);
+                sound(RewY,Par.RewSndPar(1));
+            end
+            
+            Log.nEvents=Log.nEvents+1;
+            Log.Events(Log.nEvents).type='RewardFix';
+            Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
+            Log.Events(Log.nEvents).StimName = [];
         end
-        Par.RewardRunning=true;
-        
-        % Play back a sound
-        if Par.RewardSound
-            RewT=0:1/Par.RewSndPar(1):Par.RewardTimeCurrent;
-            RewY=Par.RewSndPar(3)*sin(2*pi*Par.RewSndPar(2)*RewT);
-            sound(RewY,Par.RewSndPar(1));
-        end
-        
-        Log.nEvents=Log.nEvents+1;
-        Log.Events(Log.nEvents).type='RewardFix';
-        Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-        Log.Events(Log.nEvents).StimName = [];
     end
 % stop reward delivery
     function StopRewardIfNeeded
@@ -2664,25 +2669,27 @@ Par=Par_BU;
                 Par.RewardTimeCurrent = Par.RewardTime;
             end
             % Give the reward
-            Par.RewardStartTime=GetSecs;
-            if strcmp(computer,'PCWIN64')
-                dasjuice(10); % 64bit das card
-            else
-                dasjuice(5) %old card dasjuice(5)
+            if Par.RewardTimeCurrent>0
+                Par.RewardStartTime=GetSecs;
+                if strcmp(computer,'PCWIN64')
+                    dasjuice(10); % 64bit das card
+                else
+                    dasjuice(5) %old card dasjuice(5)
+                end
+                Par.RewardRunning=true;
+                
+                %         % Play back a sound
+                %         if Par.RewardSound
+                %             RewT=0:1/Par.RewSndPar(1):Par.RewardTimeCurrent;
+                %             RewY=Par.RewSndPar(3)*sin(2*pi*Par.RewSndPar(2)*RewT);
+                %             sound(RewY,Par.RewSndPar(1));
+                %         end
+                
+                Log.nEvents=Log.nEvents+1;
+                Log.Events(Log.nEvents).type='RewardAutoTask';
+                Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
+                Log.Events(Log.nEvents).StimName = [];
             end
-            Par.RewardRunning=true;
-            
-            %         % Play back a sound
-            %         if Par.RewardSound
-            %             RewT=0:1/Par.RewSndPar(1):Par.RewardTimeCurrent;
-            %             RewY=Par.RewSndPar(3)*sin(2*pi*Par.RewSndPar(2)*RewT);
-            %             sound(RewY,Par.RewSndPar(1));
-            %         end
-            
-            Log.nEvents=Log.nEvents+1;
-            Log.Events(Log.nEvents).type='RewardAutoTask';
-            Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-            Log.Events(Log.nEvents).StimName = [];
         end
     end
 % give automated reward for hand in

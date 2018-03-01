@@ -22,7 +22,7 @@ eval(Par.STIMSETFILE); % loads the chosen stimfile
 Stm=StimObj.Stm;
 
 % overwrites the stimsetting!
-StimObj.Stm.FixDotCol = [.3 .3 .3 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
+StimObj.Stm.FixDotCol = 0*[.3 .3 .3 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
 Par.FixWinSize = [2 2]; % [W H] in deg
@@ -232,7 +232,7 @@ Par.RewardFixMultiplier = 1.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.04;
+        Par.RewardTimeSet = 0;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
