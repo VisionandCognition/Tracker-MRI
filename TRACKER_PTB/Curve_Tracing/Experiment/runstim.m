@@ -5,6 +5,10 @@ global Par   %global parameters
 global StimObj %stimulus objects
 global Log
 
+% [CK] I'm leaving this switch here so you can switch off the json generation completely
+% if it doesn't work the way you want it to.
+do_json = true;
+
 % Just some sanity checks to make sure there aren't duplicate m files
 assert(size(which('GiveRewardAuto','-all'),1)==1)
 assert(size(which('CheckFixation','-all'),1)==1)
@@ -528,9 +532,62 @@ for CleanUp=1 % code folding
     %if Par.TestRunstimWithoutDAS; cd ..;end
     
     %mkdir('Log');cd('Log');
+    temp_hTracker=Par.hTracker; % do not save Tracker handle (avoid errors on loading)
+    Par=rmfield(Par,'hTracker');
     save(filePath,'Log','Par','StimObj');
+    Par.hTracker = temp_hTracker;
+
     Log.events.write_csv([filePath '_eventlog.csv']);
-    
+
+    % also save a json file ==========
+    if do_json;
+        Par.jf.Project      = 'CurveTracing';
+        Par.jf.Method       = 'MRI'; 
+        Par.jf.Protocol     = '17.29.02'; 
+        Par.jf.Dataset      = 'CurveTracing';
+        Par.jf.Date         = datestr(now,'yyyymmdd');
+        Par.jf.Subject      = Par.MONKEY;
+        Par.jf.Researcher   = 'JonathanWilliford';
+        Par.jf.Setup        = Par.SetUp;
+        Par.jf.Group        = 'awake';
+        Par.jf.Stimulus     = Par.STIMSETFILE(find(Par.STIMSETFILE=='_',1,'last')+1:end);
+        Par.jf.LogFolder    = [Par.MONKEY '_' DateString];
+        Par.jf.logfile_name = FileName;
+        % give the possibility to change
+        % only when at scanner
+        if strcmp(Par.SetUp, 'Spinoza_3T') || strcmp(Par.SetUp, 'NIN')
+            json_answer = inputdlg(...
+                {'Project','Method','Protocol',...
+                'Dataset','Subject','Researcher',...
+                'Setup','Group'},'JSON SPECS',1,...
+                {Par.jf.Project,Par.jf.Method,Par.jf.Protocol,...
+                Par.jf.Dataset,Par.jf.Subject,Par.jf.Researcher,...
+                Par.jf.Setup,Par.jf.Group},'on');
+            Par.jf.Project      = json_answer{1};
+            Par.jf.Method       = json_answer{2};
+            Par.jf.Protocol     = json_answer{3};
+            Par.jf.Dataset      = json_answer{4};
+            Par.jf.Subject      = json_answer{5};
+            Par.jf.Researcher   = json_answer{6};
+            Par.jf.Setup        = json_answer{7};
+            Par.jf.Group        = json_answer{8};
+        end
+        json.project.title      = Par.jf.Project;
+        json.project.method     = Par.jf.Method;
+        json.dataset.protocol   = Par.jf.Protocol; 
+        json.dataset.name       = Par.jf.Dataset;  
+        json.session.date       = Par.jf.Date;
+        json.session.subjectId  = Par.jf.Subject;
+        json.session.investigator = Par.jf.Researcher;
+        json.session.setup      = Par.jf.Setup;
+        json.session.group      = Par.jf.Group;  
+        json.session.stimulus   = Par.jf.Stimulus;
+        json.session.logfile    = Par.jf.logfile_name;
+        json.session.logfolder  = Par.jf.LogFolder;
+        savejson('', json, fullfile(logPath,['Log_' DateString '.json']));
+    end
+    % ================================
+
     for i = 1:length(Stm(1).tasksUnique)
         Stm(1).tasksUnique{i}.write_trial_log_csv(filePath);
     end
