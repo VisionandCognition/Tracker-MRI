@@ -253,7 +253,7 @@ if Par.RewardFixHoldTimeProg
         30 500;...
         ];
 else
-    Par.RewardFixHoldTime =400; %time to maintain fixation for reward
+    Par.RewardFixHoldTime =450; %time to maintain fixation for reward
 end
 
 Par.RewardTime=Par.RewardTimeSet;
