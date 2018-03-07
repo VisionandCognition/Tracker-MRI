@@ -1874,7 +1874,7 @@ for STIMNR = Log.StimOrder
             json.session.logfile    = Par.jf.logfile_name;
             json.session.logfolder  = Par.jf.LogFolder;
             json.session.fixperc    = Par.jf.fixperc;
-            savejson('', json, ['Log_' DateString '.json']);
+            savejson('', json, ['Log_' DateString '_session.json']);
             % save log mat-file ============
             temp_hTracker=Par.hTracker;
             Par=rmfield(Par,'hTracker');

@@ -584,7 +584,7 @@ for CleanUp=1 % code folding
         json.session.stimulus   = Par.jf.Stimulus;
         json.session.logfile    = Par.jf.logfile_name;
         json.session.logfolder  = Par.jf.LogFolder;
-        savejson('', json, fullfile(logPath,['Log_' DateString '.json']));
+        savejson('', json, fullfile(logPath,['Log_' DateString '_session.json']));
     end
     % ================================
 
