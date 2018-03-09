@@ -150,6 +150,10 @@ Par.BeamLWasBlocked=false; Par.BeamRWasBlocked=false;
 Par.BeamIsBlocked = zeros(1,size(Par.ConnectBox.PhotoAmp,2));
 Par.LeverIsUp = [false false];
 Par.HandIsIn = [false false];
+           
+Par.HandIsIn =Par.BeamIsBlocked(Par.ConnectBox.PhotoAmp_HandIn);
+Par.LeverIsUp=Par.BeamIsBlocked(Par.ConnectBox.PhotoAmp_Levers);
+
 Par.NewResponse = false; % updated every CheckManual
 Par.TrialResponse = false; % updated with NewResponse when not false
 Par.GoNewTrial = false;

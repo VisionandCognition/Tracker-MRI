@@ -52,7 +52,7 @@ Stm(1).DisconnectedCurveLength = 0.75;
 Stm(1).RequireSpecificPaw = true;
 Stm(1).PawIndSize = 1;
 
-target_offset = 3.50; % start with 0, go to 1 or higher
+target_offset = 5.0; % start with 0, go to 1 or higher
 Stm(1).PawIndPositions = [ -target_offset 0; target_offset 0 ];
 Stm(1).PawIndSize = target_offset/4 + 0.5;
 
@@ -73,7 +73,7 @@ Stm(1).NumOfPawIndicators = 2; % Can't be more than the number of PawIndPosition
 Stm(1).DistractBranchConnAlpha = 1;
 
 %Stm(1).CurveConnectionPosX = [1 1 1 1];
-Stm(1).CurveConnectionPosX = [0.15 1 1 1]; % << 1st value creates distractor gap: larger is larger gap
+Stm(1).CurveConnectionPosX = [0.12 1 1 1]; % << 1st value creates distractor gap: larger is larger gap
 
 %Stm(1).PawIndCol = 0.2.*[0 .7 0; .9 .2 .2]; % colors for the left and right target
 %Stm(1).PawIndCol = 0.1*[.9 1 .9;1 .9 .9]; % colors for the left and right target
