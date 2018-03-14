@@ -17,7 +17,7 @@ Stm=StimObj.Stm;
 StimObj.Stm.FixDotCol = [.1 .1 .1 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
-Par.FixWinSize = [3 3]; % [W H] in deg
+Par.FixWinSize = [2 2]; % [W H] in deg
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
@@ -253,7 +253,7 @@ if Par.RewardFixHoldTimeProg
         30 500;...
         ];
 else
-    Par.RewardFixHoldTime =450; %time to maintain fixation for reward
+    Par.RewardFixHoldTime =600; %time to maintain fixation for reward
 end
 
 Par.RewardTime=Par.RewardTimeSet;

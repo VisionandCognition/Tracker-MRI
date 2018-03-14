@@ -383,9 +383,7 @@ while ~Par.ESC %===========================================================
     Par.ManResp4Log = nan;
 
     % Eye Window preparation
-    for PrepareEyeWin=1
-        DefineEyeWin;
-    end
+    DefineEyeWin;
     if ~TestRunstimWithoutDAS
         dasreset( 0 );
     end
@@ -402,6 +400,7 @@ while ~Par.ESC %===========================================================
         CheckManual;
         CheckKeys;
         DrawNoiseOnly;
+        DrawFix;
         
         % Check eye fixation ----------------------------------------------
         CheckFixation;
@@ -1934,9 +1933,9 @@ end
                 % Par.Trlcount=Par.Trlcount+1;
                 refreshtracker(3);
             end
-            if mod(nf,100)==0 && ~TestRunstimWithoutDAS
-                refreshtracker(1);
-            end
+%             if mod(nf,100)==0 && ~TestRunstimWithoutDAS
+%                 refreshtracker(1);
+%             end
         end
         % Check if eye leaves fixation window =============================
         if Par.FixIn %fixating

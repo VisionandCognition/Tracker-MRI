@@ -25,13 +25,13 @@ Stm=StimObj.Stm;
 %StimObj.Stm.FixDotCol = [.3 .3 .3 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
-Par.FixWinSize = [2 2]; % [W H] in deg
-Par.RequireFixation = false;
+Par.FixWinSize = [3 3]; % [W H] in deg
+Par.RequireFixation = true;
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
-Par.SCx = 0.14; %initial scale in control window
-Par.SCy = 0.11;
+Par.SCx = 0.135; %initial scale in control window
+Par.SCy = 0.135;
 Par.OFFx = 0; %initial eye offset x => (center) of camera das output
 Par.OFFy = 0; %initial eye offset y
 Par.ScaleOff = [Par.OFFx; Par.OFFy; Par.SCx; Par.SCy]; 
@@ -204,7 +204,7 @@ Par.OneRewardPerTrial = false; % for training allow multiple rewards/target
 Par.RewardType = 0; % 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTime = 0.14; %0.04;
+        Par.RewardTime = 0.140; %0.04;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
