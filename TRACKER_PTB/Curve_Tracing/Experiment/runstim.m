@@ -551,6 +551,9 @@ for CleanUp=1 % code folding
         Par.jf.Setup        = Par.SetUp;
         Par.jf.Group        = 'awake';
         Par.jf.Stimulus     = Par.STIMSETFILE(find(Par.STIMSETFILE=='_',1,'last')+1:end);
+        if isempty(json.session.stimulus)
+            json.session.stimulus='undefined';
+        end
         Par.jf.LogFolder    = [Par.MONKEY '_' DateString];
         Par.jf.logfile_name = FileName;
         % give the possibility to change
