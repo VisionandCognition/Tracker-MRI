@@ -2609,7 +2609,14 @@ Par=Par_BU;
                 Par.RewardTimeCurrent = 0;
         end
         if ~isempty(Par.RewardFixMultiplier)
-            Par.RewardTimeCurrent = Par.RewardFixMultiplier * Par.RewardTimeCurrent;
+            if any(Par.HandIsIn) % one hand in
+                hig = Par.FixReward_HandInGain(1);
+            elseif all(Par.HandIsIn) % both hands in
+                hig = Par.FixReward_HandInGain(2);
+            else % no hands in
+                hig = 1;
+            end
+            Par.RewardTimeCurrent = hig * Par.RewardFixMultiplier * Par.RewardTimeCurrent;
             if Par.RewardFixMultiplier <= 0 % no reward given if true
                 return
             end
