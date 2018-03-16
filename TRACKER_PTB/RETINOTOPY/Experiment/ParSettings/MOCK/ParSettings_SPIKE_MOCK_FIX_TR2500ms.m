@@ -17,7 +17,7 @@ Stm=StimObj.Stm;
 StimObj.Stm.FixDotCol = [.1 .1 .1 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
-Par.FixWinSize = [2 2]; % [W H] in deg
+Par.FixWinSize = [1.8 1.8]; % [W H] in deg
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
@@ -260,7 +260,7 @@ Par.RewardTime=Par.RewardTimeSet;
 
 %% Hand requirements ======================================================
 % Require hands in the box (reduces movement?)
-Par.HandInBothOrEither = 'Both'; % 'Both' or 'Either'
+Par.HandInBothOrEither = 'Either'; % 'Both' or 'Either'
 
 % Needed for initiation of tracker since it's in the gui now
 Par.RewNeeds.HandIsIn =         false;
@@ -323,7 +323,7 @@ Par.RewardForHandsIn_Delay = 0.500; %s
 Par.RewardForHandIn_MinInterval = 4; %s
 
 % Fixation rewards are multiplied with this factor when hands are in
-Par.FixReward_HandInGain = [1 1]; % one hand , both hands
+Par.FixReward_HandInGain = [1.5 3]; % one hand , both hands
 
 %% Create Eye-check windows based on stimulus positions ===================
 % The code below is preloaded and will be overwritten on stimulus basis

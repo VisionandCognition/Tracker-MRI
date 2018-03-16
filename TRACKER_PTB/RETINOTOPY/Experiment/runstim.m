@@ -2609,7 +2609,7 @@ Par=Par_BU;
                 Par.RewardTimeCurrent = 0;
         end
         if ~isempty(Par.RewardFixMultiplier)
-            if any(Par.HandIsIn) % one hand in
+            if ~all(Par.HandIsIn) && any(Par.HandIsIn) % one hand in
                 hig = Par.FixReward_HandInGain(1);
             elseif all(Par.HandIsIn) % both hands in
                 hig = Par.FixReward_HandInGain(2);
@@ -2702,7 +2702,7 @@ Par=Par_BU;
 % give automated reward for hand in
     function GiveRewardAutoHandIn
         Par.RewardTimeCurrent = Par.RewardForHandsIn_Quant(sum(Par.HandIsIn));
-        if ~all(Par.HandIsIn) % only one hand in
+        if ~all(Par.HandIsIn) && any(Par.HandIsIn) % only one hand in
             Par.RewardTimeCurrent = ...
                 Par.RewardForHandsIn_MultiplierPerHand(Par.HandIsIn)*Par.RewardTimeCurrent;
         end    
