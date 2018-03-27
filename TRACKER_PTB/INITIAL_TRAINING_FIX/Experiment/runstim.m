@@ -1073,7 +1073,6 @@ end
             -Stm(1).Center(Par.PosNr,2), ...
             Stm(1).FixWinSizePix(1), ...
             Stm(1).FixWinSizePix(2), FIX]';
-        Par.WIN
         refreshtracker( 1) %clear tracker screen and set fixation and target windows
         SetWindowDas; %set das control thresholds using global parameters : Par
     end
