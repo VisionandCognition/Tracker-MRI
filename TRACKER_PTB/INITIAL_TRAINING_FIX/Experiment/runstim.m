@@ -383,13 +383,13 @@ while ~Par.ESC %===========================================================
     Par.ManResp4Log = nan;
 
     % Eye Window preparation
-    DefineEyeWin;
-    if ~TestRunstimWithoutDAS
-        dasreset( 0 );
-    end
-    
-    % Check eye fixation
-    CheckFixation;
+%     DefineEyeWin;
+%     if ~TestRunstimWithoutDAS
+%         dasreset( 0 );
+%     end
+%     
+%     % Check eye fixation
+%     CheckFixation;
     
     % Wait for fixation --------------------------------------------------
     Par.State='PREFIXATION';
@@ -397,16 +397,18 @@ while ~Par.ESC %===========================================================
     % what happens during this loop is not logged
     while lft < Par.FixStart+50/1000 && ...
             Par.RequireFixation && ~Par.ESC
+        % requires 50 ms of fixation to continue
         CheckManual;
         CheckKeys;
+        %DrawFix;
         DrawNoiseOnly;
-        DrawFix;
         
         % Check eye fixation ----------------------------------------------
         CheckFixation;
-        if Par.FixIn && Par.FixStart == Inf
+        if Par.FixIn && isinf(Par.FixStart)
             Par.FixStart = lft;
         end
+                
         % Get and plot eye position
         CheckTracker;
         % Change stimulus if required
@@ -424,6 +426,7 @@ while ~Par.ESC %===========================================================
             GiveRewardManual;
             % ConsolatoryRewardTime = lft;
         end
+        
     end
     
     %% PRESWITCH ----------------------------------------------------------
@@ -1068,8 +1071,9 @@ end
         Par.WIN = [...
             Stm(1).Center(Par.PosNr,1), ...
             -Stm(1).Center(Par.PosNr,2), ...
-            Stm(1).FixWinSizePix, ...
-            Stm(1).FixWinSizePix, FIX]';
+            Stm(1).FixWinSizePix(1), ...
+            Stm(1).FixWinSizePix(2), FIX]';
+        Par.WIN
         refreshtracker( 1) %clear tracker screen and set fixation and target windows
         SetWindowDas; %set das control thresholds using global parameters : Par
     end
@@ -1396,6 +1400,9 @@ end
             % DrawFix;  % <-- Why draw fixation point?
         end
         DrawLiftedResponseIndicators;
+        
+        DrawFix;
+        
         % Draw on screen
         lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
         
@@ -1925,7 +1932,7 @@ end
                 dasrun(5);
                 [Hit, ~] = DasCheck;
             end
-            
+                        
             if Hit == 1 % eye in fix window (hit will never be 1 is tested without DAS)
                 Par.FixIn=true;
                 Par.LastFixInTime=GetSecs;

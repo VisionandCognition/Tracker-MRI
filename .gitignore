@@ -57,3 +57,5 @@ TRACKER_PTB/RETINOTOPY/Stimuli/walkers/
 *._
 .DS_Store*
 *.bak
+
+TRACKER_PTB/INITIAL_TRAINING_FIX/Experiment/runstim\.asv
