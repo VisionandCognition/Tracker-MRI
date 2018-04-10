@@ -12,8 +12,9 @@ Stm(1).alternateWithRestingBlocks = false;
 Stm(1).iterateTasks = false;
 
 % Background --------------------------------------------------------------
-% Params.BGColor = [.5 .5 .5]; % [R G B] 0-1
-Params.BGColor = [.667 .667 .667]; % [R G B] 0-1, from Retinotopy
+Params.BGColor = [.5 .5 .5]; % [R G B] 0-1
+%Params.BGColor = [.667 .667 .667]; % [R G B] 0-1, from Retinotopy
+% >> Equalize color with Eddy's for scanning / paper
 
 % Fixation ----------------------------------------------------------------
 Params.FixWinSizeDeg = 3; % <- testing   2.5; % in deg
@@ -29,7 +30,9 @@ Params.GoBarOrientation = [1 0]; % [def a1lt] 0=hor, 1=vert
 Params.GoBarColor = [0.6 0.7 0.7]; % [R G B] 0-1
 
 % Curve tracing stimulus
-Params.TraceCurveCol = [0 0 0];
+Params.TraceCurveCol = [.1 .1 .1];
+% >> Equalize color with Eddy's for scanning / paper
+
 Params.TraceCurveWidth = 9; % 6; % in pixels
 %Params.AlphaPreSwitch = 0.0; % 0 = memory / curve tracing task
 % Stm(1).PostSwitchJointAlpha = 0; % max should go to 0, with better training
@@ -75,10 +78,11 @@ Params.PawIndAlpha = [1 1 1 1 1; 1 1 1 1 1];
 Params.NumOfPawIndicators = 4; % Can't be more than the number of PawIndPositions!
 Params.DistractBranchConnAlpha = 1;
 
-ambigCir = 0.35; % was 0.6 -> should be 0.3?
+ambigCir = 0.1; % was 0.6 -> should be 0.3?
 Params.SaturatedPawIndCol = [0 .7 0; .9 .2 .2; ambigCir ambigCir ambigCir]; % colors for the left and right target
 %unsaturatedColor = [0.6 0.6 0.6; 0.6 0.6 0.6];
-unsaturatedColor = [0.3 0.3 0.3; 0.3 0.3 0.3; ambigCir ambigCir ambigCir];
+unsaturatedColor = [0.1 0.1 0.1; 0.1 0.1 0.1; ambigCir ambigCir ambigCir];
+% >> Equalize color with Eddy's for scanning / paper
 
 %satLevel = 5/6;
 %satLevel = 1/12;
@@ -120,7 +124,8 @@ Stm(1).ProbFixationReward = 0.0;
 
 Params.CurveAnglesAtFP = [ 180; 180; 0; 0];
 
-Params.PawIndSizeDeg = [2.5, 2.5, 2.5, 2.5, Params.FixDotSizeDeg];
+%Params.PawIndSizeDeg = [2.5, 2.5, 2.5, 2.5, Params.FixDotSizeDeg];
+Params.PawIndSizeDeg = [2 2 2 2, Params.FixDotSizeDeg];
 Params.BlockSize = 3;
 Params.rewardMultiplier = 1.0;
 Params.rewardSideRespMultiplier = [1 1];

@@ -16,8 +16,10 @@ StimObj.DefaultParams.PawIndPositions = [...
     ];
 % PawIndAlpha = [ PreSwitchAlpha target 1 target 2 ... ; 
 %                   PostSwitchAlpha target 1 target 2 ... ]
-StimObj.DefaultParams.CurveAlpha = [1 .1 1 .1 1; 1 .1 1 .1 1];
-StimObj.DefaultParams.PawIndAlpha = [1 .1 1 .1 1; 1 .1 1 .1 1];
+StimObj.DefaultParams.CurveAlpha =  [1 .1 1 .1 1; ...
+                                     1 .1 1 .1 1]; % UL DL UR DR CENTER
+StimObj.DefaultParams.PawIndAlpha = [.1 .45 .1 .45 1; ...
+                                     .1 .45 .1 .45 1]; % UL DL UR DR CENTER
 % -------------------------------------------------------------------------
 
 % >>> THESE ARE THE FINAL SETTINGS <<<
@@ -44,10 +46,12 @@ StimObj.DefaultParams.Gap1_deg = [0 gap*0.66];
 
 StimObj.DefaultParams.Gap2_deg = [0 StimObj.DefaultParams.BranchDistDeg] + gap;
 
-unsaturatedColor = [0.2 0.2 0.2; 0.2 0.2 0.2; .3 .3 .3];
+% unsaturatedColor = [0.2 0.2 0.2; 0.2 0.2 0.2; .3 .3 .3]; % different shapes
+unsaturatedColor = [1 1 1; 1 1 1; 1 1 1];
+
 % satLevel = 0;
 % satLevel = 0.075/12;
-satLevel = 6/12;
+satLevel = 0;%6/12;
 StimObj.DefaultParams.PawIndCol = satLevel * Params.PawIndCol + (1 - satLevel) * unsaturatedColor;
 
 StimObj.DefaultCtrlParams = StimObj.DefaultParams;

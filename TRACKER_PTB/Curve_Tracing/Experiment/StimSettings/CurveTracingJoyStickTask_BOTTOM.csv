@@ -1,9 +1,5 @@
 GroupConnections,TargetLoc,TargetShape,iTargetShape,GapL,GapR,GapUL,GapDL,GapUR,GapDR,GroupIndicator,IndicatorUL,IndicatorUR,IndicatorDL,IndicatorDR
-DUL,DL,Diamond,2,1,0,0,1,1,0,SD,Square,Diamond,Diamond,Square
 DDL,DL,Diamond,2,1,0,0,1,0,1,SD,Square,Diamond,Diamond,Square
-UDR,DR,Square,1,0,1,1,0,0,1,SD,Square,Diamond,Diamond,Square
 DDR,DR,Square,1,0,1,0,1,0,1,SD,Square,Diamond,Diamond,Square
-DUL,DL,Square,1,1,0,0,1,1,0,DS,Diamond,Square,Square,Diamond
 DDL,DL,Square,1,1,0,0,1,0,1,DS,Diamond,Square,Square,Diamond
-UDR,DR,Diamond,2,0,1,1,0,0,1,DS,Diamond,Square,Square,Diamond
 DDR,DR,Diamond,2,0,1,0,1,0,1,DS,Diamond,Square,Square,Diamond

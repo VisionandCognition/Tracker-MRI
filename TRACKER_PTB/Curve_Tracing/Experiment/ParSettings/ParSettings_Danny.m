@@ -17,7 +17,7 @@ end
 % (first MRI trigger to last scanned volume)
 Par.TR = 2.5; 
 Par.NumVols = 420;
-Par.MRITriggeredStart = false;
+Par.MRITriggeredStart = true;
 Par.MRITrigger_OnlyOnce = true;
 
 Par.Verbosity = 2;
@@ -190,10 +190,10 @@ Par.RequireHandsIn = false;  % <--- TEMPORARY!!!
 
 
 
-Par.SingleHandInReward = 0.10; % 0 to disable
-Par.BothHandsInReward = 0.20; % Reward for PUTTING both hands in
+Par.SingleHandInReward = 0;%0.10; % 0 to disable
+Par.BothHandsInReward = 0;%0.20; % Reward for PUTTING both hands in
 
-Par.BothHandsRemainInReward = 0.08; % Reward at random periods for KEEPING hands in
+Par.BothHandsRemainInReward = 0;%0.08; % Reward at random periods for KEEPING hands in
 
 % Min time between removing hands and placing them back in
 % Don't want to reward for taking hands out and putting them back in real
