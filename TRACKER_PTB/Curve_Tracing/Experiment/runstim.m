@@ -551,9 +551,6 @@ for CleanUp=1 % code folding
         Par.jf.Setup        = Par.SetUp;
         Par.jf.Group        = 'awake';
         Par.jf.Stimulus     = Par.STIMSETFILE(find(Par.STIMSETFILE=='_',1,'last')+1:end);
-        if isempty(json.session.stimulus)
-            json.session.stimulus='undefined';
-        end
         Par.jf.LogFolder    = [Par.MONKEY '_' DateString];
         Par.jf.logfile_name = FileName;
         % give the possibility to change
@@ -585,6 +582,9 @@ for CleanUp=1 % code folding
         json.session.setup      = Par.jf.Setup;
         json.session.group      = Par.jf.Group;  
         json.session.stimulus   = Par.jf.Stimulus;
+        if isempty(json.session.stimulus)
+            json.session.stimulus='undefined';
+        end
         json.session.logfile    = Par.jf.logfile_name;
         json.session.logfolder  = Par.jf.LogFolder;
         savejson('', json, fullfile(logPath,['Log_' DateString '_session.json']));

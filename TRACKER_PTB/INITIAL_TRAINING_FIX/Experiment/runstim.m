@@ -249,8 +249,8 @@ while ~Par.ESC %===========================================================
         while (~Par.GoNewTrial || Par.Paused) && ~Par.ESC
             CheckManual;
             CheckKeys;
-            DrawNoiseOnly;
-            
+            %DrawNoiseOnly;
+            DrawBackgroundOnly;
             % Check eye fixation ----------------------------------------------
             CheckFixation;
             % Get and plot eye position
@@ -1351,6 +1351,42 @@ end
         
         % Draw on screen
         lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
+    end
+% draw Noise only ---------------------------------------------------------
+    function DrawBackgroundOnly
+        % Background
+        Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
+        if Par.Paused
+            % Dark background
+            Screen('FillRect',Par.window, 0.0 * Par.BG.*Par.ScrWhite);
+        elseif ~Par.GoNewTrial
+            if strcmp(Par.State,'INIT')
+                %                 if Stm(1).NumBeams == 2 && Par.BeamLIsBlocked
+                %                     Screen('DrawLine', Par.window, ...
+                %                         Stm(1).PawIndCol(1,:), ...
+                %                         0, 0, ...
+                %                         0, Par.ScreenHeightD2);
+                %                 end
+                %                 if Stm(1).NumBeams == 2 && Par.BeamRIsBlocked
+                %                     Screen('DrawLine', Par.window, ...
+                %                         Stm(1).PawIndCol(2,:), ...
+                %                         Par.ScreenWidthD2, 0, ...
+                %                         Par.ScreenWidthD2, Par.ScreenHeightD2);
+                %                 end
+                
+                % Semi-dark / brown background
+                %Screen('FillRect',Par.window, [.5 .25 0].*Par.ScrWhite);
+            else
+                % Dark background
+                %Screen('FillRect',Par.window, 0.0 * Par.BG.*Par.ScrWhite);
+                %Screen('FillRect',Par.window, [.5 .25 0].*Par.ScrWhite);
+            end
+        end
+        DrawLiftedResponseIndicators;
+
+        % Draw on screen
+        lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
+        
     end
 % draw Noise only ---------------------------------------------------------
     function DrawNoiseOnly
