@@ -17,7 +17,7 @@ end
 % (first MRI trigger to last scanned volume)
 Par.TR = 2.5; 
 Par.NumVols = 420;
-Par.MRITriggeredStart = true;
+Par.MRITriggeredStart = false;
 Par.MRITrigger_OnlyOnce = true;
 
 Par.Verbosity = 2;
@@ -199,11 +199,11 @@ Par.BothHandsRemainInReward = 0.08; % Reward at random periods for KEEPING hands
 % Don't want to reward for taking hands out and putting them back in real
 % fast. Reward should be much lower than what subject could get from
 % working.
-Par.MinSecsBetweenSingleHandInRewards= 60;
-Par.MinSecsBetweenBothHandsInRewards = 120;
+Par.MinSecsBetweenSingleHandInRewards= 600; % << don't really want this [CK]
+Par.MinSecsBetweenBothHandsInRewards = 1200; % << don't really want this [CK]
 
 % Reward at random periods for keeping hands in
-Par.SecsBetweenBothHandsRemainInRewards = [3 10];
+Par.SecsBetweenBothHandsRemainInRewards = [10 30]; % << not too often [CK]
 Par.NextHandsRemainInRewardSec = min(Par.SecsBetweenBothHandsRemainInRewards);
 Par.HandOutOrRewardTime = -Inf;
 
