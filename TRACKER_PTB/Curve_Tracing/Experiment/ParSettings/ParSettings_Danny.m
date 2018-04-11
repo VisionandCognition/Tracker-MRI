@@ -34,7 +34,7 @@ Stm=StimObj.Stm;
 % overrule generic fixation window
 % Fixation window set by StimSettings with FixWinSizeDeg, not sure what ...
 %    Par.FixWinSize does?
-Par.FixWinSize = [1.8 1.8]; % [W H] in deg
+Par.FixWinSize = [2.2 2.2];% [1.8 1.8]; % [W H] in deg
 Stm(1).FixWinSizeDeg = Par.FixWinSize(1);
 
 Par.WaitForFixation = true; % Used to be Par.RequireFixation
@@ -187,7 +187,7 @@ Par.HandsIn=[false false]; % Hands in position ready to respond
 Par.RequireHandsIn = true; % Fixation dot only comes on when hand are in the box
 
 Par.SingleHandInReward = 0;%0.10; % 0 to disable
-Par.BothHandsInReward = 0;%0.20; % Reward for PUTTING both hands in
+Par.BothHandsInReward = 0.1;%0.20; % Reward for PUTTING both hands in
 
 Par.BothHandsRemainInReward = 0;%0.08; % Reward at random periods for KEEPING hands in
 
@@ -213,7 +213,7 @@ Par.ManualRewardTargetOnly = false; % only give manual reward during target pres
 
 Par.OneRewardPerTrial = false; % for training allow multiple rewards/target
 if ~isfield(Par, 'RewardTime')
-    Par.RewardTime = 0.1;
+    Par.RewardTime = 0.15;
 end
 
 % switch Par.RewardType
