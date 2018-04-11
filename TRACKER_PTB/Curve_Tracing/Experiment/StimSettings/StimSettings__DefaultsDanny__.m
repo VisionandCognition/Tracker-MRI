@@ -32,7 +32,6 @@ Params.GoBarColor = [0.6 0.7 0.7]; % [R G B] 0-1
 % Curve tracing stimulus
 Params.TraceCurveCol = [.1 .1 .1];
 % >> Equalize color with Eddy's for scanning / paper
-
 Params.TraceCurveWidth = 9; % 6; % in pixels
 %Params.AlphaPreSwitch = 0.0; % 0 = memory / curve tracing task
 % Stm(1).PostSwitchJointAlpha = 0; % max should go to 0, with better training
@@ -119,8 +118,8 @@ Params.ResponseAllowed = [100 Params.SwitchDur+100]; % [after_onset after_offset
 %Stm(1).ResponseAllowed = [100 4000]; % [after_onset after_offset] in ms
 Params.BreakDuration = 1000; % 1500 additional waiting period for early / false hits
 
-Stm(1).ProbConsolatoryReward = 0.01;
-Stm(1).ProbFixationReward = 0.0;
+Stm(1).ProbConsolatoryReward = 0.01; % << How is this implemented? Rewarding 1/100 trials regardless?
+Stm(1).ProbFixationReward = 0.0; % << what's this probability?
 
 Params.CurveAnglesAtFP = [ 180; 180; 0; 0];
 

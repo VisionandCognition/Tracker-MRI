@@ -184,11 +184,7 @@ Par.HandOutDimsScreen_perc = 0.9; %(0-1, fraction dimming)
 
 Par.HandResponse=[false false];
 Par.HandsIn=[false false]; % Hands in position ready to respond
-Par.RequireHandsIn = true;
-Par.RequireHandsIn = false;  % <--- TEMPORARY!!!
-
-
-
+Par.RequireHandsIn = true; % Fixation dot only comes on when hand are in the box
 
 Par.SingleHandInReward = 0;%0.10; % 0 to disable
 Par.BothHandsInReward = 0;%0.20; % Reward for PUTTING both hands in
