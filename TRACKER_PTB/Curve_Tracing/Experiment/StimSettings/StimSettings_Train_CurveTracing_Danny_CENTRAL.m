@@ -3,7 +3,7 @@ global StimObj
 %% Load defaults ==========================================================
 % The *parameters* for the classes are saved to StimSettings__Defaults__.
 % The order of the blocks are defined below.
-eval('StimSettings__DefaultsDanny__'); % loads the default parameters
+eval('StimSettings__DefaultsDannyCentral__'); % loads the default parameters
 Stm = StimObj.Stm;
 
 %% THESE SETTINGS OVERWRITE DEFAULTS FOR TRAINING PURPOSES ===>>>>>>>>>====
@@ -16,19 +16,18 @@ Stm = StimObj.Stm;
 %                                     .1 .1 .1 .1 1]; % UL DL UR DR CENTER
 
 % TOP
-%StimObj.DefaultParams.CurveAlpha =  [1 .1 1 .1 1; ...
-%                                     1 .1 1 .1 1]; % UL DL UR DR CENTER
-%StimObj.DefaultParams.PawIndAlpha = [.1 .45 .1 .45 1; ...
-%                                     .1 .45 .1 .45 1]; % UL DL UR DR CENTER
-
+StimObj.DefaultParams.CurveAlpha =  [1 0 1 0 1; ...
+                                     1 0 1 0 1]; % UL DL UR DR CENTER
+StimObj.DefaultParams.PawIndAlpha = [.1 .5 .1 .5 1; ...
+                                     .1 .5 .1 .5 1]; % UL DL UR DR CENTER
 % BOTTOM
-StimObj.DefaultParams.CurveAlpha =  [.0 1 .0 1 1; ...
-                                     .0 1 .0 1 1]; % UL DL UR DR CENTER
-StimObj.DefaultParams.PawIndAlpha = [.5 .1 .5 .1 1; ...
-                                     .5 .1 .5 .1 1]; % UL DL UR DR CENTER                                     
+%StimObj.DefaultParams.CurveAlpha =  [.1 1 .1 1 1; ...
+%                                     .1 1 .1 1 1]; % UL DL UR DR CENTER
+%StimObj.DefaultParams.PawIndAlpha = [.45 .1 .45 .1 1; ...
+%                                     .45 .1 .45 .1 1]; % UL DL UR DR CENTER     
 
 StimObj.DefaultParams.CurveAnglesAtFP = ...
-    [ 180 180 0 0 ]; % UL DL UR DR
+    [ 90 0 -90 0 ]; % UL DL UR DR
 
 StimObj.DefaultParams.BranchDistDeg = .6;%1.2;
 StimObj.DefaultParams.CurveTargetDistDeg = 1.5;
@@ -50,12 +49,12 @@ StimObj.DefaultCtrlParams = StimObj.DefaultParams;
 StimObj.DefaultCtrlParams.NumOfPawIndicators = 5;
     
 %curvetracing = CurveTracingJoystickTask(StimObj.DefaultParams, 'StimSettings/CurveTracingJoyStickTask.csv', 'Curve tracing', 'GroupConnections', false);
-%curvetracing = CurveTracingJoystickTask(StimObj.DefaultParams, 'StimSettings/CurveTracingJoyStickTask_TOP.csv', 'Curve tracing', 'GroupConnections', false);
-curvetracing = CurveTracingJoystickTask(StimObj.DefaultParams, 'StimSettings/CurveTracingJoyStickTask_BOTTOM.csv', 'Curve tracing', 'GroupConnections', false);
+curvetracing = CurveTracingJoystickTask(StimObj.DefaultParams, 'StimSettings/CurveTracingJoyStickTask_TOP.csv', 'Curve tracing', 'GroupConnections', false);
+%curvetracing = CurveTracingJoystickTask(StimObj.DefaultParams, 'StimSettings/CurveTracingJoyStickTask_BOTTOM.csv', 'Curve tracing', 'GroupConnections', false);
 
 %busy = CurveTracingJoystickTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv', 'Keep Busy', 'GroupConnections', false);
-%busy = CurveTracingJoystickTask(Params, 'StimSettings/CurveTracingJoyStickTask_TOP.csv', 'Keep Busy', 'GroupConnections', false);
-busy = CurveTracingJoystickTask(Params, 'StimSettings/CurveTracingJoyStickTask_BOTTOM.csv', 'Keep Busy', 'GroupConnections', false);
+busy = CurveTracingJoystickTask(Params, 'StimSettings/CurveTracingJoyStickTask_TOP.csv', 'Keep Busy', 'GroupConnections', false);
+%busy = CurveTracingJoystickTask(Params, 'StimSettings/CurveTracingJoyStickTask_BOTTOM.csv', 'Keep Busy', 'GroupConnections', false);
 
 %  curvecatch = CurveTracingCatchBlockTask(StimObj.DefaultParams, 'StimSettings/CurveTracingJoyStickTask.csv');
 curvecontrol = CurveTracingJoystickTask(StimObj.DefaultCtrlParams, 'StimSettings/CurveTracingJoyStickTask-Control.csv', 'Control CT', 'TargetLoc');
@@ -65,7 +64,7 @@ curvecontrol = CurveTracingJoystickTask(StimObj.DefaultCtrlParams, 'StimSettings
 fixation = FixationTask(StimObj.DefaultFixParams);
 
 Stm(1).KeepSubjectBusyTask_PreScan = fixation;%busy;
-Stm(1).KeepSubjectBusyTask = fixation;%busy;%curvecontrol;
+Stm(1).KeepSubjectBusyTask = busy;%curvecontrol;
 % Stm(1).KeepSubjectBusyTask = fixation;
 Stm(1).RestingTask = fixation;
 

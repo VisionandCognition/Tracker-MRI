@@ -1,0 +1,17 @@
+GroupConnections,TargetLoc,TargetShape,iTargetShape,GapL,GapR,GapUL,GapDL,GapUR,GapDR,GroupIndicator,IndicatorUL,IndicatorUR,IndicatorDL,IndicatorDR
+UUR,UR,Square,1,0,1,1,0,1,0,SS,Square,Square,Diamond,Diamond
+UDR,DR,Diamond,2,0,1,1,0,0,1,SS,Square,Square,Diamond,Diamond
+DUR,UR,Square,1,0,1,0,1,1,0,SS,Square,Square,Diamond,Diamond
+DDR,DR,Diamond,2,0,1,0,1,0,1,SS,Square,Square,Diamond,Diamond
+UUR,UR,Diamond,2,0,1,1,0,1,0,SD,Square,Diamond,Diamond,Square
+UDR,DR,Square,1,0,1,1,0,0,1,SD,Square,Diamond,Diamond,Square
+DUR,UR,Diamond,2,0,1,0,1,1,0,SD,Square,Diamond,Diamond,Square
+DDR,DR,Square,1,0,1,0,1,0,1,SD,Square,Diamond,Diamond,Square
+UUR,UR,Square,1,0,1,1,0,1,0,DS,Diamond,Square,Square,Diamond
+UDR,DR,Diamond,2,0,1,1,0,0,1,DS,Diamond,Square,Square,Diamond
+DUR,UR,Square,1,0,1,0,1,1,0,DS,Diamond,Square,Square,Diamond
+DDR,DR,Diamond,2,0,1,0,1,0,1,DS,Diamond,Square,Square,Diamond
+UUR,UR,Diamond,2,0,1,1,0,1,0,DD,Diamond,Diamond,Square,Square
+UDR,DR,Square,1,0,1,1,0,0,1,DD,Diamond,Diamond,Square,Square
+DUR,UR,Diamond,2,0,1,0,1,1,0,DD,Diamond,Diamond,Square,Square
+DDR,DR,Square,1,0,1,0,1,0,1,DD,Diamond,Diamond,Square,Square

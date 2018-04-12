@@ -7,15 +7,6 @@ eval('StimSettings__DefaultsDanny__'); % loads the default parameters
 Stm = StimObj.Stm;
 
 %% THESE SETTINGS OVERWRITE DEFAULTS FOR TRAINING PURPOSES ===>>>>>>>>>====
-% --- Position and alpha of targets and curves ----------------------------
-StimObj.DefaultParams.PawIndPositions = [...
-    -5 -2.5; ... % 1 - LEFT TOP (-,-)
-    -5  2.5; ... % 2 - LEFT BOTTOM (-,+)
-     5 -2.5; ... % 3 - RIGHT TOP (+,-)
-     5  2.5; ... % 4 - RIGHT BOTTOM (+,+)
-     0  0 ... center
-    ];
-
 % PawIndAlpha = [ PreSwitchAlpha target 1 target 2 ... ; 
 %                   PostSwitchAlpha target 1 target 2 ... ]
 % TOP & BOTTOM
@@ -35,31 +26,18 @@ StimObj.DefaultParams.PawIndAlpha = [.1 .1 .1 .1 1; ...
 %                                     .1 1 .1 1 1]; % UL DL UR DR CENTER
 %StimObj.DefaultParams.PawIndAlpha = [.45 .1 .45 .1 1; ...
 %                                     .45 .1 .45 .1 1]; % UL DL UR DR CENTER                                     
-% -------------------------------------------------------------------------
 
-% >>> THESE ARE THE FINAL SETTINGS <<<
-% StimObj.DefaultParams.PawIndPositions = [...
-%     -6.6 -3.3; -6.6 3.3; ...
-%     6.6 -3.3; 6.6 3.3; ...
-%     0 0 ... center
-%     ];
-StimObj.DefaultParams.BranchDistDeg = 1.2;
+
+StimObj.DefaultParams.CurveAnglesAtFP = ...
+    [ 180 180 0 0 ]; % UL DL UR DR
+
+StimObj.DefaultParams.BranchDistDeg = .6;%1.2;
 StimObj.DefaultParams.CurveTargetDistDeg = 1.5;
 
-% Easiest settings
-% gap = 1.3;
-% StimObj.DefaultParams.Gap1_deg = [0 gap];
-
-% Easy settings
-gap = 1.3;
-StimObj.DefaultParams.Gap1_deg = [0 gap*0.66];
-
-
-% Target settings
-% gap = 1.0;
-% StimObj.DefaultParams.Gap1_deg = [0 gap*0.5];
-
+gap = .5;
+StimObj.DefaultParams.Gap1_deg = [0 gap];
 StimObj.DefaultParams.Gap2_deg = [0 StimObj.DefaultParams.BranchDistDeg] + gap;
+% -------------------------------------------------------------------------
 
 % unsaturatedColor = [0.2 0.2 0.2; 0.2 0.2 0.2; .3 .3 .3]; % different shapes
 unsaturatedColor = [1 1 1; 1 1 1; 1 1 1];
@@ -87,8 +65,8 @@ curvecontrol = CurveTracingJoystickTask(StimObj.DefaultCtrlParams, 'StimSettings
 
 fixation = FixationTask(StimObj.DefaultFixParams);
 
-Stm(1).KeepSubjectBusyTask_PreScan = busy;
-Stm(1).KeepSubjectBusyTask = busy;%curvecontrol;
+Stm(1).KeepSubjectBusyTask_PreScan = fixation;%busy;
+Stm(1).KeepSubjectBusyTask = fixation;%busy;%curvecontrol;
 % Stm(1).KeepSubjectBusyTask = fixation;
 Stm(1).RestingTask = fixation;
 

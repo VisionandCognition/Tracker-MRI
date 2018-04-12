@@ -45,14 +45,20 @@ extend_curves = false;
 train_curves = true;
 
 if train_curves
-        Params.PawIndPositions = [...
-        -5 -2.5; ...  1 - LEFT TOP (-,-)
-        -5  2.5; ...  2 - LEFT BOTTOM (-,+)
-         5 -2.5; ...  3 - RIGHT TOP (+,-)
-         5  2.5; ...  4 - RIGHT BOTTOM (+,+)
-         0  0 ...     5 - center
+    %     Params.PawIndPositions = [...
+    %     -5 -2.5; ...  1 - LEFT TOP (-,-)
+    %     -5  2.5; ...  2 - LEFT BOTTOM (-,+)
+    %      5 -2.5; ...  3 - RIGHT TOP (+,-)
+    %      5  2.5; ...  4 - RIGHT BOTTOM (+,+)
+    %      0  0 ...     5 - center
+    %     ];
+    Params.PawIndPositions = [...
+        -5  0; ...  1 - LEFT TOP (-,-)
+        -5  5; ...  2 - LEFT BOTTOM (-,+)
+         5  0; ...  3 - RIGHT TOP (+,-)
+         5  5; ...  4 - RIGHT BOTTOM (+,+)
+         0  0 ...   5 - center
         ];
-
     Params.BranchDistDeg = 1.2;
     Params.CurveTargetDistDeg = 1.5;
     
