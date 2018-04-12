@@ -93,6 +93,13 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
         Par.lft = Stm(1).task.drawStimuli(Par.lft);
         CheckFixation;
         CheckTracker; % Get and plot eye position
+        
+        % give manual reward
+        if Par.ManualReward
+            GiveRewardManual;
+            Par.ManualReward=false;
+        end
+        
     end
     
     % Check eye fixation --------------------------------------------------

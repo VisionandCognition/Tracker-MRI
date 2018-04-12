@@ -38,7 +38,7 @@ Par.FixWinSize = [2.2 2.2];% [1.8 1.8]; % [W H] in deg
 Stm(1).FixWinSizeDeg = Par.FixWinSize(1);
 
 Par.WaitForFixation = true; % Used to be Par.RequireFixation
-Par.RequireFixationForReward = true;
+Par.RequireFixationForReward = false;
 Par.EndTrialOnResponse = true; % Make responsive
 % Par.EndTrialOnFixBreak = true;
 
@@ -235,7 +235,7 @@ end
 
 Par.RewardTimeManual = 0.04; % amount of reward when given manually
 
-Par.StreakRewardMult = 2; % Give 50% more reward when an entire block is correct
+Par.StreakRewardMult = 1.25; % Give more reward when an entire block is correct
 
 %% Create Eye-check windows based on stimulus positions ===================
 for SetInitialWINs=1
