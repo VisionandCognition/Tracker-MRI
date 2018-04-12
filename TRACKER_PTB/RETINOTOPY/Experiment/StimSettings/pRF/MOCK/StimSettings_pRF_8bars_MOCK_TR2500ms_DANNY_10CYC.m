@@ -12,7 +12,7 @@ Stm(1).BackColor = [.75 .75 .75]; % [R G B] 0-1
 % Leuven retinotopy clips have a background of 88 out of 256
 
 %% Fixation ----------------------------------------------------------------
-Stm(1).FixDotSize = 0.1;
+Stm(1).FixDotSize = 0.25;
 Stm(1).FixDotSurrSize = 0.75;
 Stm(1).FixDotCol = [1 0 0;1 0 0]; %[RGB if not fixating; RGB fixating]
 % fixation color is overwritten by parsettings!
