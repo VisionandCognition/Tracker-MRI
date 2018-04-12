@@ -125,12 +125,12 @@ Params.SwitchDur = 1300; % (200) duration of alternative orientation
 %  period_in_which_switch_randomly_occurs ...
 %  post_switch_duration_in_which_nothing_happens]
 %Params.EventPeriods = [1800 1600 300];
-Params.EventPeriods = [3000 0 300];
+Params.EventPeriods = [1000 750 300];
 Params.prefixPeriod = 500; % not just for fixation task!
 
 % Response time window
 Params.NumBeams = 2;
-Params.ResponseAllowed = [100 Params.SwitchDur+100]; % [after_onset after_offset] in ms
+Params.ResponseAllowed = [50 Params.SwitchDur+100]; % [after_onset after_offset] in ms
 %Stm(1).ResponseAllowed = [100 4000]; % [after_onset after_offset] in ms
 Params.BreakDuration = 1000; % 1500 additional waiting period for early / false hits
 
