@@ -224,7 +224,7 @@ Par.RewardFixMultiplier = 1.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.05;%250;
+        Par.RewardTimeSet = 0.03;%250;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -260,16 +260,16 @@ Par.RewardTime=Par.RewardTimeSet;
 
 %% Hand requirements ======================================================
 % Require hands in the box (reduces movement?)
-Par.HandInBothOrEither = 'Either'; % 'Both' or 'Either'
+Par.HandInBothOrEither = 'Both'; % 'Both' or 'Either'
 
 % Needed for initiation of tracker since it's in the gui now
 Par.RewNeeds.HandIsIn =         false;
 Par.StimNeeds.HandIsIn =        false;
-Par.FixNeeds.HandIsIn =         false;
+Par.FixNeeds.HandIsIn =         false;    % Only reward fixation when fixation dot is shown! 
 Par.TrialNeeds.HandIsIn =       false;   % manual response task
-Par.TrialNeeds.LeversAreDown =  true;   % manual response task
+Par.TrialNeeds.LeversAreDown =  true;    % manual response task
 
-Par.HandOutDimsScreen = false;
+Par.HandOutDimsScreen = true;
 Par.HandOutDimsScreen_perc = 0.9; %(0-1, fraction dimming)
 
 % set-up function to check whether to draw stimulus
@@ -317,13 +317,13 @@ Par.IncorrectResponseGiven  = ...
 
 % Reward for keeping hand in the box
 Par.RewardForHandsIn = true;
-Par.RewardForHandsIn_Quant = [0.050 0.100]; % 1 hand, both hands
+Par.RewardForHandsIn_Quant = [0.050 0.200]; % 1 hand, both hands
 Par.RewardForHandsIn_MultiplierPerHand = [1 1]; % if only one hand in is rewarded [L R]
 Par.RewardForHandsIn_Delay = 0.500; %s 
-Par.RewardForHandIn_MinInterval = 4; %s
+Par.RewardForHandIn_MinInterval = 5; %s
 
 % Fixation rewards are multiplied with this factor when hands are in
-Par.FixReward_HandInGain = [2 3]; % one hand , both hands
+Par.FixReward_HandInGain = [3 6]; % one hand , both hands
 
 %% Create Eye-check windows based on stimulus positions ===================
 % The code below is preloaded and will be overwritten on stimulus basis

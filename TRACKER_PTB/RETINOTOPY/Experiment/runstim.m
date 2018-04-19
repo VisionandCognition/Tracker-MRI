@@ -1276,7 +1276,7 @@ for STIMNR = Log.StimOrder
             if GetSecs >= Par.LastFixInTime+Par.Times.TargCurrent/1000 % fixated long enough
                 % start Reward
                 if ~Par.RewardRunning && ~TestRunstimWithoutDAS && ~Par.Pause && ...
-                        Par.Rew_BasedOnHandIn(Par)
+                        Par.Rew_BasedOnHandIn(Par) && ~Par.HideFix_BasedOnHandIn(Par)
                      % nCons correct fixations
                     Par.CorrStreakcount=Par.CorrStreakcount+1;
                     Par.Response=Par.Response+1;
