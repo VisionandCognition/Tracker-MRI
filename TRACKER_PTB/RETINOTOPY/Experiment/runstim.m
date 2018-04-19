@@ -653,7 +653,7 @@ for STIMNR = Log.StimOrder
         Par.BeamIsBlocked=false(size(Par.ConnectBox.PhotoAmp));
         Par.HandIsIn =[false false];
         Par.HandWasIn = Par.HandIsIn;
-        Par.LeverIsUp = [false false];
+        Par.LeverIsUp = [false; false];
         Par.LeverWasUp = Par.LeverIsUp;
         Par.BothLeversUp_time = Inf;
         AutoPauseStartTime = Inf;
@@ -776,8 +776,8 @@ for STIMNR = Log.StimOrder
             Par.ForceRespSide = false;
             Par.IsCatchBlock = false;
             Par.RewHandStart = GetSecs;
-            Par.HandInNew_Moment = GetSecs;
-            Par.HandInPrev_Moment = Par.HandInNew_Moment;
+            Par.HandInNew_Moment = 0;
+            Par.HandInPrev_Moment = 0;
             
             if StimLoopNr == 1 % allow time-outs to across runs
                 Par.Pause=false;
@@ -1152,12 +1152,13 @@ for STIMNR = Log.StimOrder
             
             %% give reward for hand in box --------------------------------
             if Par.RewardForHandsIn && any(Par.HandIsIn) && ~Par.Pause && ...
-                    GetSecs - Par.HandInNew_Moment > Par.RewardForHandsIn_Delay
+                    ~Par.RewardRunning && ...
+                    GetSecs - Par.HandInNew_Moment > Par.RewardForHandsIn_Delay 
                 if GetSecs - Par.RewHandStart > Par.RewardForHandIn_MinInterval % kept in long enough
-                    GiveRewardAutoHandIn;
-                elseif Par.RewardForHandIn_ResetIntervalWhenOut && ... 
+                    GiveRewardAutoHandIn; 
+                elseif Par.RewardForHandIn_ResetIntervalWhenOut && ...
                         Par.HandInPrev_Moment ~= Par.HandInNew_Moment && ...
-                        GetSecs - Par.HandInPrev_Moment > Par.RewardForHandIn_MinIntervalBetween
+                        GetSecs - Par.RewHandStart > Par.RewardForHandIn_MinIntervalBetween
                     GiveRewardAutoHandIn;
                 end
             end
@@ -1321,10 +1322,11 @@ for STIMNR = Log.StimOrder
         %% Autopause due to lever lifts -----------------------------------
         if Par.LeversUpTimeOut(2) % there is a timeout interval defined
             if all(Par.LeverIsUp) && ... % both up
-                    GetSecs > Par.BothLeversUpTime + Par.LeversUpTimeOut(1) && ...
+                    GetSecs > Par.BothLeversUp_time + Par.LeversUpTimeOut(1) && ...
                     ~Par.Pause % levers have been up too long
                 Par.Pause=true;
-                fprintf('Automatic time-out due to lever lifts ON\n');
+                fprintf(['Automatic time-out due to lever lifts ON (min ' ...
+                    num2str(Par.LeversUpTimeOut) 's)\n']);
                 Log.nEvents=Log.nEvents+1;
                 Log.Events(Log.nEvents).type='AutoPauseOn';
                 Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
@@ -1344,6 +1346,7 @@ for STIMNR = Log.StimOrder
                 end
            end
         end
+        
         %% if doing Par.ResponseBox.Task of 'DetectGoSignal': -------------
         if strcmp(Par.ResponseBox.Task, 'DetectGoSignal') && ~TestRunstimWithoutDAS
             % ==== Start wait period ====
@@ -2590,11 +2593,11 @@ Par=Par_BU;
             Log.Events(Log.nEvents).t=lft-Par.ExpStart;
             Par.HandIsIn =Par.BeamIsBlocked(Par.ConnectBox.PhotoAmp_HandIn);
             Par.LeverIsUp=Par.BeamIsBlocked(Par.ConnectBox.PhotoAmp_Levers);
-            if Par.LeverIsUp ~= Par.LeverWasUp && all(Par.LeverIsUp)
+            if any(Par.LeverIsUp ~= Par.LeverWasUp) && all(Par.LeverIsUp)
                 % now both levers are up
                 Par.BothLeversUp_time = GetSecs;
                 Par.LeverWasUp = Par.LeverIsUp;
-            elseif Par.LeverIsUp ~= Par.LeverWasUp && ~all(Par.LeverIsUp)
+            elseif any(Par.LeverIsUp ~= Par.LeverWasUp) && ~all(Par.LeverIsUp)
                 % something changed: both are not up
                 Par.BothLeversUp_time = Inf;
                 Par.LeverWasUp = Par.LeverIsUp;
@@ -2607,8 +2610,16 @@ Par=Par_BU;
 %                 case 'Beam'
                 case 'Lift'
                     if ~any(Par.HandWasIn) && any(Par.HandIsIn) % from none to any
+                        %fprintf('going from none to one\n')
                         Par.HandInPrev_Moment = Par.HandInNew_Moment; % the previous hand-in moment
                         Par.HandInNew_Moment = GetSecs; % current hand-in moment
+                        Par.HandWasIn = Par.HandIsIn;
+                    elseif any(Par.HandWasIn) && ~any(Par.HandIsIn)
+                        %fprintf('all out now\n')
+                        Par.HandInPrev_Moment = Par.HandInNew_Moment;
+                        Par.HandWasIn = Par.HandIsIn;
+                    elseif any(Par.HandWasIn) && any(Par.HandIsIn) && Par.RewardRunning
+                        Par.HandInPrev_Moment = Par.HandInNew_Moment;
                     end
                     
                     if strcmp(Par.HandInBothOrEither, 'Both') && ...

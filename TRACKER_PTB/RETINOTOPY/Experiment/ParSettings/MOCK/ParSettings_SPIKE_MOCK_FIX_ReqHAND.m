@@ -269,7 +269,7 @@ Par.FixNeeds.HandIsIn =         false;    % Only reward fixation when fixation d
 Par.TrialNeeds.HandIsIn =       false;   % manual response task
 Par.TrialNeeds.LeversAreDown =  true;    % manual response task
 
-Par.LeversUpTimeOut = [0.100 4];
+Par.LeversUpTimeOut = [0.100 2];
 % If levers are up for (1) s, give time-out for (2) seconds or while they
 % are up. Set to (2) to zero for no time-outs.
 
@@ -324,11 +324,11 @@ Par.IncorrectResponseGiven  = ...
 Par.RewardForHandsIn = true;
 Par.RewardForHandsIn_Quant = [0.050 0.200]; % 1 hand, both hands
 Par.RewardForHandsIn_MultiplierPerHand = [1 1]; % if only one hand in is rewarded [L R]
-Par.RewardForHandsIn_Delay = 0.500; %s 
+Par.RewardForHandsIn_Delay = 0.100; %s 
 Par.RewardForHandIn_MinInterval = 5; %s
 
 Par.RewardForHandIn_ResetIntervalWhenOut = true; 
-Par.RewardForHandIn_MinIntervalBetween = 1; %s
+Par.RewardForHandIn_MinIntervalBetween = 2; %s
 % resets the timer for the next reward when the hand(s) are taken out 
 
 % Fixation rewards are multiplied with this factor when hands are in
