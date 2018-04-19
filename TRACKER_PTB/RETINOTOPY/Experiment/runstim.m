@@ -90,6 +90,10 @@ if ~isfield(Par,'RewardForHandIn_ResetIntervalWhenOut')
     Par.RewardForHandIn_MinIntervalBetween = 0;
     fprintf('No RewardForHandIn_ResetIntervalWhenOut defined: Setting it to false\n');
 end
+if ~isfield(Par,'LeversUpTimeOut')
+    Par.LeversUpTimeOut = [Inf 0];
+    fprintf('No LeversUpTimeOut defined: Setting it to [Inf 0]\n');
+end
 
 % Add keys to fix left/right/random responses
 Par.KeyLeftResp = KbName(',<');
@@ -651,6 +655,8 @@ for STIMNR = Log.StimOrder
         Par.HandWasIn = Par.HandIsIn;
         Par.LeverIsUp = [false false];
         Par.LeverWasUp = Par.LeverIsUp;
+        Par.BothLeversUp_time = Inf;
+        AutoPauseStartTime = Inf;
                       
         %video control
         Par.VideoLoaded=false;
@@ -1312,6 +1318,32 @@ for STIMNR = Log.StimOrder
         %% Stop reward ----------------------------------------------------
         StopRewardIfNeeded();
         
+        %% Autopause due to lever lifts -----------------------------------
+        if Par.LeversUpTimeOut(2) % there is a timeout interval defined
+            if all(Par.LeverIsUp) && ... % both up
+                    GetSecs > Par.BothLeversUpTime + Par.LeversUpTimeOut(1) && ...
+                    ~Par.Pause % levers have been up too long
+                Par.Pause=true;
+                fprintf('Automatic time-out due to lever lifts ON\n');
+                Log.nEvents=Log.nEvents+1;
+                Log.Events(Log.nEvents).type='AutoPauseOn';
+                Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
+                Log.Events(Log.nEvents).StimName = [];
+                AutoPauseStartTime=GetSecs;
+            elseif GetSecs > AutoPauseStartTime + Par.LeversUpTimeOut(2) && ...
+                    Par.Pause % Time-out time over
+                if all(Par.LeverIsUp) 
+                    % still both up, continue time-out
+                else
+                    Par.Pause=false;
+                    fprintf('Automatic time-out due to lever lifts OFF\n');
+                    Log.nEvents=Log.nEvents+1;
+                    Log.Events(Log.nEvents).type='AutoPauseOff';
+                    Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
+                    Log.Events(Log.nEvents).StimName = [];
+                end
+           end
+        end
         %% if doing Par.ResponseBox.Task of 'DetectGoSignal': -------------
         if strcmp(Par.ResponseBox.Task, 'DetectGoSignal') && ~TestRunstimWithoutDAS
             % ==== Start wait period ====
@@ -2558,6 +2590,15 @@ Par=Par_BU;
             Log.Events(Log.nEvents).t=lft-Par.ExpStart;
             Par.HandIsIn =Par.BeamIsBlocked(Par.ConnectBox.PhotoAmp_HandIn);
             Par.LeverIsUp=Par.BeamIsBlocked(Par.ConnectBox.PhotoAmp_Levers);
+            if Par.LeverIsUp ~= Par.LeverWasUp && all(Par.LeverIsUp)
+                % now both levers are up
+                Par.BothLeversUp_time = GetSecs;
+                Par.LeverWasUp = Par.LeverIsUp;
+            elseif Par.LeverIsUp ~= Par.LeverWasUp && ~all(Par.LeverIsUp)
+                % something changed: both are not up
+                Par.BothLeversUp_time = Inf;
+                Par.LeverWasUp = Par.LeverIsUp;
+            end
         end        
         
         if ~strcmp(Par.ResponseBox.Task, 'DetectGoSignal')
@@ -2565,7 +2606,7 @@ Par=Par_BU;
             switch Par.ResponseBox.Type
 %                 case 'Beam'
                 case 'Lift'
-                    if ~all(Par.HandWasIn) && any(Par.HandIsIn) % from none to any
+                    if ~any(Par.HandWasIn) && any(Par.HandIsIn) % from none to any
                         Par.HandInPrev_Moment = Par.HandInNew_Moment; % the previous hand-in moment
                         Par.HandInNew_Moment = GetSecs; % current hand-in moment
                     end

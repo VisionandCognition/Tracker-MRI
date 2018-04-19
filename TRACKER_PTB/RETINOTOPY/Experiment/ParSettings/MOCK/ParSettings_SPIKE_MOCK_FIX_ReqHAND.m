@@ -269,6 +269,11 @@ Par.FixNeeds.HandIsIn =         false;    % Only reward fixation when fixation d
 Par.TrialNeeds.HandIsIn =       false;   % manual response task
 Par.TrialNeeds.LeversAreDown =  true;    % manual response task
 
+Par.LeversUpTimeOut = [0.100 4];
+% If levers are up for (1) s, give time-out for (2) seconds or while they
+% are up. Set to (2) to zero for no time-outs.
+
+
 Par.HandOutDimsScreen = true;
 Par.HandOutDimsScreen_perc = 0.9; %(0-1, fraction dimming)
 
