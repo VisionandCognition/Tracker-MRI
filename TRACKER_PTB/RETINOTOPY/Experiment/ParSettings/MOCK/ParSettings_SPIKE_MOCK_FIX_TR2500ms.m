@@ -322,6 +322,10 @@ Par.RewardForHandsIn_MultiplierPerHand = [1 1]; % if only one hand in is rewarde
 Par.RewardForHandsIn_Delay = 0.500; %s 
 Par.RewardForHandIn_MinInterval = 4; %s
 
+Par.RewardForHandIn_ResetIntervalWhenOut = false; 
+Par.RewardForHandIn_MinIntervalBetween = 1; %s
+% resets the timer for the next reward when the hand(s) are taken out 
+
 % Fixation rewards are multiplied with this factor when hands are in
 Par.FixReward_HandInGain = [2 3]; % one hand , both hands
 

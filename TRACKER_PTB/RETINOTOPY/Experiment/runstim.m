@@ -85,6 +85,11 @@ if ~isfield(Par,'RewardForHandsIn_Delay')
     Par.RewardForHandsIn_Delay = 0;
     fprintf('No RewardForHandsIn_Delay defined: Setting it to 0\n');
 end
+if ~isfield(Par,'RewardForHandIn_ResetIntervalWhenOut')
+    Par.RewardForHandIn_ResetIntervalWhenOut = false;
+    Par.RewardForHandIn_MinIntervalBetween = 0;
+    fprintf('No RewardForHandIn_ResetIntervalWhenOut defined: Setting it to false\n');
+end
 
 % Add keys to fix left/right/random responses
 Par.KeyLeftResp = KbName(',<');
@@ -766,6 +771,7 @@ for STIMNR = Log.StimOrder
             Par.IsCatchBlock = false;
             Par.RewHandStart = GetSecs;
             Par.HandInNew_Moment = GetSecs;
+            Par.HandInPrev_Moment = Par.HandInNew_Moment;
             
             if StimLoopNr == 1 % allow time-outs to across runs
                 Par.Pause=false;
@@ -1140,9 +1146,14 @@ for STIMNR = Log.StimOrder
             
             %% give reward for hand in box --------------------------------
             if Par.RewardForHandsIn && any(Par.HandIsIn) && ~Par.Pause && ...
-                    GetSecs - Par.HandInNew_Moment > Par.RewardForHandsIn_Delay && ...
-                    GetSecs - Par.RewHandStart > Par.RewardForHandIn_MinInterval
-                GiveRewardAutoHandIn;
+                    GetSecs - Par.HandInNew_Moment > Par.RewardForHandsIn_Delay
+                if GetSecs - Par.RewHandStart > Par.RewardForHandIn_MinInterval % kept in long enough
+                    GiveRewardAutoHandIn;
+                elseif Par.RewardForHandIn_ResetIntervalWhenOut && ... 
+                        Par.HandInPrev_Moment ~= Par.HandInNew_Moment && ...
+                        GetSecs - Par.HandInPrev_Moment > Par.RewardForHandIn_MinIntervalBetween
+                    GiveRewardAutoHandIn;
+                end
             end
             
             %% check photosensor ------------------------------------------
@@ -2555,7 +2566,8 @@ Par=Par_BU;
 %                 case 'Beam'
                 case 'Lift'
                     if ~all(Par.HandWasIn) && any(Par.HandIsIn) % from none to any
-                        Par.HandInNew_Moment = GetSecs; 
+                        Par.HandInPrev_Moment = Par.HandInNew_Moment; % the previous hand-in moment
+                        Par.HandInNew_Moment = GetSecs; % current hand-in moment
                     end
                     
                     if strcmp(Par.HandInBothOrEither, 'Both') && ...
