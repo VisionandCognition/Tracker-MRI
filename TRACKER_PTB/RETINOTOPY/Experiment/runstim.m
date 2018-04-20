@@ -657,6 +657,7 @@ for STIMNR = Log.StimOrder
         Par.LeverWasUp = Par.LeverIsUp;
         Par.BothLeversUp_time = Inf;
         AutoPauseStartTime = Inf;
+        AutoPausing = false;
                       
         %video control
         Par.VideoLoaded=false;
@@ -1326,14 +1327,15 @@ for STIMNR = Log.StimOrder
                     ~Par.Pause % levers have been up too long
                 Par.Pause=true;
                 fprintf(['Automatic time-out due to lever lifts ON (min ' ...
-                    num2str(Par.LeversUpTimeOut) 's)\n']);
+                    num2str(Par.LeversUpTimeOut(2)) 's)\n']);
                 Log.nEvents=Log.nEvents+1;
                 Log.Events(Log.nEvents).type='AutoPauseOn';
                 Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
                 Log.Events(Log.nEvents).StimName = [];
                 AutoPauseStartTime=GetSecs;
+                AutoPausing = true;
             elseif GetSecs > AutoPauseStartTime + Par.LeversUpTimeOut(2) && ...
-                    Par.Pause % Time-out time over
+                    Par.Pause && AutoPausing % Time-out time over
                 if all(Par.LeverIsUp) 
                     % still both up, continue time-out
                 else
@@ -1343,6 +1345,7 @@ for STIMNR = Log.StimOrder
                     Log.Events(Log.nEvents).type='AutoPauseOff';
                     Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
                     Log.Events(Log.nEvents).StimName = [];
+                    AutoPausing = false;
                 end
            end
         end
