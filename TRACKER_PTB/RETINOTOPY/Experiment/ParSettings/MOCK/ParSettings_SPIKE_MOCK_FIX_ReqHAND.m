@@ -273,9 +273,9 @@ Par.LeversUpTimeOut = [0.100 2];
 % If levers are up for (1) s, give time-out for (2) seconds or while they
 % are up. Set to (2) to zero for no time-outs.
 
-
 Par.HandOutDimsScreen = true;
-Par.HandOutDimsScreen_perc = 0.9; %(0-1, fraction dimming)
+Par.HandOutDimsScreen_perc = [0.5 0.9]; 
+%(0-1, fraction dimming, [one_hand_out two_hands_out])
 
 % set-up function to check whether to draw stimulus
 if Par.StimNeeds.HandIsIn && strcmp(Par.HandInBothOrEither,'Both')
@@ -322,7 +322,7 @@ Par.IncorrectResponseGiven  = ...
 
 % Reward for keeping hand in the box
 Par.RewardForHandsIn = true;
-Par.RewardForHandsIn_Quant = [0.050 0.200]; % 1 hand, both hands
+Par.RewardForHandsIn_Quant = [0.020 0.100]; % 1 hand, both hands
 Par.RewardForHandsIn_MultiplierPerHand = [1 1]; % if only one hand in is rewarded [L R]
 Par.RewardForHandsIn_Delay = 0.100; %s 
 Par.RewardForHandIn_MinInterval = 3; %s
@@ -332,7 +332,7 @@ Par.RewardForHandIn_MinIntervalBetween = 1; %s
 % resets the timer for the next reward when the hand(s) are taken out 
 
 % Fixation rewards are multiplied with this factor when hands are in
-Par.FixReward_HandInGain = [3 6]; % one hand , both hands
+Par.FixReward_HandInGain = [2 5]; % one hand , both hands
 
 %% Create Eye-check windows based on stimulus positions ===================
 % The code below is preloaded and will be overwritten on stimulus basis
