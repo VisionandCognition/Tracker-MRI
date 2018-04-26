@@ -224,7 +224,7 @@ Par.RewardFixMultiplier = 1.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.03;%250;
+        Par.RewardTimeSet = 0.05;%250;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -265,7 +265,7 @@ Par.HandInBothOrEither = 'Both'; % 'Both' or 'Either'
 % Needed for initiation of tracker since it's in the gui now
 Par.RewNeeds.HandIsIn =         false;
 Par.StimNeeds.HandIsIn =        false;
-Par.FixNeeds.HandIsIn =         false;    % Only reward fixation when fixation dot is shown! 
+Par.FixNeeds.HandIsIn =         false;   % Only reward fixation when fixation dot is shown! 
 Par.TrialNeeds.HandIsIn =       false;   % manual response task
 Par.TrialNeeds.LeversAreDown =  true;    % manual response task
 
@@ -274,7 +274,7 @@ Par.LeversUpTimeOut = [0.100 2];
 % are up. Set to (2) to zero for no time-outs.
 
 Par.HandOutDimsScreen = true;
-Par.HandOutDimsScreen_perc = [0.5 0.9]; 
+Par.HandOutDimsScreen_perc = [0.4 0.9]; 
 %(0-1, fraction dimming, [one_hand_out two_hands_out])
 
 % set-up function to check whether to draw stimulus
@@ -322,7 +322,7 @@ Par.IncorrectResponseGiven  = ...
 
 % Reward for keeping hand in the box
 Par.RewardForHandsIn = true;
-Par.RewardForHandsIn_Quant = [0.020 0.100]; % 1 hand, both hands
+Par.RewardForHandsIn_Quant = 0* [0.100 0.200]; % 1 hand, both hands >> this may be confusing in combination with fix reward
 Par.RewardForHandsIn_MultiplierPerHand = [1 1]; % if only one hand in is rewarded [L R]
 Par.RewardForHandsIn_Delay = 0.100; %s 
 Par.RewardForHandIn_MinInterval = 3; %s

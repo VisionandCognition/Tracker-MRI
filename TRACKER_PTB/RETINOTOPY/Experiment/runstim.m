@@ -1280,9 +1280,6 @@ for STIMNR = Log.StimOrder
             Screen('FillRect',Par.window,[0 0 0]);
         end
         
-        %% dim the screen if requested due to hand position ---------------
-        AutoDim; % checks by itself if it's required
-        
         %% Calculate proportion fixation for this flip-time and label it --
         % fix or no-fix
         if Par.FixIn
@@ -1676,6 +1673,9 @@ for STIMNR = Log.StimOrder
                 end
             end
         end
+        
+        %% dim the screen if requested due to hand position ---------------
+        AutoDim; % checks by itself if it's required
         
         %% refresh the screen ---------------------------------------------
         %lft=Screen('Flip', Par.window, prevlft+0.9*Par.fliptimeSec);
@@ -2795,6 +2795,13 @@ Par=Par_BU;
                 dasjuice(5) %old card dasjuice(5)
             end
             Par.RewardRunning=true;
+            
+            % Play back a sound
+            if Par.RewardSound
+                RewT=0:1/Par.RewSndPar(1):Par.RewardTimeCurrent;
+                RewY=Par.RewSndPar(3)*sin(2*pi*Par.RewSndPar(2)*RewT);
+                sound(RewY,Par.RewSndPar(1));
+            end
             
             Log.nEvents=Log.nEvents+1;
             Log.Events(Log.nEvents).type='RewardAutoHand';

@@ -141,7 +141,7 @@ Par.GoBarColor = [0.8 0.8 0.8]; % [R G B] 0-1
 % Color of the Response indicator (which hand)
 Par.RespLeverMatters = false;
 Par.RespIndColor = [Stm(1).BackColor;Stm(1).BackColor]; %0.1*[1 1 1;1 1 1]; % colors for the left and right target
-Par.RespIndSize = 3;
+Par.RespIndSize = 0.1;
 Par.RespIndPos = [0 0; 0 0]; % deg
 
 Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
@@ -177,8 +177,8 @@ Par.ConnectBox.PhotoAmp_HandIn = 3:4;   % indeces to PhotoAmp channels
 
 %% Reward scheme ==========================================================
 Par.Reward = true; %boolean to enable reward stim bit or not
-Par.RewardSound = false; % give sound feedback about reward
-Par.RewSndPar = [44100 800 1]; % [FS(Hz) TonePitch(Hz) Amplitude]
+Par.RewardSound = true; % give sound feedback about reward
+Par.RewSndPar = [44100 800 0.05]; % [FS(Hz) TonePitch(Hz) Amplitude]
 Par.RewardFixFeedBack = true;
 
 % RESP_CORRECT      = 1;
@@ -232,7 +232,7 @@ Par.RewardFixMultiplier = 0.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.200;%250;
+        Par.RewardTimeSet = 0.250;%250;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -277,8 +277,8 @@ Par.FixNeeds.HandIsIn =         false;
 Par.TrialNeeds.HandIsIn =       false;   % manual response task
 Par.TrialNeeds.LeversAreDown =  true;   % manual response task
 
-Par.HandOutDimsScreen = false;
-Par.HandOutDimsScreen_perc = 0.9; %(0-1, fraction dimming)
+Par.HandOutDimsScreen = true;
+Par.HandOutDimsScreen_perc = [0.6 0.9]; %(0-1, fraction dimming)
 
 % set-up function to check whether to draw stimulus
 if Par.StimNeeds.HandIsIn && strcmp(Par.HandInBothOrEither,'Both')
@@ -324,14 +324,14 @@ Par.IncorrectResponseGiven  = ...
     @(Par) Par.ResponseSide > 0 && Par.BeamIsBlocked(mod(Par.ResponseSide,2)+1);
 
 % Reward for keeping hand in the box
-Par.RewardForHandsIn = false;
-Par.RewardForHandsIn_Quant = [0.00 0.050]; % 1 hand, both hands
+Par.RewardForHandsIn = true;
+Par.RewardForHandsIn_Quant = [0.05 0.12]; % 1 hand, both hands
 Par.RewardForHandsIn_MultiplierPerHand = [1 1]; % if only one hand in is rewarded [L R]
-Par.RewardForHandsIn_Delay = 1.000; %s 
-Par.RewardForHandIn_MinInterval = 5; %s
+Par.RewardForHandsIn_Delay = 0.100; %s 
+Par.RewardForHandIn_MinInterval = 2; %s
 
-Par.RewardForHandIn_ResetIntervalWhenOut = false; 
-Par.RewardForHandIn_MinIntervalBetween = 1; %s
+Par.RewardForHandIn_ResetIntervalWhenOut = true; 
+Par.RewardForHandIn_MinIntervalBetween = 1.5; %s
 % resets the timer for the next reward when the hand(s) are taken out 
 
 % Fixation rewards are multiplied with this factor when hands are in

@@ -7,7 +7,7 @@ Stm(1).UsePreDefFlipTime=false; %else as fast as possible
 Stm(1).FlipTimePredef = 1/75;
 
 % Background --------------------------------------------------------------
-Stm(1).BackColor = 1.5*[.5 .5 .5]; % [R G B] 0-1
+Stm(1).BackColor = [.5 .5 .5]; % [R G B] 0-1
 %Stm(1).BackColor = (88/255).*[1 1 1]; % [R G B] 0-1
 % Leuven retinotopy clips have a background of 88 out of 256
 
