@@ -1863,10 +1863,14 @@ for STIMNR = Log.StimOrder
             copyfile(cfn,fn);
             % parsettings
             parsetpath = which(Par.PARSETFILE);
-            copyfile(parsetpath,[Par.PARSETFILE '.m']);
+            if isempty(ls(Par.PARSETFILE)) % doesn't exist yet
+                copyfile(parsetpath,[Par.PARSETFILE '.m']);
+            end
             % stimsettings
             stimsetpath = which(Par.STIMSETFILE);
-            copyfile(stimsetpath,[Par.STIMSETFILE '.m']);
+            if isempty(ls(Par.STIMSETFILE)) % doesn't exist yet
+                copyfile(stimsetpath,[Par.STIMSETFILE '.m']);
+            end
             % stimulus
             if RetMapStimuli
                 save('RetMap_Stimulus','ret_vid');
