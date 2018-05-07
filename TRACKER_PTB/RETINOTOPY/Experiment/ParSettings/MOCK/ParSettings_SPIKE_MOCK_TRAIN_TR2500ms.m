@@ -143,6 +143,7 @@ Par.RespLeverMatters = false;
 Par.RespIndColor = [Stm(1).BackColor;Stm(1).BackColor]; %0.1*[1 1 1;1 1 1]; % colors for the left and right target
 Par.RespIndSize = 3;
 Par.RespIndPos = [0 0; 0 0]; % deg
+Par.RespLeverGain = [1 1]; % [L R] 
 
 Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
 Par.BlockedIndColor = [.7 .7 .7];
