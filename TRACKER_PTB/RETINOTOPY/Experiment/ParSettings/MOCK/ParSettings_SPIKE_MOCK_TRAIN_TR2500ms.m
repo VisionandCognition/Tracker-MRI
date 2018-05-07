@@ -233,7 +233,7 @@ Par.RewardFixMultiplier = 0.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.250;%250;
+        Par.RewardTimeSet = 0.200;%250;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -277,6 +277,10 @@ Par.StimNeeds.HandIsIn =        false;
 Par.FixNeeds.HandIsIn =         false;
 Par.TrialNeeds.HandIsIn =       false;   % manual response task
 Par.TrialNeeds.LeversAreDown =  true;   % manual response task
+
+Par.LeversUpTimeOut = [0.200 6];
+% If levers are up for (1) s, give time-out for (2) seconds or while they
+% are up. Set to (2) to zero for no time-outs.
 
 Par.HandOutDimsScreen = true;
 Par.HandOutDimsScreen_perc = [0.6 0.9]; %(0-1, fraction dimming)
@@ -326,10 +330,10 @@ Par.IncorrectResponseGiven  = ...
 
 % Reward for keeping hand in the box
 Par.RewardForHandsIn = true;
-Par.RewardForHandsIn_Quant = [0.05 0.12]; % 1 hand, both hands
-Par.RewardForHandsIn_MultiplierPerHand = [1 1]; % if only one hand in is rewarded [L R]
+Par.RewardForHandsIn_Quant = [0.04 0.120]; % 1 hand, both hands
+Par.RewardForHandsIn_MultiplierPerHand = [.75 1.5]; % if only one hand in is rewarded [L R]
 Par.RewardForHandsIn_Delay = 0.100; %s 
-Par.RewardForHandIn_MinInterval = 2; %s
+Par.RewardForHandIn_MinInterval = 3; %s
 
 Par.RewardForHandIn_ResetIntervalWhenOut = true; 
 Par.RewardForHandIn_MinIntervalBetween = 1.5; %s

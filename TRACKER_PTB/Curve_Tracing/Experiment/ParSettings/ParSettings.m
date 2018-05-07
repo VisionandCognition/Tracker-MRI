@@ -193,7 +193,7 @@ Par.RequireHandsIn = false;  % <--- TEMPORARY!!!
 Par.SingleHandInReward = 0.10; % 0 to disable
 Par.BothHandsInReward = 0.20; % Reward for PUTTING both hands in
 
-Par.BothHandsRemainInReward = 0.08; % Reward at random periods for KEEPING hands in
+Par.BothHandsRemainInReward = 0; % Reward at random periods for KEEPING hands in
 
 % Min time between removing hands and placing them back in
 % Don't want to reward for taking hands out and putting them back in real
@@ -239,7 +239,7 @@ end
 
 Par.RewardTimeManual = 0.04; % amount of reward when given manually
 
-Par.StreakRewardMult = 2; % Give 50% more reward when an entire block is correct
+Par.StreakRewardMult = 1; % Give 50% more reward when an entire block is correct
 
 %% Create Eye-check windows based on stimulus positions ===================
 for SetInitialWINs=1

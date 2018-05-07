@@ -141,7 +141,7 @@ Params.CurveAnglesAtFP = [ 180; 180; 0; 0]; % UL DL UR DR
 
 %Params.PawIndSizeDeg = [2.5, 2.5, 2.5, 2.5, Params.FixDotSizeDeg];
 Params.PawIndSizeDeg = [2 2 2 2, Params.FixDotSizeDeg];
-Params.BlockSize = 3;
+Params.BlockSize = 1;
 Params.rewardMultiplier = 1.0;
 Params.rewardSideRespMultiplier = [1 1];
 
@@ -157,7 +157,7 @@ FixParams.fixationPeriod = 540;  % just for fixation task
 FixParams.postfixPeriod = 0;  % just for fixation task
 
 FixParams.rewardMultiplier = .25; % 0.5;
-FixParams.BlockSize = 3; %round(3* 3500 / FixParams.fixationPeriod * FixParams.subtrialsInTrial);
+FixParams.BlockSize = 1; %round(3* 3500 / FixParams.fixationPeriod * FixParams.subtrialsInTrial);
 
 
 CtrlParams = Params;

@@ -121,7 +121,7 @@ Stm(1).ProbFixationReward = 0.0;
 Params.CurveAnglesAtFP = [ 180; 180; 0; 0];
 
 Params.PawIndSizeDeg = [2.5, 2.5, 2.5, 2.5, Params.FixDotSizeDeg];
-Params.BlockSize = 3;
+Params.BlockSize = 1;
 Params.rewardMultiplier = 1.0;
 Params.rewardSideRespMultiplier = [1 1];
 

@@ -2772,12 +2772,12 @@ Par=Par_BU;
                 end
                 Par.RewardRunning=true;
                 
-                %         % Play back a sound
-                %         if Par.RewardSound
-                %             RewT=0:1/Par.RewSndPar(1):Par.RewardTimeCurrent;
-                %             RewY=Par.RewSndPar(3)*sin(2*pi*Par.RewSndPar(2)*RewT);
-                %             sound(RewY,Par.RewSndPar(1));
-                %         end
+                % Play back a sound
+                if Par.RewardSound
+                    RewT=0:1/Par.RewSndPar(1):Par.RewardTimeCurrent;
+                    RewY=Par.RewSndPar(3)*sin(2*pi*Par.RewSndPar(2)*RewT);
+                    sound(RewY,Par.RewSndPar(1));
+                end
                 
                 Log.nEvents=Log.nEvents+1;
                 Log.Events(Log.nEvents).type='RewardAutoTask';
