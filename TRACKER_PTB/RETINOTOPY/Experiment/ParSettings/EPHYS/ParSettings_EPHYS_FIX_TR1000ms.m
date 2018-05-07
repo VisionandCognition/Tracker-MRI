@@ -333,6 +333,13 @@ Par.RewardForHandsIn_Quant = [0.04 0.08]; % 1 hand, both hands
 Par.RewardForHandsIn_MultiplierPerHand = [1.5 1]; % if only one hand in is rewarded [L R]
 Par.RewardForHandIn_MinInterval = 2; %s
 
+Par.RewardForHandIn_ResetIntervalWhenOut = false; 
+Par.RewardForHandIn_MinIntervalBetween = 1; %s
+% resets the timer for the next reward when the hand(s) are taken out 
+
+% Fixation rewards are multiplied with this factor when hands are in
+Par.FixReward_HandInGain = [3 6]; % one hand , both hands
+
 %% Create Eye-check windows based on stimulus positions ===================
 % The code below is preloaded and will be overwritten on stimulus basis
 % for every trial individually

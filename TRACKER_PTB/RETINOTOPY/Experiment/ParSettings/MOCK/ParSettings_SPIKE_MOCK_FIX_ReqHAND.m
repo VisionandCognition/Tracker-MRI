@@ -1,16 +1,8 @@
-function ParSettings_SPIKE_MOCK_TRAIN_TR2500ms
+function ParSettings_SPIKE_MOCK_FIX_TR2500ms
 
 % ParSettings gives all parameters for the experiment in global Par
 global Par
 global StimObj
-
-%% Setup ==================================================================
-% Spinoza_Mock / Spinoza_3T / NIN
-if strcmp(Par.ScreenChoice,'3T')
-    Par.SetUp = 'Spinoza_3T';
-elseif strcmp(Par.ScreenChoice,'Mock')
-    Par.SetUp = 'Spinoza_MOCK';
-end
 
 %% Triggering =============================================================
 Par.TR = 2.5; % Not important during training
@@ -22,10 +14,10 @@ eval(Par.STIMSETFILE); % loads the chosen stimfile
 Stm=StimObj.Stm;
 
 % overwrites the stimsetting!
-StimObj.Stm.FixDotCol = [Stm(1).BackColor;Stm(1).BackColor];%[.1 .1 .1 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
+StimObj.Stm.FixDotCol = [.3 .3 .3 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
-Par.FixWinSize = [4 4]; % [W H] in deg
+Par.FixWinSize = [3 3]; % [W H] in deg
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
@@ -126,8 +118,8 @@ Par.CorrectB = 7;
 Par.ResponseBox.Type='Lift'; % 'Beam' or'Lift'
 
 %% Response task ==========================================================
-Par.ResponseBox.Task = 'DetectGoSignal';
-%Par.ResponseBox.Task = 'Fixate';    % doesn't really matter as long as 
+%Par.ResponseBox.Task = 'DetectGoSignal';
+Par.ResponseBox.Task = 'Fixate';    % doesn't really matter as long as 
                                     % it's not DetectGoSignal
 Par.RESP_STATE_WAIT = 1; % Go signal not yet given
 Par.RESP_STATE_GO = 2; % Go signal given
@@ -141,9 +133,8 @@ Par.GoBarColor = [0.8 0.8 0.8]; % [R G B] 0-1
 % Color of the Response indicator (which hand)
 Par.RespLeverMatters = false;
 Par.RespIndColor = [Stm(1).BackColor;Stm(1).BackColor]; %0.1*[1 1 1;1 1 1]; % colors for the left and right target
-Par.RespIndSize = 0.1;
+Par.RespIndSize = 3;
 Par.RespIndPos = [0 0; 0 0]; % deg
-Par.RespLeverGain = [1 1]; % [L R] 
 
 Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
 Par.BlockedIndColor = [.7 .7 .7];
@@ -178,8 +169,8 @@ Par.ConnectBox.PhotoAmp_HandIn = 3:4;   % indeces to PhotoAmp channels
 
 %% Reward scheme ==========================================================
 Par.Reward = true; %boolean to enable reward stim bit or not
-Par.RewardSound = true; % give sound feedback about reward
-Par.RewSndPar = [44100 800 0.05]; % [FS(Hz) TonePitch(Hz) Amplitude]
+Par.RewardSound = false; % give sound feedback about reward
+Par.RewSndPar = [44100 800 1]; % [FS(Hz) TonePitch(Hz) Amplitude]
 Par.RewardFixFeedBack = true;
 
 % RESP_CORRECT      = 1;
@@ -226,23 +217,23 @@ for i=1:size(Par.FeedbackSoundPar,1)
     end
 end
 
-Par.RewardTaskMultiplier = 1.0;
-Par.RewardFixMultiplier = 0.0;
+Par.RewardTaskMultiplier = 0.0;
+Par.RewardFixMultiplier = 1.0;
 
 % duration matches 'open duration'
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.250;%250;
+        Par.RewardTimeSet = 0.05;%250;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
         % rows stating: [nCorrectTrials RewardTime]
         Par.RewardTimeSet = [...
-            0   0.025;...
-            5   0.1;...
-            10  0.100;...
-            15  0.150;...
+            0   0.1;...
+            5   0.12;...
+            10  0.140;...
+            15  0.160;...
             20  0.200];
         % NB! this will be overruled once you manually set the reward time
         % with the slider in the Tracker window
@@ -252,17 +243,17 @@ end
 
 Par.RewardTimeManual = 0.100; % amount of reward when given manually
 
-Par.RewardFixHoldTimeProg = false;
+Par.RewardFixHoldTimeProg = true;
 if Par.RewardFixHoldTimeProg
     Par.RewardFixHoldTime = [...
-        0 1500;...
-        5 1250;...   
-        10 1000;...
-        20 750;...
+        0 1200;...
+        5 1000;...   
+        10 800;...
+        20 600;...
         30 500;...
         ];
 else
-    Par.RewardFixHoldTime = 1250; %time to maintain fixation for reward
+    Par.RewardFixHoldTime =600; %time to maintain fixation for reward
 end
 
 Par.RewardTime=Par.RewardTimeSet;
@@ -274,12 +265,17 @@ Par.HandInBothOrEither = 'Both'; % 'Both' or 'Either'
 % Needed for initiation of tracker since it's in the gui now
 Par.RewNeeds.HandIsIn =         false;
 Par.StimNeeds.HandIsIn =        false;
-Par.FixNeeds.HandIsIn =         false;
+Par.FixNeeds.HandIsIn =         false;   % Only reward fixation when fixation dot is shown! 
 Par.TrialNeeds.HandIsIn =       false;   % manual response task
-Par.TrialNeeds.LeversAreDown =  true;   % manual response task
+Par.TrialNeeds.LeversAreDown =  true;    % manual response task
+
+Par.LeversUpTimeOut = [0.100 2];
+% If levers are up for (1) s, give time-out for (2) seconds or while they
+% are up. Set to (2) to zero for no time-outs.
 
 Par.HandOutDimsScreen = true;
-Par.HandOutDimsScreen_perc = [0.6 0.9]; %(0-1, fraction dimming)
+Par.HandOutDimsScreen_perc = [0.4 0.9]; 
+%(0-1, fraction dimming, [one_hand_out two_hands_out])
 
 % set-up function to check whether to draw stimulus
 if Par.StimNeeds.HandIsIn && strcmp(Par.HandInBothOrEither,'Both')
@@ -326,17 +322,17 @@ Par.IncorrectResponseGiven  = ...
 
 % Reward for keeping hand in the box
 Par.RewardForHandsIn = true;
-Par.RewardForHandsIn_Quant = [0.05 0.12]; % 1 hand, both hands
+Par.RewardForHandsIn_Quant = 0* [0.100 0.200]; % 1 hand, both hands >> this may be confusing in combination with fix reward
 Par.RewardForHandsIn_MultiplierPerHand = [1 1]; % if only one hand in is rewarded [L R]
 Par.RewardForHandsIn_Delay = 0.100; %s 
-Par.RewardForHandIn_MinInterval = 2; %s
+Par.RewardForHandIn_MinInterval = 3; %s
 
 Par.RewardForHandIn_ResetIntervalWhenOut = true; 
-Par.RewardForHandIn_MinIntervalBetween = 1.5; %s
+Par.RewardForHandIn_MinIntervalBetween = 1; %s
 % resets the timer for the next reward when the hand(s) are taken out 
 
 % Fixation rewards are multiplied with this factor when hands are in
-Par.FixReward_HandInGain = [1 1]; % one hand , both hands
+Par.FixReward_HandInGain = [2 5]; % one hand , both hands
 
 %% Create Eye-check windows based on stimulus positions ===================
 % The code below is preloaded and will be overwritten on stimulus basis

@@ -118,14 +118,14 @@ Params.FixPositionsDeg{4} = [4 0]; % deg from center (-=left/down)
 Params.FixPositionsDeg{5} = [0 4]; % deg from center (-=left/down)
 
 % Stimulus specific timing (in ms)
-Params.SwitchDur = 1300; % (200) duration of alternative orientation
+Params.SwitchDur = 5000; % (200) duration of alternative orientation
 
 % set time-windows in which something can happen (ms)
 % [baseduration_without_switch ... 
 %  period_in_which_switch_randomly_occurs ...
 %  post_switch_duration_in_which_nothing_happens]
 %Params.EventPeriods = [1800 1600 300];
-Params.EventPeriods = [1000 750 300];
+Params.EventPeriods = [1000 750 500];
 Params.prefixPeriod = 500; % not just for fixation task!
 
 % Response time window
@@ -156,7 +156,7 @@ FixParams.subtrialsInTrial = 8;
 FixParams.fixationPeriod = 540;  % just for fixation task
 FixParams.postfixPeriod = 0;  % just for fixation task
 
-FixParams.rewardMultiplier = .12; % 0.5;
+FixParams.rewardMultiplier = .25; % 0.5;
 FixParams.BlockSize = 3; %round(3* 3500 / FixParams.fixationPeriod * FixParams.subtrialsInTrial);
 
 

@@ -85,6 +85,15 @@ if ~isfield(Par,'RewardForHandsIn_Delay')
     Par.RewardForHandsIn_Delay = 0;
     fprintf('No RewardForHandsIn_Delay defined: Setting it to 0\n');
 end
+if ~isfield(Par,'RewardForHandIn_ResetIntervalWhenOut')
+    Par.RewardForHandIn_ResetIntervalWhenOut = false;
+    Par.RewardForHandIn_MinIntervalBetween = 0;
+    fprintf('No RewardForHandIn_ResetIntervalWhenOut defined: Setting it to false\n');
+end
+if ~isfield(Par,'LeversUpTimeOut')
+    Par.LeversUpTimeOut = [Inf 0];
+    fprintf('No LeversUpTimeOut defined: Setting it to [Inf 0]\n');
+end
 
 % Add keys to fix left/right/random responses
 Par.KeyLeftResp = KbName(',<');
@@ -644,8 +653,11 @@ for STIMNR = Log.StimOrder
         Par.BeamIsBlocked=false(size(Par.ConnectBox.PhotoAmp));
         Par.HandIsIn =[false false];
         Par.HandWasIn = Par.HandIsIn;
-        Par.LeverIsUp = [false false];
+        Par.LeverIsUp = [false; false];
         Par.LeverWasUp = Par.LeverIsUp;
+        Par.BothLeversUp_time = Inf;
+        AutoPauseStartTime = Inf;
+        AutoPausing = false;
                       
         %video control
         Par.VideoLoaded=false;
@@ -765,7 +777,8 @@ for STIMNR = Log.StimOrder
             Par.ForceRespSide = false;
             Par.IsCatchBlock = false;
             Par.RewHandStart = GetSecs;
-            Par.HandInNew_Moment = GetSecs;
+            Par.HandInNew_Moment = 0;
+            Par.HandInPrev_Moment = 0;
             
             if StimLoopNr == 1 % allow time-outs to across runs
                 Par.Pause=false;
@@ -1140,9 +1153,15 @@ for STIMNR = Log.StimOrder
             
             %% give reward for hand in box --------------------------------
             if Par.RewardForHandsIn && any(Par.HandIsIn) && ~Par.Pause && ...
-                    GetSecs - Par.HandInNew_Moment > Par.RewardForHandsIn_Delay && ...
-                    GetSecs - Par.RewHandStart > Par.RewardForHandIn_MinInterval
-                GiveRewardAutoHandIn;
+                    ~Par.RewardRunning && ...
+                    GetSecs - Par.HandInNew_Moment > Par.RewardForHandsIn_Delay 
+                if GetSecs - Par.RewHandStart > Par.RewardForHandIn_MinInterval % kept in long enough
+                    GiveRewardAutoHandIn; 
+                elseif Par.RewardForHandIn_ResetIntervalWhenOut && ...
+                        Par.HandInPrev_Moment ~= Par.HandInNew_Moment && ...
+                        GetSecs - Par.RewHandStart > Par.RewardForHandIn_MinIntervalBetween
+                    GiveRewardAutoHandIn;
+                end
             end
             
             %% check photosensor ------------------------------------------
@@ -1261,9 +1280,6 @@ for STIMNR = Log.StimOrder
             Screen('FillRect',Par.window,[0 0 0]);
         end
         
-        %% dim the screen if requested due to hand position ---------------
-        AutoDim; % checks by itself if it's required
-        
         %% Calculate proportion fixation for this flip-time and label it --
         % fix or no-fix
         if Par.FixIn
@@ -1276,7 +1292,7 @@ for STIMNR = Log.StimOrder
             if GetSecs >= Par.LastFixInTime+Par.Times.TargCurrent/1000 % fixated long enough
                 % start Reward
                 if ~Par.RewardRunning && ~TestRunstimWithoutDAS && ~Par.Pause && ...
-                        Par.Rew_BasedOnHandIn(Par)
+                        Par.Rew_BasedOnHandIn(Par) && ~Par.HideFix_BasedOnHandIn(Par)
                      % nCons correct fixations
                     Par.CorrStreakcount=Par.CorrStreakcount+1;
                     Par.Response=Par.Response+1;
@@ -1300,6 +1316,36 @@ for STIMNR = Log.StimOrder
         
         %% Stop reward ----------------------------------------------------
         StopRewardIfNeeded();
+        
+        %% Autopause due to lever lifts -----------------------------------
+        if Par.LeversUpTimeOut(2) % there is a timeout interval defined
+            if all(Par.LeverIsUp) && ... % both up
+                    GetSecs > Par.BothLeversUp_time + Par.LeversUpTimeOut(1) && ...
+                    ~Par.Pause % levers have been up too long
+                Par.Pause=true;
+                fprintf(['Automatic time-out due to lever lifts ON (min ' ...
+                    num2str(Par.LeversUpTimeOut(2)) 's)\n']);
+                Log.nEvents=Log.nEvents+1;
+                Log.Events(Log.nEvents).type='AutoPauseOn';
+                Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
+                Log.Events(Log.nEvents).StimName = [];
+                AutoPauseStartTime=GetSecs;
+                AutoPausing = true;
+            elseif GetSecs > AutoPauseStartTime + Par.LeversUpTimeOut(2) && ...
+                    Par.Pause && AutoPausing % Time-out time over
+                if all(Par.LeverIsUp) 
+                    % still both up, continue time-out
+                else
+                    Par.Pause=false;
+                    fprintf('Automatic time-out due to lever lifts OFF\n');
+                    Log.nEvents=Log.nEvents+1;
+                    Log.Events(Log.nEvents).type='AutoPauseOff';
+                    Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
+                    Log.Events(Log.nEvents).StimName = [];
+                    AutoPausing = false;
+                end
+           end
+        end
         
         %% if doing Par.ResponseBox.Task of 'DetectGoSignal': -------------
         if strcmp(Par.ResponseBox.Task, 'DetectGoSignal') && ~TestRunstimWithoutDAS
@@ -1628,6 +1674,9 @@ for STIMNR = Log.StimOrder
             end
         end
         
+        %% dim the screen if requested due to hand position ---------------
+        AutoDim; % checks by itself if it's required
+        
         %% refresh the screen ---------------------------------------------
         %lft=Screen('Flip', Par.window, prevlft+0.9*Par.fliptimeSec);
         lft=Screen('Flip', Par.window); % as fast as possible
@@ -1814,10 +1863,14 @@ for STIMNR = Log.StimOrder
             copyfile(cfn,fn);
             % parsettings
             parsetpath = which(Par.PARSETFILE);
-            copyfile(parsetpath,[Par.PARSETFILE '.m']);
+            if isempty(ls(Par.PARSETFILE)) % doesn't exist yet
+                copyfile(parsetpath,[Par.PARSETFILE '.m']);
+            end
             % stimsettings
             stimsetpath = which(Par.STIMSETFILE);
-            copyfile(stimsetpath,[Par.STIMSETFILE '.m']);
+            if isempty(ls(Par.STIMSETFILE)) % doesn't exist yet
+                copyfile(stimsetpath,[Par.STIMSETFILE '.m']);
+            end
             % stimulus
             if RetMapStimuli
                 save('RetMap_Stimulus','ret_vid');
@@ -2199,9 +2252,21 @@ Par=Par_BU;
                 (strcmp(Par.HandInBothOrEither,'Both') && ~all(Par.HandIsIn)) || ...
                 (strcmp(Par.HandInBothOrEither,'Either') && ~any(Par.HandIsIn)) ...
                 )
-            Screen('FillRect',Par.window,...
-                [0 0 0 (Par.HandOutDimsScreen_perc)].*Par.ScrWhite,....
-                [Par.wrect(1:2) Par.wrect(3:4)+1]);
+            if ~any(Par.HandIsIn) % no hands in
+                if size(Par.HandOutDimsScreen_perc,2) == 2
+                    Screen('FillRect',Par.window,...
+                        [0 0 0 (Par.HandOutDimsScreen_perc(2))].*Par.ScrWhite,....
+                        [Par.wrect(1:2) Par.wrect(3:4)+1]);
+                else
+                    Screen('FillRect',Par.window,...
+                        [0 0 0 (Par.HandOutDimsScreen_perc(1))].*Par.ScrWhite,....
+                        [Par.wrect(1:2) Par.wrect(3:4)+1]);
+                end
+            else % a hand in
+                Screen('FillRect',Par.window,...
+                    [0 0 0 (Par.HandOutDimsScreen_perc(1))].*Par.ScrWhite,....
+                    [Par.wrect(1:2) Par.wrect(3:4)+1]);
+            end
         end
     end
 % change stimulus features
@@ -2547,6 +2612,15 @@ Par=Par_BU;
             Log.Events(Log.nEvents).t=lft-Par.ExpStart;
             Par.HandIsIn =Par.BeamIsBlocked(Par.ConnectBox.PhotoAmp_HandIn);
             Par.LeverIsUp=Par.BeamIsBlocked(Par.ConnectBox.PhotoAmp_Levers);
+            if any(Par.LeverIsUp ~= Par.LeverWasUp) && all(Par.LeverIsUp)
+                % now both levers are up
+                Par.BothLeversUp_time = GetSecs;
+                Par.LeverWasUp = Par.LeverIsUp;
+            elseif any(Par.LeverIsUp ~= Par.LeverWasUp) && ~all(Par.LeverIsUp)
+                % something changed: both are not up
+                Par.BothLeversUp_time = Inf;
+                Par.LeverWasUp = Par.LeverIsUp;
+            end
         end        
         
         if ~strcmp(Par.ResponseBox.Task, 'DetectGoSignal')
@@ -2554,8 +2628,17 @@ Par=Par_BU;
             switch Par.ResponseBox.Type
 %                 case 'Beam'
                 case 'Lift'
-                    if ~all(Par.HandWasIn) && any(Par.HandIsIn) % from none to any
-                        Par.HandInNew_Moment = GetSecs; 
+                    if ~any(Par.HandWasIn) && any(Par.HandIsIn) % from none to any
+                        %fprintf('going from none to one\n')
+                        Par.HandInPrev_Moment = Par.HandInNew_Moment; % the previous hand-in moment
+                        Par.HandInNew_Moment = GetSecs; % current hand-in moment
+                        Par.HandWasIn = Par.HandIsIn;
+                    elseif any(Par.HandWasIn) && ~any(Par.HandIsIn)
+                        %fprintf('all out now\n')
+                        Par.HandInPrev_Moment = Par.HandInNew_Moment;
+                        Par.HandWasIn = Par.HandIsIn;
+                    elseif any(Par.HandWasIn) && any(Par.HandIsIn) && Par.RewardRunning
+                        Par.HandInPrev_Moment = Par.HandInNew_Moment;
                     end
                     
                     if strcmp(Par.HandInBothOrEither, 'Both') && ...
@@ -2720,6 +2803,13 @@ Par=Par_BU;
                 dasjuice(5) %old card dasjuice(5)
             end
             Par.RewardRunning=true;
+            
+            % Play back a sound
+            if Par.RewardSound
+                RewT=0:1/Par.RewSndPar(1):Par.RewardTimeCurrent;
+                RewY=Par.RewSndPar(3)*sin(2*pi*Par.RewSndPar(2)*RewT);
+                sound(RewY,Par.RewSndPar(1));
+            end
             
             Log.nEvents=Log.nEvents+1;
             Log.Events(Log.nEvents).type='RewardAutoHand';

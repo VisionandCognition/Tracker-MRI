@@ -17,7 +17,7 @@ Stm=StimObj.Stm;
 StimObj.Stm.FixDotCol = [.3 .3 .3 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
-Par.FixWinSize = [1.8 1.8]; % [W H] in deg
+Par.FixWinSize = [3 3]; % [W H] in deg
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
@@ -246,10 +246,10 @@ Par.RewardTimeManual = 0.100; % amount of reward when given manually
 Par.RewardFixHoldTimeProg = true;
 if Par.RewardFixHoldTimeProg
     Par.RewardFixHoldTime = [...
-        0 900;...
-        5 700;...   
-        10 600;...
-        20 500;...
+        0 1200;...
+        5 1000;...   
+        10 800;...
+        20 600;...
         30 500;...
         ];
 else
@@ -316,14 +316,18 @@ Par.IncorrectResponseGiven  = ...
     @(Par) Par.ResponseSide > 0 && Par.BeamIsBlocked(mod(Par.ResponseSide,2)+1);
 
 % Reward for keeping hand in the box
-Par.RewardForHandsIn = false;
-Par.RewardForHandsIn_Quant = [0.00 0.000]; % 1 hand, both hands
+Par.RewardForHandsIn = true;
+Par.RewardForHandsIn_Quant = [0.050 0.100]; % 1 hand, both hands
 Par.RewardForHandsIn_MultiplierPerHand = [1 1]; % if only one hand in is rewarded [L R]
 Par.RewardForHandsIn_Delay = 0.500; %s 
 Par.RewardForHandIn_MinInterval = 4; %s
 
+Par.RewardForHandIn_ResetIntervalWhenOut = false; 
+Par.RewardForHandIn_MinIntervalBetween = 1; %s
+% resets the timer for the next reward when the hand(s) are taken out 
+
 % Fixation rewards are multiplied with this factor when hands are in
-Par.FixReward_HandInGain = [1.5 3]; % one hand , both hands
+Par.FixReward_HandInGain = [2 3]; % one hand , both hands
 
 %% Create Eye-check windows based on stimulus positions ===================
 % The code below is preloaded and will be overwritten on stimulus basis
