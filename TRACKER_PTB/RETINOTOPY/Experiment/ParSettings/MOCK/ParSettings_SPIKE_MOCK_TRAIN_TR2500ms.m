@@ -233,7 +233,7 @@ Par.RewardFixMultiplier = 0.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.200;%250;
+        Par.RewardTimeSet = 0.100;%250;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -330,13 +330,13 @@ Par.IncorrectResponseGiven  = ...
 
 % Reward for keeping hand in the box
 Par.RewardForHandsIn = true;
-Par.RewardForHandsIn_Quant = [0.04 0.120]; % 1 hand, both hands
-Par.RewardForHandsIn_MultiplierPerHand = [.75 1.5]; % if only one hand in is rewarded [L R]
-Par.RewardForHandsIn_Delay = 0.100; %s 
-Par.RewardForHandIn_MinInterval = 3; %s
+Par.RewardForHandsIn_Quant = [0.04 0.100]; % 1 hand, both hands
+Par.RewardForHandsIn_MultiplierPerHand = [.5 1.5]; % if only one hand in is rewarded [L R]
+Par.RewardForHandsIn_Delay = 0.200; %s 
+Par.RewardForHandIn_MinInterval = 5; %s
 
 Par.RewardForHandIn_ResetIntervalWhenOut = true; 
-Par.RewardForHandIn_MinIntervalBetween = 1.5; %s
+Par.RewardForHandIn_MinIntervalBetween = 2; %s
 % resets the timer for the next reward when the hand(s) are taken out 
 
 % Fixation rewards are multiplied with this factor when hands are in

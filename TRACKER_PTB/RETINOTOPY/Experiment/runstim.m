@@ -2760,7 +2760,10 @@ Par=Par_BU;
             end
             % gain for which lever is used
             if isfield(Par,'RespLeverGain')
-                Par.RewardTimeCurrent  = Par.RespLeverGain(Par.ResponseSide)*Par.RewardTimeCurrent;
+                if any(Par.LeverIsUp) && ~all(Par.LeverIsUp) % only one up
+                    Par.RewardTimeCurrent  = Par.RespLeverGain(...
+                        logical(Par.LeverIsUp))*Par.RewardTimeCurrent;
+                end
             end
             % Give the reward
             if Par.RewardTimeCurrent>0
