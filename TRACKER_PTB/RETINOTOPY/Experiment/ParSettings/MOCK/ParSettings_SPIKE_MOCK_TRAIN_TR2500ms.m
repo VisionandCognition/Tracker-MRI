@@ -143,7 +143,7 @@ Par.RespLeverMatters = false;
 Par.RespIndColor = [Stm(1).BackColor;Stm(1).BackColor]; %0.1*[1 1 1;1 1 1]; % colors for the left and right target
 Par.RespIndSize = 0.1;
 Par.RespIndPos = [0 0; 0 0]; % deg
-Par.RespLeverGain = [1 1]; % [L R] 
+Par.RespLeverGain = [1 1.5]; % [L R] 
 
 Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
 Par.BlockedIndColor = [.7 .7 .7];
@@ -168,7 +168,7 @@ Par.CatchBlock.StartWithCatch = true;
 % set time-windows in which something can happen (ms)
 % [baseduration_without_switch ... 
 %  period_in_which_switch_randomly_occurs]
-Par.EventPeriods = [200 0]; % Determines Go-bar onset (was 600 to 1600)
+Par.EventPeriods = [200 1000]; % Determines Go-bar onset (was 600 to 1600)
 
 %% Connection box port assignment =========================================
 Par.ConnectBox.PhotoAmp = [4 5 7 8];    % channels for photo-amps 
@@ -233,7 +233,7 @@ Par.RewardFixMultiplier = 0.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.100;%250;
+        Par.RewardTimeSet = 0.200;%250;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -250,7 +250,7 @@ switch Par.RewardType
         Par.RewardTimeSet = 0; %no reward
 end
 
-Par.RewardTimeManual = 0.100; % amount of reward when given manually
+Par.RewardTimeManual = 0.080; % amount of reward when given manually
 
 Par.RewardFixHoldTimeProg = false;
 if Par.RewardFixHoldTimeProg
@@ -278,7 +278,7 @@ Par.FixNeeds.HandIsIn =         false;
 Par.TrialNeeds.HandIsIn =       false;   % manual response task
 Par.TrialNeeds.LeversAreDown =  true;   % manual response task
 
-Par.LeversUpTimeOut = [0.200 6];
+Par.LeversUpTimeOut = [0.200 0];
 % If levers are up for (1) s, give time-out for (2) seconds or while they
 % are up. Set to (2) to zero for no time-outs.
 
@@ -330,9 +330,9 @@ Par.IncorrectResponseGiven  = ...
 
 % Reward for keeping hand in the box
 Par.RewardForHandsIn = true;
-Par.RewardForHandsIn_Quant = [0.04 0.100]; % 1 hand, both hands
+Par.RewardForHandsIn_Quant = [0.02 0.100]; % 1 hand, both hands
 Par.RewardForHandsIn_MultiplierPerHand = [.5 1.5]; % if only one hand in is rewarded [L R]
-Par.RewardForHandsIn_Delay = 0.200; %s 
+Par.RewardForHandsIn_Delay = 1.000; %s 
 Par.RewardForHandIn_MinInterval = 5; %s
 
 Par.RewardForHandIn_ResetIntervalWhenOut = true; 
