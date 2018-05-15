@@ -21,7 +21,20 @@ function checkResponses_PostSwitch(obj, lft)
         % Miss
         obj.curr_response = 'miss';
         Par.CurrResponse = Par.RESP_MISS;
-        obj.curr_hand = Par.NewResponse; % save which hand
+
+        if isfield(Par, 'FeedbackSound') && isfield(Par, 'FeedbackSoundPar') && ...
+                Par.FeedbackSound(Par.CurrResponse) && ...
+                all(~isnan(Par.FeedbackSoundPar(Par.CurrResponse,:)))
+            if Par.FeedbackSoundPar(Par.CurrResponse)
+                try
+                    PsychPortAudio('Start', ...
+                        Par.FeedbackSoundSnd(Par.CurrResponse).h, 1, 0, 1);
+                catch
+                end
+            end
+        end
+
+            obj.curr_hand = Par.NewResponse; % save which hand
         Par.RespValid = false;
         Par.FalseResponseGiven=true;
         if ~Par.ResponseGiven && ~Par.FalseResponseGiven %only log once

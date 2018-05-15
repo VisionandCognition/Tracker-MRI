@@ -15,6 +15,20 @@ function correctResponseGiven(obj, lft)
     
     obj.curr_response = 'correct';
     Par.CurrResponse = Par.RESP_CORRECT;
+
+    if isfield(Par, 'FeedbackSound') && isfield(Par, 'FeedbackSoundPar') && ...
+            Par.FeedbackSound(Par.CurrResponse) && ...
+            all(~isnan(Par.FeedbackSoundPar(Par.CurrResponse,:)))
+        if Par.FeedbackSoundPar(Par.CurrResponse)
+            try
+                PsychPortAudio('Start', ...
+                    Par.FeedbackSoundSnd(Par.CurrResponse).h, 1, 0, 1);
+            catch
+            end
+        end
+    end
+
+
     obj.curr_hand = Par.NewResponse; % save which hand
     obj.stopTrackingFixationTime(lft);
 

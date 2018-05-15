@@ -505,6 +505,15 @@ for CleanUp=1 % code folding
         dasjuice(0); %stop reward if its running
     end
     
+    % close audio devices
+    if isfield(Par, 'FeedbackSoundSnd')
+        for i=1:length(Par.FeedbackSoundSnd)
+            if ~isnan(Par.FeedbackSoundSnd(i).h)
+                PsychPortAudio('Close', Par.FeedbackSoundSnd(i).h);
+            end
+        end
+    end
+
     % Add the time of writing the log - to avoid accidental overwrites
     % I'm not sure how accidental overwrite has happened - but it did once.
     % It has something to do with doing something in the MRI trigger

@@ -22,9 +22,35 @@ function checkResponses_Switched(obj, lft)
         if lft < obj.stateStart.SWITCHED+obj.taskParams.ResponseAllowed(2)/1000
             obj.curr_response = 'early';
             Par.CurrResponse = Par.RESP_EARLY;
+
+            if isfield(Par, 'FeedbackSound') && isfield(Par, 'FeedbackSoundPar') && ...
+                    Par.FeedbackSound(Par.CurrResponse) && ...
+                    all(~isnan(Par.FeedbackSoundPar(Par.CurrResponse,:)))
+                if Par.FeedbackSoundPar(Par.CurrResponse)
+                    try
+                        PsychPortAudio('Start', ...
+                            Par.FeedbackSoundSnd(Par.CurrResponse).h, 1, 0, 1);
+                    catch
+                    end
+                end
+            end
+
         else
             obj.curr_response = 'miss';
             Par.CurrResponse = Par.RESP_MISS;
+
+            if isfield(Par, 'FeedbackSound') && isfield(Par, 'FeedbackSoundPar') && ...
+                    Par.FeedbackSound(Par.CurrResponse) && ...
+                    all(~isnan(Par.FeedbackSoundPar(Par.CurrResponse,:)))
+                if Par.FeedbackSoundPar(Par.CurrResponse)
+                    try
+                        PsychPortAudio('Start', ...
+                            Par.FeedbackSoundSnd(Par.CurrResponse).h, 1, 0, 1);
+                    catch
+                    end
+                end
+            end
+
         end
         obj.curr_hand = Par.NewResponse; % save which hand
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;

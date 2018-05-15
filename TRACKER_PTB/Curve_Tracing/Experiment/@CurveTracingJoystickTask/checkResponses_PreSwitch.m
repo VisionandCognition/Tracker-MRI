@@ -10,6 +10,19 @@ function checkResponses_PreSwitch( obj, lft )
         Par.RespValid = false;
         obj.curr_response = 'early';
         Par.CurrResponse = Par.RESP_EARLY;
+
+        if isfield(Par, 'FeedbackSound') && isfield(Par, 'FeedbackSoundPar') && ...
+                Par.FeedbackSound(Par.CurrResponse) && ...
+                all(~isnan(Par.FeedbackSoundPar(Par.CurrResponse,:)))
+            if Par.FeedbackSoundPar(Par.CurrResponse)
+                try
+                    PsychPortAudio('Start', ...
+                        Par.FeedbackSoundSnd(Par.CurrResponse).h, 1, 0, 1);
+                catch
+                end
+            end
+        end
+
         % count the number of this type of responses
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
         obj.curr_hand = Par.NewResponse; % save which hand
@@ -22,6 +35,19 @@ function checkResponses_PreSwitch( obj, lft )
         Par.RespValid = false;
         obj.curr_response = 'break_fix';
         Par.CurrResponse = Par.RESP_BREAK_FIX;
+
+        if isfield(Par, 'FeedbackSound') && isfield(Par, 'FeedbackSoundPar') && ...
+                Par.FeedbackSound(Par.CurrResponse) && ...
+                all(~isnan(Par.FeedbackSoundPar(Par.CurrResponse,:)))
+            if Par.FeedbackSoundPar(Par.CurrResponse)
+                try
+                    PsychPortAudio('Start', ...
+                        Par.FeedbackSoundSnd(Par.CurrResponse).h, 1, 0, 1);
+                catch
+                end
+            end
+        end
+
         obj.curr_hand = Par.NewResponse; % save which hand
         % count the number of this type of responses
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
@@ -32,6 +58,19 @@ function checkResponses_PreSwitch( obj, lft )
         Par.RespValid = false;
         obj.curr_response = 'remove_hand';
         Par.CurrResponse = Par.RESP_REMOVE_HAND;
+
+        if isfield(Par, 'FeedbackSound') && isfield(Par, 'FeedbackSoundPar') && ...
+                Par.FeedbackSound(Par.CurrResponse) && ...
+                all(~isnan(Par.FeedbackSoundPar(Par.CurrResponse,:)))
+            if Par.FeedbackSoundPar(Par.CurrResponse)
+                try
+                    PsychPortAudio('Start', ...
+                        Par.FeedbackSoundSnd(Par.CurrResponse).h, 1, 0, 1);
+                catch
+                end
+            end
+        end
+        
         obj.curr_hand = Par.NewResponse; % save which hand
         % count the number of this type of responses
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
