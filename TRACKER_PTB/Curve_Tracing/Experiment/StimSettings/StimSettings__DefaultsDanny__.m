@@ -132,7 +132,7 @@ Params.prefixPeriod = 500; % not just for fixation task!
 Params.NumBeams = 2;
 Params.ResponseAllowed = [50 Params.SwitchDur+100]; % [after_onset after_offset] in ms
 %Stm(1).ResponseAllowed = [100 4000]; % [after_onset after_offset] in ms
-Params.BreakDuration = 1000; % 1500 additional waiting period for early / false hits
+Params.BreakDuration = 1500; % 1500 additional waiting period for early / false hits
 
 Stm(1).ProbConsolatoryReward = 0.00; % << How is this implemented? Rewarding 1/100 trials regardless?
 Stm(1).ProbFixationReward = 0.0; % << what's this probability?

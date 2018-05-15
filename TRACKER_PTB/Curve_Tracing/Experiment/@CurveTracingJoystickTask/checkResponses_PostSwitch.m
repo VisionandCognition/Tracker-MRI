@@ -21,7 +21,8 @@ function checkResponses_PostSwitch(obj, lft)
         % Miss
         obj.curr_response = 'miss';
         Par.CurrResponse = Par.RESP_MISS;
-
+        Par.ExtraWaitTime = 0;
+        
         if isfield(Par, 'FeedbackSound') && isfield(Par, 'FeedbackSoundPar') && ...
                 Par.FeedbackSound(Par.CurrResponse) && ...
                 all(~isnan(Par.FeedbackSoundPar(Par.CurrResponse,:)))

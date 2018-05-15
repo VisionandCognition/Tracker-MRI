@@ -3,8 +3,9 @@ function checkResponses_PreFixation( obj, time )
 
     global Par;
     global Log;
-
-    if time > obj.stateStart.PREFIXATION + obj.taskParams.prefixPeriod/1000 ...
+ 
+    if time > obj.stateStart.PREFIXATION + obj.taskParams.prefixPeriod/1000 + ...
+            Par.ExtraWaitTime ...
             && (Par.FixIn || ~Par.WaitForFixation)
         % The subject "should" be fixating now, start tracking time
         Log.events.add_entry(time, obj.taskName, 'FixationTracking', 'Start');

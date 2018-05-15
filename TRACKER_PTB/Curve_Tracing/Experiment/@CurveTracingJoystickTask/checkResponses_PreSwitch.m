@@ -10,6 +10,7 @@ function checkResponses_PreSwitch( obj, lft )
         Par.RespValid = false;
         obj.curr_response = 'early';
         Par.CurrResponse = Par.RESP_EARLY;
+        Par.ExtraWaitTime = obj.taskParams.BreakDuration/1000;
 
         if isfield(Par, 'FeedbackSound') && isfield(Par, 'FeedbackSoundPar') && ...
                 Par.FeedbackSound(Par.CurrResponse) && ...

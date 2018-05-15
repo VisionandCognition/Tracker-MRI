@@ -5,7 +5,8 @@ function falseResponseGiven(obj, lft)
     Par.RespValid = false;
     obj.curr_response = 'false';
     Par.CurrResponse = Par.RESP_FALSE;
-
+    Par.ExtraWaitTime = obj.taskParams.BreakDuration/1000;
+    
     if isfield(Par, 'FeedbackSound') && isfield(Par, 'FeedbackSoundPar') && ...
             Par.FeedbackSound(Par.CurrResponse) && ...
             all(~isnan(Par.FeedbackSoundPar(Par.CurrResponse,:)))

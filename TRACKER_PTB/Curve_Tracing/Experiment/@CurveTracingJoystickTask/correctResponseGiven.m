@@ -15,7 +15,8 @@ function correctResponseGiven(obj, lft)
     
     obj.curr_response = 'correct';
     Par.CurrResponse = Par.RESP_CORRECT;
-
+    Par.ExtraWaitTime = 0;
+    
     if isfield(Par, 'FeedbackSound') && isfield(Par, 'FeedbackSoundPar') && ...
             Par.FeedbackSound(Par.CurrResponse) && ...
             all(~isnan(Par.FeedbackSoundPar(Par.CurrResponse,:)))

@@ -161,12 +161,12 @@ Par.RewSndPar = [44100 800 1];
 % RESP_REMOVE_HAND = 6;
 Par.FeedbackSound = [true true false true false false];
 Par.FeedbackSoundPar = [ ...
-    44100 800 1 0.02; ... CORRECT
-    44100 200 1 0.04; ... FALSE
-    44100 1600 1 0.01; ... MISS
-    44100 3200 1 0.01; ... EARLY
-    44100 400 1 0.01 ... FIXATION BREAK
-    44100 400 1 0.01 ... REMOVE HAND
+    44100 800  .5 0.01; ... CORRECT
+    44100 200  .5 0.01; ... FALSE
+    44100 1600 .5 0.01; ... MISS
+    44100 200  .5 0.01; ... EARLY
+    44100 400  .5 0.01; ... FIXATION BREAK
+    44100 400  .5 0.01 ... REMOVE HAND
     ];
 Par.MissSound = true;
 Par.MissSndPar = [44100 200 1 0.01];
