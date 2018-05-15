@@ -331,9 +331,9 @@ Par.IncorrectResponseGiven  = ...
 % Reward for keeping hand in the box
 Par.RewardForHandsIn = true;
 Par.RewardForHandsIn_Quant = [0.02 0.100]; % 1 hand, both hands
-Par.RewardForHandsIn_MultiplierPerHand = [.5 1.5]; % if only one hand in is rewarded [L R]
+Par.RewardForHandsIn_MultiplierPerHand = [1 2]; % if only one hand in is rewarded [L R]
 Par.RewardForHandsIn_Delay = 1.000; %s 
-Par.RewardForHandIn_MinInterval = 5; %s
+Par.RewardForHandIn_MinInterval = 4; %s
 
 Par.RewardForHandIn_ResetIntervalWhenOut = true; 
 Par.RewardForHandIn_MinIntervalBetween = 2; %s
