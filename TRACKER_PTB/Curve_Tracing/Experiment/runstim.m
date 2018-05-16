@@ -194,6 +194,7 @@ for CodeControl=1 %allow code folding
     Par.BreakTrial = false;
     Par.GiveRewardAmount = 0;
     Par.GiveRewardAmount_onResponseRelease = 0;
+    Par.ExtraWaitTime = 0;
 
     % Trial Logging
     Par.CurrResponse = Par.RESP_NONE;
