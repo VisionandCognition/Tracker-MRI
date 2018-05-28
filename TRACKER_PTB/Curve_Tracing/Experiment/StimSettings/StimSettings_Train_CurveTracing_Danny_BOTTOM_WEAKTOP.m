@@ -30,7 +30,7 @@ StimObj.DefaultParams.PawIndAlpha = [.4 .1 .4 .1 1; ...
 StimObj.DefaultParams.CurveAnglesAtFP = ...
     [ 180 180 0 0 ]; % UL DL UR DR
 
-StimObj.DefaultParams.BranchDistDeg = .6;%1.2;
+StimObj.DefaultParams.BranchDistDeg = 1.2;%1.2;
 StimObj.DefaultParams.CurveTargetDistDeg = 1.5;
 
 gap = .5;
