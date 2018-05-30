@@ -177,7 +177,7 @@ Par.RewardFixFeedBack = true;
 % Require hands in the box (reduces movement?)
 % Needed for initiation of tracker since it's in the gui now
 Par.RewNeedsHandInBox=false;
-Par.StimNeedsHandInBox=false;
+Par.StimNeedsHandInBox=true;
 Par.FixNeedsHandInBox=false;
 Par.HandOutDimsScreen = false;
 Par.HandOutDimsScreen_perc = 0.9; %(0-1, fraction dimming)
@@ -185,7 +185,7 @@ Par.HandOutDimsScreen_perc = 0.9; %(0-1, fraction dimming)
 Par.HandResponse=[false false];
 Par.HandsIn=[false false]; % Hands in position ready to respond
 Par.RequireHandsIn = true;
-Par.RequireHandsIn = false;  % <--- TEMPORARY!!!
+%Par.RequireHandsIn = false;  % <--- TEMPORARY!!!
 
 
 

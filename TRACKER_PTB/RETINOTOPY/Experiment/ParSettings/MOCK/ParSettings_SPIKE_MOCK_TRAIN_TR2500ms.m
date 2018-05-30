@@ -143,7 +143,7 @@ Par.RespLeverMatters = false;
 Par.RespIndColor = [Stm(1).BackColor;Stm(1).BackColor]; %0.1*[1 1 1;1 1 1]; % colors for the left and right target
 Par.RespIndSize = 0.1;
 Par.RespIndPos = [0 0; 0 0]; % deg
-Par.RespLeverGain = [1 1.5]; % [L R] 
+Par.RespLeverGain = [0.5 1.5]; % [L R] 
 
 Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
 Par.BlockedIndColor = [.7 .7 .7];
@@ -330,10 +330,10 @@ Par.IncorrectResponseGiven  = ...
 
 % Reward for keeping hand in the box
 Par.RewardForHandsIn = true;
-Par.RewardForHandsIn_Quant = [0.02 0.100]; % 1 hand, both hands
+Par.RewardForHandsIn_Quant = [0.00 0.00]; % 1 hand, both hands
 Par.RewardForHandsIn_MultiplierPerHand = [1 2]; % if only one hand in is rewarded [L R]
 Par.RewardForHandsIn_Delay = 1.000; %s 
-Par.RewardForHandIn_MinInterval = 4; %s
+Par.RewardForHandIn_MinInterval = 5; %s
 
 Par.RewardForHandIn_ResetIntervalWhenOut = true; 
 Par.RewardForHandIn_MinIntervalBetween = 2; %s

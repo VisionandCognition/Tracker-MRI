@@ -32,9 +32,10 @@ StimObj.DefaultParams.CurveAnglesAtFP = ...
 StimObj.DefaultParams.BranchDistDeg = 1.2;%1.2;
 StimObj.DefaultParams.CurveTargetDistDeg = 1.5;
 
-gap = 1;
+gap = .5; 
+secondgap = 1;
 StimObj.DefaultParams.Gap1_deg = [0 gap];
-StimObj.DefaultParams.Gap2_deg = [0 StimObj.DefaultParams.BranchDistDeg] + gap;
+StimObj.DefaultParams.Gap2_deg = [0 StimObj.DefaultParams.BranchDistDeg] + secondgap;
 % -------------------------------------------------------------------------
 
 % unsaturatedColor = [0.2 0.2 0.2; 0.2 0.2 0.2; .3 .3 .3]; % different shapes
