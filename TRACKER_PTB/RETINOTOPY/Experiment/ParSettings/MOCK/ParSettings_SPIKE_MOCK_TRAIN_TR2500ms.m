@@ -143,12 +143,12 @@ Par.RespLeverMatters = false;
 Par.RespIndColor = [Stm(1).BackColor;Stm(1).BackColor]; %0.1*[1 1 1;1 1 1]; % colors for the left and right target
 Par.RespIndSize = 0.1;
 Par.RespIndPos = [0 0; 0 0]; % deg
-Par.RespLeverGain = [0.5 1.5]; % [L R] 
+Par.RespLeverGain = [1 1]; % [L R] 
 
 Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
 Par.BlockedIndColor = [.7 .7 .7];
 
-Par.SwitchDur = 60000; % (200) duration of alternative orientation
+Par.SwitchDur = 4000; % (200) duration of alternative orientation
 Par.ResponseAllowed = [80 Par.SwitchDur+100]; % [after_onset after_offset] in ms
 Par.PostErrorDelay = 0; % extra wait time as punishment for error trials
 Par.DelayOnMiss = 0; % extra wait time as punishment for miss trials 
@@ -168,7 +168,7 @@ Par.CatchBlock.StartWithCatch = true;
 % set time-windows in which something can happen (ms)
 % [baseduration_without_switch ... 
 %  period_in_which_switch_randomly_occurs]
-Par.EventPeriods = [200 1000]; % Determines Go-bar onset (was 600 to 1600)
+Par.EventPeriods = [600 1000]; % Determines Go-bar onset (was 600 to 1600)
 
 %% Connection box port assignment =========================================
 Par.ConnectBox.PhotoAmp = [4 5 7 8];    % channels for photo-amps 
@@ -233,7 +233,7 @@ Par.RewardFixMultiplier = 0.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.200;%250;
+        Par.RewardTimeSet = 0.100;%250;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -275,7 +275,7 @@ Par.HandInBothOrEither = 'Both'; % 'Both' or 'Either'
 Par.RewNeeds.HandIsIn =         false;
 Par.StimNeeds.HandIsIn =        false;
 Par.FixNeeds.HandIsIn =         false;
-Par.TrialNeeds.HandIsIn =       false;   % manual response task
+Par.TrialNeeds.HandIsIn =       true;   % manual response task
 Par.TrialNeeds.LeversAreDown =  true;   % manual response task
 
 Par.LeversUpTimeOut = [0.200 0];
@@ -283,7 +283,7 @@ Par.LeversUpTimeOut = [0.200 0];
 % are up. Set to (2) to zero for no time-outs.
 
 Par.HandOutDimsScreen = true;
-Par.HandOutDimsScreen_perc = [0.6 0.9]; %(0-1, fraction dimming)
+Par.HandOutDimsScreen_perc = [0.6 0.6]; %(0-1, fraction dimming)
 
 % set-up function to check whether to draw stimulus
 if Par.StimNeeds.HandIsIn && strcmp(Par.HandInBothOrEither,'Both')
@@ -329,8 +329,8 @@ Par.IncorrectResponseGiven  = ...
     @(Par) Par.ResponseSide > 0 && Par.BeamIsBlocked(mod(Par.ResponseSide,2)+1);
 
 % Reward for keeping hand in the box
-Par.RewardForHandsIn = true;
-Par.RewardForHandsIn_Quant = [0.00 0.00]; % 1 hand, both hands
+Par.RewardForHandsIn = false;
+Par.RewardForHandsIn_Quant = [0.00 0.03]; % 1 hand, both hands
 Par.RewardForHandsIn_MultiplierPerHand = [1 2]; % if only one hand in is rewarded [L R]
 Par.RewardForHandsIn_Delay = 1.000; %s 
 Par.RewardForHandIn_MinInterval = 5; %s
@@ -341,6 +341,9 @@ Par.RewardForHandIn_MinIntervalBetween = 2; %s
 
 % Fixation rewards are multiplied with this factor when hands are in
 Par.FixReward_HandInGain = [1 1]; % one hand , both hands
+
+% Fixation rewards are multiplied with this factor when hands are in
+Par.TaskReward_HandInGain = [.25 1.25]; % one hand , both hands
 
 %% Create Eye-check windows based on stimulus positions ===================
 % The code below is preloaded and will be overwritten on stimulus basis

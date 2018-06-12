@@ -159,7 +159,7 @@ Par.RewSndPar = [44100 800 1];
 % RESP_EARLY = 4;
 % RESP_BREAK_FIX = 5;
 % RESP_REMOVE_HAND = 6;
-Par.FeedbackSound = [false true true true true];
+Par.FeedbackSound = [false true true true true false];
 Par.FeedbackSoundPar = [ ...
     44100 800 1 NaN; ... CORRECT
     44100 200 1 0.04; ... FALSE

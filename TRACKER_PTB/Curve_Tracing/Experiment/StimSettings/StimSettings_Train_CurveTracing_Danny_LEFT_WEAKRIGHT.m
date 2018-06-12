@@ -16,10 +16,10 @@ Stm = StimObj.Stm;
 %                                     .1 .1 .1 .1 1]; % UL DL UR DR CENTER
 
 % LEFT
-StimObj.DefaultParams.CurveAlpha =  [1 1 0.2 0.2 1; ...
-                                     1 1 0.2 0.2 1]; % UL DL UR DR CENTER
-StimObj.DefaultParams.PawIndAlpha = [.1 .1 .4 .4 1; ...
-                                     .1 .1 .4 .4 1]; % UL DL UR DR CENTER
+StimObj.DefaultParams.CurveAlpha =  [1 1 1 1 1; ...
+                                     1 1 1 1 1]; % UL DL UR DR CENTER
+StimObj.DefaultParams.PawIndAlpha = [.1 .1 .1 .1 1; ...
+                                     .1 .1 .1 .1 1]; % UL DL UR DR CENTER
 % RIGHT
 %StimObj.DefaultParams.CurveAlpha =  [1 1 .1 .1 1; ...
 %                                     1 1 .1 .1 1]; % UL DL UR DR CENTER
@@ -33,7 +33,7 @@ StimObj.DefaultParams.BranchDistDeg = 1.2;%1.2;
 StimObj.DefaultParams.CurveTargetDistDeg = 1.5;
 
 gap = .5; 
-secondgap = 1;
+secondgap = 0.8;
 StimObj.DefaultParams.Gap1_deg = [0 gap];
 StimObj.DefaultParams.Gap2_deg = [0 StimObj.DefaultParams.BranchDistDeg] + secondgap;
 % -------------------------------------------------------------------------

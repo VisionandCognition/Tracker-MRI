@@ -2765,6 +2765,14 @@ Par=Par_BU;
                         logical(Par.LeverIsUp))*Par.RewardTimeCurrent;
                 end
             end
+            % gain for having hands in (when defined)
+            if isfield(Par,'TaskReward_HandInGain')
+                if any(Par.HandIsIn) && ~all(Par.HandIsIn) % only hand in
+                    Par.RewardTimeCurrent  = Par.TaskReward_HandInGain(1)*Par.RewardTimeCurrent;
+                elseif all(Par.HandIsIn) % both hands in 
+                    Par.RewardTimeCurrent  = Par.TaskReward_HandInGain(2)*Par.RewardTimeCurrent;
+                end
+            end
             % Give the reward
             if Par.RewardTimeCurrent>0
                 Par.RewardStartTime=GetSecs;

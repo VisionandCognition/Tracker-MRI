@@ -31,12 +31,13 @@ StimObj.DefaultParams.PawIndAlpha = [.1 .1 .1 .1 1; ...
 StimObj.DefaultParams.CurveAnglesAtFP = ...
     [ 180 180 0 0 ]; % UL DL UR DR
 
-StimObj.DefaultParams.BranchDistDeg = .6;%1.2;
+StimObj.DefaultParams.BranchDistDeg = 1.2;%1.2;
 StimObj.DefaultParams.CurveTargetDistDeg = 1.5;
 
-gap = .5;
+gap = .5; 
+secondgap = 0.8;
 StimObj.DefaultParams.Gap1_deg = [0 gap];
-StimObj.DefaultParams.Gap2_deg = [0 StimObj.DefaultParams.BranchDistDeg] + gap;
+StimObj.DefaultParams.Gap2_deg = [0 StimObj.DefaultParams.BranchDistDeg] + secondgap;
 % -------------------------------------------------------------------------
 
 % unsaturatedColor = [0.2 0.2 0.2; 0.2 0.2 0.2; .3 .3 .3]; % different shapes
