@@ -46,10 +46,10 @@ train_curves = true;
 
 if train_curves
         Params.PawIndPositions = [...
-        -5 -2.5; ...  1 - LEFT TOP (-,-)
-        -5  2.5; ...  2 - LEFT BOTTOM (-,+)
-         5 -2.5; ...  3 - RIGHT TOP (+,-)
-         5  2.5; ...  4 - RIGHT BOTTOM (+,+)
+        -8 -4; ...  1 - LEFT TOP (-,-)
+        -8  4; ...  2 - LEFT BOTTOM (-,+)
+         8 -4; ...  3 - RIGHT TOP (+,-)
+         8  4; ...  4 - RIGHT BOTTOM (+,+)
          0  0 ...     5 - center
         ];
 
