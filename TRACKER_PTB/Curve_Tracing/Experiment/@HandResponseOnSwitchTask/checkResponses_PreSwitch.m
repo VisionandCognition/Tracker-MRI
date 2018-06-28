@@ -17,7 +17,7 @@ function checkResponses_PreSwitch( obj, lft )
         if Par.EndTrialOnResponse
             obj.updateState('POSTSWITCH', lft);
         end
-    elseif ~Par.FixIn && Par.WaitForFixation
+    elseif ~Par.FixIn && (Par.WaitForFixation && Par.WaitForFixation_phase(2))
         % false
         Par.RespValid = false;
         obj.curr_response = 'break_fix';

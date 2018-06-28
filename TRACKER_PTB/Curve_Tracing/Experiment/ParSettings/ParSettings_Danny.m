@@ -37,7 +37,10 @@ Stm=StimObj.Stm;
 Par.FixWinSize = [2.2 2.2];% [1.8 1.8]; % [W H] in deg
 Stm(1).FixWinSizeDeg = Par.FixWinSize(1);
 
-Par.WaitForFixation = false; % Used to be Par.RequireFixation
+Par.WaitForFixation = false; % toggled with f
+% phase only works when WaitForFixation = true
+Par.WaitForFixation_phase = [true true false]; 
+% [prefix preswitch switched] true/false
 Par.RequireFixationForReward = false;
 Par.EndTrialOnResponse = true; % Make responsive
 % Par.EndTrialOnFixBreak = true;

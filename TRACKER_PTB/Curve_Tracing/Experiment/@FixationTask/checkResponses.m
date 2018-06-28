@@ -3,7 +3,7 @@ function checkResponses(obj, time)
     global Log;
     if strcmp(obj.state, 'PREFIXATION')
         if time > obj.stateStart.PREFIXATION + obj.taskParams.prefixPeriod/1000 && ...
-                (Par.FixIn || ~Par.WaitForFixation)
+                (Par.FixIn || (~Par.WaitForFixation || ~Par.WaitForFixation_phase(1)))
             obj.updateState('FIXATION_PERIOD', time);
             obj.startTrackingFixationTime(time, Par.FixIn);
         end

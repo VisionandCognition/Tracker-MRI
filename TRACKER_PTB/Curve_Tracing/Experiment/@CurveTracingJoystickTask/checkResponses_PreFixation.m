@@ -6,7 +6,7 @@ function checkResponses_PreFixation( obj, time )
  
     if time > obj.stateStart.PREFIXATION + obj.taskParams.prefixPeriod/1000 + ...
             Par.ExtraWaitTime ...
-            && (Par.FixIn || ~Par.WaitForFixation)
+            && (Par.FixIn || (~Par.WaitForFixation || ~Par.WaitForFixation_phase(1)))
         % The subject "should" be fixating now, start tracking time
         Log.events.add_entry(time, obj.taskName, 'FixationTracking', 'Start');
 
@@ -16,7 +16,7 @@ function checkResponses_PreFixation( obj, time )
     elseif ~Par.HandsInPosition && Par.RequireHandsIn
         obj.updateState('TRIAL_END', time);
         
-    elseif ~Par.FixIn && Par.WaitForFixation % if fixation lost, restart prefix period
+    elseif ~Par.FixIn && (Par.WaitForFixation && Par.WaitForFixation_phase(1)) % if fixation lost, restart prefix period
         obj.updateState('PREFIXATION', time);
     end
 end
