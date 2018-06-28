@@ -67,7 +67,7 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
     
     % ----------------------------------------------- Start new trial -----
     Stm(1).task.updateState('INIT_TRIAL', Par.lft);
-       
+    
     Par.Trlcount = Par.Trlcount+1; %keep track of trial numbers
     Par.AutoRewardGiven=false;
     Par.CurrResponse = Par.RESP_NONE;
@@ -87,7 +87,13 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
         dasreset( 0 );
     end
     
-    while ~Par.ESC && (~Par.GoNewTrial) % Par.Pause || 
+    startInit=GetSecs;
+    if ~isfield(Par, 'ExtraWaitTime')
+        Par.ExtraWaitTime=0;
+    end
+    
+    while ~Par.ESC && (~Par.GoNewTrial) &&  ...
+            GetSecs<=startInit+Par.ExtraWaitTime
         CheckManual(Stm);
         CheckKeys;
         Par.lft = Stm(1).task.drawStimuli(Par.lft);
