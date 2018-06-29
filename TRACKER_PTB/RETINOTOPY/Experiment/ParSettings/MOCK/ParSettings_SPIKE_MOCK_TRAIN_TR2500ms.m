@@ -139,9 +139,9 @@ Par.GoBarSize = Gobar_length*[1, .25] + [0, 0.01]; % [length width] in deg
 Par.GoBarColor = [0.8 0.8 0.8]; % [R G B] 0-1
 
 % Color of the Response indicator (which hand)
-Par.RespLeverMatters = false;
-Par.RespIndColor = [Stm(1).BackColor;Stm(1).BackColor]; %0.1*[1 1 1;1 1 1]; % colors for the left and right target
-%Par.RespIndColor = 0.1*[1 1 1;1 1 1]; % colors for the left and right target
+Par.RespLeverMatters = true;
+%Par.RespIndColor = [Stm(1).BackColor;Stm(1).BackColor]; %0.1*[1 1 1;1 1 1]; % colors for the left and right target
+Par.RespIndColor = 0.1*[1 1 1;1 1 1]; % colors for the left and right target
 Par.RespIndSize = 3;
 Par.RespIndPos = [-5 0; 5 0]; % deg
 Par.RespLeverGain = [1 1]; % [L R] 
@@ -149,7 +149,7 @@ Par.RespLeverGain = [1 1]; % [L R]
 Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
 Par.BlockedIndColor = [.7 .7 .7];
 
-Par.SwitchDur = 5000; % (200) duration of alternative orientation
+Par.SwitchDur = 15000; % (200) duration of alternative orientation
 Par.ResponseAllowed = [80 Par.SwitchDur+100]; % [after_onset after_offset] in ms
 Par.PostErrorDelay = 0; % extra wait time as punishment for error trials
 Par.DelayOnMiss = 0; % extra wait time as punishment for miss trials 
@@ -188,7 +188,7 @@ Par.RewardFixFeedBack = true;
 % RESP_MISS         = 3;
 % RESP_EARLY        = 4;
 % RESP_BREAK_FIX    = 5;
-Par.FeedbackSound = [false false false false false];
+Par.FeedbackSound = [true true false false false];
 Par.FeedbackSoundPar = [ ...
     44100 800 1 0.03; ... CORRECT
     44100 300 1 0.03; ... FALSE
@@ -344,7 +344,7 @@ Par.RewardForHandIn_MinIntervalBetween = 2; %s
 Par.FixReward_HandInGain = [1 1]; % one hand , both hands
 
 % Task rewards are multiplied with this factor when hands are in
-Par.TaskReward_HandInGain = [.25 1]; % one hand , both hands
+Par.TaskReward_HandInGain = [.5 1]; % one hand , both hands
 
 %% Create Eye-check windows based on stimulus positions ===================
 % The code below is preloaded and will be overwritten on stimulus basis

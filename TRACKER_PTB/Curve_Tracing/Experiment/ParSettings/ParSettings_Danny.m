@@ -39,7 +39,7 @@ Stm(1).FixWinSizeDeg = Par.FixWinSize(1);
 
 Par.WaitForFixation = false; % toggled with f
 % phase only works when WaitForFixation = true
-Par.WaitForFixation_phase = [true true false]; 
+Par.WaitForFixation_phase = [true false false]; 
 % [prefix preswitch switched] true/false
 Par.RequireFixationForReward = false;
 Par.EndTrialOnResponse = true; % Make responsive
