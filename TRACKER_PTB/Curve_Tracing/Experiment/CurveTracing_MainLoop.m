@@ -91,9 +91,23 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
     if ~isfield(Par, 'ExtraWaitTime')
         Par.ExtraWaitTime=0;
     end
+    WaitTimeOver =false;
     
-    while ~Par.ESC && (~Par.GoNewTrial) &&  ...
-            GetSecs<=startInit+Par.ExtraWaitTime
+    while ~Par.ESC && ~WaitTimeOver
+        Par.lft = Stm(1).task.drawStimuli(Par.lft);
+        CheckFixation;
+        CheckTracker; % Get and plot eye position
+        
+        % give manual reward
+        if Par.ManualReward
+            GiveRewardManual;
+            Par.ManualReward=false;
+        end
+        %check whether wait time is over
+        WaitTimeOver = GetSecs >startInit + Par.ExtraWaitTime;
+    end
+    
+    while ~Par.ESC && ~Par.GoNewTrial
         CheckManual(Stm);
         CheckKeys;
         Par.lft = Stm(1).task.drawStimuli(Par.lft);
@@ -105,7 +119,6 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
             GiveRewardManual;
             Par.ManualReward=false;
         end
-        
     end
     
     % Check eye fixation --------------------------------------------------
