@@ -47,10 +47,11 @@ function checkResponses_PostSwitch(obj, lft)
         Par.RespValid = false;
         obj.curr_response = 'break_fix';
         Par.CurrResponse = Par.RESP_BREAK_FIX;
-
+        %fprintf('====\nTrying to play post-switch-fix-break-sound...\n===\n')
         if isfield(Par, 'FeedbackSound') && isfield(Par, 'FeedbackSoundPar') && ...
                 Par.FeedbackSound(Par.CurrResponse) && ...
-                all(~isnan(Par.FeedbackSoundPar(Par.CurrResponse,:)))
+                all(~isnan(Par.FeedbackSoundPar(Par.CurrResponse,:))) && ...
+                ~Par.BreakFixSndPlayed
             if Par.FeedbackSoundPar(Par.CurrResponse)
                 try
                     PsychPortAudio('Start', ...
@@ -58,6 +59,7 @@ function checkResponses_PostSwitch(obj, lft)
                 catch
                 end
             end
+            Par.BreakFixSndPlayed = true;    
         end
 
         obj.curr_hand = Par.NewResponse; % save which hand

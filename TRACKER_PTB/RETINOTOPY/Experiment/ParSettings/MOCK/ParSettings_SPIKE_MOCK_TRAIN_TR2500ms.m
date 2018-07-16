@@ -234,7 +234,7 @@ Par.RewardFixMultiplier = 0.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.200;%250;
+        Par.RewardTimeSet = 0.180;%250;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -344,7 +344,7 @@ Par.RewardForHandIn_MinIntervalBetween = 2; %s
 Par.FixReward_HandInGain = [1 1]; % one hand , both hands
 
 % Task rewards are multiplied with this factor when hands are in
-Par.TaskReward_HandInGain = [.7 1]; % one hand , both hands
+Par.TaskReward_HandInGain = [.75 1]; % one hand , both hands
 
 %% Create Eye-check windows based on stimulus positions ===================
 % The code below is preloaded and will be overwritten on stimulus basis

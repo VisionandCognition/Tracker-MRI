@@ -4,7 +4,7 @@ function checkResponses_PreSwitch( obj, lft )
 %   State.
 
     global Par;
-
+    Par.BreakFixSndPlayed = false;
     if Par.NewResponse
         % false hit / early response
         Par.RespValid = false;
@@ -47,6 +47,7 @@ function checkResponses_PreSwitch( obj, lft )
                 catch
                 end
             end
+            Par.BreakFixSndPlayed = true;
         end
 
         obj.curr_hand = Par.NewResponse; % save which hand
