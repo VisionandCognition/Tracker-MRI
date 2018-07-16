@@ -21,8 +21,8 @@ Par.FixWinSize = [3 3]; % [W H] in deg
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
-Par.SCx = 0.135; %initial scale in control window
-Par.SCy = 0.135;
+Par.SCx = 0.11; %initial scale in control window
+Par.SCy = 0.11;
 Par.OFFx = 0; %initial eye offset x => (center) of camera das output
 Par.OFFy = 0; %initial eye offset y
 Par.ScaleOff = [Par.OFFx; Par.OFFy; Par.SCx; Par.SCy]; 

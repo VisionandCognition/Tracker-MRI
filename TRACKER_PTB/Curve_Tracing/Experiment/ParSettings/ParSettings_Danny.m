@@ -34,12 +34,12 @@ Stm=StimObj.Stm;
 % overrule generic fixation window
 % Fixation window set by StimSettings with FixWinSizeDeg, not sure what ...
 %    Par.FixWinSize does?
-Par.FixWinSize = [2.2 2.2];% [1.8 1.8]; % [W H] in deg
+Par.FixWinSize = [2.0 0.2];% [1.8 1.8]; % [W H] in deg
 Stm(1).FixWinSizeDeg = Par.FixWinSize(1);
 
 Par.WaitForFixation = false; % toggled with f
 % phase only works when WaitForFixation = true
-Par.WaitForFixation_phase = [true false false]; 
+Par.WaitForFixation_phase = [true true true]; 
 % [prefix preswitch switched] true/false
 Par.RequireFixationForReward = false;
 Par.EndTrialOnResponse = true; % Make responsive
@@ -162,7 +162,7 @@ Par.RewSndPar = [44100 800 1];
 % RESP_EARLY = 4;
 % RESP_BREAK_FIX = 5;
 % RESP_REMOVE_HAND = 6;
-Par.FeedbackSound = [false true false true false false];
+Par.FeedbackSound = [false true false true true false];
 Par.FeedbackSoundPar = [ ...
     44100 800  .5 0.01; ... CORRECT
     44100 200  .5 0.01; ... FALSE
