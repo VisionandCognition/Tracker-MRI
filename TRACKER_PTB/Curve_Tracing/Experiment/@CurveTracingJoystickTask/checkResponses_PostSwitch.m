@@ -43,6 +43,27 @@ function checkResponses_PostSwitch(obj, lft)
         end
         %Par.ResponseGiven=true;
         %Don't break trial, this would speed it up and be positive
+    elseif ~Par.FixIn && (Par.WaitForFixation && Par.WaitForFixation_phase(3))
+        Par.RespValid = false;
+        obj.curr_response = 'break_fix';
+        Par.CurrResponse = Par.RESP_BREAK_FIX;
+
+        if isfield(Par, 'FeedbackSound') && isfield(Par, 'FeedbackSoundPar') && ...
+                Par.FeedbackSound(Par.CurrResponse) && ...
+                all(~isnan(Par.FeedbackSoundPar(Par.CurrResponse,:)))
+            if Par.FeedbackSoundPar(Par.CurrResponse)
+                try
+                    PsychPortAudio('Start', ...
+                        Par.FeedbackSoundSnd(Par.CurrResponse).h, 1, 0, 1);
+                catch
+                end
+            end
+        end
+
+        obj.curr_hand = Par.NewResponse; % save which hand
+        % count the number of this type of responses
+        Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
+        Par.FalseResponseGiven=false;
     end
     if ~correctRespGiven
         % add current trial back into 
