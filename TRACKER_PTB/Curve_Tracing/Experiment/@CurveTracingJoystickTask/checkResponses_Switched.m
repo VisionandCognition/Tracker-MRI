@@ -57,7 +57,8 @@ function checkResponses_Switched(obj, lft)
         Par.FalseResponseGiven=true;
     end
     
-    if ~Par.FixIn && (Par.WaitForFixation && Par.WaitForFixation_phase(3))
+    if ~Par.FixIn && (Par.WaitForFixation && Par.WaitForFixation_phase(3)) && ...
+        lft < obj.stateStart.SWITCHED+Par.ReqFixTime_PostSwitch/1000
         % false
         obj.curr_response = 'break_fix';
         Par.CurrResponse = Par.RESP_BREAK_FIX;
