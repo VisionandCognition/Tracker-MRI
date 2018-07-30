@@ -76,12 +76,13 @@ function checkResponses_Switched(obj, lft)
         end
         
         obj.updateState('POSTSWITCH', lft);
-    elseif Par.FixIn && lft < obj.stateStart.SWITCHED+Par.RewFixTime_PostSwitch(1)/1000 && ...
-            lft >= obj.stateStart.SWITCHED+Par.ReqFixTime_PostSwitch/1000
-        
+    elseif Par.FixIn && lft < obj.stateStart.SWITCHED+obj.param('SwitchDur')/1000 && ...
+            lft >= obj.stateStart.SWITCHED+Par.RewFixTime_PostSwitch(1)/1000 && ~Par.ExtraFixRewardGiven
+        fprintf('====\nReward for fixation\n====\n');
         Par.GiveRewardAmount = Par.RewFixTime_PostSwitch(2);
         GiveRewardAuto;
         Par.AutoRewardGiven = true;
+        Par.ExtraFixRewardGiven = true;
         
     elseif lft >= obj.stateStart.SWITCHED + obj.param('SwitchDur')/1000 || ...
             Par.EndTrialOnResponse && ~strcmp(obj.curr_response, 'none')

@@ -86,6 +86,7 @@ function checkResponses_PreSwitch( obj, lft )
 
         obj.goBarOrient = 2;
         obj.updateState('SWITCHED', lft);
+        Par.ExtraFixRewardGiven = false;
     end
 end
 

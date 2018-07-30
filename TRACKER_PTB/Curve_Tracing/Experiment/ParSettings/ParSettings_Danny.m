@@ -41,8 +41,8 @@ Par.WaitForFixation = false; % toggled with f
 % phase only works when WaitForFixation = true
 Par.WaitForFixation_phase = [true true true]; 
 % [prefix preswitch switched] true/false
-Par.ReqFixTime_PostSwitch = 50; % ms fixation is required when it is required in switched
-Par.RewFixTime_PostSwitch = [50 0.01]; %[fixtime(ms) rewtime(s)]
+Par.ReqFixTime_PostSwitch = 400; % ms fixation is required when it is required in switched
+Par.RewFixTime_PostSwitch = [10 0.01]; %[fixtime(ms) rewtime(s)]
 
 Par.RequireFixationForReward = false;
 Par.EndTrialOnResponse = true; % Make responsive
