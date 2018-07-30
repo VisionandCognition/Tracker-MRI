@@ -1,4 +1,4 @@
-function ParSettings_DANNY_MOCK_FIX_TR2500ms
+function ParSettings_EPHYS_FIX_Step500ms
 
 % ParSettings gives all parameters for the experiment in global Par
 global Par
@@ -15,7 +15,7 @@ elseif strcmp(Par.ScreenChoice,'NIN')
 end
 
 %% Triggering =============================================================
-Par.TR = 1.0; % emulated for ephys where we have faster responses
+Par.TR = 0.500; % emulated for ephys where we have faster responses
 Par.MRITriggeredStart = true;  % use as a syncmoment
 Par.MRITrigger_OnlyOnce = true;
 

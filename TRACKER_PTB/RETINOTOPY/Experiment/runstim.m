@@ -433,8 +433,19 @@ for i=1:length(Stm)
 end
 if ~isinf(TotTime)
     NumVolNeeded=(Stm(1).nRepeatsStimSet*TotTime)/Par.TR;
-    fprintf(['This StimSettings file requires at least ' num2str(ceil(NumVolNeeded)) ...
-        ' scanvolumes (check scanner)\n']);
+    if strcmp(Par.SetUp,'NIN') % ephys
+       fprintf(['This StimSettings file will take ' ...
+           num2str(ceil(Stm(1).nRepeatsStimSet*TotTime)) ' seconds.\n']); 
+       Log.uniqueID = round(rand(1).*2^14); 
+       dasword(Log.uniqueID);
+       pause(.05); % make sure the word is received
+       dasclearword();
+       WordsSent=1; %keep track of how many words are sent so we back-check TDT against the log
+       Log.Words(WordsSent)=LOG.uniqueID; %collect all the words that are sent to TDT
+    else
+        fprintf(['This StimSettings file requires at least ' num2str(ceil(NumVolNeeded)) ...
+            ' scanvolumes (check scanner)\n']);
+    end
 else
     fprintf('NB: No end-time defined. This will keep running until stopped.\n')
 end
@@ -731,6 +742,8 @@ for STIMNR = Log.StimOrder
                     SetEyeRecStatus(1); %trigger recording
                 end
             end
+        else
+            fprintf('Eye recording not triggered (probably ephys). Make sure it''s running!');
         end
         
         %% MRI triggered start
@@ -870,8 +883,11 @@ for STIMNR = Log.StimOrder
                     Log.Events(Log.nEvents).type='NewPosition';
                     Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
                     Log.Events(Log.nEvents).StimName = posn;
-                    % dasword
-                    dasword(posn);
+                    if strcmp(Par.SetUp,'NIN') % ephys
+                    	dasword(posn);
+                        WordsSent=WordsSent+1; 
+                        Log.Words(WordsSent)=posn;
+                    end
                 end
                 
                 if strcmp(Stm(STIMNR).RetMap.StimType{1},'ret') && posn
@@ -2334,6 +2350,11 @@ Par=Par_BU;
                         Log.Events(Log.nEvents).type='MRITrigger';
                         Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
                         Log.Events(Log.nEvents).StimName = [];
+                        if strcmp(Par.SetUp,'NIN') % send start bit to sync ephys system
+                            dasword(00000);
+                            WordsSent=WordsSent+1; %keep track of how many words are sent so we back-check TDT against the log
+                            Log.Words(WordsSent)=00000; %collect all the words that are sent to TDT
+                        end
                     case Par.KeyJuice
                         if Par.KeyDetectedInTrackerWindow % only in Tracker
                             Par.ManualReward = true;

@@ -12,7 +12,7 @@ Stm(1).BackColor = [.75 .75 .75]; % [R G B] 0-1
 % Leuven retinotopy clips have a background of 88 out of 256
 
 %% Fixation ----------------------------------------------------------------
-Stm(1).FixDotSize = 0.1;
+Stm(1).FixDotSize = 0.15;
 Stm(1).FixDotSurrSize = 0.75;
 Stm(1).FixDotCol = [1 0 0;1 0 0]; %[RGB if not fixating; RGB fixating]
 % fixation color is overwritten by parsettings!
@@ -62,7 +62,7 @@ Stm(1).RetMap.chksize = Stm(1).RetMap.BarWidth/4; % bar checker size in deg
 Stm(1).RetMap.LoadFromFile = false;
 % NB! loading a stimulus overwrites all settings with the ones saved!
 Stm(1).RetMap.SaveToFile = true;
-Stm(1).RetMap.FileName = 'pRF_8bars_NIN_ephys_TR1000ms.mat';
+Stm(1).RetMap.FileName = 'pRF_8bars_NIN_ephys_Step500ms.mat';
 
 % Logfolder
 Stm(1).LogFolder = 'C:\Users\NINuser\Documents\Log_CK\Retinotopy\pRF';
