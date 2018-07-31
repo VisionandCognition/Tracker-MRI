@@ -743,7 +743,7 @@ for STIMNR = Log.StimOrder
                 end
             end
         else
-            fprintf('Eye recording not triggered (probably ephys). Make sure it''s running!');
+            fprintf('Eye recording not triggered (ephys or training?). Make sure it''s running!\n');
         end
         
         %% MRI triggered start
