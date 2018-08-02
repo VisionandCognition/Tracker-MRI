@@ -440,7 +440,8 @@ if ~isinf(TotTime)
        Log.uniqueID = round(rand(1).*2^14); 
        
        if strcmp(Par.SetUp,'NIN')
-           send_serial_data(Log.uniqueID);
+           send_serial_data(Log.uniqueID); % Xing's Blackrock rig
+           % dasword(Log.uniqueID); % other ephys
        else
            dasword(Log.uniqueID);
        end
@@ -786,8 +787,8 @@ for STIMNR = Log.StimOrder
             Par.Trlcount = Par.Trlcount+1; %keep track of trial numbers
             % send trial nr to ephys rig
             if strcmp(Par.SetUp,'NIN') % ephys
-                %dasword(Par.Trlcount);
-                send_serial_data(Par.Trlcount(1));
+                %dasword(Par.Trlcount(1)); % TDT
+                send_serial_data(Par.Trlcount(1)); % Blackrock
                 WordsSent+1;
                 Log.Words(WordsSent)=Par.Trlcount(1);
                 Log.nEvents=Log.nEvents+1;
