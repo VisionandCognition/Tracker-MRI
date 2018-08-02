@@ -10,6 +10,8 @@ if strcmp(Par.ScreenChoice,'3T')
     Par.SetUp = 'Spinoza_3T';
 elseif strcmp(Par.ScreenChoice,'Mock')
     Par.SetUp = 'Spinoza_MOCK';
+elseif strcmp(Par.ScreenChoice,'NIN')
+    Par.SetUp = 'NIN'; 
 end
 
 %% Triggering =============================================================
