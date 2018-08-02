@@ -1920,6 +1920,7 @@ for STIMNR = Log.StimOrder
         if ~TestRunstimWithoutDAS && ~json_done &&...
                 (StimLoopNr==Stm(1).nRepeatsStimSet || ...
                 (Par.ESC && StimLoopNr~=Stm(1).nRepeatsStimSet))
+            
             % save json file ===========
             Par.jf.Project      = 'Retinotopy';
             if strcmp(Par.SetUp,'NIN')
@@ -1937,7 +1938,7 @@ for STIMNR = Log.StimOrder
             Par.jf.Group        = 'awake';
             Par.jf.Stimulus     = Stm(STIMNR).Descript;
             Par.jf.LogFolder    = [Par.MONKEY '_' DateString];
-            Par.jf.logfile_name = FileName;
+            Par.jf.logfile_name = FileName; %%%%%%%%
             Par.jf.fixperc      = Log.FixPerc;
             % give the possibility to change
             % only when at scanner
@@ -1971,14 +1972,36 @@ for STIMNR = Log.StimOrder
             json.session.logfile    = Par.jf.logfile_name;
             json.session.logfolder  = Par.jf.LogFolder;
             json.session.fixperc    = Par.jf.fixperc;
-            savejson('', json, ['Log_' DateString '_session.json']);
+            
+            % retrospectively create jsons for all runs
+            for jj = 1:StimLoopNr % save json files for all runs
+                if strcmp(Par.SetUp,'NIN')
+                    json.session.logfile=['Log_' LogFn '_' ...
+                        Stm(STIMNR).Descript '_Run' num2str(jj) '_Block' num2str(blockstr)];
+                else
+                    json.session.logfile=['Log_' LogFn '_' ...
+                        Stm(STIMNR).Descript '_Run' num2str(jj)];
+                end
+                if jj<StimLoopNr
+                    json.session.fixperc = CollectPerformance{StimLoopNr,2};
+                else
+                    json.session.fixperc    = Par.jf.fixperc;
+                end
+                savejson('', json, ['Log_' DateString ...
+                        '_Run' num2str(jj,'%03.f') '_session.json']);
+                %savejson('', json, ['Log_' DateString '_session.json']);
+            end
+            json_done=true;
+        end
+        
+        if ~TestRunstimWithoutDAS
             % save log mat-file ============
             temp_hTracker=Par.hTracker;
             Par=rmfield(Par,'hTracker');
             save(FileName,'Log','Par','StimObj');
             Par.hTracker = temp_hTracker;
-            json_done=true;
         end
+        
         
         % write some stuff to a text file as well
         if ~TestRunstimWithoutDAS
