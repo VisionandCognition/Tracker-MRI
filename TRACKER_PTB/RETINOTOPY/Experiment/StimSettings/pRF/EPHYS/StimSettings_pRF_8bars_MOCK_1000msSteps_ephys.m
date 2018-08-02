@@ -7,12 +7,12 @@ Stm(1).UsePreDefFlipTime=false; %else as fast as possible
 Stm(1).FlipTimePredef = 1/75;
 
 %% Background --------------------------------------------------------------
-Stm(1).BackColor = [.75 .75 .75]; % [R G B] 0-1
+Stm(1).BackColor = [.5 .5 .5]; % [R G B] 0-1
 %Stm(1).BackColor = (88/255).*[1 1 1]; % [R G B] 0-1
 % Leuven retinotopy clips have a background of 88 out of 256
 
 %% Fixation ----------------------------------------------------------------
-Stm(1).FixDotSize = 0.15;
+Stm(1).FixDotSize = 0.25;
 Stm(1).FixDotSurrSize = 0.75;
 Stm(1).FixDotCol = [1 0 0;1 0 0]; %[RGB if not fixating; RGB fixating]
 % fixation color is overwritten by parsettings!
@@ -29,7 +29,7 @@ Stm(1).CyclePosition = 0; % set zero for manual cycling
 
 %% Retinotopic mapping stimulus --------------------------------------------
 Stm(1).RandomizeStim=false;
-Stm(1).nRepeatsStimSet=1;
+Stm(1).nRepeatsStimSet=5;
 
 Stm(1).RetMap.StimType{1} = 'ret'; % face / walker / checkerboard
 Stm(1).RetMap.StimType{2} = 'pRF_8bar'; % circle / wedge
@@ -43,9 +43,9 @@ Stm(1).RetMap.PostDur_TRs = 5; % volumes
 Stm(1).RetMap.nCycles = 1; % 0=unlimited << ONLY WORKS FOR CHECKERBOARDS
 
 % This only applies to newly created stim =================================
-Stm(1).RetMap.StimSize = 16; % [15] degrees (square) >> diameter
+Stm(1).RetMap.StimSize = 28; % [15] degrees (square) >> diameter
 % Maximum size is screen height, will be corrected if it exceeds!
-Stm(1).RetMap.nSteps = 8*20; %(8 directions * number of steps per sweep)
+Stm(1).RetMap.nSteps = 8*30; %(8 directions * number of steps per sweep)
 % (32 for KUL face/walkers; multiple of 8 for 8bar)
 Stm(1).RetMap.nBlanks_after_cardinals = 5; % bars
 Stm(1).RetMap.nBlanks_each_nSteps = [0 0]; % wedge/rings
@@ -59,13 +59,13 @@ Stm(1).RetMap.BarWidth = Stm(1).RetMap.StimSize/8; % bar width in deg
 Stm(1).RetMap.chksize = Stm(1).RetMap.BarWidth/4; % bar checker size in deg
 % =========================================================================
 
-Stm(1).RetMap.LoadFromFile = false;
+Stm(1).RetMap.LoadFromFile = true;
 % NB! loading a stimulus overwrites all settings with the ones saved!
-Stm(1).RetMap.SaveToFile = true;
+Stm(1).RetMap.SaveToFile = false;
 Stm(1).RetMap.FileName = 'pRF_8bars_NIN_ephys_Step500ms.mat';
 
 % Logfolder
-Stm(1).LogFolder = 'C:\Users\NINuser\Documents\Log_CK\Retinotopy\pRF';
+Stm(1).LogFolder = 'C:\Users\Chris_Klink\Log_pRF';
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

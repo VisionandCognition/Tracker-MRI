@@ -68,7 +68,6 @@ GrandTotalReward=0;
 LastRewardAdded=false;
 CollectPerformance=[];
 CloseTextures=false;
-json_done=false;
 
 Par.RewardStartTime=0;
 
@@ -438,17 +437,11 @@ if ~isinf(TotTime)
        fprintf(['This StimSettings file will take ' ...
            num2str(ceil(Stm(1).nRepeatsStimSet*TotTime)) ' seconds.\n']); 
        Log.uniqueID = round(rand(1).*2^14); 
-       
-       if strcmp(Par.SetUp,'NIN')
-           send_serial_data(Log.uniqueID);
-       else
-           dasword(Log.uniqueID);
-       end
-       
+       dasword(Log.uniqueID);
        pause(.05); % make sure the word is received
        dasclearword();
        WordsSent=1; %keep track of how many words are sent so we back-check TDT against the log
-       Log.Words(WordsSent)=Log.uniqueID; %collect all the words that are sent to TDT
+       Log.Words(WordsSent)=LOG.uniqueID; %collect all the words that are sent to TDT
     else
         fprintf(['This StimSettings file requires at least ' num2str(ceil(NumVolNeeded)) ...
             ' scanvolumes (check scanner)\n']);
@@ -784,17 +777,6 @@ for STIMNR = Log.StimOrder
             end
             
             Par.Trlcount = Par.Trlcount+1; %keep track of trial numbers
-            % send trial nr to ephys rig
-            if strcmp(Par.SetUp,'NIN') % ephys
-                %dasword(Par.Trlcount);
-                send_serial_data(Par.Trlcount(1));
-                WordsSent+1;
-                Log.Words(WordsSent)=Par.Trlcount(1);
-                Log.nEvents=Log.nEvents+1;
-                Log.Events(Log.nEvents).type='TrialStart';
-                Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-                Log.Events(Log.nEvents).StimName = Par.Trlcount(1);
-            end
             Par.ResponseGiven=false;
             Par.FalseResponseGiven=false;
             Par.RespValid = false;
@@ -902,12 +884,9 @@ for STIMNR = Log.StimOrder
                     Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
                     Log.Events(Log.nEvents).StimName = posn;
                     if strcmp(Par.SetUp,'NIN') % ephys
-                    	dasbit(Par.StimB,1);
-                        daspause(0.05);
-                        dasbit(Par.StimB,0);
-                        %send_serial_data(posn);
-                        %WordsSent+1; 
-                        %Log.Words(WordsSent)=posn;
+                    	dasword(posn);
+                        WordsSent=WordsSent+1; 
+                        Log.Words(WordsSent)=posn;
                     end
                 end
                 
@@ -1916,16 +1895,10 @@ for STIMNR = Log.StimOrder
         end
         
         % save mat and json files
-        if ~TestRunstimWithoutDAS && ~json_done &&...
-                (StimLoopNr==Stm(1).nRepeatsStimSet || ...
-                (Par.ESC && StimLoopNr~=Stm(1).nRepeatsStimSet))
+        if ~TestRunstimWithoutDAS
             % save json file ===========
             Par.jf.Project      = 'Retinotopy';
-            if strcmp(Par.SetUp,'NIN')
-                Par.jf.Method   = 'EPHYS';
-            else
-                Par.jf.Method   = 'MRI';
-            end
+            Par.jf.Method       = 'MRI'; 
             Par.jf.Protocol     = '17.25.01'; 
             Par.jf.Dataset      = Par.LogFolder(...
                 find(Par.LogFolder=='\',1,'last')+1:end);
@@ -1976,7 +1949,6 @@ for STIMNR = Log.StimOrder
             Par=rmfield(Par,'hTracker');
             save(FileName,'Log','Par','StimObj');
             Par.hTracker = temp_hTracker;
-            json_done=true;
         end
         
         % write some stuff to a text file as well
@@ -2379,8 +2351,7 @@ Par=Par_BU;
                         Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
                         Log.Events(Log.nEvents).StimName = [];
                         if strcmp(Par.SetUp,'NIN') % send start bit to sync ephys system
-                            %dasword(00000);
-                            send_serial_data(0);
+                            dasword(00000);
                             WordsSent=WordsSent+1; %keep track of how many words are sent so we back-check TDT against the log
                             Log.Words(WordsSent)=00000; %collect all the words that are sent to TDT
                         end
@@ -2827,7 +2798,7 @@ Par=Par_BU;
             if Par.RewardTimeCurrent>0
                 Par.RewardStartTime=GetSecs;
                 if strcmp(computer,'PCWIN64')
-                    dasjuice(5.1); % 64bit das card
+                    dasjuice(10); % 64bit das card
                 else
                     dasjuice(5) %old card dasjuice(5)
                 end

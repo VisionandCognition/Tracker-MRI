@@ -24,15 +24,15 @@ eval(Par.STIMSETFILE); % loads the chosen stimfile
 Stm=StimObj.Stm;
 
 % overwrites the stimsetting!
-StimObj.Stm.FixDotCol = [.3 .3 .3 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
+StimObj.Stm.FixDotCol = [1 0 0;1 0 0]; %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
 Par.FixWinSize = [1.5 1.5]; % [W H] in deg
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
-Par.SCx = 0.135; %initial scale in control window
-Par.SCy = 0.135;
+Par.SCx = 0.07; %initial scale in control window
+Par.SCy = 0.07;
 Par.OFFx = 0; %initial eye offset x => (center) of camera das output
 Par.OFFy = 0; %initial eye offset y
 Par.ScaleOff = [Par.OFFx; Par.OFFy; Par.SCx; Par.SCy]; 
@@ -74,9 +74,9 @@ Par.ScrCenter = [Par.HW Par.HH];
 [Par.ScreenWidthD2, Par.ScreenHeightD2] = Screen('DisplaySize',Par.ScrNr);
 
 if strcmp(Par.SetUp,'NIN')
-    Par.DistanceToScreen = 700; % distance to screen in mm
-    Par.ScreenWidthD2 = 600; %%%
-    Par.ScreenHeightD2 = 337.5; %%%
+    Par.DistanceToScreen = 640; % distance to screen in mm
+    Par.ScreenWidthD2 = 400; %%%
+    Par.ScreenHeightD2 = 300; %%%
 elseif strcmp(Par.SetUp,'Spinoza_MOCK')
     Par.DistanceToScreen = 1200; % distance to screen in mm
     % physical display size report is unreliable
@@ -237,7 +237,7 @@ Par.RewardFixMultiplier = 1.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.03;
+        Par.RewardTimeSet = 0.02;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -254,16 +254,16 @@ switch Par.RewardType
         Par.RewardTimeSet = 0; %no reward
 end
 
-Par.RewardTimeManual = 0.02; % amount of reward when given manually
+Par.RewardTimeManual = 0.01; % amount of reward when given manually
 
 Par.RewardFixHoldTimeProg = true;
 if Par.RewardFixHoldTimeProg
     Par.RewardFixHoldTime = [...
-        0 1600;...
-        5 1400;...   
-        10 1200;...
-        20 900;...
-        30 600;...
+        0 900;...
+        5 800;...   
+        10 700;...
+        20 600;...
+        30 500;...
         ];
 else
     Par.RewardFixHoldTime = 1250; %time to maintain fixation for reward
@@ -426,7 +426,7 @@ Par.DrumType = 1; %1=immediately repeat, 2=append to end, 3=insert randomly
 Par.isRunning = false;  %stimulus presentation off
 
 %% Tracker window control =================================================
-Par.ZOOM = 0.6;   %control - cogent window zoom
+Par.ZOOM = 0.9;   %control - cogent window zoom
 Par.P1 = 1; Par.P2 = 1;
 
 %% Logging ================================================================
