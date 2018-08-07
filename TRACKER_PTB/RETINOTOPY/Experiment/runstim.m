@@ -1983,7 +1983,7 @@ for STIMNR = Log.StimOrder
                         Stm(STIMNR).Descript '_Run' num2str(jj)];
                 end
                 if jj<StimLoopNr
-                    json.session.fixperc = CollectPerformance{StimLoopNr,2};
+                    json.session.fixperc = CollectPerformance{jj,2};
                 else
                     json.session.fixperc    = Par.jf.fixperc;
                 end
