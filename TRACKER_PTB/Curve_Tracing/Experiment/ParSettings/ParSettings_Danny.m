@@ -34,15 +34,15 @@ Stm=StimObj.Stm;
 % overrule generic fixation window
 % Fixation window set by StimSettings with FixWinSizeDeg, not sure what ...
 %    Par.FixWinSize does?
-Par.FixWinSize = [2.0 0.2];% [1.8 1.8]; % [W H] in deg
+Par.FixWinSize = [2.0 2.0];% [1.8 1.8]; % [W H] in deg
 Stm(1).FixWinSizeDeg = Par.FixWinSize(1);
 
 Par.WaitForFixation = false; % toggled with f
 % phase only works when WaitForFixation = true
 Par.WaitForFixation_phase = [true true true]; 
 % [prefix preswitch switched] true/false
-Par.ReqFixTime_PostSwitch = 300; % ms fixation is required when it is required in switched
-Par.RewFixTime_PostSwitch = [50 0.06]; %[fixtime(ms) rewtime(s)]
+Par.ReqFixTime_PostSwitch = 500; % ms fixation is required when it is required in switched
+Par.RewFixTime_PostSwitch = [400 0.035]; %[fixtime(ms) rewtime(s)]
 
 Par.RequireFixationForReward = false;
 Par.EndTrialOnResponse = true; % Make responsive
@@ -240,13 +240,12 @@ Par.SingleHandInTime = -Inf;
 Par.BothHandsInTime = -Inf;
 % Par.MinSecSinceReward = 10;
 
-
 Par.ManualRewardTargetOnly = false; % only give manual reward during target presentation
 % prevents me from mistiming the manual reward during training
 
 Par.OneRewardPerTrial = false; % for training allow multiple rewards/target
 if ~isfield(Par, 'RewardTime')
-    Par.RewardTime = 0.15;
+    Par.RewardTime = 0.200;
 end
 
 % switch Par.RewardType
@@ -268,7 +267,7 @@ end
 
 Par.RewardTimeManual = 0.04; % amount of reward when given manually
 
-Par.StreakRewardMult = 1.25; % Give more reward when an entire block is correct
+Par.StreakRewardMult = 1.0; % Give more reward when an entire block is correct
 
 %% Create Eye-check windows based on stimulus positions ===================
 for SetInitialWINs=1
