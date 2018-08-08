@@ -41,10 +41,10 @@ Par.WaitForFixation = false; % toggled with f
 % phase only works when WaitForFixation = true
 Par.WaitForFixation_phase = [true true true]; 
 % [prefix preswitch switched] true/false
-Par.ReqFixTime_PostSwitch = 500; % ms fixation is required when it is required in switched
-Par.RewFixTime_PostSwitch = [400 0.035]; %[fixtime(ms) rewtime(s)]
+Par.ReqFixTime_DuringSwitch = 3000; %550; % ms fixation is required when it is required in switched
+Par.RewFixTime_DuringSwitch = [500 0.02]; %[400 0.040]; %[fixtime(ms) rewtime(s)]
 
-Par.RequireFixationForReward = false;
+Par.RequireFixationForReward = false; % toggled with f
 Par.EndTrialOnResponse = true; % Make responsive
 % Par.EndTrialOnFixBreak = true;
 
@@ -245,7 +245,7 @@ Par.ManualRewardTargetOnly = false; % only give manual reward during target pres
 
 Par.OneRewardPerTrial = false; % for training allow multiple rewards/target
 if ~isfield(Par, 'RewardTime')
-    Par.RewardTime = 0.200;
+    Par.RewardTime = 0.250;
 end
 
 % switch Par.RewardType

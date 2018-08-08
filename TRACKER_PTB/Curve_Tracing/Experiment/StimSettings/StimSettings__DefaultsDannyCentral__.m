@@ -17,7 +17,7 @@ Params.BGColor = [.5 .5 .5]; % [R G B] 0-1
 % >> Equalize color with Eddy's for scanning / paper
 
 % Fixation ----------------------------------------------------------------
-Params.FixWinSizeDeg = 3; % <- testing   2.5; % in deg
+Params.FixWinSizeDeg = 2.5; % <- testing   2.5; % in deg
 Params.FixDotSizeDeg = 0.3;
 
 %[RGB if not fixating; RGB fixating; Fixation not required]
@@ -124,7 +124,7 @@ Params.FixPositionsDeg{4} = [4 0]; % deg from center (-=left/down)
 Params.FixPositionsDeg{5} = [0 4]; % deg from center (-=left/down)
 
 % Stimulus specific timing (in ms)
-Params.SwitchDur = 1300; % (200) duration of alternative orientation
+Params.SwitchDur = 1000; %1000; % (200) duration of alternative orientation
 
 % set time-windows in which something can happen (ms)
 % [baseduration_without_switch ... 

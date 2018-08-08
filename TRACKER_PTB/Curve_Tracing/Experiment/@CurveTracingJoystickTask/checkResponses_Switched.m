@@ -2,7 +2,7 @@ function checkResponses_Switched(obj, lft)
 %CHECKRESPONSES_SWITCHED Read new responses via DAS and check timing.
 %   Detailed explanation goes here
     global Par;
-
+       
     if Par.NewResponse && ...
         lft >= obj.stateStart.SWITCHED + obj.taskParams.ResponseAllowed(1)/1000 && ...
         lft < obj.stateStart.SWITCHED + obj.taskParams.ResponseAllowed(2)/1000
@@ -58,9 +58,14 @@ function checkResponses_Switched(obj, lft)
     end
     
     if ~Par.FixIn && (Par.WaitForFixation && Par.WaitForFixation_phase(3)) && ...
-        lft < obj.stateStart.SWITCHED+Par.ReqFixTime_PostSwitch/1000
+        lft < obj.stateStart.SWITCHED+Par.ReqFixTime_DuringSwitch/1000
+        
+        % break fixation before fix-time-required is reached
+        % should stop trial and remove stimulus
+            
         % false
         obj.curr_response = 'break_fix';
+        % fprintf('break_fix in switch\n');
         Par.CurrResponse = Par.RESP_BREAK_FIX;
         Par.RespValid = false;
         if ~Par.ResponseGiven && ~Par.FalseResponseGiven %only log once
@@ -76,10 +81,20 @@ function checkResponses_Switched(obj, lft)
         end
         
         obj.updateState('POSTSWITCH', lft);
+        
+    elseif ~Par.FixIn && (Par.WaitForFixation && Par.WaitForFixation_phase(3)) && ...
+        lft > obj.stateStart.SWITCHED+Par.ReqFixTime_DuringSwitch/1000
+            
+        % breaking fixation after required fixation has been reached
+        % no consequences
+    
     elseif Par.FixIn && lft < obj.stateStart.SWITCHED+obj.param('SwitchDur')/1000 && ...
-            lft >= obj.stateStart.SWITCHED+Par.RewFixTime_PostSwitch(1)/1000 && ~Par.ExtraFixRewardGiven
+            lft >= obj.stateStart.SWITCHED+Par.RewFixTime_DuringSwitch(1)/1000 && ~Par.ExtraFixRewardGiven
+        
+        % Fixation held for required time >> give reward
+        
         fprintf('====\nReward for fixation\n====\n');
-        Par.GiveRewardAmount = Par.RewFixTime_PostSwitch(2);
+        Par.GiveRewardAmount = Par.RewFixTime_DuringSwitch(2);
         GiveRewardAuto;
         Par.AutoRewardGiven = true;
         Par.ExtraFixRewardGiven = true;
