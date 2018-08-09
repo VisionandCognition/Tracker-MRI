@@ -118,7 +118,7 @@ Params.FixPositionsDeg{4} = [4 0]; % deg from center (-=left/down)
 Params.FixPositionsDeg{5} = [0 4]; % deg from center (-=left/down)
 
 % Stimulus specific timing (in ms)
-Params.SwitchDur = 3000; % (200) duration of alternative orientation
+Params.SwitchDur = 10000; % (200) duration of alternative orientation
 
 % set time-windows in which something can happen (ms)
 % [baseduration_without_switch ... 

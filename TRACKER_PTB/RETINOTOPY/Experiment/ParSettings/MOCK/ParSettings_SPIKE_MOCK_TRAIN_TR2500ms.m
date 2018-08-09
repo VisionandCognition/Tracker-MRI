@@ -134,15 +134,15 @@ Par.RESP_STATE_GO = 2; % Go signal given
 Par.RESP_STATE_DONE = 4;  % Go signal given and response no longer possible (hit or miss)
 
 % Go-bar (vertical / horizontal target bar) -------------------------------
-Gobar_length = 4; % .02
+Gobar_length = 2; % .02
 Par.GoBarSize = Gobar_length*[1, .25] + [0, 0.01]; % [length width] in deg
-Par.GoBarColor = [0.8 0.8 0.8]; % [R G B] 0-1
+Par.GoBarColor = [0.7 0.7 0.7]; % [R G B] 0-1
 
 % Color of the Response indicator (which hand)
 Par.RespLeverMatters = true;
 %Par.RespIndColor = [Stm(1).BackColor;Stm(1).BackColor]; %0.1*[1 1 1;1 1 1]; % colors for the left and right target
 Par.RespIndColor = 0.1*[1 1 1;1 1 1]; % colors for the left and right target
-Par.RespIndSize = 3;
+Par.RespIndSize = 2;
 Par.RespIndPos = [-5 0; 5 0]; % deg
 Par.RespLeverGain = [1 1]; % [L R] 
 
@@ -151,15 +151,15 @@ Par.BlockedIndColor = [.7 .7 .7];
 
 Par.SwitchDur = 3000; % (200) duration of alternative orientation
 Par.ResponseAllowed = [80 Par.SwitchDur+100]; % [after_onset after_offset] in ms
-Par.PostErrorDelay = 200; % extra wait time as punishment for error trials
+Par.PostErrorDelay = 1000; % extra wait time as punishment for error trials
 Par.DelayOnMiss = 0; % extra wait time as punishment for miss trials 
 
-Par.NoIndicatorDuringPunishDelay=false;
+Par.NoIndicatorDuringPunishDelay=true;
 
 Par.ProbSideRepeatOnCorrect =   0.50;
-Par.ProbSideRepeatOnError =     0.80;
+Par.ProbSideRepeatOnError =     0.75;
 Par.ProbSideRepeatOnMiss =      0.90;
-Par.ProbSideRepeatOnEarly =     0.90;
+Par.ProbSideRepeatOnEarly =     0.75;
 
 Par.CatchBlock.do = false;
 Par.CatchBlock.AfterNumberOfTrials = 1;
@@ -234,7 +234,7 @@ Par.RewardFixMultiplier = 0.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.200;%250;
+        Par.RewardTimeSet = 0.220;%250;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as

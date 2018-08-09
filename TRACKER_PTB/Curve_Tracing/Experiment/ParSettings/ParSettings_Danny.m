@@ -15,7 +15,7 @@ end
 %% Triggering =============================================================
 % Par.TR * Par.NumVols Determines length of MRI scan
 % (first MRI trigger to last scanned volume)
-Par.TR = 2.5; 
+Par.TR = 2.5;
 Par.NumVols = 420;
 Par.MRITriggeredStart = true;
 Par.MRITrigger_OnlyOnce = true;
@@ -37,16 +37,20 @@ Stm=StimObj.Stm;
 Par.FixWinSize = [2.0 2.0];% [1.8 1.8]; % [W H] in deg
 Stm(1).FixWinSizeDeg = Par.FixWinSize(1);
 
-Par.WaitForFixation = false; % toggled with f
+Par.WaitForFixation = true; % can be toggled with f (if Par.FKeyToggles_WaitForFix = true)
 % phase only works when WaitForFixation = true
-Par.WaitForFixation_phase = [true true true]; 
+Par.WaitForFixation_phase = [true true true];
 % [prefix preswitch switched] true/false
-Par.ReqFixTime_PostSwitch = 500; % ms fixation is required when it is required in switched
-Par.RewFixTime_PostSwitch = [400 0.035]; %[fixtime(ms) rewtime(s)]
+Par.ReqFixTime_DuringSwitch = 550; % ms fixation is required when it is required in switched
+Par.RewFixTime_DuringSwitch = [400 0.040]; %[fixtime(ms) rewtime(s)]
 
-Par.RequireFixationForReward = false;
+Par.RequireFixationForReward = true; % can be toggled with f (if Par.FKeyToggles_WaitForFix ~= true)
 Par.EndTrialOnResponse = true; % Make responsive
 % Par.EndTrialOnFixBreak = true;
+
+Par.FKeyToggles_WaitForFix = true; 
+% if true, f toggles Par.WaitForFixation
+% if not true, f toggles Par.RequireFixationForReward
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
@@ -54,7 +58,7 @@ Par.SCx = 0.14; %initial scale in control window
 Par.SCy = 0.11;
 Par.OFFx = 0; %initial eye offset x => (center) of camera das output
 Par.OFFy = 0; %initial eye offset y
-Par.ScaleOff = [Par.OFFx; Par.OFFy; Par.SCx; Par.SCy]; 
+Par.ScaleOff = [Par.OFFx; Par.OFFy; Par.SCx; Par.SCy];
 %Offx, %Offy, Scalex, Scaley ; offset and scaling of eyechannels
 
 %if using eyelink set to -1.0 else 1.0
@@ -165,7 +169,7 @@ Par.RewSndPar = [44100 800 1];
 % RESP_EARLY = 4;
 % RESP_BREAK_FIX = 5;
 % RESP_REMOVE_HAND = 6;
-Par.FeedbackSound = [false true false true true false];
+Par.FeedbackSound = [true true false true true false];
 Par.FeedbackSoundPar = [ ...
     44100 800  .5 0.01; ... CORRECT
     44100 200  .5 0.01; ... FALSE
@@ -174,11 +178,9 @@ Par.FeedbackSoundPar = [ ...
     44100 400  .5 0.01; ... FIXATION BREAK
     44100 400  .5 0.01 ... REMOVE HAND
     ];
-Par.MissSound = true;
-Par.MissSndPar = [44100 200 1 0.01];
 
-% Create audio buffers for low latency sounds 
-% (they are closed in runstim cleanup) 
+% Create audio buffers for low latency sounds
+% (they are closed in runstim cleanup)
 if Par.FeedbackSound
     try
         InitializePsychSound; % init driver
@@ -244,9 +246,9 @@ Par.ManualRewardTargetOnly = false; % only give manual reward during target pres
 % prevents me from mistiming the manual reward during training
 
 Par.OneRewardPerTrial = false; % for training allow multiple rewards/target
-if ~isfield(Par, 'RewardTime')
-    Par.RewardTime = 0.200;
-end
+%if ~isfield(Par, 'RewardTime')
+Par.RewardTime = 0.250;
+%end
 
 % switch Par.RewardType
 %     case 0
@@ -265,8 +267,8 @@ end
 %         Par.RewardTime = 0; %no reward
 % end
 
+Par.PropRewardWitheldForRelease = 0.25; % this proportion is given after the lever is released
 Par.RewardTimeManual = 0.04; % amount of reward when given manually
-
 Par.StreakRewardMult = 1.0; % Give more reward when an entire block is correct
 
 %% Create Eye-check windows based on stimulus positions ===================
@@ -308,7 +310,7 @@ Par.KeyCountDownMRITriger = KbName('Space'); % wait for trigger in ~7 s
 
 Par.KeyFORPResponseLeft = KbName('e'); % for human or testing
 Par.KeyFORPResponseRight = KbName('b');
-Par.KeyNextTargetLeft = KbName('s'); 
+Par.KeyNextTargetLeft = KbName('s');
 Par.KeyNextTargetRight = KbName('d');
 Par.KeyTogglePause = KbName('Space'); % allows breaking out of the experiment
 
@@ -323,7 +325,7 @@ Par.Key5 = KbName('5%');%KbName('5%');
 % Par.KeyNext = KbName('RightArrow');
 % Par.KeyPrevious = KbName('LeftArrow');
 Par.KeyNext = KbName('n');
-     
+
 %% Trial timing information ===============================================
 Par.Times.ToFix = 2000; %time to enter fix window in ms
 Par.Times.Fix = 0;  % Par.Times.Fix = 300;  %Time in fixation window
@@ -338,7 +340,7 @@ Par.Times.RndTarg = 0; %max uniform random time to add to target onset time
 
 Par.Times.Sacc = 100; %max time to finish saccade
 Par.Times.Err = 500; %time to add to in RT-epoch after error
-% 
+%
 Par.Drum = false;     %drumming on or off, redoing error trials
 Par.DrumType = 1; %1=immediately repeat, 2=append to end, 3=insert randomly
 Par.isRunning = false;  %stimulus presentation off
