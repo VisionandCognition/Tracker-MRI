@@ -37,16 +37,20 @@ Stm=StimObj.Stm;
 Par.FixWinSize = [1.8 1.8]; % [W H] in deg
 Stm(1).FixWinSizeDeg = Par.FixWinSize(1);
 
-Par.WaitForFixation = true; % toggled with f
+Par.WaitForFixation = true; % can be toggled with f (if Par.FKeyToggles_WaitForFix = true)
 % phase only works when WaitForFixation = true
 Par.WaitForFixation_phase = [true true false]; 
 % [prefix preswitch switched] true/false
 Par.ReqFixTime_DuringSwitch = 50; % ms fixation is required when it is required in switched
 Par.RewFixTime_DuringSwitch = [10000 0.01]; %[fixtime(ms) rewtime(s)]
 
-Par.RequireFixationForReward = true;
+Par.RequireFixationForReward = true; % can be toggled with f (if Par.FKeyToggles_WaitForFix ~= true)
 Par.EndTrialOnResponse = true; % Make responsive
 % Par.EndTrialOnFixBreak = true;
+
+Par.FKeyToggles_WaitForFix = true; 
+% if true, f toggles Par.WaitForFixation
+% if not true, f toggles Par.RequireFixationForReward
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
@@ -193,9 +197,6 @@ Par.HandsIn=[false false]; % Hands in position ready to respond
 Par.RequireHandsIn = true;
 %Par.RequireHandsIn = false;  % <--- TEMPORARY!!!
 
-
-
-
 Par.SingleHandInReward = 0.10; % 0 to disable
 Par.BothHandsInReward = 0.20; % Reward for PUTTING both hands in
 
@@ -216,7 +217,6 @@ Par.HandOutOrRewardTime = -Inf;
 Par.SingleHandInTime = -Inf;
 Par.BothHandsInTime = -Inf;
 % Par.MinSecSinceReward = 10;
-
 
 Par.ManualRewardTargetOnly = false; % only give manual reward during target presentation
 % prevents me from mistiming the manual reward during training
@@ -243,8 +243,8 @@ end
 %         Par.RewardTime = 0; %no reward
 % end
 
+Par.PropRewardWitheldForRelease = 1; 
 Par.RewardTimeManual = 0.04; % amount of reward when given manually
-
 Par.StreakRewardMult = 1; % Give 50% more reward when an entire block is correct
 
 %% Create Eye-check windows based on stimulus positions ===================

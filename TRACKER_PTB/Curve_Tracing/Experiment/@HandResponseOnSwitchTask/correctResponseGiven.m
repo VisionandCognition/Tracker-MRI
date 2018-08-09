@@ -20,7 +20,6 @@ function correctResponseGiven(obj, lft)
 
     if Par.RequireFixationForReward
         fixInRatio = obj.fixation_ratio();
-
         if fixInRatio >= 1.0
             RewardAmount = Par.RewardTime;
         else
@@ -36,7 +35,7 @@ function correctResponseGiven(obj, lft)
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
         Par.CorrectThisTrial=true;
         
-        withhold_for_release = 1.0;
+        withhold_for_release = Par.PropRewardWitheldForRelease;;
         Par.GiveRewardAmount = Par.GiveRewardAmount + (1 - withhold_for_release) * RewardAmount;
         Par.GiveRewardAmount_onResponseRelease = ...
             Par.GiveRewardAmount_onResponseRelease + withhold_for_release * RewardAmount;

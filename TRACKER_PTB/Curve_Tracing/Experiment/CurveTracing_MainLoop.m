@@ -135,7 +135,8 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
     %
     %     Go through all of the different states of the current trial
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    while ~Stm(1).task.endOfTrial() && ~Par.PosReset && ~Par.endExperiment && ~Par.BreakTrial  %&& ~Par.Pause
+    while ~Stm(1).task.endOfTrial() && ~Par.PosReset && ...
+            ~Par.endExperiment && ~Par.BreakTrial  %&& ~Par.Pause
         if GetSecs >= stopAt || Par.ESC
             if Par.FixStart ~= Inf
                 % Give subject a reward if not waiting for fixation
@@ -181,10 +182,9 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
     %
     % ---------------------------------------------------------------------
     
-    % no response or fix break during switch = miss        
+    % no response or fix break during switch = miss
     if Par.HandRemoved
         Par.CurrResponse = Par.RESP_REMOVE_HAND;
-        
     elseif Par.CurrResponse == Par.RESP_NONE
         Par.CurrResponse = Par.RESP_MISS;
         Par.Response(Par.CurrResponse)=Par.Response(Par.CurrResponse)+1;
@@ -224,14 +224,14 @@ end
 % =========================================================================
 
 %% Standard functions called throughout the runstim =======================
-    % log eye info
+% log eye info
     function LogEyeInfo
         % if nothing changes in calibration
         % only log position at 5 Hz
         if size(Log.Eye,2)==0 || ...
                 (sum(Par.ScaleOff-Log.Eye(end).ScaleOff) ~= 0 || ...
                 (GetSecs-Par.ExpStart) - Log.Eye(end).t > 1/5)
-
+            
             eye_i = size(Log.Eye,2)+1;
             Log.Eye(eye_i).t = GetSecs-Par.ExpStart;
             Log.Eye(eye_i).CurrEyePos = Par.CurrEyePos;

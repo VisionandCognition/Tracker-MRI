@@ -16,7 +16,7 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
         blocked = true;
         
         state = NaN;
-        currStateStart = -Inf; 
+        currStateStart = -Inf;
         stateStart = struct('SWITCHED', -Inf);
         goBarOrient =  1; % 1=default, 2=switched
         
@@ -88,7 +88,7 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
         function setNextTargetRight(obj)
             obj.nextTarget = 2;
         end
-
+        
         lft = drawStimuli(obj, lft);
         drawTarget(obj, color, offset, which_side, pawIndSizePix);
         
@@ -101,7 +101,7 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
             Log.events.save_next_flip();
             Log.events.add_entry(time, obj.taskName, 'DecideNewState', obj.state);
             Log.events.queue_entry(obj.taskName, 'NewState', obj.state);
-
+            
             %obj.update();
             
             switch obj.state
@@ -263,7 +263,7 @@ classdef CurveTracingJoystickTask < FixationTrackingTask
                 
                 % subset of stimuli that has target at obj.targetLoc
                 paramval = obj.stimuli_params(obj.block_example_ind,:).(obj.sampleBy){1};
-                                
+                
                 stim_mask = strcmp( ...
                     obj.stimuli_params.(obj.sampleBy), ...
                     paramval);
