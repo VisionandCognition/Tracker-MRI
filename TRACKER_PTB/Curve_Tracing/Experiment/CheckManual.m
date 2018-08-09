@@ -184,9 +184,9 @@ if hand_pos_changed
         fprintf('--, ')
     end
     if Par.HandsIn(2)
-        fprintf('IN ]\n')
+        fprintf('IN ]  ')
     else
-        fprintf('-- ]\n')
+        fprintf('-- ]  ')
     end
     fprintf('\t\t\t%d %d\n', HandInSignals);
 end

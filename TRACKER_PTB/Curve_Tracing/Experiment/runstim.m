@@ -291,7 +291,7 @@ fprintf(['=== Running ' Par.STIMSETFILE ' for ' Par.MONKEY ' ===\n']);
 fprintf(['Started at ' DateString '\n']);
 
 suggestedTdaFilename = [Par.MONKEY '_' DateString '.tda'];
-fprintf(['Suggested filename: ' suggestedTdaFilename '\n']);
+fprintf(['Suggested eye filename: ' suggestedTdaFilename '\n']);
 
 %% Eye-tracker recording ==================================================
 if Par.EyeRecAutoTrigger
@@ -362,7 +362,7 @@ end
 %               |__/
 %==========================================================================
 
-fprintf('\n\n ------- Begin pre-trigger busy-tasks (press ''W'' key to wait for trigger) -------\n');
+fprintf('\n----- Begin pre-trigger busy-tasks (press ''W'' key to wait for trigger) -----\n');
 if isfield(Stm(1),'KeepSubjectBusyTask_PreScan') || isfield(Stm(1),'KeepSubjectBusyTask')
     Par.exitOnKeyWaitForMRITrigger = true;
     PreviousVerbosity = Par.Verbosity;
@@ -453,7 +453,7 @@ end
 
 
 % --------------- Main loop
-fprintf('\n\n ---------------  Start Main tasks loop --------- \n');
+fprintf('\n----- Start Main tasks loop -----\n');
 args=struct;
 args.alternateWithRestingBlocks=Stm(1).alternateWithRestingBlocks;
 
@@ -480,7 +480,7 @@ Log.events.add_entry(GetSecs, NaN, 'MainExperimentLoop', 'EndLoop');
 %   \___\___/\___/_|   \__,_\___/\_/\_/|_||_|    http://patorjk.com/software/taag
 %==========================================================================
 
-fprintf('\n\n ---------------  Start cool-down --------- \n');
+fprintf('\n----- Start cool-down -----\n');
 
 args=struct;
 args.alternateWithRestingBlocks=false;
@@ -520,7 +520,7 @@ if Par.EyeRecAutoTrigger && ~EyeRecMsgShown
     end
     EyeRecMsgShown=true;
 end
-fprintf(['Suggested filename: ' suggestedTdaFilename '\n']);
+fprintf(['Suggested eye filename: ' suggestedTdaFilename '\n']);
 if strcmp(Par.SetUp,'Spinoza_3T')
     clipboard('copy', suggestedTdaFilename)
 end
@@ -635,24 +635,23 @@ end
 fprintf('\n');
 fout = fopen([filePath '_summary.txt'], 'w');
 for fid = [1 fout]
-    fprintf(fid, 'Total counts\n------------\n\n');
+    fprintf(fid, 'Total counts\n------------\n');
     fprintf(fid, 'Correct: %d\n', Par.Response(Par.RESP_CORRECT));
     fprintf(fid, 'Incorrect: %d\n', Par.Response(Par.RESP_FALSE));
     fprintf(fid, 'Early response: %d\n', Par.Response(Par.RESP_EARLY));
     fprintf(fid, 'Late / no response: %d\n', Par.Response(Par.RESP_MISS));
-    fprintf(fid, 'Fix. breaks: %d\n\n', Par.Response(Par.RESP_BREAK_FIX));
-    fprintf(fid, 'Hand removals: %d\n\n', Par.Response(Par.RESP_REMOVE_HAND));
+    fprintf(fid, 'Fix. breaks: %d\n', Par.Response(Par.RESP_BREAK_FIX));
+    fprintf(fid, 'Hand removals: %d\n', Par.Response(Par.RESP_REMOVE_HAND));
     totalResp = sum(Par.Response([Par.RESP_CORRECT Par.RESP_FALSE Par.RESP_EARLY]));
     fprintf(fid, 'Responses: %d\n\n', totalResp);
     
-    fprintf(fid, 'Probabilities\n-------------\n\n');
+    fprintf(fid, 'Probabilities\n-------------\n');
     fprintf(fid, 'Correct: %d%%\n', round(Par.Response(Par.RESP_CORRECT)*100/totalResp));
     fprintf(fid, 'Incorrect: %d%%\n', round(Par.Response(Par.RESP_FALSE)*100/totalResp));
     fprintf(fid, 'Early response: %d%%\n', round(Par.Response(Par.RESP_EARLY)*100/totalResp));
     
-    
     for i = 1:length(Stm(1).tasksUnique)
-        fprintf(fid, '\n%s\n-------------\n\n', Stm(1).tasksUnique{i}.name());
+        fprintf(fid, '\n%s\n-------------\n', Stm(1).tasksUnique{i}.name());
         CHR = Stm(1).tasksUnique{i}.trackerWindowDisplay();
         fprintf(fid, '%s\n', CHR{:});
     end
@@ -685,7 +684,7 @@ copyfile( ...
 %    Screen('closeall');
 %end
 fprintf('Done.\n');
-fprintf(['Suggested filename: ' suggestedTdaFilename '\n']);
+fprintf(['Suggested eye filename: ' suggestedTdaFilename '\n']);
 
 %% Busy work ==============================================================
 %   ___                               _
@@ -696,7 +695,7 @@ fprintf(['Suggested filename: ' suggestedTdaFilename '\n']);
 
 if isfield(Stm(1),'KeepSubjectBusyTask')
     
-    fprintf('\n\nStart Post-experiment keep-busy task.\n');
+    fprintf('\n----- Start Post-experiment keep-busy task. -----\n');
     
     PreviousVerbosity = Par.Verbosity;
     Par.Verbosity = 0;

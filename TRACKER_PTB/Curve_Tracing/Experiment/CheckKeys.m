@@ -33,14 +33,14 @@ if Par.KeyIsDown && ~Par.KeyWasDown
         elseif Par.KeyDetectedInTrackerWindow || Par.TestRunstimWithoutDAS % only in Tracker
             switch Key
                 case Par.KeyEscape % Never caught - caught by tracker
-                    fprintf('\n ------------- Escape Key Received!\n');
+                    fprintf('\n>>>> Escape Key Received! <<<<\n');
                     Par.ESC = true;
                 case Par.KeyTriggerMR
                     % cannot be executed
                 case Par.KeyWaitForMRITrigger
                     if isfield(Par, 'exitOnKeyWaitForMRITrigger') && ...
                             Par.exitOnKeyWaitForMRITrigger
-                        fprintf('\n ------------- WaitForMRITrigger Key Received!\n');
+                        fprintf('\n>> WaitForMRITrigger Key Received <<\n');
                         Par.ESC = true;
                         Log.events.add_entry(GetSecs, ...
                             ['PreTrigger' Stm(1).task.name], ...
