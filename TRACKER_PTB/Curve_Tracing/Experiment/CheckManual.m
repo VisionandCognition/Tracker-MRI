@@ -177,18 +177,18 @@ else
 end
 Par.HandsIn = HandsInNow;
 if hand_pos_changed
-    fprintf('Hand position: [ ');
+    fprintf('Hand position: [');
     if Par.HandsIn(1)
-        fprintf('IN, ')
+        fprintf('IN,')
     else
-        fprintf('--, ')
+        fprintf('--,')
     end
     if Par.HandsIn(2)
-        fprintf('IN ]  ')
+        fprintf('IN]  ')
     else
-        fprintf('-- ]  ')
+        fprintf('--]  ')
     end
-    fprintf('\t\t\t%d %d\n', HandInSignals);
+    fprintf('%d %d\n', HandInSignals);
 end
 Par.HandsInPosition = all(Par.HandsIn);
 Par.GoNewTrial = ~Par.BeamLIsBlocked && ~Par.BeamRIsBlocked && ...

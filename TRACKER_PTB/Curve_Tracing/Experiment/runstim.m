@@ -362,7 +362,7 @@ end
 %               |__/
 %==========================================================================
 
-fprintf('\n----- Begin pre-trigger busy-tasks (press ''W'' key to wait for trigger) -----\n');
+fprintf('\n##### Begin pre-trigger busy-tasks (press ''W'' key to wait for trigger) #####\n');
 if isfield(Stm(1),'KeepSubjectBusyTask_PreScan') || isfield(Stm(1),'KeepSubjectBusyTask')
     Par.exitOnKeyWaitForMRITrigger = true;
     PreviousVerbosity = Par.Verbosity;
@@ -453,7 +453,7 @@ end
 
 
 % --------------- Main loop
-fprintf('\n----- Start Main tasks loop -----\n');
+fprintf('\n##### Start Main tasks loop ##########\n');
 args=struct;
 args.alternateWithRestingBlocks=Stm(1).alternateWithRestingBlocks;
 
@@ -480,7 +480,7 @@ Log.events.add_entry(GetSecs, NaN, 'MainExperimentLoop', 'EndLoop');
 %   \___\___/\___/_|   \__,_\___/\_/\_/|_||_|    http://patorjk.com/software/taag
 %==========================================================================
 
-fprintf('\n----- Start cool-down -----\n');
+fprintf('\n##### Start cool-down ##########\n');
 
 args=struct;
 args.alternateWithRestingBlocks=false;
@@ -683,7 +683,7 @@ copyfile( ...
 %if Par.TestRunstimWithoutDAS
 %    Screen('closeall');
 %end
-fprintf('Done.\n');
+fprintf('\nDone.\n');
 fprintf(['Suggested eye filename: ' suggestedTdaFilename '\n']);
 
 %% Busy work ==============================================================
@@ -695,7 +695,7 @@ fprintf(['Suggested eye filename: ' suggestedTdaFilename '\n']);
 
 if isfield(Stm(1),'KeepSubjectBusyTask')
     
-    fprintf('\n----- Start Post-experiment keep-busy task. -----\n');
+    fprintf('\n##### Start Post-experiment keep-busy task. ##########\n');
     
     PreviousVerbosity = Par.Verbosity;
     Par.Verbosity = 0;

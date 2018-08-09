@@ -59,7 +59,7 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
             Stm(1).task = tasksToCycle{Stm(1).taskCycleInd};
         end
         
-        fprintf('-- Start mini-block %d: %s --\n', Log.numMiniBlocks, Stm(1).task.name);
+        fprintf('\n-- Start mini-block %d: %s --\n', Log.numMiniBlocks, Stm(1).task.name);
         Log.events.add_entry(Par.lft, Stm(1).task.name, 'NewMiniBlock', num2str(Log.numMiniBlocks));
         
         Par.CorrStreakcount(1) = 0; % Reset the per-block streak count

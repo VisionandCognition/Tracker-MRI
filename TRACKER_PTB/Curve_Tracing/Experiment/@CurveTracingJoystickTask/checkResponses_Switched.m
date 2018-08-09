@@ -92,7 +92,8 @@ elseif Par.FixIn && lft < obj.stateStart.SWITCHED+obj.param('SwitchDur')/1000 &&
         lft >= obj.stateStart.SWITCHED+Par.RewFixTime_DuringSwitch(1)/1000 && ~Par.ExtraFixRewardGiven
     
     % Fixation held for required time >> give reward
-    fprintf('= Reward for maintaining fixation =\n');
+    fprintf(['Reward for maintaining fixation ' ...
+        num2str(Par.RewFixTime_DuringSwitch(2)) '\n']);
     Par.GiveRewardAmount = Par.RewFixTime_DuringSwitch(2);
     GiveRewardAuto;
     Par.AutoRewardGiven = true;

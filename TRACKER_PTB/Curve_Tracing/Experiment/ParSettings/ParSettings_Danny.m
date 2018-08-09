@@ -20,7 +20,7 @@ Par.NumVols = 420;
 Par.MRITriggeredStart = true;
 Par.MRITrigger_OnlyOnce = true;
 
-Par.Verbosity = 2;
+Par.Verbosity = 1;%2;
 
 Par.ProjectLogDir = 'Curve_Tracing';
 
@@ -169,7 +169,7 @@ Par.RewSndPar = [44100 800 1];
 % RESP_EARLY = 4;
 % RESP_BREAK_FIX = 5;
 % RESP_REMOVE_HAND = 6;
-Par.FeedbackSound = [true true false true true false];
+Par.FeedbackSound = [false true false true true false];
 Par.FeedbackSoundPar = [ ...
     44100 800  .5 0.01; ... CORRECT
     44100 200  .5 0.01; ... FALSE

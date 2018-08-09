@@ -65,7 +65,7 @@ classdef FixationTask < FixationTrackingTask
                 % if the block that just ended was the last one of block
                 isEnd = obj.iTrialOfBlock >= obj.param('BlockSize');
                 if isEnd
-                    fprintf('End of Block\n\n')
+                    fprintf('End of Block\n')
                 end
             end
         end
@@ -131,7 +131,7 @@ classdef FixationTask < FixationTrackingTask
         end
         function incrementSubtrial(obj)
             if obj.iSubtrial == 0
-                fprintf('\nTrial %d ->', obj.iTrialOfBlock);
+                fprintf('Trial %d ->', obj.iTrialOfBlock);
                 obj.iTrialOfBlock = obj.iTrialOfBlock + 1;
                 if obj.iTrialOfBlock > obj.param('BlockSize')
                     obj.iTrialOfBlock = 1;
