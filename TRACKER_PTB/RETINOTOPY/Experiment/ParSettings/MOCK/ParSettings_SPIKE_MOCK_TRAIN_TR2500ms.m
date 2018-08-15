@@ -143,7 +143,7 @@ Par.RespLeverMatters = true;
 %Par.RespIndColor = [Stm(1).BackColor;Stm(1).BackColor]; %0.1*[1 1 1;1 1 1]; % colors for the left and right target
 Par.RespIndColor = 0.1*[1 1 1;1 1 1]; % colors for the left and right target
 Par.RespIndSize = 2;
-Par.RespIndPos = [-5 0; 5 0]; % deg
+Par.RespIndPos = [-3 0; 3 0]; % deg
 Par.RespLeverGain = [1 1]; % [L R] 
 
 Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
@@ -156,10 +156,10 @@ Par.DelayOnMiss = 0; % extra wait time as punishment for miss trials
 
 Par.NoIndicatorDuringPunishDelay=true;
 
-Par.ProbSideRepeatOnCorrect =   0.50;
-Par.ProbSideRepeatOnError =     0.75;
+Par.ProbSideRepeatOnCorrect =   0.70;
+Par.ProbSideRepeatOnError =     0.90;
 Par.ProbSideRepeatOnMiss =      0.90;
-Par.ProbSideRepeatOnEarly =     0.75;
+Par.ProbSideRepeatOnEarly =     0.90;
 
 Par.CatchBlock.do = false;
 Par.CatchBlock.AfterNumberOfTrials = 1;
