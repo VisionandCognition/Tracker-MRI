@@ -151,6 +151,7 @@ Par.ProbSideRepeatOnCorrect = 0.5;
 Par.ProbSideRepeatOnError = 0.5;
 Par.ProbSideRepeatOnMiss = 0.5;
 Par.ProbSideRepeatOnEarly = 0.50;
+Par.MaxNumberOfConsecutiveErrors = 1000000;
 
 Par.CatchBlock.do = false;
 Par.CatchBlock.AfterNumberOfTrials = 50;

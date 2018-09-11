@@ -150,16 +150,22 @@ Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
 Par.BlockedIndColor = [.7 .7 .7];
 
 Par.SwitchDur = 3000; % (200) duration of alternative orientation
-Par.ResponseAllowed = [80 Par.SwitchDur+100]; % [after_onset after_offset] in ms
-Par.PostErrorDelay = 1000; % extra wait time as punishment for error trials
-Par.DelayOnMiss = 0; % extra wait time as punishment for miss trials 
+Par.ResponseAllowed = [0 Par.SwitchDur+100]; % [after_onset after_offset] in ms
+Par.PostErrorDelay = 2000; % extra wait time as punishment for error trials
+Par.DelayOnMiss = 50; % extra wait time as punishment for miss trials 
 
 Par.NoIndicatorDuringPunishDelay=true;
 
-Par.ProbSideRepeatOnCorrect =   0.70;
-Par.ProbSideRepeatOnError =     0.90;
+Par.ProbSideRepeatOnCorrect =   0.50;
+Par.ProbSideRepeatOnError =     0.80;
 Par.ProbSideRepeatOnMiss =      0.90;
 Par.ProbSideRepeatOnEarly =     0.90;
+
+Par.MaxNumberOfConsecutiveErrors = 5; 
+% after this many errors >> switch sides
+% assumes sticking-with-one-hand behavior
+% and aims to avoid demotivation, but keeps
+% probablistic switching intact
 
 Par.CatchBlock.do = false;
 Par.CatchBlock.AfterNumberOfTrials = 1;
@@ -169,7 +175,7 @@ Par.CatchBlock.StartWithCatch = true;
 % set time-windows in which something can happen (ms)
 % [baseduration_without_switch ... 
 %  period_in_which_switch_randomly_occurs]
-Par.EventPeriods = [200 100]; % Determines Go-bar onset (was 600 to 1600)
+Par.EventPeriods = [20 0]; % Determines Go-bar onset (was 600 to 1600)
 
 %% Connection box port assignment =========================================
 Par.ConnectBox.PhotoAmp = [4 5 7 8];    % channels for photo-amps 
@@ -191,9 +197,9 @@ Par.RewardFixFeedBack = true;
 Par.FeedbackSound = [true true false false false];
 Par.FeedbackSoundPar = [ ...
     44100 800 1 0.03; ... CORRECT
-    44100 300 1 0.03; ... FALSE
+    44100 300 1.5 0.05; ... FALSE
     44100 200 1 0.03; ... MISS
-    44100 300 1 0.03; ... EARLY
+    44100 300 1.5 0.05; ... EARLY
     44100 400 1.5 0.03 ... FIXATION BREAK
     ];
 

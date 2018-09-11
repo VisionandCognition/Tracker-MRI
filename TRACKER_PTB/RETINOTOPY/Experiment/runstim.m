@@ -837,6 +837,7 @@ for STIMNR = Log.StimOrder
             CurrPostErrorDelay = 0;
             nNonCatchTrials = 0;
             LastMissed = false;
+            NumberOfConsecutiveErrors=0;
             if Par.CatchBlock.StartWithCatch
                 Prev_nNonCatchTrials = -1;
             else
@@ -1396,11 +1397,19 @@ for STIMNR = Log.StimOrder
                 StartWaitTime = Par.ResponseStateChangeTime;
                 if ~Par.IsCatchBlock
                     if Par.ResponseSide == 0 || Par.ForceRespSide
-                        if Par.RespProbSetting % 0=random, 1=left, 2=right
-                            Par.ResponseSide = Par.RespProbSetting;
+                        if NumberOfConsecutiveErrors >= Par.MaxNumberOfConsecutiveErrors 
+                            if Par.ResponseSide == 1
+                                Par.ResponseSide = 2;
+                            else
+                                Par.ResponseSide =1;
+                            end
                         else
-                            Par.ResponseSide = randi([1 2]);
-                            Par.ForceRespSide = false;
+                           if Par.RespProbSetting % 0=random, 1=left, 2=right
+                                Par.ResponseSide = Par.RespProbSetting;
+                            else
+                                Par.ResponseSide = randi([1 2]);
+                                Par.ForceRespSide = false;
+                            end
                         end
                     end
                 elseif Par.IsCatchBlock % catchblock
@@ -1525,6 +1534,7 @@ for STIMNR = Log.StimOrder
                 elseif Par.IncorrectResponseGiven(Par) && Par.RespLeverMatters 
                     UpdateHandTaskState(Par.RESP_STATE_DONE);
                     Log.Events(Log.nEvents).StimName = 'Incorrect';
+                    NumberOfConsecutiveErrors=NumberOfConsecutiveErrors+1;
                     if ~Par.ForceRespSide
                         if rand(1) <= Par.ProbSideRepeatOnError % same side
                             Par.ResponseSide=Par.ResponseSide; % keep same
@@ -1569,6 +1579,7 @@ for STIMNR = Log.StimOrder
                     %Par.ResponseState = Par.RESP_STATE_DONE;
                     UpdateHandTaskState(Par.RESP_STATE_DONE);
                     Log.Events(Log.nEvents).StimName = 'Hit';
+                    NumberOfConsecutiveErrors=0;
                     GiveRewardAutoTask;
                     if ~Par.ForceRespSide
                         if rand(1) <= Par.ProbSideRepeatOnCorrect % same side
@@ -2276,12 +2287,12 @@ Par=Par_BU;
                     [cen2;cen2;cen2;cen2] + Par.RespIndSizePix*right_diamond)
             elseif Par.ResponseState == Par.RESP_STATE_DONE && ...
                     Par.CurrResponseSide == 1
-                Screen('FillPoly',Par.window, Par.RespIndColor(1,:).*Par.ScrWhite, ...
-                    [cen1;cen1;cen1;cen1] + Par.RespIndSizePix*left_square)
+%                 Screen('FillPoly',Par.window, Par.RespIndColor(1,:).*Par.ScrWhite, ...
+%                     [cen1;cen1;cen1;cen1] + Par.RespIndSizePix*left_square)
             elseif Par.ResponseState == Par.RESP_STATE_DONE && ...
                     Par.CurrResponseSide == 2
-                Screen('FillPoly',Par.window, Par.RespIndColor(2,:).*Par.ScrWhite, ...
-                    [cen2;cen2;cen2;cen2] + Par.RespIndSizePix*right_diamond)
+%                 Screen('FillPoly',Par.window, Par.RespIndColor(2,:).*Par.ScrWhite, ...
+%                     [cen2;cen2;cen2;cen2] + Par.RespIndSizePix*right_diamond)
             end
         end
     end

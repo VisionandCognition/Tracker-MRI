@@ -41,8 +41,8 @@ Par.WaitForFixation = true; % can be toggled with f (if Par.FKeyToggles_WaitForF
 % phase only works when WaitForFixation = true
 Par.WaitForFixation_phase = [true true true];
 % [prefix preswitch switched] true/false
-Par.ReqFixTime_DuringSwitch = 550; % ms fixation is required when it is required in switched
-Par.RewFixTime_DuringSwitch = [400 0.040]; %[fixtime(ms) rewtime(s)]
+Par.ReqFixTime_DuringSwitch = 600; % ms fixation is required when it is required in switched
+Par.RewFixTime_DuringSwitch = [6100 .040]; %[fixtime(ms) rewtime(s)]
 
 Par.RequireFixationForReward = true; % can be toggled with f (if Par.FKeyToggles_WaitForFix ~= true)
 Par.EndTrialOnResponse = true; % Make responsive
