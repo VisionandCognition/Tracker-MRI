@@ -125,7 +125,7 @@ Params.SwitchDur = 1200; % (200) duration of alternative orientation
 %  period_in_which_switch_randomly_occurs ...
 %  post_switch_duration_in_which_nothing_happens]
 %Params.EventPeriods = [1800 1600 300];
-Params.EventPeriods = [700 300 500]; %[1000 750 500]
+Params.EventPeriods = [900 550 500]; %[1000 750 500]
 Params.prefixPeriod = 500; % not just for fixation task!
 
 % Response time window
