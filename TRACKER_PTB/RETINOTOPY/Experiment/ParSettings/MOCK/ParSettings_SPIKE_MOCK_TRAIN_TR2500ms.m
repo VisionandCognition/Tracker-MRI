@@ -134,9 +134,9 @@ Par.RESP_STATE_GO = 2; % Go signal given
 Par.RESP_STATE_DONE = 4;  % Go signal given and response no longer possible (hit or miss)
 
 % Go-bar (vertical / horizontal target bar) -------------------------------
-Gobar_length = 2; % .02
+Gobar_length = 4; % .02
 Par.GoBarSize = Gobar_length*[1, .25] + [0, 0.01]; % [length width] in deg
-Par.GoBarColor = [0.7 0.7 0.7]; % [R G B] 0-1
+Par.GoBarColor = [0.8 0.8 0.8]; % [R G B] 0-1
 
 % Color of the Response indicator (which hand)
 Par.RespLeverMatters = true;
@@ -241,7 +241,7 @@ Par.RewardFixMultiplier = 0.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.220;%250;
+        Par.RewardTimeSet = 0.150;%250;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
