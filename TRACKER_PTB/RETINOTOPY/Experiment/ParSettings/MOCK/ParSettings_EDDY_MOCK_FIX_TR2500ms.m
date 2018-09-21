@@ -25,7 +25,7 @@ Stm=StimObj.Stm;
 StimObj.Stm.FixDotCol = [.3 .3 .3 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
-Par.FixWinSize = [2 2]%[1.5 1.5]; % [W H] in deg
+Par.FixWinSize = [2 2];%[1.5 1.5]; % [W H] in deg
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
@@ -119,6 +119,8 @@ Par.TargetB = 2;
 Par.RewardB = 3;
 %Par.SaccadeB = 4; done by DasControl
 %Par.TrialB = 5;   done by DasControl
+Par.LED1_B = 4;
+Par.LED2_B = 5;
 Par.MicroB = 6;
 Par.CorrectB = 7;
 
@@ -146,6 +148,8 @@ Par.RespIndPos = [0 0; 0 0]; % deg
 
 Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
 Par.BlockedIndColor = [.7 .7 .7];
+Par.RespLeverGain = [1 1]; % [L R] 
+Par.RespIndLeds = false;
 
 Par.SwitchDur = 1500; % (200) duration of alternative orientation
 Par.ResponseAllowed = [80 Par.SwitchDur+100]; % [after_onset after_offset] in ms

@@ -121,6 +121,8 @@ Par.TargetB = 2;
 Par.RewardB = 3;
 %Par.SaccadeB = 4; done by DasControl
 %Par.TrialB = 5;   done by DasControl
+Par.LED1_B = 4;
+Par.LED2_B = 5;
 Par.MicroB = 6;
 Par.CorrectB = 7;
 

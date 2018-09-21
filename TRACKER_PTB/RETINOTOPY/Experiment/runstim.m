@@ -2079,6 +2079,7 @@ for STIMNR = Log.StimOrder
         CollectPerformance{StimLoopNr,5} = Log.TimeOutThisRun;
         LastRewardAdded=true;
     end
+    dasbit(Par.LED1_B,0);dasbit(Par.LED2_B,0); % LEDs off
 end
 
 %% PostExpProcessing ======================================================
@@ -2280,21 +2281,21 @@ Par=Par_BU;
                     Par.ResponseSide == 1
                 Screen('FillPoly',Par.window, Par.RespIndColor(1,:).*Par.ScrWhite, ...
                     [cen1;cen1;cen1;cen1] + Par.RespIndSizePix*left_square)
-                if Par.RespIndLeds; dasbit(1,1); end % LED on
+                if Par.RespIndLeds; dasbit(Par.LED1_B,1); end % LED on
             elseif (Par.ResponseState == Par.RESP_STATE_WAIT || ...
                     Par.ResponseState == Par.RESP_STATE_GO) && ...
                     Par.ResponseSide == 2
                 Screen('FillPoly',Par.window, Par.RespIndColor(2,:).*Par.ScrWhite, ...
                     [cen2;cen2;cen2;cen2] + Par.RespIndSizePix*right_diamond)
-                if Par.RespIndLeds; dasbit(2,1); end % LED on
+                if Par.RespIndLeds; dasbit(Par.LED2_B,1); end % LED on
             elseif Par.ResponseState == Par.RESP_STATE_DONE && ...
                     Par.CurrResponseSide == 1
-                    dasbit(1,0);dasbit(2,0); % LEDs off
+                    dasbit(Par.LED1_B,0);dasbit(Par.LED2_B,0); % LEDs off
 %                 Screen('FillPoly',Par.window, Par.RespIndColor(1,:).*Par.ScrWhite, ...
 %                     [cen1;cen1;cen1;cen1] + Par.RespIndSizePix*left_square)
             elseif Par.ResponseState == Par.RESP_STATE_DONE && ...
                     Par.CurrResponseSide == 2
-                    dasbit(1,0);dasbit(2,0);
+                    dasbit(Par.LED1_B,0);dasbit(Par.LED2_B,0);
 %                 Screen('FillPoly',Par.window, Par.RespIndColor(2,:).*Par.ScrWhite, ...
 %                     [cen2;cen2;cen2;cen2] + Par.RespIndSizePix*right_diamond)
             end

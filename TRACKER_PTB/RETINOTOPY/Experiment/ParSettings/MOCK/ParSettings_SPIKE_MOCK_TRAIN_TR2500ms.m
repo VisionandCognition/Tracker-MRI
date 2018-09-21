@@ -119,6 +119,8 @@ Par.TargetB = 2;
 Par.RewardB = 3;
 %Par.SaccadeB = 4; done by DasControl
 %Par.TrialB = 5;   done by DasControl
+Par.LED1_B = 4;
+Par.LED2_B = 5;
 Par.MicroB = 6;
 Par.CorrectB = 7;
 
@@ -158,9 +160,9 @@ Par.DelayOnMiss = 50; % extra wait time as punishment for miss trials
 Par.NoIndicatorDuringPunishDelay=true;
  
 Par.ProbSideRepeatOnCorrect =   0.50;
-Par.ProbSideRepeatOnError =     0.80;
-Par.ProbSideRepeatOnMiss =      0.90;
-Par.ProbSideRepeatOnEarly =     0.90;
+Par.ProbSideRepeatOnError =     0.70;
+Par.ProbSideRepeatOnMiss =      0.80;
+Par.ProbSideRepeatOnEarly =     0.50;
 
 Par.MaxNumberOfConsecutiveErrors = 5; 
 % after this many errors >> switch sides
@@ -241,7 +243,7 @@ Par.RewardFixMultiplier = 0.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.220;%250;
+        Par.RewardTimeSet = 0.200;%250;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as

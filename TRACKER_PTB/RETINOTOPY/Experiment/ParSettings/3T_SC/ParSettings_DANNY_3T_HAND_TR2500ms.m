@@ -119,6 +119,8 @@ Par.TargetB = 2;
 Par.RewardB = 3;
 %Par.SaccadeB = 4; done by DasControl
 %Par.TrialB = 5;   done by DasControl
+Par.LED1_B = 4;
+Par.LED2_B = 5;
 Par.MicroB = 6;
 Par.CorrectB = 7;
 
@@ -143,6 +145,8 @@ Par.RespLeverMatters = false;
 Par.RespIndColor = 0.1*[1 1 1;1 1 1]; % colors for the left and right target
 Par.RespIndSize = 0.3;
 Par.RespIndPos = [0 0; 0 0]; % deg
+Par.RespLeverGain = [1 1]; % [L R] 
+Par.RespIndLeds = false;
 
 Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
 Par.BlockedIndColor = [.7 .7 .7];

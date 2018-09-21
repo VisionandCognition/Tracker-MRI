@@ -141,6 +141,8 @@ Par.GoBarColor = [0.6 0.7 0.7]; % [R G B] 0-1
 % Color of the Response indicator
 Par.RespIndColor = [0 .65 0; 1 0 0]; % colors for the left and right target
 Par.RespIndSize = 0.3;
+Par.RespLeverGain = [1 1]; % [L R] 
+Par.RespIndLeds = false;
 
 Par.SwitchDur = 500; % (200) duration of alternative orientation
 Par.ResponseAllowed = [100 Par.SwitchDur+100]; % [after_onset after_offset] in ms
