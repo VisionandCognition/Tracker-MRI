@@ -115,12 +115,11 @@ Par.ScrBlack=BlackIndex(Par.window);
 % Bit/port assignment
 Par.ErrorB = 0;
 Par.StimB = 1;
-Par.TargetB = 2;
-Par.RewardB = 3;
-%Par.SaccadeB = 4; done by DasControl
+%Par.TargetB = 2; % check if they're really not used!
+%Par.RewardB = 3; % check if they're really not used!
+%Par.SaccadeB = 4; done by DasControl do not use for something else!!
 %Par.TrialB = 5;   done by DasControl
-Par.LED1_B = 4;
-Par.LED2_B = 5;
+Par.LED_B = [2 3]; % [1/LEFT 2/RIGHT]
 Par.MicroB = 6;
 Par.CorrectB = 7;
 
