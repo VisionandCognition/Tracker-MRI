@@ -116,13 +116,13 @@ Par.ScrBlack=BlackIndex(Par.window);
 % Bit/port assignment
 Par.ErrorB = 0;
 Par.StimB = 1;
-Par.TargetB = 2;
-Par.RewardB = 3;
-%Par.SaccadeB = 4; done by DasControl
+%Par.TargetB = 2; % check if they're really not used!
+%Par.RewardB = 3; % check if they're really not used!
+%Par.SaccadeB = 4; done by DasControl do not use for something else!!
 %Par.TrialB = 5;   done by DasControl
+Par.LED_B = [2 3]; % [1/LEFT 2/RIGHT]
 Par.MicroB = 6;
 Par.CorrectB = 7;
-
 %% Response box ===========================================================
 Par.ResponseBox.Type='Beam'; % 'Beam' or'Lift'
 
@@ -141,6 +141,8 @@ Par.GoBarColor = [0.6 0.7 0.7]; % [R G B] 0-1
 % Color of the Response indicator
 Par.RespIndColor = [0 .65 0; 1 0 0]; % colors for the left and right target
 Par.RespIndSize = 0.3;
+Par.RespLeverGain = [1 1]; % [L R] 
+Par.RespIndLeds = false;
 
 Par.SwitchDur = 500; % (200) duration of alternative orientation
 Par.ResponseAllowed = [100 Par.SwitchDur+100]; % [after_onset after_offset] in ms

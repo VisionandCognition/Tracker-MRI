@@ -107,10 +107,11 @@ Par.ScrBlack=BlackIndex(Par.window);
 % Bit/port assignment
 Par.ErrorB = 0;
 Par.StimB = 1;
-Par.TargetB = 2;
-Par.RewardB = 3;
-%Par.SaccadeB = 4; done by DasControl
+%Par.TargetB = 2; % check if they're really not used!
+%Par.RewardB = 3; % check if they're really not used!
+%Par.SaccadeB = 4; done by DasControl do not use for something else!!
 %Par.TrialB = 5;   done by DasControl
+Par.LED_B = [2 3]; % [1/LEFT 2/RIGHT]
 Par.MicroB = 6;
 Par.CorrectB = 7;
 
@@ -135,6 +136,8 @@ Par.RespLeverMatters = false;
 Par.RespIndColor = [Stm(1).BackColor;Stm(1).BackColor]; %0.1*[1 1 1;1 1 1]; % colors for the left and right target
 Par.RespIndSize = 3;
 Par.RespIndPos = [0 0; 0 0]; % deg
+Par.RespLeverGain = [1 1]; % [L R] 
+Par.RespIndLeds = false;
 
 Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
 Par.BlockedIndColor = [.7 .7 .7];

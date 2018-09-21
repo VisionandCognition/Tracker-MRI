@@ -1427,6 +1427,7 @@ for STIMNR = Log.StimOrder
                 Log.Events(Log.nEvents).t=Par.ResponseStateChangeTime;
             % ==== During wait period ====
             elseif Par.ResponseState == Par.RESP_STATE_WAIT 
+                if Par.RespIndLeds; dasbit(Par.LED_B(1),0);dasbit(Par.LED_B(2),0);end % LEDS off
                 if GetSecs >= Par.ResponseStateChangeTime + Par.GoBarOnset
                     UpdateHandTaskState(Par.RESP_STATE_GO);
                     %Par.ResponseState = Par.RESP_STATE_GO;
@@ -2079,6 +2080,7 @@ for STIMNR = Log.StimOrder
         CollectPerformance{StimLoopNr,5} = Log.TimeOutThisRun;
         LastRewardAdded=true;
     end
+    if Par.RespIndLeds; dasbit(Par.LED_B(1),0);dasbit(Par.LED_B(2),0);end % LEDS off
 end
 
 %% PostExpProcessing ======================================================
@@ -2280,21 +2282,21 @@ Par=Par_BU;
                     Par.ResponseSide == 1
                 Screen('FillPoly',Par.window, Par.RespIndColor(1,:).*Par.ScrWhite, ...
                     [cen1;cen1;cen1;cen1] + Par.RespIndSizePix*left_square)
-                if Par.RespIndLeds; dasbit(1,1); end % LED on
+                if Par.RespIndLeds; dasbit(Par.LED_B(Par.ResponseSide),1); end % LED on
             elseif (Par.ResponseState == Par.RESP_STATE_WAIT || ...
                     Par.ResponseState == Par.RESP_STATE_GO) && ...
                     Par.ResponseSide == 2
                 Screen('FillPoly',Par.window, Par.RespIndColor(2,:).*Par.ScrWhite, ...
                     [cen2;cen2;cen2;cen2] + Par.RespIndSizePix*right_diamond)
-                if Par.RespIndLeds; dasbit(2,1); end % LED on
+                if Par.RespIndLeds; dasbit(Par.LED_B(Par.ResponseSide),1); end % LED on
             elseif Par.ResponseState == Par.RESP_STATE_DONE && ...
                     Par.CurrResponseSide == 1
-                    dasbit(1,0);dasbit(2,0); % LEDs off
+                if Par.RespIndLeds; dasbit(Par.LED_B(1),0);dasbit(Par.LED_B(2),0);end % LEDS off
 %                 Screen('FillPoly',Par.window, Par.RespIndColor(1,:).*Par.ScrWhite, ...
 %                     [cen1;cen1;cen1;cen1] + Par.RespIndSizePix*left_square)
             elseif Par.ResponseState == Par.RESP_STATE_DONE && ...
                     Par.CurrResponseSide == 2
-                    dasbit(1,0);dasbit(2,0);
+                    if Par.RespIndLeds; dasbit(Par.LED_B(1),0);dasbit(Par.LED_B(2),0);end % LEDS off
 %                 Screen('FillPoly',Par.window, Par.RespIndColor(2,:).*Par.ScrWhite, ...
 %                     [cen2;cen2;cen2;cen2] + Par.RespIndSizePix*right_diamond)
             end
