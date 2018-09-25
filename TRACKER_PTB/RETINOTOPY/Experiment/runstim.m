@@ -1598,7 +1598,7 @@ for STIMNR = Log.StimOrder
                     % RESP_EARLY = 4; RESP_BREAK_FIX = 5;
                     Par.ManResponse(RESP_CORRECT) = Par.ManResponse(RESP_CORRECT)+1;
                     %fprintf('Correct\n');
-                    CurrPostErrorDelay = 0;
+                    CurrPostErrorDelay = Par.PostCorrectDelay;
                     if Par.IsCatchBlock
                         CatchSides(1) = [];
                     else
@@ -1642,7 +1642,7 @@ for STIMNR = Log.StimOrder
                     % RESP_EARLY = 4; RESP_BREAK_FIX = 5;
                     Par.ManResponse(RESP_CORRECT) = Par.ManResponse(RESP_CORRECT)+1;
                     %fprintf('Correct\n');
-                    CurrPostErrorDelay = 0;
+                    CurrPostErrorDelay = Par.PostCorrectDelay;
                     if Par.IsCatchBlock
                         CatchSides(1) = [];
                     else
@@ -1713,7 +1713,7 @@ for STIMNR = Log.StimOrder
             end
             % draw the indicators
             if ~Par.ToggleHideFix && ~Par.HideFix_BasedOnHandIn(Par) && ~Par.Pause
-                if Par.ResponseState == Par.RESP_STATE_WAIT  && ~LastMissed && ...
+                if Par.ResponseState == Par.RESP_STATE_WAIT  && ... ~LastMissed && ...
                         (isfield(Par,'NoIndicatorDuringPunishDelay') && ...
                         Par.NoIndicatorDuringPunishDelay) && ...
                         (GetSecs < StartWaitTime + CurrPostErrorDelay/1000)

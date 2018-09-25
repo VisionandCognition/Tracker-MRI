@@ -154,7 +154,8 @@ Par.BlockedIndColor = [.7 .7 .7];
 Par.SwitchDur = 3000; % (200) duration of alternative orientation
 Par.ResponseAllowed = [0 Par.SwitchDur+100]; % [after_onset after_offset] in ms
 Par.PostErrorDelay = 2250; % extra wait time as punishment for error trials
-Par.DelayOnMiss = 50; % extra wait time as punishment for miss trials 
+Par.DelayOnMiss = 200; % extra wait time as punishment for miss trials 
+Par.PostCorrectDelay = 200;
 
 Par.NoIndicatorDuringPunishDelay=true;
  
@@ -242,7 +243,7 @@ Par.RewardFixMultiplier = 0.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.200;%250;
+        Par.RewardTimeSet = 0.175;%250;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as

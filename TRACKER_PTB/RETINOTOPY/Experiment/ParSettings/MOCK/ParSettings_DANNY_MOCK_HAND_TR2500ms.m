@@ -156,6 +156,7 @@ Par.SwitchDur = 500; % goal / scanning
 Par.ResponseAllowed = [80 Par.SwitchDur+100]; % [after_onset after_offset] in ms
 Par.PostErrorDelay = 1000; % extra wait time as punishment for error trials
 Par.DelayOnMiss = 200; % extra wait time as punishment for miss trials 
+Par.PostCorrectDelay = 100;
 
 Par.NoIndicatorDuringPunishDelay=true;
 
