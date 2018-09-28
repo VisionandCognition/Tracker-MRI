@@ -160,7 +160,7 @@ Par.PostCorrectDelay = 200;
 Par.NoIndicatorDuringPunishDelay=true;
  
 Par.ProbSideRepeatOnCorrect =   0.50;
-Par.ProbSideRepeatOnError =     0.70;
+Par.ProbSideRepeatOnError =     0.60;
 Par.ProbSideRepeatOnMiss =      0.80;
 Par.ProbSideRepeatOnEarly =     0.50;
 
@@ -200,7 +200,7 @@ Par.RewardFixFeedBack = true;
 Par.FeedbackSound = [true true false false false];
 Par.FeedbackSoundPar = [ ...
     44100 800 1 0.03; ... CORRECT
-    44100 300 1.5 0.05; ... FALSE
+    44100 300 1.5 0.1; ... FALSE
     44100 200 1 0.03; ... MISS
     44100 300 1.5 0.05; ... EARLY
     44100 400 1.5 0.03 ... FIXATION BREAK
@@ -243,7 +243,7 @@ Par.RewardFixMultiplier = 0.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.175;%250;
+        Par.RewardTimeSet = 0.150;%250;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
