@@ -95,10 +95,10 @@ Params.PawIndAlpha = [1 1 1 1 1; 1 1 1 1 1];
 Params.NumOfPawIndicators = 4; % Can't be more than the number of PawIndPositions!
 Params.DistractBranchConnAlpha = 1;
 
-ambigCir = 0.1; % was 0.6 -> should be 0.3?
+ambigCir = 0.25; % was 0.6 -> should be 0.3?
 Params.SaturatedPawIndCol = [0 .7 0; .9 .2 .2; ambigCir ambigCir ambigCir]; % colors for the left and right target
 %unsaturatedColor = [0.6 0.6 0.6; 0.6 0.6 0.6];
-unsaturatedColor = [0.1 0.1 0.1; 0.1 0.1 0.1; ambigCir ambigCir ambigCir];
+unsaturatedColor = [0.3 0.3 0.3; 0.3 0.3 0.3; ambigCir ambigCir ambigCir];
 % >> Equalize color with Eddy's for scanning / paper
 
 %satLevel = 5/6;
@@ -127,7 +127,7 @@ Params.SwitchDur = 1200; % (200) duration of alternative orientation
 %  period_in_which_switch_randomly_occurs ...
 %  post_switch_duration_in_which_nothing_happens]
 %Params.EventPeriods = [1800 1600 300];
-Params.EventPeriods = [900 550 500]; %[1000 750 500]
+Params.EventPeriods = [1000 750 500]; %[1000 750 500]
 Params.prefixPeriod = 500; % not just for fixation task!
 
 % Response time window

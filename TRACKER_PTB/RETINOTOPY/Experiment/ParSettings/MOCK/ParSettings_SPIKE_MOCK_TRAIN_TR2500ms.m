@@ -143,7 +143,7 @@ Par.GoBarColor = [0.8 0.8 0.8]; % [R G B] 0-1
 Par.RespLeverMatters = true;
 %Par.RespIndColor = [Stm(1).BackColor;Stm(1).BackColor]; %0.1*[1 1 1;1 1 1]; % colors for the left and right target
 Par.RespIndColor = 0.6*[1 .1 .1;.1 .8 .1]; % colors for the left and right target
-Par.RespIndSize = 4;
+Par.RespIndSize = 3;
 Par.RespIndPos = [-4 0; 4 0]; % deg
 Par.RespLeverGain = [1 1]; % [L R] 
 Par.RespIndLeds = true;
@@ -170,10 +170,10 @@ Par.MaxNumberOfConsecutiveErrors = 5;
 % and aims to avoid demotivation, but keeps
 % probablistic switching intact
 
-Par.CatchBlock.do = false;
-Par.CatchBlock.AfterNumberOfTrials = 1;
-Par.CatchBlock.NoCorrectPerSideNeeded = 10;
-Par.CatchBlock.StartWithCatch = true;
+Par.CatchBlock.do = true;
+Par.CatchBlock.AfterNumberOfTrials = 50;
+Par.CatchBlock.NoCorrectPerSideNeeded = 3;
+Par.CatchBlock.StartWithCatch = false;
 
 % set time-windows in which something can happen (ms)
 % [baseduration_without_switch ... 
@@ -243,7 +243,7 @@ Par.RewardFixMultiplier = 0.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.150;%250;
+        Par.RewardTimeSet = 0.130;%250;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -260,7 +260,7 @@ switch Par.RewardType
         Par.RewardTimeSet = 0; %no reward
 end
 
-Par.RewardTimeManual = 0.080; % amount of reward when given manually
+Par.RewardTimeManual = 0.050; % amount of reward when given manually
 
 Par.RewardFixHoldTimeProg = false;
 if Par.RewardFixHoldTimeProg
