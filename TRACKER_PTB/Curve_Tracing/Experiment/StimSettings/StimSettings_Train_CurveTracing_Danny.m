@@ -12,9 +12,11 @@ Stm = StimObj.Stm;
 % TOP & BOTTOM
 StimObj.DefaultParams.CurveAlpha =  [1 1 1 1 1; ...
                                      1 1 1 1 1]; % UL DL UR DR CENTER
-StimObj.DefaultParams.PawIndAlpha = [.1 .1 .1 .1 1; ...
-                                     .1 .1 .1 .1 1]; % UL DL UR DR CENTER
-
+StimObj.DefaultParams.PawIndAlpha = [1 1 1 1 1; ...
+                                     1 1 1 1 1]; % UL DL UR DR CENTER
+%StimObj.DefaultParams.PawIndAlpha = [0.80 0.80 0.80 0.80 1; ...
+                                    % 0.80 0.80 0.80 0.80 1]; % UL DL UR DR CENTER
+                                
 % TOP
 %StimObj.DefaultParams.CurveAlpha =  [1 .1 1 .1 1; ...
 %                                     1 .1 1 .1 1]; % UL DL UR DR CENTER
@@ -51,7 +53,7 @@ StimObj.DefaultParams.CurveAnglesAtFP = ...
 % -------------------------------------------------------------------------
 
 % unsaturatedColor = [0.2 0.2 0.2; 0.2 0.2 0.2; .3 .3 .3]; % different shapes
-unsaturatedColor = [1 1 1; 1 1 1; 1 1 1];
+unsaturatedColor = [0.3 0.3 0.3; 0.3 0.3 0.3; ambigCir ambigCir ambigCir];
 
 % satLevel = 0;
 % satLevel = 0.075/12;
