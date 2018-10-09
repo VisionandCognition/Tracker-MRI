@@ -41,8 +41,8 @@ Params.PostSwitchJointAlpha = 1; % max should go to 0, with better training
 % Paw indicator
 Params.RequireSpecificPaw = true;
 
-extend_curves = false;
-train_curves = true;
+extend_curves = true; %
+train_curves = false; % this was used before 21-09-2018 [CK]
 
 if train_curves
         Params.PawIndPositions = [...
@@ -62,9 +62,11 @@ if train_curves
 elseif extend_curves
     % Extend more of the visual field
     Params.PawIndPositions = [...
-        -8 -4; -8 4; ...
-        8 -4; 8 4; ...
-        0 0 ... center
+        -8 -4; ...
+        -8  4; ...
+         8 -4; ...
+         8  4; ...
+         0  0 ... center
         ];
     Params.BranchDistDeg = 1.5;
     Params.CurveTargetDistDeg = 1.8;
@@ -140,7 +142,7 @@ Stm(1).ProbFixationReward = 0.0; % << what's this probability?
 Params.CurveAnglesAtFP = [ 180; 180; 0; 0]; % UL DL UR DR
 
 %Params.PawIndSizeDeg = [2.5, 2.5, 2.5, 2.5, Params.FixDotSizeDeg];
-Params.PawIndSizeDeg = [2 2 2 2, Params.FixDotSizeDeg];
+Params.PawIndSizeDeg = [2.5 2.5 2.5 2.5, Params.FixDotSizeDeg];
 Params.BlockSize = 1;
 Params.rewardMultiplier = 1.0;
 Params.rewardSideRespMultiplier = [1 1];

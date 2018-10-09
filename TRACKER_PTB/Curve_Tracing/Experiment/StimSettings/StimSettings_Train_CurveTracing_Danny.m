@@ -31,13 +31,23 @@ StimObj.DefaultParams.PawIndAlpha = [.1 .1 .1 .1 1; ...
 StimObj.DefaultParams.CurveAnglesAtFP = ...
     [ 180 180 0 0 ]; % UL DL UR DR
 
-StimObj.DefaultParams.BranchDistDeg = 1.2;%1.2;
-StimObj.DefaultParams.CurveTargetDistDeg = 1.5;
+% === Overwrite gaps and branching from defaults stimsettings here ===
+% Switched to using the defualts (same as Eddy) on 21-09-2018
 
-gap = .5; 
-secondgap = 0.8;
-StimObj.DefaultParams.Gap1_deg = [0 gap];
-StimObj.DefaultParams.Gap2_deg = [0 StimObj.DefaultParams.BranchDistDeg] + secondgap;
+% For reference:
+% Eddy:                                 Danny before 21-09-2018:
+% BranchDistDeg = 1.5;                  1.2
+% CurveTargetDistDeg = 1.8;             1.5
+% Gap1_deg = [0 0.5]                    [0 0.5]
+% Gap2_deg = [0 BranchDistDeg] + 1      [0 BranchDistDeg] + 0.8
+
+%StimObj.DefaultParams.BranchDistDeg = 1.2;%1.2;
+%StimObj.DefaultParams.CurveTargetDistDeg = 1.5;
+%gap = .5; secondgap = 0.8;
+%StimObj.DefaultParams.Gap1_deg = [0 gap];
+%StimObj.DefaultParams.Gap2_deg = [0 StimObj.DefaultParams.BranchDistDeg] + secondgap;
+% ===
+
 % -------------------------------------------------------------------------
 
 % unsaturatedColor = [0.2 0.2 0.2; 0.2 0.2 0.2; .3 .3 .3]; % different shapes

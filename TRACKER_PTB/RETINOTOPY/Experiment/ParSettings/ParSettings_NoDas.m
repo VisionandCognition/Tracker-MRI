@@ -148,6 +148,7 @@ Par.SwitchDur = 500; % (200) duration of alternative orientation
 Par.ResponseAllowed = [100 Par.SwitchDur+100]; % [after_onset after_offset] in ms
 Par.PostErrorDelay = 0; % extra wait time as punishment for error trials
 Par.DelayOnMiss = 0; % extra wait time as punishment for miss trials 
+Par.PostCorrectDelay = 100;
 
 Par.ProbSideRepeatOnCorrect = 0.5;
 Par.ProbSideRepeatOnError = 0.5;
