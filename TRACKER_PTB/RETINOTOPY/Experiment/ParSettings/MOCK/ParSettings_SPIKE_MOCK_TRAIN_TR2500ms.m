@@ -135,7 +135,7 @@ Par.RESP_STATE_GO = 2; % Go signal given
 Par.RESP_STATE_DONE = 4;  % Go signal given and response no longer possible (hit or miss)
 
 % Go-bar (vertical / horizontal target bar) -------------------------------
-Gobar_length = 4; % .02
+Gobar_length = 3; % .02
 Par.GoBarSize = Gobar_length*[1, .25] + [0, 0.01]; % [length width] in deg
 Par.GoBarColor = [0.8 0.8 0.8]; % [R G B] 0-1
 
@@ -353,7 +353,7 @@ Par.RewardForHandIn_MinIntervalBetween = 2; %s
 Par.FixReward_HandInGain = [1 1]; % one hand , both hands
 
 % Task rewards are multiplied with this factor when hands are in
-Par.TaskReward_HandInGain = [.75 1]; % one hand , both hands
+Par.TaskReward_HandInGain = [1 1]; % one hand , both hands
 
 %% Create Eye-check windows based on stimulus positions ===================
 % The code below is preloaded and will be overwritten on stimulus basis

@@ -583,7 +583,7 @@ if do_json;
     Par.jf.Dataset      = 'CurveTracing';
     Par.jf.Date         = datestr(now,'yyyymmdd');
     Par.jf.Subject      = Par.MONKEY;
-    Par.jf.Researcher   = 'JonathanWilliford';
+    Par.jf.Researcher   = 'KanishkaWaghmare';
     Par.jf.Setup        = Par.SetUp;
     Par.jf.Group        = 'awake';
     Par.jf.Stimulus     = Par.STIMSETFILE(find(Par.STIMSETFILE=='_',1,'last')+1:end);
