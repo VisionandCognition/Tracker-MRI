@@ -34,7 +34,7 @@ Stm=StimObj.Stm;
 % overrule generic fixation window
 % Fixation window set by StimSettings with FixWinSizeDeg, not sure what ...
 %    Par.FixWinSize does?
-Par.FixWinSize = [2.0 2.0];% [1.8 1.8]; % [W H] in deg
+Par.FixWinSize = [3.0 3.0];% [1.8 1.8]; % [W H] in deg
 Stm(1).FixWinSizeDeg = Par.FixWinSize(1);
 
 Par.WaitForFixation = true; % can be toggled with f (if Par.FKeyToggles_WaitForFix = true)
@@ -247,7 +247,7 @@ Par.ManualRewardTargetOnly = false; % only give manual reward during target pres
 
 Par.OneRewardPerTrial = false; % for training allow multiple rewards/target
 %if ~isfield(Par, 'RewardTime')
-Par.RewardTime = 0.250;
+Par.RewardTime = 0.150;
 %end
 
 % switch Par.RewardType

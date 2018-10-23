@@ -135,33 +135,33 @@ Par.RESP_STATE_GO = 2; % Go signal given
 Par.RESP_STATE_DONE = 4;  % Go signal given and response no longer possible (hit or miss)
 
 % Go-bar (vertical / horizontal target bar) -------------------------------
-Gobar_length = 3; % .02
+Gobar_length = 1.5; % .02
 Par.GoBarSize = Gobar_length*[1, .25] + [0, 0.01]; % [length width] in deg
 Par.GoBarColor = [0.8 0.8 0.8]; % [R G B] 0-1
 
 % Color of the Response indicator (which hand)
 Par.RespLeverMatters = true;
 %Par.RespIndColor = [Stm(1).BackColor;Stm(1).BackColor]; %0.1*[1 1 1;1 1 1]; % colors for the left and right target
-Par.RespIndColor = 0.6*[1 .1 .1;.1 .8 .1]; % colors for the left and right target
-Par.RespIndSize = 3;
-Par.RespIndPos = [-4 0; 4 0]; % deg
+Par.RespIndColor = 0.1*ones(2,3);%[1 .1 .1;.1 .8 .1]; % colors for the left and right target
+Par.RespIndSize = 2.2;
+Par.RespIndPos = [-3.0 0; 3.0 0]; % deg
 Par.RespLeverGain = [1 1]; % [L R] 
-Par.RespIndLeds = true;
+Par.RespIndLeds = false;
 
 Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
 Par.BlockedIndColor = [.7 .7 .7];
 
 Par.SwitchDur = 3000; % (200) duration of alternative orientation
 Par.ResponseAllowed = [0 Par.SwitchDur+100]; % [after_onset after_offset] in ms
-Par.PostErrorDelay = 2250; % extra wait time as punishment for error trials
-Par.DelayOnMiss = 200; % extra wait time as punishment for miss trials 
-Par.PostCorrectDelay = 200;
+Par.PostErrorDelay = 2500; % extra wait time as punishment for error trials
+Par.DelayOnMiss = 500; % extra wait time as punishment for miss trials 
+Par.PostCorrectDelay = 500;
 
 Par.NoIndicatorDuringPunishDelay=true;
  
 Par.ProbSideRepeatOnCorrect =   0.50;
-Par.ProbSideRepeatOnError =     0.60;
-Par.ProbSideRepeatOnMiss =      0.80;
+Par.ProbSideRepeatOnError =     0.50;
+Par.ProbSideRepeatOnMiss =      0.50;
 Par.ProbSideRepeatOnEarly =     0.50;
 
 Par.MaxNumberOfConsecutiveErrors = 5; 
@@ -188,7 +188,7 @@ Par.ConnectBox.PhotoAmp_HandIn = 3:4;   % indeces to PhotoAmp channels
 
 %% Reward scheme ==========================================================
 Par.Reward = true; %boolean to enable reward stim bit or not
-Par.RewardSound = true; % give sound feedback about reward
+Par.RewardSound = false; % give sound feedback about reward
 Par.RewSndPar = [44100 800 0.05]; % [FS(Hz) TonePitch(Hz) Amplitude]
 Par.RewardFixFeedBack = true;
 
@@ -197,10 +197,10 @@ Par.RewardFixFeedBack = true;
 % RESP_MISS         = 3;
 % RESP_EARLY        = 4;
 % RESP_BREAK_FIX    = 5;
-Par.FeedbackSound = [true true false false false];
+Par.FeedbackSound = [false true false false false];
 Par.FeedbackSoundPar = [ ...
     44100 800 1 0.03; ... CORRECT
-    44100 300 1.5 0.1; ... FALSE
+    44100 300 0.5 0.1; ... FALSE
     44100 200 1 0.03; ... MISS
     44100 300 1.5 0.05; ... EARLY
     44100 400 1.5 0.03 ... FIXATION BREAK
@@ -243,7 +243,7 @@ Par.RewardFixMultiplier = 0.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.130;%250;
+        Par.RewardTimeSet = 0.100;%250;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as

@@ -17,7 +17,7 @@ Params.BGColor = [.5 .5 .5]; % [R G B] 0-1
 % >> Equalize color with Eddy's for scanning / paper
 
 % Fixation ----------------------------------------------------------------
-Params.FixWinSizeDeg = 2.0; % <- testing   2.5; % in deg
+Params.FixWinSizeDeg = 3.0; % <- testing   2.5; % in deg
 Params.FixDotSizeDeg = 0.3;
 
 %[RGB if not fixating; RGB fixating; Fixation not required]
@@ -95,10 +95,10 @@ Params.PawIndAlpha = [1 1 1 1 1; 1 1 1 1 1];
 Params.NumOfPawIndicators = 4; % Can't be more than the number of PawIndPositions!
 Params.DistractBranchConnAlpha = 1;
 
-ambigCir = 0.25; % was 0.6 -> should be 0.3?
+ambigCir = 0.35; % was 0.6 -> should be 0.3?
 Params.SaturatedPawIndCol = [0 .7 0; .9 .2 .2; ambigCir ambigCir ambigCir]; % colors for the left and right target
-%unsaturatedColor = [0.6 0.6 0.6; 0.6 0.6 0.6];
-unsaturatedColor = [0.3 0.3 0.3; 0.3 0.3 0.3; ambigCir ambigCir ambigCir];
+% unsaturatedColor = [0.6 0.6 0.6; 0.6 0.6 0.6];
+unsaturatedColor = [0.5 0.5 0.5; 0.5 0.5 0.5; ambigCir ambigCir ambigCir];
 % >> Equalize color with Eddy's for scanning / paper
 
 %satLevel = 5/6;
