@@ -675,9 +675,16 @@ copyfile( ... probably also depends on base StimSettings.m
 copyfile( ... and default settings
     fullfile(Par.CurveTracingRoot, 'Experiment', 'StimSettings', 'StimSettings__Defaults__.m'), ...
     logPath );
-copyfile( ...
-    fullfile(Par.CurveTracingRoot, 'Experiment', 'ParSettings', [Par.PARSETFILE, '.m']), ...
-    logPath );
+ % parsettings
+ parsetpath = which(Par.PARSETFILE);
+ if isempty(ls(Par.PARSETFILE)) % doesn't exist yet
+    copyfile(parsetpath,[Par.PARSETFILE '.m'], logPath);
+ end
+
+% === Old JW-version >> didn't work with parsettings in subfolders ====
+%copyfile( ...
+%    fullfile(Par.CurveTracingRoot, 'Experiment', 'ParSettings', [Par.PARSETFILE, '.m']), ...
+%    logPath );
 
 % if running without DAS close ptb windows
 %if Par.TestRunstimWithoutDAS
