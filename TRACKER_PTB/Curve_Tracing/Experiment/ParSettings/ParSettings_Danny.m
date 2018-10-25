@@ -1,4 +1,4 @@
-function ParSettings
+function ParSettings_Danny
 
 % ParSettings gives all parameters for the experiment in global Par
 global Par
@@ -216,6 +216,8 @@ Par.StimNeedsHandInBox=false;
 Par.FixNeedsHandInBox=false;
 Par.HandOutDimsScreen = false;
 Par.HandOutDimsScreen_perc = 0.9; %(0-1, fraction dimming)
+
+Par.StartTrialDespiteLeverPositions = false;
 
 Par.HandResponse=[false false];
 Par.HandsIn=[false false]; % Hands in position ready to respond

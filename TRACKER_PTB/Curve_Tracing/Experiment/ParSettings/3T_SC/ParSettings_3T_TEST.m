@@ -1,4 +1,4 @@
-function ParSettings_EDDY_3T_HAND_TR25s
+function ParSettings_EDDY_3T_TEST
 
 % ParSettings gives all parameters for the experiment in global Par
 global Par
@@ -38,6 +38,8 @@ Par.PlotPerformance = false;
 % Needed for initiation of tracker since it's in the gui now
 Par.StimNeedsHandInBox=false;
 Par.FixNeedsHandInBox=false;
+
+Par.StartTrialDespiteLeverPositions = true;
 
 Par.RequireHandsIn = false;
 %Par.RequireHandsIn = false;  % <--- TEMPORARY!!!

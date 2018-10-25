@@ -191,8 +191,12 @@ if hand_pos_changed
     fprintf('%d %d\n', HandInSignals);
 end
 Par.HandsInPosition = all(Par.HandsIn);
-Par.GoNewTrial = ~Par.BeamLIsBlocked && ~Par.BeamRIsBlocked && ...
-    (Par.HandsInPosition || ~Par.RequireHandsIn);
+if ~Par.StartTrialDespiteLeverPositions
+    Par.GoNewTrial = ~Par.BeamLIsBlocked && ~Par.BeamRIsBlocked && ...
+        (Par.HandsInPosition || ~Par.RequireHandsIn);
+else
+    Par.GoNewTrial = true;
+end
 
 %% functions --------------------------------------------------------------
     function ResponsesReleased

@@ -28,33 +28,6 @@ RespText = {'Correct', 'False', 'Miss', 'Early', 'Fix. break'};
 scriptPath = mfilename('fullpath');
 Par.CurveTracingRoot = fileparts(fileparts(scriptPath));
 
-% global Par   %global parameters
-% global StimObj %stimulus objects
-% global Log
-
-% [CK] I'm leaving this switch here so you can switch off the json generation completely
-% if it doesn't work the way you want it to.
-do_json = true;
-
-% Just some sanity checks to make sure there aren't duplicate m files
-assert(size(which('GiveRewardAuto','-all'),1)==1)
-assert(size(which('CheckFixation','-all'),1)==1)
-assert(size(which('CheckTracker','-all'),1)==1)
-assert(size(which('CheckKeys','-all'),1)==1)
-
-Par.RESP_NONE = 0;
-Par.RESP_CORRECT = 1;
-Par.RESP_FALSE = 2;
-Par.RESP_MISS = 3;
-Par.RESP_EARLY = 4;
-Par.RESP_BREAK_FIX = 5;
-Par.RESP_REMOVE_HAND = 6;
-
-RespText = {'Correct', 'False', 'Miss', 'Early', 'Fix. break'};
-
-scriptPath = mfilename('fullpath');
-Par.CurveTracingRoot = fileparts(fileparts(scriptPath));
-
 %% THIS SWITCH ALLOW TESTING THE RUNSTIM WITHOUT DASCARD & TRACKER ========
 % if hasrealdas exists and says that there is no das card, then don't
 %   run without the DAS...
