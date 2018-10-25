@@ -675,11 +675,13 @@ copyfile( ... probably also depends on base StimSettings.m
 copyfile( ... and default settings
     fullfile(Par.CurveTracingRoot, 'Experiment', 'StimSettings', 'StimSettings__Defaults__.m'), ...
     logPath );
- % parsettings
- parsetpath = which(Par.PARSETFILE);
- if isempty(ls(Par.PARSETFILE)) % doesn't exist yet
-    copyfile(parsetpath,[Par.PARSETFILE '.m'], logPath);
- end
+% parsettings
+parsetpath = which(Par.PARSETFILE);
+copyfile(parsetpath, logPath);
+% because of JW coding strategy, we also need the default
+copyfile( ...
+    fullfile(Par.CurveTracingRoot, 'Experiment', 'ParSettings', 'ParSettings.m'), ...
+    logPath );
 
 % === Old JW-version >> didn't work with parsettings in subfolders ====
 %copyfile( ...

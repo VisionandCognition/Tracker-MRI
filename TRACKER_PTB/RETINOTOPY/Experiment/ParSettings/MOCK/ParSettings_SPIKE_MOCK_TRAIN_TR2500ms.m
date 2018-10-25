@@ -143,8 +143,8 @@ Par.GoBarColor = [0.8 0.8 0.8]; % [R G B] 0-1
 Par.RespLeverMatters = true;
 %Par.RespIndColor = [Stm(1).BackColor;Stm(1).BackColor]; %0.1*[1 1 1;1 1 1]; % colors for the left and right target
 Par.RespIndColor = 0.1*ones(2,3);%[1 .1 .1;.1 .8 .1]; % colors for the left and right target
-Par.RespIndSize = 2.2;
-Par.RespIndPos = [-3.0 0; 3.0 0]; % deg
+Par.RespIndSize = 2.0;
+Par.RespIndPos = [-1.0 0; 1.0 0]; % deg
 Par.RespLeverGain = [1 1]; % [L R] 
 Par.RespIndLeds = false;
 
@@ -197,12 +197,12 @@ Par.RewardFixFeedBack = true;
 % RESP_MISS         = 3;
 % RESP_EARLY        = 4;
 % RESP_BREAK_FIX    = 5;
-Par.FeedbackSound = [false true false false false];
+Par.FeedbackSound = [false true false true false];
 Par.FeedbackSoundPar = [ ...
     44100 800 1 0.03; ... CORRECT
     44100 300 0.5 0.1; ... FALSE
     44100 200 1 0.03; ... MISS
-    44100 300 1.5 0.05; ... EARLY
+    44100 300 0.5 0.05; ... EARLY
     44100 400 1.5 0.03 ... FIXATION BREAK
     ];
 
