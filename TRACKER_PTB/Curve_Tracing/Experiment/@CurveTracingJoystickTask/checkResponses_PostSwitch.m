@@ -14,7 +14,7 @@ if Par.NewResponse && ...
         
         % We can get here with a correct response after breaking
         % fixation if fixation is not required throughout the entire
-        % response period. If this is the case the resposnse should
+        % response period. If this is the case the response should
         % still be counted as correct!
         
     else %if ~obj.param('RequireSpecificPaw') || Par.NewResponse ~= obj.param('iTargetShape')

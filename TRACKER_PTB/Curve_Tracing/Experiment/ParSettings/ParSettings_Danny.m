@@ -271,7 +271,11 @@ Par.RewardTime = 0.150;
 
 Par.PropRewardWitheldForRelease = 0.25; % this proportion is given after the lever is released
 Par.RewardTimeManual = 0.04; % amount of reward when given manually
-Par.StreakRewardMult = 1.0; % Give more reward when an entire block is correct
+
+Par.StreakReward.Type = 'trials'; % can be 'trials' or 'block' 
+% trials >> # trials ; block >> whatever the block length is
+Par.StreakReward.NumTrials = 3; % parameter unused when type == block
+Par.StreakReward.Mult = 1.0; % Give more reward when an entire block is correct
 
 %% Create Eye-check windows based on stimulus positions ===================
 for SetInitialWINs=1

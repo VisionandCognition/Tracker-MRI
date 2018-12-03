@@ -44,12 +44,20 @@ else
 end
 Par.CorrStreakcount=Par.CorrStreakcount+1;
 
-% Give bonus for getting all of the trials in block correct
+% Give bonus for getting all of the trials in block correct or a predefined
+% number of consecutive correct responses.
 % The bonus is relative to the cases w/o bonus
 N = obj.param('BlockSize');
-fprintf('Current streak = %d / %d\n', Par.CorrStreakcount(1), obj.param('BlockSize'));
-if Par.CorrStreakcount(1) == N
-    RewardAmount = Par.StreakRewardMult * RewardAmount;
+fprintf('Current streak = %d / %d\n', ...
+    Par.CorrStreakcount(1), obj.param('BlockSize'));
+if strcmp(Par.StreakReward.Type, 'block')
+    if Par.CorrStreakcount(1) == N
+        RewardAmount = Par.StreakReward.Mult * RewardAmount;
+    end
+elseif strcmp(Par.StreakReward.Type, 'trials')
+    if Par.CorrStreakcount(1) == Par.StreakReward.NumTrials
+        RewardAmount = Par.StreakReward.Mult * RewardAmount;
+    end
 end
 
 RewardAmount = RewardAmount * obj.taskParams.rewardMultiplier  * ...
@@ -60,9 +68,11 @@ if ~Par.ResponseGiven  && ~Par.FalseResponseGiven %only log once
     Par.CorrectThisTrial=true;
     
     withhold_for_release = Par.PropRewardWitheldForRelease;%1.0;
-    Par.GiveRewardAmount = Par.GiveRewardAmount + (1 - withhold_for_release) * RewardAmount;
+    Par.GiveRewardAmount = Par.GiveRewardAmount + ...
+        (1 - withhold_for_release) * RewardAmount;
     Par.GiveRewardAmount_onResponseRelease = ...
-        Par.GiveRewardAmount_onResponseRelease + withhold_for_release * RewardAmount;
+        Par.GiveRewardAmount_onResponseRelease + ...
+        withhold_for_release * RewardAmount;
     Log.events.add_entry(lft, obj.taskName, 'ResponseGiven', 'CORRECT');
     %Log.events.add_entry(lft, obj.taskName, 'ResponseReward', RewardAmount);
 end
