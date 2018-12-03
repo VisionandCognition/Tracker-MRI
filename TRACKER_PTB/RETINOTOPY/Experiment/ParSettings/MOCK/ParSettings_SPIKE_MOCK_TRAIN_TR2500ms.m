@@ -142,16 +142,16 @@ Par.GoBarColor = [0.8 0.8 0.8]; % [R G B] 0-1
 % Color of the Response indicator (which hand)
 Par.RespLeverMatters = true;
 %Par.RespIndColor = [Stm(1).BackColor;Stm(1).BackColor]; %0.1*[1 1 1;1 1 1]; % colors for the left and right target
-Par.RespIndColor = 0.1*ones(2,3);%[1 .1 .1;.1 .8 .1]; % colors for the left and right target
-Par.RespIndSize = 2.0;
-Par.RespIndPos = [-1.0 0; 1.0 0]; % deg
+Par.RespIndColor = 0.1*ones(2,3);%[1 .1 .1;.1 .8 .1]; % colors for the left and right target %
+Par.RespIndSize = 2.5;
+Par.RespIndPos = [-.6 0; .6 0]; % deg
 Par.RespLeverGain = [1 1]; % [L R] 
 Par.RespIndLeds = false;
 
 Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
 Par.BlockedIndColor = [.7 .7 .7];
 
-Par.SwitchDur = 3000; % (200) duration of alternative orientation
+Par.SwitchDur = 2000; % (200) duration of alternative orientation
 Par.ResponseAllowed = [0 Par.SwitchDur+100]; % [after_onset after_offset] in ms
 Par.PostErrorDelay = 2500; % extra wait time as punishment for error trials
 Par.DelayOnMiss = 500; % extra wait time as punishment for miss trials 
