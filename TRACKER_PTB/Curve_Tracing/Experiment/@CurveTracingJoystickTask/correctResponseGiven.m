@@ -55,7 +55,8 @@ if strcmp(Par.StreakReward.Type, 'block')
         RewardAmount = Par.StreakReward.Mult * RewardAmount;
     end
 elseif strcmp(Par.StreakReward.Type, 'trials')
-    if Par.CorrStreakcount(1) == Par.StreakReward.NumTrials
+    if mod(Par.CorrStreakcount(2),Par.StreakReward.NumTrials)==0 && ...
+            Par.CorrStreakcount(2)>0
         RewardAmount = Par.StreakReward.Mult * RewardAmount;
     end
 end

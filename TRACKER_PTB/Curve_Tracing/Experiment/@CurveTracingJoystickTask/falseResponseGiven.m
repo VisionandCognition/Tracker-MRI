@@ -25,4 +25,5 @@ if ~Par.ResponseGiven && ~Par.FalseResponseGiven %only log once
     Log.events.add_entry(lft, obj.taskName, 'ResponseGiven', 'INCORRECT');
 end
 Par.FalseResponseGiven=true;
+Par.CorrStreakcount(2)=0; % rest correct streak counter
 end
