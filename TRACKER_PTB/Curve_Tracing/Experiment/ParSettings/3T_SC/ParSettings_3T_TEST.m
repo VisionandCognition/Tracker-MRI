@@ -38,7 +38,7 @@ Par.PlotPerformance = false;
 % Needed for initiation of tracker since it's in the gui now
 Par.StimNeedsHandInBox=false;
 Par.FixNeedsHandInBox=false;
-
+Par.WaitForFixation = false; 
 Par.StartTrialDespiteLeverPositions = true;
 
 Par.RequireHandsIn = false;

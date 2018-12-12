@@ -562,16 +562,20 @@ if do_json;
     Par.jf.Stimulus     = Par.STIMSETFILE(find(Par.STIMSETFILE=='_',1,'last')+1:end);
     Par.jf.LogFolder    = [Par.MONKEY '_' DateString];
     Par.jf.logfile_name = FileName;
+    Par.jf.RunNumber	= 'XXX';
+    Par.jf.QualityAsses = '10';
     % give the possibility to change
     % only when at scanner
     if strcmp(Par.SetUp, 'Spinoza_3T') || strcmp(Par.SetUp, 'NIN')
         json_answer = inputdlg(...
             {'Project','Method','Protocol',...
             'Dataset','Subject','Researcher',...
-            'Setup','Group'},'JSON SPECS',1,...
+            'Setup','Group','Run','Quality (0-10)'},...
+            'JSON SPECS',1,...
             {Par.jf.Project,Par.jf.Method,Par.jf.Protocol,...
             Par.jf.Dataset,Par.jf.Subject,Par.jf.Researcher,...
-            Par.jf.Setup,Par.jf.Group},'on');
+            Par.jf.Setup,Par.jf.Group,Par.jf.RunNumber,...
+            Par.jf.QualityAsses},'on');
         Par.jf.Project      = json_answer{1};
         Par.jf.Method       = json_answer{2};
         Par.jf.Protocol     = json_answer{3};
@@ -580,6 +584,8 @@ if do_json;
         Par.jf.Researcher   = json_answer{6};
         Par.jf.Setup        = json_answer{7};
         Par.jf.Group        = json_answer{8};
+        Par.jf.RunNumber    = json_answer{9};
+        Par.jf.QualityAsses = json_answer{10};
     end
     json.project.title      = Par.jf.Project;
     json.project.method     = Par.jf.Method;
@@ -591,6 +597,8 @@ if do_json;
     json.session.setup      = Par.jf.Setup;
     json.session.group      = Par.jf.Group;
     json.session.stimulus   = Par.jf.Stimulus;
+    json.session.run        = Par.jf.RunNumber;
+    json.session.quality    = Par.jf.QualityAsses;
     if isempty(json.session.stimulus)
         json.session.stimulus='undefined';
     end

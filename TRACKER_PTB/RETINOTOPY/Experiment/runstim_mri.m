@@ -1911,16 +1911,20 @@ for STIMNR = Log.StimOrder
             Par.jf.LogFolder    = [Par.MONKEY '_' DateString];
             Par.jf.logfile_name = FileName;
             Par.jf.fixperc      = Log.FixPerc;
+            Par.jf.RunNumber	= 'XXX';
+            Par.jf.QualityAsses = '10';
             % give the possibility to change
             % only when at scanner
             if strcmp(Par.SetUp, 'Spinoza_3T') || strcmp(Par.SetUp, 'NIN')
                 json_answer = inputdlg(...
-                   {'Project','Method','Protocol',...
-                   'Dataset','Subject','Researcher',...
-                   'Setup','Group'},'JSON SPECS',1,...
-                   {Par.jf.Project,Par.jf.Method,Par.jf.Protocol,...
-                   Par.jf.Dataset,Par.jf.Subject,Par.jf.Researcher,...
-                   Par.jf.Setup,Par.jf.Group},'on');
+                    {'Project','Method','Protocol',...
+                    'Dataset','Subject','Researcher',...
+                    'Setup','Group','Run','Quality (0-10)'},...
+                    'JSON SPECS',1,...
+                    {Par.jf.Project,Par.jf.Method,Par.jf.Protocol,...
+                    Par.jf.Dataset,Par.jf.Subject,Par.jf.Researcher,...
+                    Par.jf.Setup,Par.jf.Group,Par.jf.RunNumber,...
+                    Par.jf.QualityAsses},'on');
                Par.jf.Project      = json_answer{1};
                Par.jf.Method       = json_answer{2};
                Par.jf.Protocol     = json_answer{3};
@@ -1929,6 +1933,8 @@ for STIMNR = Log.StimOrder
                Par.jf.Researcher   = json_answer{6};
                Par.jf.Setup        = json_answer{7};
                Par.jf.Group        = json_answer{8};
+               Par.jf.RunNumber    = json_answer{9};
+               Par.jf.QualityAsses = json_answer{10};
             end
             json.project.title      = Par.jf.Project;
             json.project.method     = Par.jf.Method;
@@ -1943,6 +1949,9 @@ for STIMNR = Log.StimOrder
             json.session.logfile    = Par.jf.logfile_name;
             json.session.logfolder  = Par.jf.LogFolder;
             json.session.fixperc    = Par.jf.fixperc;
+            json.session.run        = Par.jf.RunNumber;
+            json.session.quality    = Par.jf.QualityAsses;
+            
             savejson('', json, ['Log_' DateString '_session.json']);
             % save log mat-file ============
             temp_hTracker=Par.hTracker;
