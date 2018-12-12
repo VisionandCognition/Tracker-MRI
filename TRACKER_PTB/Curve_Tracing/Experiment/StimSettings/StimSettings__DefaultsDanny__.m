@@ -143,8 +143,8 @@ Params.CurveAnglesAtFP = [ 180; 180; 0; 0]; % UL DL UR DR
 
 %Params.PawIndSizeDeg = [2.5, 2.5, 2.5, 2.5, Params.FixDotSizeDeg];
 Params.PawIndSizeDeg = [2.5 2.5 2.5 2.5, Params.FixDotSizeDeg];
-Params.BlockSize = 1;
-Params.rewardMultiplier = 1.0;
+Params.BlockSize =3;
+Params.rewardMultiplier = 1.5;
 Params.rewardSideRespMultiplier = [1 1];
 
 % Parameters for titrating the target to require the less used hand to be

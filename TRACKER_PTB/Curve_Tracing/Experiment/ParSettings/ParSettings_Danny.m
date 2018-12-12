@@ -249,7 +249,7 @@ Par.ManualRewardTargetOnly = false; % only give manual reward during target pres
 
 Par.OneRewardPerTrial = false; % for training allow multiple rewards/target
 %if ~isfield(Par, 'RewardTime')
-Par.RewardTime = 0.150;
+Par.RewardTime = 0.120;
 %end
 
 % switch Par.RewardType
@@ -275,7 +275,7 @@ Par.RewardTimeManual = 0.04; % amount of reward when given manually
 Par.StreakReward.Type = 'trials'; % can be 'trials' or 'block' 
 % trials >> # trials ; block >> whatever the block length is
 Par.StreakReward.NumTrials = 3; % parameter unused when type == block
-Par.StreakReward.Mult = 1.0; % Give more reward when an entire block is correct
+Par.StreakReward.Mult = 1.5; % Give more reward when an entire block is correct
 
 %% Create Eye-check windows based on stimulus positions ===================
 for SetInitialWINs=1

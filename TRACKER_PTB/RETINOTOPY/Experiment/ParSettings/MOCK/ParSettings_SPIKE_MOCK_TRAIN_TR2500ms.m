@@ -135,7 +135,7 @@ Par.RESP_STATE_GO = 2; % Go signal given
 Par.RESP_STATE_DONE = 4;  % Go signal given and response no longer possible (hit or miss)
 
 % Go-bar (vertical / horizontal target bar) -------------------------------
-Gobar_length = 1.5; % .02
+Gobar_length = 1.0; % .02
 Par.GoBarSize = Gobar_length*[1, .25] + [0, 0.01]; % [length width] in deg
 Par.GoBarColor = [0.8 0.8 0.8]; % [R G B] 0-1
 
@@ -144,7 +144,7 @@ Par.RespLeverMatters = true;
 %Par.RespIndColor = [Stm(1).BackColor;Stm(1).BackColor]; %0.1*[1 1 1;1 1 1]; % colors for the left and right target
 Par.RespIndColor = 0.1*ones(2,3);%[1 .1 .1;.1 .8 .1]; % colors for the left and right target %
 Par.RespIndSize = 2.5;
-Par.RespIndPos = [-.6 0; .6 0]; % deg
+Par.RespIndPos = [-0 0; 0 0]; % deg
 Par.RespLeverGain = [1 1]; % [L R] 
 Par.RespIndLeds = false;
 
@@ -178,7 +178,7 @@ Par.CatchBlock.StartWithCatch = false;
 % set time-windows in which something can happen (ms)
 % [baseduration_without_switch ... 
 %  period_in_which_switch_randomly_occurs]
-Par.EventPeriods = [20 0]; % Determines Go-bar onset (was 600 to 1600)
+Par.EventPeriods = [300 500]; % Determines Go-bar onset (was 600 to 1600)
 
 %% Connection box port assignment =========================================
 Par.ConnectBox.PhotoAmp = [4 5 7 8];    % channels for photo-amps 
