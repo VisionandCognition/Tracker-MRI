@@ -121,7 +121,7 @@ Stm(1).ProbFixationReward = 0.0;
 Params.CurveAnglesAtFP = [ 180; 180; 0; 0];
 
 Params.PawIndSizeDeg = [2.5, 2.5, 2.5, 2.5, Params.FixDotSizeDeg];
-Params.BlockSize = 1;
+Params.BlockSize =3;
 Params.rewardMultiplier = 1.0;
 Params.rewardSideRespMultiplier = [1 1];
 
@@ -136,9 +136,8 @@ FixParams.subtrialsInTrial = 8;
 FixParams.fixationPeriod = 540;  % just for fixation task
 FixParams.postfixPeriod = 0;  % just for fixation task
 
-FixParams.rewardMultiplier = .12; % 0.5;
+FixParams.rewardMultiplier = .15; % 0.5;
 FixParams.BlockSize = 3; %round(3* 3500 / FixParams.fixationPeriod * FixParams.subtrialsInTrial);
-
 
 CtrlParams = Params;
 CtrlParams.NumOfPawIndicators = 5;

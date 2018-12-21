@@ -151,9 +151,9 @@ Par.RespIndLeds = false;
 Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
 Par.BlockedIndColor = [.7 .7 .7];
 
-Par.SwitchDur = 2000; % (200) duration of alternative orientation
+Par.SwitchDur = 10000; % (200) duration of alternative orientation
 Par.ResponseAllowed = [0 Par.SwitchDur+100]; % [after_onset after_offset] in ms
-Par.PostErrorDelay = 2500; % extra wait time as punishment for error trials
+Par.PostErrorDelay = 2500; % extra wait time as punishment for error trials (also early)
 Par.DelayOnMiss = 500; % extra wait time as punishment for miss trials 
 Par.PostCorrectDelay = 500;
 
@@ -202,7 +202,7 @@ Par.FeedbackSoundPar = [ ...
     44100 800 1 0.03; ... CORRECT
     44100 300 0.5 0.1; ... FALSE
     44100 200 1 0.03; ... MISS
-    44100 300 0.5 0.05; ... EARLY
+    44100 200 0.5 0.1; ... EARLY
     44100 400 1.5 0.03 ... FIXATION BREAK
     ];
 
