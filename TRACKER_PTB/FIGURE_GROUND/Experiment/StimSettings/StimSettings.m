@@ -1,6 +1,9 @@
 %StimSettings
 global StimObj
 
+% using Stm(1) despite there only being one Stm for compatibility with 
+% older code in the RETINOTOPY folder
+
 %% ========================================================================
 % Refreshrate -------------------------------------------------------------
 Stm(1).UsePreDefFlipTime=false; %else as fast as possible
@@ -30,40 +33,105 @@ Stm(1).CyclePosition = 0; % set zero for manual cycling
 Stm(1).RandomizeStim=false;
 Stm(1).nRepeatsStimSet=1;
 
-Stm(1).RetMap.StimType{1} = 'none'; % face / walker / checkerboard / none
-Stm(1).RetMap.StimType{2} = 'circle';
-% face / walker: circle / wedge
-% ret: pRF_8bar / wedge_cw/ccw / ring_con/exp
-Stm(1).RetMap.Dir = +1; % +1 = expanding / ccw, -1 = contracting / cw
-% only informative for face/walker stimuli
-Stm(1).RetMap.TRsPerStep = 1; %s 
-Stm(1).RetMap.PreDur_TRs = 5; % volumes
-Stm(1).RetMap.PostDur_TRs = 5; % volumes
-Stm(1).RetMap.nCycles = 2; % 0=unlimited
-Stm(1).RetMap.nSteps = 32; 
-% (32 for KUL face/walkers; multiple of 8 for 8bar)
-Stm(1).RetMap.nBlanks_each_nSteps = [0 0]; % if either is zero, it won't work
+Stm(1).StimType{1} = 'FigureGround'; 
+Stm(1).StimType{2} = 'texture'; % texture / dots
 
-% This only applies to newly created stim =================================
-Stm(1).RetMap.StimSize = 15; % degrees (square) 
-% Maximum size is screen height, will be corrected if it exceeds!
-Stm(1).RetMap.nBlanks_each_nSteps = [0 0];
-Stm(1).RetMap.MotionSteps = 15; % number of checker motion steps
-Stm(1).RetMap.fps = 20; % speed of checker motion
-Stm(1).RetMap.WedgeDeg = 45; % angular coverage of wedge
-Stm(1).RetMap.SubWedgeDeg = 15; % angular coverage of checkers in wedge
-Stm(1).RetMap.RingDeg = Stm(1).RetMap.StimSize/8; % width of stim ring
-Stm(1).RetMap.SubRingDeg = Stm(1).RetMap.RingDeg/5; % width of checker ring
-Stm(1).RetMap.BarWidth = Stm(1).RetMap.StimSize/8; % bar width in deg
-Stm(1).RetMap.chksize = Stm(1).RetMap.BarWidth/4; % bar checker size in deg
-% =========================================================================
+% Figure/Ground stimuli
+Stm(1).MoveGnd.Do = false;
+Stm(1).MoveGnd.SOA = 1.000; % secs
+Stm(1).MoveGnd.nFrames = 0.500; % secs
+Stm(1).MoveGnd.XY = [0 0.2]; % deg
+% texture: [X Y]
+% dots: [parallel orthogonal]
 
-Stm(1).RetMap.LoadFromFile = false;
-Stm(1).RetMap.SaveToFile = false;
-Stm(1).RetMap.FileName = 'pRF_8bars_MOCK.mat';
+Stm(1).RefreshSeed = 1.000; % s set to 0 for no refresh
+Stm(1).InvertPolarity = true;
+
+Stm(1).SaveToFile = true;
+Stm(1).LoadFromFile = false;
+Stm(1).FileName = 'FigGnd_Triangles.mat';
 
 % Logfolder
-Stm(1).LogFolder = 'C:\Users\NINuser\Documents\Log_CK\Retinotopy\Default';
+Stm(1).LogFolder = 'C:\Users\NINuser\Documents\Log_CK\FigGnd\Default';
+
+% Timing --
+Stm(1).stim_rep = 5; % BLOCK: n stim + n backgrounds
+Stm(1).stim_TRs = 2; % stim duration in TRs
+Stm(1).int_TRs =  1; % interval duration in TRs
+
+%% This only applies to newly created stim ================================
+% Background definitions --
+Stm(1).Gnd(1).backcol = [1 1 1]; % [R G B] 0-1
+Stm(1).Gnd(1).lines.length = 20;
+Stm(1).Gnd(1).lines.width = 2;
+Stm(1).Gnd(1).lines.density = 0.6; % 0-1
+Stm(1).Gnd(1).lines.color = [0 0 0];
+Stm(1).Gnd(1).lines.orient = 45;
+% -
+Stm(1).Gnd(1).dots.size = []; % 5; % maxes at 10 if we want larger we need to draw rects
+Stm(1).Gnd(1).dots.density = []; % 0.7; % 0-1
+Stm(1).Gnd(1).dots.color = []; % [0 0 0];
+Stm(1).Gnd(1).dots.type = []; % 0; % fast square dots
+% -
+Stm(1).Gnd(1).NumSeeds = 1;
+% -
+Stm(1).Gnd(2) = Gnd(1);
+Stm(1).Gnd(2).orient = 135;
+    
+% Figure definitions --
+% inherits texture feats from gnd with same index
+% line density, colors, length & width
+Stm(1).Fig(1).size = [300 300]; % in case of triangle only take (1)
+Stm(1).Fig(1).position = [-300 0];
+Stm(1).Fig(1).orient = Gnd(1).orient + 90;
+Stm(1).Fig(1).shape = 'Triangle_up';
+% 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down'
+% -
+Stm(1).Fig(2) = Fig(1); 
+Stm(1).Fig(2).position = [300 0];
+% -
+Stm(1).Fig(3) = Fig(1);
+Stm(1).Fig(3).orient = Gnd(2).orient + 90;
+% -
+Stm(1).Fig(4) = Fig(3);
+Stm(1).Fig(4).position = [300 0];
+% -
+Stm(1).Fig(5) = Fig(1);
+Stm(1).Fig(5).shape = 'Triangle_down';
+% -
+Stm(1).Fig(6) = Fig(2);
+Stm(1).Fig(6).shape = 'Triangle_down';
+% -
+Stm(1).Fig(7) = Fig(3);
+Stm(1).Fig(7).shape = 'Triangle_down';
+% -
+Stm(1).Fig(8) = Fig(4);
+Stm(1).Fig(8).shape = 'Triangle_down';
+    
+% Intermediate background --
+Stm(1).IntGnd = Gnd(1);
+Stm(1).IntGnd.orient = 90;
+    
+% Stimulus combination to include --
+Stm(1).FigGnd{1} = [1 1];
+Stm(1).FigGnd{2} = [2 1];
+Stm(1).FigGnd{3} = [3 2];
+Stm(1).FigGnd{4} = [4 2];
+Stm(1).FigGnd{5} = [5 1];
+Stm(1).FigGnd{6} = [6 1];
+Stm(1).FigGnd{7} = [7 2];
+Stm(1).FigGnd{8} = [8 2];
+
+Stm(1).randomize_stim = true;
+
+
+
+
+
+Stm(1).PreDur_TRs = 5; % volumes
+Stm(1).PostDur_TRs = 5; % volumes
+Stm(1).nCycles = 2; % 0=unlimited
+Stm(1).RetMap.nSteps = 32; 
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

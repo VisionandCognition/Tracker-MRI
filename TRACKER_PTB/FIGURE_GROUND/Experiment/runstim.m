@@ -381,6 +381,14 @@ for STIMNR = unique(Log.StimOrder)
             Stm(STIMNR).Descript = 'FullChecker';
         case 'movie'
             Stm(STIMNR).Descript = 'movie';
+        case 'FigureGround'
+            % create textures
+            
+            
+            
+            
+            
+            
     end
 end
 
@@ -457,6 +465,32 @@ if ~isinf(TotTime)
 else
     fprintf('NB: No end-time defined. This will keep running until stopped.\n')
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 %% Run this loop all stimuli the StimSettings file ========================
 Par.ESC=false; Log.TotalTimeOut = 0; Par.Pause = false;

@@ -24,7 +24,8 @@ eval(Par.STIMSETFILE); % loads the chosen stimfile
 Stm=StimObj.Stm;
 
 % overwrites the stimsetting!
-StimObj.Stm.FixDotCol = [.3 .3 .3 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
+StimObj.Stm.FixDotCol = [.3 .3 .3 ; .1 .1 .1]; 
+%[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
 Par.FixWinSize = [1.5 1.5]; % [W H] in deg
@@ -92,7 +93,7 @@ Par.PixPerDeg = Par.HW/atand(Par.ScreenWidthD2/(2*Par.DistanceToScreen));
 % CheckFlipRate
 hz = Screen('NominalFrameRate', Par.ScrNr); RefRate100=hz*100;
 [MeasuredFlip,nrValidSamples,stddev] = ...
-    Screen('GetFlipInterval',Par.window,100,[],[]);
+    Screen('GetFlipInterval',Par.window,100,[],[]); %#ok<*ASGLU>
 Rf = 1/MeasuredFlip;
 if round(RefRate100/1000) ~= round(Rf/10)  %should be approximately the same
     disp(['Warning!: refreshrate not properly reported by PTB; ' ...
@@ -129,8 +130,8 @@ Par.CorrectB = 7;
 Par.ResponseBox.Type='Lift'; % 'Beam' or'Lift'
 
 %% Response task ==========================================================
-Par.ResponseBox.Task = 'DetectGoSignal';
-%Par.ResponseBox.Task = 'Fixate';    % doesn't really matter as long as 
+%Par.ResponseBox.Task = 'DetectGoSignal';
+Par.ResponseBox.Task = 'Fixate';    % doesn't really matter as long as 
                                     % it's not DetectGoSignal
 Par.RESP_STATE_WAIT = 1; % Go signal not yet given
 Par.RESP_STATE_GO = 2; % Go signal given
