@@ -131,8 +131,8 @@ Par.ResponseBox.Type='Lift'; % 'Beam' or'Lift'
 
 %% Response task ==========================================================
 %Par.ResponseBox.Task = 'DetectGoSignal';
-Par.ResponseBox.Task = 'Fixate';    % doesn't really matter as long as 
-                                    % it's not DetectGoSignal
+Par.ResponseBox.Task = 'Fixate';
+
 Par.RESP_STATE_WAIT = 1; % Go signal not yet given
 Par.RESP_STATE_GO = 2; % Go signal given
 Par.RESP_STATE_DONE = 4;  % Go signal given and response no longer possible (hit or miss)
