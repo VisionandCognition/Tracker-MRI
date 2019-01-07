@@ -1,4 +1,4 @@
-function stimulus = ck_figgnd(Stm)
+function [stimulus, offscr] = ck_figgnd(Stm)
 % ck_figgnd - create fig-gnd stimuli
 % adapted for Tracker@NIN, C.Klink, Jan 2019
 

@@ -33,6 +33,7 @@ Stm.CyclePosition = 0; % set zero for manual cycling
 Stm.RandomizeStim=true;
 Stm.nRepeatsStimSet=1;
 
+Stm.Descript = 'FigureGround';
 Stm.StimType{1} = 'FigureGround'; 
 Stm.StimType{2} = 'lines'; % lines / dots
 
@@ -72,7 +73,7 @@ Stm.Gnd(1).dots.type = []; % 0; % fast square dots
 % -
 Stm.Gnd(1).NumSeeds = 1;
 % -
-Stm.Gnd(2) = Gnd(1);
+Stm.Gnd(2) = Stm.Gnd(1);
 Stm.Gnd(2).orient = 135;
     
 % Figure definitions --
@@ -80,37 +81,38 @@ Stm.Gnd(2).orient = 135;
 % line density, colors, length & width
 Stm.Fig(1).size = [5 5]; % DVA in case of triangle only take (1)
 Stm.Fig(1).position = [-5 0]; % DVA
-Stm.Fig(1).orient = Gnd(1).orient + 90;
+Stm.Fig(1).orient = Stm.Gnd(1).orient + 90;
 Stm.Fig(1).shape = 'Triangle_up';
 % 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down'
 % -
-Stm.Fig(2) = Fig(1); 
+Stm.Fig(2) = Stm.Fig(1); 
 Stm.Fig(2).position = [5 0]; % DVA
 % -
-Stm.Fig(3) = Fig(1);
-Stm.Fig(3).orient = Gnd(2).orient + 90;
+Stm.Fig(3) = Stm.Fig(1);
+Stm.Fig(3).orient = Stm.Gnd(2).orient + 90;
 % -
-Stm.Fig(4) = Fig(3);
+Stm.Fig(4) = Stm.Fig(3);
 Stm.Fig(4).position = [5 0]; % DVA
 % -
-Stm.Fig(5) = Fig(1);
+Stm.Fig(5) = Stm.Fig(1);
 Stm.Fig(5).shape = 'Triangle_down';
 % -
-Stm.Fig(6) = Fig(2);
+Stm.Fig(6) = Stm.Fig(2);
 Stm.Fig(6).shape = 'Triangle_down';
 % -
-Stm.Fig(7) = Fig(3);
+Stm.Fig(7) = Stm.Fig(3);
 Stm.Fig(7).shape = 'Triangle_down';
 % -
-Stm.Fig(8) = Fig(4);
+Stm.Fig(8) = Stm.Fig(4);
 Stm.Fig(8).shape = 'Triangle_down';
     
 % Intermediate background --
-Stm.IntGnd = Gnd(1);
+Stm.IntGnd = Stm.Gnd(1);
 Stm.IntGnd.orient = 90;
     
 % Stimulus combination to include --
-Stm.FigGnd{1} = [1 1];
+% >> always followed by background only <<
+Stm.FigGnd{1} = [1 1]; % [figure ground]
 Stm.FigGnd{2} = [2 1];
 Stm.FigGnd{3} = [3 2];
 Stm.FigGnd{4} = [4 2];
