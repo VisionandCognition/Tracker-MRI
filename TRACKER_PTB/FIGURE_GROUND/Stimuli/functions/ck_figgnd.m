@@ -1,8 +1,9 @@
-function [stimulus, offscr] = ck_figgnd(Stm)
+function [stimulus, offscr] = ck_figgnd(Stm, screenNumber)
 % ck_figgnd - create fig-gnd stimuli
 % adapted for Tracker@NIN, C.Klink, Jan 2019
 
 global Par
+
 open_tex = []; % keep track of open textures and close them at the end
 
 %% Draw texture in offscreen windows & make texture -----------------------
@@ -99,11 +100,11 @@ for g = 1:length(Stm.Gnd)
         
         % make textures >> we need it here for figure generation but we  
         % cannot save them so the runstim needs to regenerate them.
-        Gnd(g).tex{gs,1} = Screen('MakeTexture',w,...
+        Gnd(g).tex{gs,1} = Screen('MakeTexture',Par.window,...
             stimulus.Gnd(g).array{gs,1});
         open_tex = [open_tex Gnd(g).tex{gs,1}];
         if Stm.InvertPolarity
-            Gnd(g).tex{gs,2} = Screen('MakeTexture',w,...
+            Gnd(g).tex{gs,2} = Screen('MakeTexture',Par.window,...
                 stimulus.Gnd(g).array{gs,2});
             open_tex = [open_tex Gnd(g).tex{gs,2}];
         end
@@ -119,15 +120,15 @@ for f = 1:length(Stm.Fig)
     
     Stm.FigCenter = [Par.ScrCenter(1)+FigPos(1) ...
         Par.ScrCenter(2)+FigPos(2)];
-    Stm.Fig(f).RectDest = round([Stm.FigCenter(1)-FigSize(1)/2 ...
+    stimulus.Fig(f).RectDest = round([Stm.FigCenter(1)-FigSize(1)/2 ...
         Stm.FigCenter(2)-FigSize(2)/2 ...
         Stm.FigCenter(1)+FigSize(1)/2 ...
         Stm.FigCenter(2)+FigSize(2)/2 ]);
-    Stm.Fig(f).RectSrc = round([offscr.center(1)-FigSize(1)/2 ...
+    stimulus.Fig(f).RectSrc = round([offscr.center(1)-FigSize(1)/2 ...
         offscr.center(2)-FigSize(2)/2 ...
         offscr.center(1)+FigSize(1)/2 ...
         offscr.center(2)+FigSize(2)/2 ]);
-    
+        
     if strcmp(Stm.Fig(f).shape,'Triangle_up')
         Stm.Fig(f).Triangle = round([...
             offscr.center(1) offscr.center(2)-sqrt(FigSize(1)^2-(FigSize(1)/2)^2)/2 ;...
@@ -145,7 +146,7 @@ for f = 1:length(Stm.Fig)
     switch Stm.StimType{2}
         case 'lines'
             for fs=1:Stm.Gnd(1).NumSeeds
-                for p = 1:size(Stm.Gnd(1).tex,2)
+                for p = 1:size(Gnd(1).tex,2)
                     Screen('FillRect',offscr.w,0)
                     Screen('DrawTexture',offscr.w,...
                         Gnd(1).tex{fs,p},[],[],Stm.Fig(f).orient);
@@ -157,13 +158,13 @@ for f = 1:length(Stm.Fig)
                                 strcmp(Stm.Fig(f).shape,'Triangle_down')
                             Screen('FillPoly',offscr.w,[],Stm.Fig(f).Triangle,1)
                         elseif strcmp(Stm.Fig(f).shape,'Oval')
-                            Screen('FillOval',offscr.w,[],Stm.Fig(f).RectSrc)
+                            Screen('FillOval',offscr.w,[],stimulus.Fig(f).RectSrc)
                         elseif strcmp(Stm.Fig(f).shape,'Rectangle')
-                            Screen('FillRect',offscr.w,[],Stm.Fig(f).RectSrc,1)
+                            Screen('FillRect',offscr.w,[],stimulus.Fig(f).RectSrc,1)
                         end
                         Stm.Fig(f).figmask = Screen('GetImage',offscr.w);
                     end
-                    Stm.Fig(f).textfig{fs,p} = ...
+                    stimulus.Fig(f).textfig{fs,p} = ...
                         cat(3, array, Stm.Fig(f).figmask(:,:,1));
                 end
             end
@@ -181,9 +182,9 @@ for f = 1:length(Stm.Fig)
                                 strcmp(Stm.Fig(f).shape,'Triangle_down')
                             Screen('FillPoly',offscr.w,[],Stm.Fig(f).Triangle,1)
                         elseif strcmp(Stm.Fig(f).shape,'Oval')
-                            Screen('FillOval',offscr.w,[],Stm.Fig(f).RectSrc)
+                            Screen('FillOval',offscr.w,[],stimulus.Fig(f).RectSrc)
                         elseif strcmp(Stm.Fig(f).shape,'Rectangle')
-                            Screen('FillRect',offscr.w,[],Stm.Fig(f).RectSrc,1)
+                            Screen('FillRect',offscr.w,[],stimulus.Fig(f).RectSrc,1)
                         end
                         Stm.Fig(f).figmask = Screen('GetImage',offscr.w);
                     end

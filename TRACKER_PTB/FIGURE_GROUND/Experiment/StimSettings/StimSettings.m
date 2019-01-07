@@ -45,13 +45,13 @@ Stm.MoveGnd.XY = [0 0.2]; % deg
 % texture: [X Y]
 % dots: [parallel orthogonal]
 
-Stm.RefreshSeed = 1.000; % s set to 0 for no refresh
+Stm.RefreshSeed = 0.500; % s set to 0 for no refresh
 
-Stm.InvertPolarity = true;
+Stm.InvertPolarity = false;
 Stm.RefreshPol = 0.500;
 
-Stm.SaveToFile = true;
-Stm.LoadFromFile = false;
+Stm.SaveToFile = false;
+Stm.LoadFromFile = true;
 Stm.FileName = 'FigGnd_Triangles.mat';
 
 % Logfolder
@@ -64,24 +64,24 @@ Stm.Gnd(1).lines.length = 20; % pix
 Stm.Gnd(1).lines.width = 2; % pix
 Stm.Gnd(1).lines.density = 0.6; % 0-1
 Stm.Gnd(1).lines.color = [0 0 0];
-Stm.Gnd(1).lines.orient = 45;
+Stm.Gnd(1).orient = 45;
 % -
 Stm.Gnd(1).dots.size = []; % 5; % maxes at 10 if we want larger we need to draw rects
 Stm.Gnd(1).dots.density = []; % 0.7; % 0-1
 Stm.Gnd(1).dots.color = []; % [0 0 0];
 Stm.Gnd(1).dots.type = []; % 0; % fast square dots
 % -
-Stm.Gnd(1).NumSeeds = 1;
+Stm.Gnd(1).NumSeeds = 4;
 % -
 Stm.Gnd(2) = Stm.Gnd(1);
-Stm.Gnd(2).orient = 135;
+Stm.Gnd(2).orient = -45;
     
 % Figure definitions --
 % inherits texture feats from gnd with same index
 % line density, colors, length & width
 Stm.Fig(1).size = [5 5]; % DVA in case of triangle only take (1)
 Stm.Fig(1).position = [-5 0]; % DVA
-Stm.Fig(1).orient = Stm.Gnd(1).orient + 90;
+Stm.Fig(1).orient = -Stm.Gnd(1).orient;
 Stm.Fig(1).shape = 'Triangle_up';
 % 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down'
 % -
@@ -89,7 +89,7 @@ Stm.Fig(2) = Stm.Fig(1);
 Stm.Fig(2).position = [5 0]; % DVA
 % -
 Stm.Fig(3) = Stm.Fig(1);
-Stm.Fig(3).orient = Stm.Gnd(2).orient + 90;
+Stm.Fig(3).orient = -Stm.Gnd(2).orient;
 % -
 Stm.Fig(4) = Stm.Fig(3);
 Stm.Fig(4).position = [5 0]; % DVA
@@ -126,9 +126,9 @@ Stm.stim_rep = 5; % BLOCK: n stim + n backgrounds
 Stm.stim_TRs = 2; % stim duration in TRs
 Stm.int_TRs =  1; % interval duration in TRs 
 
-Stm.RandomizeStim = true; % randomizes stimulus order within block
-Stm.PreDur_TRs = 5; % volumes
-Stm.PostDur_TRs = 5; % volumes
+Stm.RandomizeStim = false; % randomizes stimulus order within block
+Stm.PreDur_TRs = 1; % volumes
+Stm.PostDur_TRs = 1; % volumes
 Stm.nRepeatsStimSet = 2; % 0=unlimited
 
 %% ========================================================================

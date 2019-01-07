@@ -178,78 +178,83 @@ end
 if Stm.LoadFromFile
     fprintf(['\nLoading figure-ground stimulus: ' Stm.FileName '...\n']);
     cd Stimuli; cd FigGnd
+    FullStimFilePath = which(Stm.FileName);
     D=load(Stm.FileName);
     stimulus=D.stimulus;
+    offscr=D.offscr;
     cd ..; cd ..;
 else
     fprintf('Creating figure-ground stimulus...\n');
-    [stimulus, offscr] = ck_figgnd(Stm);
+    [stimulus, offscr] = ck_figgnd(Stm, Par.ScrNr);
 end
 
 % Save stimuli
 if Stm.SaveToFile
     fprintf(['\nSaving figure-ground stimulus: ' Stm.FileName '...\n']);
-    cd Stimuli; cd RetMap;
+    warning off; cd Stimuli; mkdir FigGnd; cd FigGnd; warning on;
     save(Stm.FileName,'stimulus','offscr','Stm','-v7.3');
+    FullStimFilePath = which(Stm.FileName);
     cd ..; cd ..;
 end
 
 % Create textures
 switch Stm.StimType{2}
     case 'lines'
-        for g = 1:length(Stm.Gnd)
+        for g = 1:length(stimulus.Gnd)
             for gs=1:Stm.Gnd(g).NumSeeds
-                Gnd(g).tex{gs,1} = Screen('MakeTexture',w,...
+                Gnd(g).tex{gs,1} = Screen('MakeTexture',Par.window,...
                     stimulus.Gnd(g).array{gs,1}); %#ok<*AGROW>
-                if InvertPolarity
-                    Gnd(g).tex{gs,2} = Screen('MakeTexture',w,...
+                if Stm.InvertPolarity
+                    Gnd(g).tex{gs,2} = Screen('MakeTexture',Par.window,...
                         stimulus.Gnd(g).array{gs,2});
                 end
             end
         end
-        for fs=1:Stm.Gnd(1).NumSeeds
-            for p = 1:size(stimulus.Fig(f).textfig,2)
-                % make figure texture
-                Fig(f).tex{fs,p} = Screen('MakeTexture',w,...
-                    stimulus.Fig(f).textfig{fs,p}); %#ok<*STRNU>
+        for f = 1:length(stimulus.Fig)
+            for fs=1:Stm.Gnd(1).NumSeeds
+                for p = 1:size(stimulus.Fig(f).textfig,2)
+                    % make figure texture
+                    Fig(f).tex{fs,p} = Screen('MakeTexture',Par.window,...
+                        stimulus.Fig(f).textfig{fs,p}); %#ok<*STRNU>
+                end
             end
         end
     case 'dots'
-        for g = 1:length(Gnd) %#ok<*NODEF>
-            for gs=1:Gnd(g).NumSeeds
+        for g = 1:length(stimulus.Gnd) %#ok<*NODEF>
+            for gs=1:Stm.Gnd(g).NumSeeds
                 if MoveStim.nFrames > 0
                     for ms = 1:MoveStim.nFrames+1
                         % make texture
-                        Gnd(g).tex{gs,ms,1} = Screen('MakeTexture',w,...
-                            Gnd(g).array{gs,ms,1});
-                        if InvertPolarity
+                        Gnd(g).tex{gs,ms,1} = Screen('MakeTexture',Par.window,...
+                            stimulus.Gnd(g).array{gs,ms,1});
+                        if Stm.InvertPolarity
                             Screen('FillRect',offscr.w,...
-                                Gnd(g).dots.color*white)
+                                Stm.Gnd(g).dots.color*Par.ScrWhite)
                             Screen('DrawDots', offscr.w, XY,...
-                                Gnd(g).dots.size,...
-                                Gnd(g).backcol*white,...
-                                offscr.center,Gnd(g).dots.type);
+                                Stm.Gnd(g).dots.size,...
+                                Stm.Gnd(g).backcol*Par.ScrWhite,...
+                                offscr.center,Stm.Gnd(g).dots.type);
                             Gnd(g).array{gs,ms,2} = ...
                                 Screen('GetImage',offscr.w);
                             % make texture
                             Gnd(g).tex{gs,ms,2} = ...
-                                Screen('MakeTexture',w,...
-                                Gnd(g).array{gs,ms,2});
+                                Screen('MakeTexture',Par.window,...
+                                Stm.Gnd(g).array{gs,ms,2});
                         end
                     end
                 else
-                    Gnd(g).tex{gs,1,1} = Screen('MakeTexture',w,...
-                        Gnd(g).array{gs,1,1});
-                    if InvertPolarity
-                        Screen('FillRect',offscr.w,Gnd(g).dots.color*white)
+                    stimulus.Gnd(g).tex{gs,1,1} = Screen('MakeTexture',Par.window,...
+                        Stm.Gnd(g).array{gs,1,1});
+                    if Stm.InvertPolarity
+                        Screen('FillRect',offscr.w,Stm.Gnd(g).dots.color*Par.ScrWhite)
                         Screen('DrawDots', offscr.w, XY,...
-                            Gnd(g).dots.size,...
-                            Gnd(g).backcol*white, offscr.center,...
-                            Gnd(g).dots.type);
-                        Gnd(g).array{gs,1,2} = Screen('GetImage',offscr.w);
+                            Stm.Gnd(g).dots.size,...
+                            Stm.Gnd(g).backcol*Par.ScrWhite, offscr.center,...
+                            Stm.Gnd(g).dots.type);
+                        Stm.Gnd(g).array{gs,1,2} = Screen('GetImage',offscr.w);
                         % make texture
                         Gnd(g).tex{gs,1,2} = ...
-                            Screen('MakeTexture',w,Gnd(g).array{gs,1,2});
+                            Screen('MakeTexture',Par.window,Stm.Gnd(g).array{gs,1,2});
                     end
                 end
             end
@@ -263,10 +268,10 @@ if Stm.nRepeatsStimSet == 0
     TotTime = inf;
 else
     NumVolNeeded = Stm.nRepeatsStimSet*...
-        (length(stm.FigGnd)*(Stm.stim_rep*...
+        (length(Stm.FigGnd)*(Stm.stim_rep*...
         (Stm.stim_TRs+Stm.int_TRs)+Stm.int_TRs))+...
         Stm.PreDur_TRs+Stm.PostDur_TRs;
-    TotTime = VolNeeded* Par.TR;
+    TotTime = NumVolNeeded*Par.TR;
     
     if strcmp(Par.SetUp,'NIN') % ephys
         fprintf(['This StimSettings file will take ' ...
@@ -518,6 +523,7 @@ while ~Par.ESC
     
     FixTimeThisFlip = 0; NonFixTimeThisFlip = 0;
     Par.LastFlipFix = Par.FixIn;
+    prevlft=lft;
     
     %% Check if eye enters fixation window --------------------------------
     if ~Par.FixIn %not fixating
@@ -625,13 +631,12 @@ while ~Par.ESC
                     switch StimType
                         case 'Figure'
                             if ~StimLogDone
-                                fprintf(['Stimulus nr' num2str '\n'])
                                 Log.StartStim=lft;
                                 Log.nEvents=Log.nEvents+1;
                                 Log.Events(Log.nEvents).type='Figure';
                                 Log.Events(Log.nEvents).t=lft-Par.ExpStart;
                                 Log.Events(Log.nEvents).StimName = ...
-                                    Log.StimOrder;
+                                    Log.StimOrder(StimNr);
                                 StimLogDone=true;
                                 ms = 1;
                                 Par.Trlcount = Par.Trlcount+1;
@@ -644,7 +649,7 @@ while ~Par.ESC
                                 Log.Events(Log.nEvents).type='Ground';
                                 Log.Events(Log.nEvents).t=lft-Par.ExpStart;
                                 Log.Events(Log.nEvents).StimName = ...
-                                    Log.StimOrder;
+                                    Log.StimOrder(StimNr);
                                 StimLogDone=true;
                                 ms = 1;
                                 Par.Trlcount = Par.Trlcount+1;
@@ -682,18 +687,18 @@ while ~Par.ESC
         if strcmp(ExpStatus,'PreDur') || strcmp(ExpStatus,'PostDur')
             % gnd
             if strcmp(Stm.StimType{2},'lines')
-                Screen('DrawTexture', w, ...
-                    Stm.Gnd(Stm.FigGnd{Log.StimOrder}(2)).tex{GndTexNum,CurrPol},...
-                    srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder}(2)).orient,[],[],[],[],...
+                Screen('DrawTexture', Par.window, ...
+                    Gnd(Stm.FigGnd{Log.StimOrder(1)}(2)).tex{GndTexNum,CurrPol},...
+                    srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(1)}(2)).orient,[],[],[],[],...
                     kPsychUseTextureMatrixForRotation);
             elseif strcmp(Stm.StimType{2},'dots')
                 if Stm.MoveStim.Do && ...
                         lft>=Log.StartPre+Stm.MoveStim.SOA && ms<Stm.MoveStim.nFrames+1
                     ms=ms+1;
                 end
-                Screen('DrawTexture', w, ...
-                    Stm.Gnd(Stm.FigGnd{Log.StimOrder}(2)).tex{GndTexNum,ms,CurrPol},...
-                    srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder}(2)).orient,[],[],[],[],...
+                Screen('DrawTexture', Par.window, ...
+                    Gnd(Stm.FigGnd{Log.StimOrder(1)}(2)).tex{GndTexNum,ms,CurrPol},...
+                    srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(1)}(2)).orient,[],[],[],[],...
                     kPsychUseTextureMatrixForRotation);
             end
             
@@ -702,8 +707,8 @@ while ~Par.ESC
                 strcmp(WithinBlockStatus,'Int'))
             if strcmp(Stm.StimType{2},'lines')
                 % int gnd
-                Screen('DrawTexture', w, ...
-                    Stm.Gnd(Stm.FigGnd{Log.StimOrder}(2)).tex{GndTexNum,CurrPol},...
+                Screen('DrawTexture', Par.window, ...
+                    Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).tex{GndTexNum,CurrPol},...
                     srcrect,[],Stm.IntGnd.orient,[],[],[],[],...
                     kPsychUseTextureMatrixForRotation);
             elseif strcmp(Stm.StimType{2},'dots')
@@ -712,8 +717,8 @@ while ~Par.ESC
                     ms=ms+1;
                 end
                 % gnd
-                Screen('DrawTexture', w, ...
-                    Stm.Gnd(Stm.FigGnd{Log.StimOrder}(2)).tex{GndTexNum,ms,CurrPol},...
+                Screen('DrawTexture', Par.window, ...
+                    Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).tex{GndTexNum,ms,CurrPol},...
                     srcrect,[],Stm.IntGnd.orient,[],[],[],[],...
                     kPsychUseTextureMatrixForRotation);
             end
@@ -722,30 +727,32 @@ while ~Par.ESC
             
             if strcmp(Stm.StimType{2},'lines')
                 % gnd
-                Screen('DrawTexture', w, ...
-                    Stm.Gnd(Stm.FigGnd{Log.StimOrder}(2)).tex{GndTexNum,CurrPol},...
-                    srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder}(1)).orient,...
+                Screen('DrawTexture', Par.window, ...
+                    Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).tex{GndTexNum,CurrPol},...
+                    srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).orient,...
                     [],[],[],[],kPsychUseTextureMatrixForRotation);
                 % fig
-                Screen('DrawTexture',w, ...
-                    Stm.Fig(Stm.FigGnd{Log.StimOrder}(1)).tex{GndTexNum,CurrPol},...
-                    Fig(Stm.FigGnd{Log.StimOrder}(1)).RectSrc, ...
-                    Fig(Stm.FigGnd{Log.StimOrder}(1)).RectDest);
+                if strcmp(StimType,'Figure')
+                    Screen('DrawTexture',Par.window, ...
+                        Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).tex{GndTexNum,CurrPol},...
+                        stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).RectSrc, ...
+                        stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).RectDest);
+                end
             elseif strcmp(Stm.StimType{2},'dots')
                 if Stm.MoveStim.Do && ...
                         lft>=Log.StartStim+Stm.MoveStim.SOA && ms<Stm.MoveStim.nFrames+1
                     ms=ms+1;
                 end
                 % gnd
-                Screen('DrawTexture', w, ...
-                    Stm.Gnd(Stm.FigGnd{Log.StimOrder}(2)).tex{GndTexNum,ms,CurrPol},...
-                    srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder}(1)).orient,...
+                Screen('DrawTexture', Par.window, ...
+                    Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).tex{GndTexNum,ms,CurrPol},...
+                    srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).orient,...
                     [],[],[],[],kPsychUseTextureMatrixForRotation);
                 % fig
-                Screen('DrawTexture',w, ...
-                    Stm.Fig(Stm.FigGnd{Log.StimOrder}(1)).tex{GndTexNum,ms,CurrPol},...
-                    Fig(Stm.FigGnd{Log.StimOrder}(1)).RectSrc, ...
-                    Fig(Stm.FigGnd{Log.StimOrder}(1)).RectDest);
+                Screen('DrawTexture',Par.window, ...
+                    Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).tex{GndTexNum,ms,CurrPol},...
+                    stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).RectSrc, ...
+                    stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).RectDest);
             end
         end
     end
@@ -1276,7 +1283,7 @@ while ~Par.ESC
     switch ExpStatus
         case 'PreDur'
             % check for refresh seed ---
-            if Stm.Gnd(1).NumSeeds && Stm.RefreshSeed > 0 && ...
+            if Stm.Gnd(1).NumSeeds>1 && Stm.RefreshSeed > 0 && ...
                     lft-Seed_T0 >= Stm.RefreshSeed
                 GndTexNum=ChangeSeed(GndTexNum);
                 Seed_T0=lft;
@@ -1293,12 +1300,14 @@ while ~Par.ESC
                 ExpStatus = 'StimBlock';
                 WithinBlockStatus = 'FirstInt';
                 FirstIntLogDone = false;
+                StimNr = 1;
             end
         case 'StimBlock'
             switch WithinBlockStatus
                 case 'FirstInt'
                     % check for refresh seed ---
-                    if Stm.Gnd(1).NumSeeds && Stm.RefreshSeed > 0 && ...
+                    if Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).NumSeeds>1 && ...
+                            Stm.RefreshSeed > 0 && ...
                             lft-Seed_T0 >= Stm.RefreshSeed
                         GndTexNum=ChangeSeed(GndTexNum);
                         Seed_T0=lft;
@@ -1324,14 +1333,30 @@ while ~Par.ESC
                     switch StimType
                         case 'Figure'
                             if lft-Log.StartStim >= Stm.stim_TRs*Par.TR
+                                LastStim = 'Figure';
                                 WithinBlockStatus = 'Int';
                                 IntLogDone = false;
                             end
                         case 'Ground'
                             if lft-Log.StartStim >= Stm.stim_TRs*Par.TR
+                                LastStim = 'Ground';
                                 WithinBlockStatus = 'Int';
                                 IntLogDone = false;
                             end
+                    end
+                    
+                    % check for refresh seed ---
+                    if Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).NumSeeds>1 && ...
+                            Stm.RefreshSeed > 0 && ...
+                            lft-Seed_T0 >= Stm.RefreshSeed
+                        GndTexNum=ChangeSeed(GndTexNum);
+                        Seed_T0=lft;
+                    end
+                    
+                    % check for refresh polarity ---
+                    if Stm.InvertPolarity && lft-Pol_T0 >= Stm.RefreshPol
+                        ChangePolarity(CurrPol);
+                        Pol_T0=lft;
                     end
                     
                     if Stm.MoveGnd.Do && strcmp(Stm.StimType{2},'lines')
@@ -1359,31 +1384,46 @@ while ~Par.ESC
                     
                 case 'Int'
                     if lft-Log.StartInt >= Stm.int_TRs*Par.TR
-                        if strcmp(WithinBlockStatus,'Figure')
-                            WithinBlockStatus = 'Ground';
+                        if strcmp(LastStim,'Figure')
+                            WithinBlockStatus = 'Stim';
+                            StimType = 'Ground';
                             StimLogDone = false;
                         else
-                            WithinBlockStatus = 'Figure';
+                            WithinBlockStatus = 'Stim';
+                            StimType = 'Figure';
                             StimLogDone = false;
                             if StimRepNr == Stm.stim_rep
                                 StimRepNr = 1;
+                                if StimNr == length(Log.StimOrder)
+                                    % all stimuli done
+                                    ExpStatus = 'PostDur';
+                                    PostDurLogDone = false;
+                                else
+                                    StimNr = StimNr+1;
+                                end
                             else
                                 StimRepNr = StimRepNr+1;
                             end
-                            if StimNr == length(Log.StimOrder)
-                                % all stimuli done
-                                ExpStatus = 'PostDur';
-                                PostDurLogDone = false;
-                            else
-                                StimNr = StimNr+1;
-                            end
                         end
-                        
+                    end
+                    
+                    % check for refresh seed ---
+                    if Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).NumSeeds>1 && ...
+                            Stm.RefreshSeed > 0 && ...
+                            lft-Seed_T0 >= Stm.RefreshSeed
+                        GndTexNum=ChangeSeed(GndTexNum);
+                        Seed_T0=lft;
+                    end
+                    
+                    % check for refresh polarity ---
+                    if Stm.InvertPolarity && lft-Pol_T0 >= Stm.RefreshPol
+                        ChangePolarity(CurrPol);
+                        Pol_T0=lft;
                     end
             end
         case 'PostDur'
             % check for refresh seed ---
-            if Stm.Gnd(1).NumSeeds && Stm.RefreshSeed > 0 && ...
+            if Stm.Gnd(1).NumSeeds>1 && Stm.RefreshSeed > 0 && ...
                     lft-Seed_T0 >= Stm.RefreshSeed
                 GndTexNum=ChangeSeed(GndTexNum);
                 Seed_T0=lft;
@@ -1531,9 +1571,8 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
             copyfile(stimsetpath,[Par.STIMSETFILE '.m']);
         end
         % stimulus
-        if RetMapStimuli
-            save('RetMap_Stimulus','ret_vid');
-        end
+        copyfile(FullStimFilePath,Stm.FileName);
+
         RunParStim_Saved=true;
     end
     
@@ -1610,7 +1649,6 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
         Par.hTracker = temp_hTracker;
     end
     
-    
     % write some stuff to a text file as well
     if ~TestRunstimWithoutDAS
         fid=fopen([FileName '.txt'],'w');
@@ -1656,11 +1694,11 @@ if ~Par.ESC && ~TestRunstimWithoutDAS
     fprintf(['Total time-out thusfar: ' num2str(Log.TotalTimeOut) '\n']);
     fprintf(['Fixation percentage: ' num2str(nanmean(Log.FixPerc)) '\n']);
     
-    CollectPerformance{StimLoopNr,1} = Stm.Descript;
-    CollectPerformance{StimLoopNr,2} = nanmean(Log.FixPerc);
-    CollectPerformance{StimLoopNr,3} = nanstd(Log.FixPerc)./sqrt(length(Log.FixPerc));
-    CollectPerformance{StimLoopNr,4} = Log.TotalReward;
-    CollectPerformance{StimLoopNr,5} = Log.TimeOutThisRun;
+    CollectPerformance{1} = Stm.Descript;
+    CollectPerformance{2} = nanmean(Log.FixPerc);
+    CollectPerformance{3} = nanstd(Log.FixPerc)./sqrt(length(Log.FixPerc));
+    CollectPerformance{4} = Log.TotalReward;
+    CollectPerformance{5} = Log.TimeOutThisRun;
 elseif Par.ESC && ~LastRewardAdded && ~TestRunstimWithoutDAS
     GrandTotalReward=GrandTotalReward+Log.TotalReward;
     fprintf(['Total reward this run: ' num2str(Log.TotalReward) '\n']);
@@ -1669,11 +1707,11 @@ elseif Par.ESC && ~LastRewardAdded && ~TestRunstimWithoutDAS
     fprintf(['Total time-out thusfar: ' num2str(Log.TotalTimeOut) '\n']);
     fprintf(['Fixation percentage: ' num2str(nanmean(Log.FixPerc)) '\n']);
     
-    CollectPerformance{StimLoopNr,1} = Stm.Descript;
-    CollectPerformance{StimLoopNr,2} = nanmean(Log.FixPerc);
-    CollectPerformance{StimLoopNr,3} = nanstd(Log.FixPerc);
-    CollectPerformance{StimLoopNr,4} = Log.TotalReward;
-    CollectPerformance{StimLoopNr,5} = Log.TimeOutThisRun;
+    CollectPerformance{1} = Stm.Descript;
+    CollectPerformance{2} = nanmean(Log.FixPerc);
+    CollectPerformance{3} = nanstd(Log.FixPerc);
+    CollectPerformance{4} = Log.TotalReward;
+    CollectPerformance{5} = Log.TimeOutThisRun;
     LastRewardAdded=true;
 end
 if Par.RespIndLeds; dasbit(Par.LED_B(1),0);dasbit(Par.LED_B(2),0);end % LEDS off
