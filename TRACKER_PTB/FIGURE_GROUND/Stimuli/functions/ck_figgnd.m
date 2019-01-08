@@ -95,8 +95,8 @@ for gs = 1:Stm.Gnd_all.NumSeeds
                         Stm.Gnd_all.dots.size,...
                         Stm.Gnd_all.dots.color*Par.ScrWhite,...
                         offscr.center,Stm.Gnd_all.dots.type);
-                    stimulus.Gnd_all.array{gs,ms,1} = ...
-                        Screen('GetImage',offscr.w);
+                    array = Screen('GetImage',offscr.w);
+                    stimulus.Gnd_all.array{gs,ms,1} = uint8(array);
                     
                     Gnd_all.tex{gs,ms,1} = Screen('MakeTexture',Par.window,...
                         stimulus.Gnd_all.array{gs,ms,1});
@@ -109,8 +109,8 @@ for gs = 1:Stm.Gnd_all.NumSeeds
                             Stm.Gnd_all.dots.size,...
                             Stm.Gnd_all.backcol*Par.ScrWhite,...
                             offscr.center,Stm.Gnd_all.dots.type);
-                        stimulus.Gnd_all.array{gs,ms,2} = ...
-                            Screen('GetImage',offscr.w);
+                        array = Screen('GetImage',offscr.w);
+                        stimulus.Gnd_all.array{gs,ms,2} = uint8(array);
                         
                         Gnd_all.tex{gs,ms,2} = Screen('MakeTexture',Par.window,...
                             stimulus.Gnd_all.array{gs,ms,2});
@@ -124,8 +124,8 @@ for gs = 1:Stm.Gnd_all.NumSeeds
                     Stm.Gnd_all.dots.size,...
                     Stm.Gnd_all.dots.color*Par.ScrWhite,...
                     offscr.center,Stm.Gnd(g).dots.type);
-                stimulus.Gnd_all.array{gs,1,1} = ...
-                    Screen('GetImage',offscr.w);
+                array = Screen('GetImage',offscr.w);
+                stimulus.Gnd_all.array{gs,1,1} = uint8(array);
                 
                 if Stm.InvertPolarity
                     Screen('FillRect',offscr.w,...
@@ -134,10 +134,8 @@ for gs = 1:Stm.Gnd_all.NumSeeds
                         Stm.Gnd_all.dots.size,...
                         Stm.Gnd_all.backcol*Par.ScrWhite,...
                         offscr.center,Stm.Gnd_all.dots.type);
-                    stimulus.Gnd_all.array{gs,1,2} = ...
-                        Screen('GetImage',offscr.w);
-                    stimulus.Gnd(g).array{gs,1,1} = ...
-                        uint8(stimulus.Gnd(g).array{gs,1,1});
+                    array = Screen('GetImage',offscr.w);
+                    stimulus.Gnd(g).array{gs,1,1} = uint8(array);
                 end
                 
             end
@@ -199,16 +197,6 @@ for f = 1:length(Stm.Fig)
             stimulus.Fig(f).figmask = uint8(temparray(:,:,1));
             
         case 'dots'
-            %             for fs=1:Stm.Gnd_all.NumSeeds
-            
-            %                 ms_gnd = Stm.MoveStim.nFrames+1:-1:1;
-            %                 for ms = 1:Stm.MoveStim.nFrames+1
-            %                     Screen('FillRect',offscr.w,0)
-            %                     Screen('DrawTexture',offscr.w, Gnd_all.tex{fs,ms_gnd(ms),1});
-            %                     array = Screen('GetImage',offscr.w);
-            %                     array = uint8(array);
-            
-            %                     if fs == 1 && ms == 1
             Screen('FillRect',offscr.w,0)
             if strcmp(Stm.Fig(f).shape,'Triangle_up') || ...
                     strcmp(Stm.Fig(f).shape,'Triangle_down')
@@ -220,24 +208,6 @@ for f = 1:length(Stm.Fig)
             end
             temparray = Screen('GetImage',offscr.w);
             stimulus.Fig(f).figmask = uint8(temparray(:,:,1));
-            %                     end
-            
-            %                     stimulus.Fig(f).textfig{fs,ms,1} = ...
-            %                         cat(3, array, Stm.Fig(f).figmask);
-            
-            %                     if Stm.InvertPolarity
-            %                         Screen('FillRect',offscr.w,0)
-            %                         Screen('DrawTexture',offscr.w, ...
-            %                             Gnd_all.tex{fs,ms_gnd(ms),2});
-            %                         temparray = ...
-            %                             Screen('GetImage',offscr.w);
-            %                         array = ...
-            %                             uint8(temparray(:,:,1));
-            %                         stimulus.Fig(f).textfig{fs,ms,2} = ...
-            %                             cat(3, array, Stm.Fig(f).figmask);
-            %                     end
-            %                 end
-            %             end
     end
 end
 
