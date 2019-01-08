@@ -50,13 +50,13 @@ Stm.RefreshSeed = 0; % s set to 0 for no refresh
 Stm.InvertPolarity = false;
 Stm.RefreshPol = 0.500;
 
-Stm.SaveToFile = true;
-Stm.LoadFromFile = false;
+Stm.SaveToFile = false;
+Stm.LoadFromFile = true;
 Stm.FileName = 'FigGnd_Triangles_lines.mat';
 %Stm.FileName = 'FigGnd_Triangles_dots.mat';
 
 % Logfolder
-Stm.LogFolder = 'C:\Users\NINuser\Documents\Log_CK\FigGnd\Default';
+Stm.LogFolder = 'C:\Users\NINuser\Documents\Log_CK\FigGnd';
 
 %% This only applies to newly created stim ================================
 % Background definitions --

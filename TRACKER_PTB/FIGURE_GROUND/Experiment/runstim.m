@@ -537,6 +537,7 @@ while ~Par.ESC
             Par.ManResponse = [0 0 0 0 0];
         end
         RewardGivenForHandPos=false;
+        
         Par.FirstInitDone=true;
     end
     
@@ -660,6 +661,7 @@ while ~Par.ESC
                                 ms = 1;
                                 Par.Trlcount = Par.Trlcount+1;
                                 NumGndMoves=0;
+                                Par.FixInOutTime = [Par.FixInOutTime;0 0];
                             end
                             
                         case 'Ground'

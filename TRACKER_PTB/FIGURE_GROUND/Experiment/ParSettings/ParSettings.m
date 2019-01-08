@@ -174,7 +174,7 @@ Par.CatchBlock.StartWithCatch = true;
 % set time-windows in which something can happen (ms)
 % [baseduration_without_switch ... 
 %  period_in_which_switch_randomly_occurs]
-Par.EventPeriods = [1000 1500]; % Determines Go-bar onset (was 600 to 1600)
+Par.EventPeriods = [100 500]; % Determines Go-bar onset (was 600 to 1600)
 
 %% Connection box port assignment =========================================
 Par.ConnectBox.PhotoAmp = [4 5 7 8];    % channels for photo-amps 
