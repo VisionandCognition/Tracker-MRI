@@ -38,50 +38,57 @@ Stm.StimType{1} = 'FigureGround';
 Stm.StimType{2} = 'lines'; % lines / dots
 
 % Figure/Ground stimuli
-Stm.MoveGnd.Do = false;
-Stm.MoveGnd.SOA = 1.000; % secs
-Stm.MoveGnd.nFrames = 10; % frames
-Stm.MoveGnd.XY = [0 0.2]; % deg
+Stm.MoveStim.Do = false;
+Stm.MoveStim.SOA = 0.500; % secs
+Stm.MoveStim.nFrames = 5; % frames
+Stm.MoveStim.XY = [0.1 0.1]; % deg
 % texture: [X Y]
 % dots: [parallel orthogonal]
 
-Stm.RefreshSeed = 0.500; % s set to 0 for no refresh
+Stm.RefreshSeed = 0; % s set to 0 for no refresh
 
 Stm.InvertPolarity = false;
 Stm.RefreshPol = 0.500;
 
-Stm.SaveToFile = false;
-Stm.LoadFromFile = true;
-Stm.FileName = 'FigGnd_Triangles.mat';
+Stm.SaveToFile = true;
+Stm.LoadFromFile = false;
+Stm.FileName = 'FigGnd_Triangles_lines.mat';
+%Stm.FileName = 'FigGnd_Triangles_dots.mat';
 
 % Logfolder
 Stm.LogFolder = 'C:\Users\NINuser\Documents\Log_CK\FigGnd\Default';
 
 %% This only applies to newly created stim ================================
 % Background definitions --
-Stm.Gnd(1).backcol = [1 1 1]; % [R G B] 0-1
-Stm.Gnd(1).lines.length = 20; % pix
-Stm.Gnd(1).lines.width = 2; % pix
-Stm.Gnd(1).lines.density = 0.6; % 0-1
-Stm.Gnd(1).lines.color = [0 0 0];
+Stm.Gnd_all.backcol = [1 1 1]; % [R G B] 0-1
+Stm.Gnd_all.lines.length = 50; % pix
+Stm.Gnd_all.lines.width = 4; % pix
+Stm.Gnd_all.lines.density = 0.7; % 0-1
+Stm.Gnd_all.lines.color = [0 0 0];
+%
+Stm.Gnd_all.dots.size = 8; % 5; 
+% maxes at 10 if we want larger we need to draw rects
+Stm.Gnd_all.dots.density = 0.4; % 0.7; % 0-1
+Stm.Gnd_all.dots.color = [0 0 0]; % [0 0 0];
+Stm.Gnd_all.dots.type = 0; % 0; % fast square dots
+%
+Stm.Gnd_all.NumSeeds = 1;
+%
+Stm.Gnd = Stm.Gnd_all;
 Stm.Gnd(1).orient = 45;
-% -
-Stm.Gnd(1).dots.size = []; % 5; % maxes at 10 if we want larger we need to draw rects
-Stm.Gnd(1).dots.density = []; % 0.7; % 0-1
-Stm.Gnd(1).dots.color = []; % [0 0 0];
-Stm.Gnd(1).dots.type = []; % 0; % fast square dots
-% -
-Stm.Gnd(1).NumSeeds = 4;
 % -
 Stm.Gnd(2) = Stm.Gnd(1);
 Stm.Gnd(2).orient = -45;
     
 % Figure definitions --
-% inherits texture feats from gnd with same index
-% line density, colors, length & width
+% inherits texture feats from gnd
+Stm.Fig_all.orientations = [-Stm.Gnd(1).orient -Stm.Gnd(2).orient];
+%
 Stm.Fig(1).size = [5 5]; % DVA in case of triangle only take (1)
 Stm.Fig(1).position = [-5 0]; % DVA
-Stm.Fig(1).orient = -Stm.Gnd(1).orient;
+Stm.Fig(1).ori_ind = 1;
+Stm.Fig(1).orient = ...
+    Stm.Fig_all.orientations(Stm.Fig(1).ori_ind);
 Stm.Fig(1).shape = 'Triangle_up';
 % 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down'
 % -
@@ -89,7 +96,9 @@ Stm.Fig(2) = Stm.Fig(1);
 Stm.Fig(2).position = [5 0]; % DVA
 % -
 Stm.Fig(3) = Stm.Fig(1);
-Stm.Fig(3).orient = -Stm.Gnd(2).orient;
+Stm.Fig(3).ori_ind = 2;
+Stm.Fig(3).orient = ...
+    Stm.Fig_all.orientations(Stm.Fig(3).ori_ind);
 % -
 Stm.Fig(4) = Stm.Fig(3);
 Stm.Fig(4).position = [5 0]; % DVA
@@ -107,7 +116,7 @@ Stm.Fig(8) = Stm.Fig(4);
 Stm.Fig(8).shape = 'Triangle_down';
     
 % Intermediate background --
-Stm.IntGnd = Stm.Gnd(1);
+Stm.IntGnd = Stm.Gnd_all;
 Stm.IntGnd.orient = 90;
     
 % Stimulus combination to include --

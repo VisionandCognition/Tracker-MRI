@@ -190,7 +190,7 @@ end
 
 % Save stimuli
 if Stm.SaveToFile
-    fprintf(['\nSaving figure-ground stimulus: ' Stm.FileName '...\n']);
+    fprintf(['Saving figure-ground stimulus: ' Stm.FileName '...\n']);
     warning off; cd Stimuli; mkdir FigGnd; cd FigGnd; warning on;
     save(Stm.FileName,'stimulus','offscr','Stm','-v7.3');
     FullStimFilePath = which(Stm.FileName);
@@ -200,61 +200,80 @@ end
 % Create textures
 switch Stm.StimType{2}
     case 'lines'
-        for g = 1:length(stimulus.Gnd)
-            for gs=1:Stm.Gnd(g).NumSeeds
-                Gnd(g).tex{gs,1} = Screen('MakeTexture',Par.window,...
-                    stimulus.Gnd(g).array{gs,1}); %#ok<*AGROW>
-                if Stm.InvertPolarity
-                    Gnd(g).tex{gs,2} = Screen('MakeTexture',Par.window,...
-                        stimulus.Gnd(g).array{gs,2});
-                end
+        for gs=1:Stm.Gnd_all.NumSeeds
+            Gnd_all.tex{gs,1} = Screen('MakeTexture',Par.window,...
+                stimulus.Gnd_all.array{gs,1}); %#ok<*AGROW>
+            if Stm.InvertPolarity
+                Gnd_all.tex{gs,2} = Screen('MakeTexture',Par.window,...
+                    stimulus.Gnd_all.array{gs,2});
             end
         end
         for f = 1:length(stimulus.Fig)
-            for fs=1:Stm.Gnd(1).NumSeeds
-                for p = 1:size(stimulus.Fig(f).textfig,2)
-                    % make figure texture
+            for fs=1:Stm.Gnd_all.NumSeeds
+                for p = 1:size(Gnd_all.tex,2)
+                    temparray = cat(3, ...
+                        stimulus.Fig_all.array{fs,p,Stm.Fig(f).ori_ind},...
+                        stimulus.Fig(f).figmask);
                     Fig(f).tex{fs,p} = Screen('MakeTexture',Par.window,...
-                        stimulus.Fig(f).textfig{fs,p}); %#ok<*STRNU>
+                        temparray); %#ok<*STRNU>
                 end
             end
         end
     case 'dots'
-        for g = 1:length(stimulus.Gnd) %#ok<*NODEF>
-            for gs=1:Stm.Gnd(g).NumSeeds
-                if MoveStim.nFrames > 0
-                    for ms = 1:MoveStim.nFrames+1
-                        % make texture
-                        Gnd(g).tex{gs,ms,1} = Screen('MakeTexture',Par.window,...
-                            stimulus.Gnd(g).array{gs,ms,1});
+        for gs=1:Stm.Gnd_all.NumSeeds
+            if Stm.MoveStim.nFrames > 0
+                ms_gnd = Stm.MoveStim.nFrames+1:-1:1;
+                for ms = 1:Stm.MoveStim.nFrames+1
+                    % make texture
+                    Gnd_all.tex{gs,ms,1} = Screen('MakeTexture',Par.window,...
+                        stimulus.Gnd_all.array{gs,ms,1});
+                    if Stm.InvertPolarity
+                        Gnd_all.tex{gs,ms,2} = Screen(...
+                            'MakeTexture',Par.window,...
+                        stimulus.Gnd_all.array{gs,ms,2});
+                    end
+                end
+            else
+                Gnd_all.tex{gs,1,1} = Screen('MakeTexture',Par.window,...
+                    stimulus.Gnd_all.array{gs,1,1});
+                if Stm.InvertPolarity
+                    Gnd_all.tex{gs,1,2} = Screen(...
+                        'MakeTexture',Par.window,...
+                        stimulus.Gnd_all.array{gs,1,2});
+               end
+            end
+        end
+        
+        for f = 1:length(stimulus.Fig)
+            for fs=1:Stm.Gnd_all.NumSeeds
+                if Stm.MoveStim.nFrames > 0
+                    mm=size(stimulus.Gnd_all.array,2);
+                    for ms = 1:Stm.MoveStim.nFrames+1
+                        temparray = cat(3, ...
+                            stimulus.Gnd_all.array{fs,mm+1-ms,1},...
+                            stimulus.Fig(f).figmask);
+                        Fig(f).tex{fs,ms,1} = Screen('MakeTexture',Par.window,...
+                            temparray);
                         if Stm.InvertPolarity
-                            Screen('FillRect',offscr.w,...
-                                Stm.Gnd(g).dots.color*Par.ScrWhite)
-                            Screen('DrawDots', offscr.w, XY,...
-                                Stm.Gnd(g).dots.size,...
-                                Stm.Gnd(g).backcol*Par.ScrWhite,...
-                                offscr.center,Stm.Gnd(g).dots.type);
-                            Gnd(g).array{gs,ms,2} = ...
-                                Screen('GetImage',offscr.w);
-                            % make texture
-                            Gnd(g).tex{gs,ms,2} = ...
-                                Screen('MakeTexture',Par.window,...
-                                Stm.Gnd(g).array{gs,ms,2});
+                            temparray = cat(3, ...
+                                stimulus.Gnd_all.array{fs,mm+1-ms,2},...
+                                stimulus.Fig(f).figmask);
+                            Fig(f).tex{fs,ms,2} = Screen('MakeTexture',Par.window,...
+                                temparray);
                         end
                     end
                 else
-                    stimulus.Gnd(g).tex{gs,1,1} = Screen('MakeTexture',Par.window,...
-                        Stm.Gnd(g).array{gs,1,1});
+                    temparray = cat(3, ...
+                        stimulus.Gnd_all.array{fs,1,1},...
+                        stimulus.Fig(f).figmask);
+                    Fig(f).tex{fs,1,1} = Screen('MakeTexture',Par.window,...
+                        temparray);
                     if Stm.InvertPolarity
-                        Screen('FillRect',offscr.w,Stm.Gnd(g).dots.color*Par.ScrWhite)
-                        Screen('DrawDots', offscr.w, XY,...
-                            Stm.Gnd(g).dots.size,...
-                            Stm.Gnd(g).backcol*Par.ScrWhite, offscr.center,...
-                            Stm.Gnd(g).dots.type);
-                        Stm.Gnd(g).array{gs,1,2} = Screen('GetImage',offscr.w);
-                        % make texture
-                        Gnd(g).tex{gs,1,2} = ...
-                            Screen('MakeTexture',Par.window,Stm.Gnd(g).array{gs,1,2});
+                        temparray = cat(3, ...
+                            stimulus.Gnd_all.array{fs,1,2},...
+                            stimulus.Fig(f).figmask);
+                        Fig(f).tex{fs,1,2} = Screen('MakeTexture',Par.window,...
+                            temparray);
                     end
                 end
             end
@@ -571,7 +590,7 @@ while ~Par.ESC
         %fprintf('fix out detected\n')
         Par.LastFixOutTime=GetSecs;
     end
-      
+    
     %% what happens depends on the status of the experiment ---------------
     switch ExpStatus
         case 'PreDur'
@@ -640,6 +659,7 @@ while ~Par.ESC
                                 StimLogDone=true;
                                 ms = 1;
                                 Par.Trlcount = Par.Trlcount+1;
+                                NumGndMoves=0;
                             end
                             
                         case 'Ground'
@@ -653,6 +673,7 @@ while ~Par.ESC
                                 StimLogDone=true;
                                 ms = 1;
                                 Par.Trlcount = Par.Trlcount+1;
+                                NumGndMoves=0;
                             end
                     end
                     
@@ -679,7 +700,7 @@ while ~Par.ESC
                 ms = 1;
             end
     end
- 
+    
     %% Draw Stimulus ------------------------------------------------------
     DrawUniformBackground;
     if ~Par.ToggleHideStim && ~Par.HideStim_BasedOnHandIn(Par) && ~Par.Pause
@@ -688,7 +709,7 @@ while ~Par.ESC
             % gnd
             if strcmp(Stm.StimType{2},'lines')
                 Screen('DrawTexture', Par.window, ...
-                    Gnd(Stm.FigGnd{Log.StimOrder(1)}(2)).tex{GndTexNum,CurrPol},...
+                    Gnd_all.tex{GndTexNum,CurrPol},...
                     srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(1)}(2)).orient,[],[],[],[],...
                     kPsychUseTextureMatrixForRotation);
             elseif strcmp(Stm.StimType{2},'dots')
@@ -697,7 +718,7 @@ while ~Par.ESC
                     ms=ms+1;
                 end
                 Screen('DrawTexture', Par.window, ...
-                    Gnd(Stm.FigGnd{Log.StimOrder(1)}(2)).tex{GndTexNum,ms,CurrPol},...
+                    Gnd_all.tex{GndTexNum,ms,CurrPol},...
                     srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(1)}(2)).orient,[],[],[],[],...
                     kPsychUseTextureMatrixForRotation);
             end
@@ -708,7 +729,7 @@ while ~Par.ESC
             if strcmp(Stm.StimType{2},'lines')
                 % int gnd
                 Screen('DrawTexture', Par.window, ...
-                    Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).tex{GndTexNum,CurrPol},...
+                    Gnd_all.tex{GndTexNum,CurrPol},...
                     srcrect,[],Stm.IntGnd.orient,[],[],[],[],...
                     kPsychUseTextureMatrixForRotation);
             elseif strcmp(Stm.StimType{2},'dots')
@@ -718,7 +739,7 @@ while ~Par.ESC
                 end
                 % gnd
                 Screen('DrawTexture', Par.window, ...
-                    Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).tex{GndTexNum,ms,CurrPol},...
+                    Gnd_all.tex{GndTexNum,ms,CurrPol},...
                     srcrect,[],Stm.IntGnd.orient,[],[],[],[],...
                     kPsychUseTextureMatrixForRotation);
             end
@@ -728,7 +749,7 @@ while ~Par.ESC
             if strcmp(Stm.StimType{2},'lines')
                 % gnd
                 Screen('DrawTexture', Par.window, ...
-                    Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).tex{GndTexNum,CurrPol},...
+                    Gnd_all.tex{GndTexNum,CurrPol},...
                     srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).orient,...
                     [],[],[],[],kPsychUseTextureMatrixForRotation);
                 % fig
@@ -745,8 +766,8 @@ while ~Par.ESC
                 end
                 % gnd
                 Screen('DrawTexture', Par.window, ...
-                    Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).tex{GndTexNum,ms,CurrPol},...
-                    srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).orient,...
+                    Gnd_all.tex{GndTexNum,ms,CurrPol},...
+                    srcrect,[],[],...
                     [],[],[],[],kPsychUseTextureMatrixForRotation);
                 % fig
                 Screen('DrawTexture',Par.window, ...
@@ -756,7 +777,7 @@ while ~Par.ESC
             end
         end
     end
-        
+    
     %% Draw fixation dot --------------------------------------------------
     if ~Par.ToggleHideFix && ~Par.HideFix_BasedOnHandIn(Par) ...
             && ~Par.Pause
@@ -1291,7 +1312,7 @@ while ~Par.ESC
             
             % check for refresh polarity ---
             if Stm.InvertPolarity && lft-Pol_T0 >= Stm.RefreshPol
-                ChangePolarity(CurrPol);
+                CurrPol = ChangePolarity(CurrPol);
                 Pol_T0=lft;
             end
             
@@ -1315,7 +1336,7 @@ while ~Par.ESC
                     
                     % check for refresh polarity ---
                     if Stm.InvertPolarity && lft-Pol_T0 >= Stm.RefreshPol
-                        ChangePolarity(CurrPol);
+                        CurrPol = ChangePolarity(CurrPol);
                         Pol_T0=lft;
                     end
                     
@@ -1326,7 +1347,6 @@ while ~Par.ESC
                         StimNr = 1;
                         StimRepNr = 1;
                         StimType = 'Figure'; % start with figure
-                        NumGndMoves=0;
                     end
                     
                 case 'Stim'
@@ -1336,12 +1356,14 @@ while ~Par.ESC
                                 LastStim = 'Figure';
                                 WithinBlockStatus = 'Int';
                                 IntLogDone = false;
+                                NumGndMoves=0;
                             end
                         case 'Ground'
                             if lft-Log.StartStim >= Stm.stim_TRs*Par.TR
                                 LastStim = 'Ground';
                                 WithinBlockStatus = 'Int';
                                 IntLogDone = false;
+                                NumGndMoves=0;
                             end
                     end
                     
@@ -1355,19 +1377,21 @@ while ~Par.ESC
                     
                     % check for refresh polarity ---
                     if Stm.InvertPolarity && lft-Pol_T0 >= Stm.RefreshPol
-                        ChangePolarity(CurrPol);
+                        CurrPol = ChangePolarity(CurrPol);
                         Pol_T0=lft;
                     end
                     
-                    if Stm.MoveGnd.Do && strcmp(Stm.StimType{2},'lines')
-                        if lft >= Log.StartStim + Stm.MoveGnd.SOA && ...
-                                NumGndMoves < Stm.MoveGnd.nFrames
-                            srcrect = [srcrect(1) + Stm.MoveGnd.XY(1) ...
-                                srcrect(2) + Stm.MoveGnd.XY(2) ...
-                                srcrect(3) + Stm.MoveGnd.XY(1) ...
-                                srcrect(4) + Stm.MoveGnd.XY(2) ];
+                    % move if required
+                    if Stm.MoveStim.Do && strcmp(Stm.StimType{2},'lines')
+                        if lft-Log.StartStim >= Stm.MoveStim.SOA && ...
+                                NumGndMoves < Stm.MoveStim.nFrames
+                            srcrect = round([...
+                                srcrect(1) + Stm.MoveStim.XY(1)*Par.PixPerDeg ...
+                                srcrect(2) + Stm.MoveStim.XY(2)*Par.PixPerDeg ...
+                                srcrect(3) + Stm.MoveStim.XY(1)*Par.PixPerDeg ...
+                                srcrect(4) + Stm.MoveStim.XY(2)*Par.PixPerDeg ]);
                             NumGndMoves=NumGndMoves+1;
-                        elseif lft < Log.StartStim + StmMoveGnd.SOA
+                        elseif lft < Log.StartStim + Stm.MoveStim.SOA
                             srcrect = round([Par.wrect(1)+offscr.center(1)/2 ...
                                 Par.wrect(2)+offscr.center(2)/2 ...
                                 Par.wrect(3)+offscr.center(1)/2 ...
@@ -1405,6 +1429,7 @@ while ~Par.ESC
                                 StimRepNr = StimRepNr+1;
                             end
                         end
+                        NumGndMoves=0;
                     end
                     
                     % check for refresh seed ---
@@ -1417,7 +1442,7 @@ while ~Par.ESC
                     
                     % check for refresh polarity ---
                     if Stm.InvertPolarity && lft-Pol_T0 >= Stm.RefreshPol
-                        ChangePolarity(CurrPol);
+                        CurrPol = ChangePolarity(CurrPol);
                         Pol_T0=lft;
                     end
             end
@@ -1431,7 +1456,7 @@ while ~Par.ESC
             
             % check for refresh polarity ---
             if Stm.InvertPolarity && lft-Pol_T0 >= Stm.RefreshPol
-                ChangePolarity(CurrPol);
+                CurrPol = ChangePolarity(CurrPol);
                 Pol_T0=lft;
             end
     end
@@ -1572,12 +1597,12 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
         end
         % stimulus
         copyfile(FullStimFilePath,Stm.FileName);
-
+        
         RunParStim_Saved=true;
     end
     
     % save mat and json files
-    if ~TestRunstimWithoutDAS && ~json_done 
+    if ~TestRunstimWithoutDAS && ~json_done
         % save json file ===========
         Par.jf.Project      = 'FigureGround';
         if strcmp(Par.SetUp,'NIN')
@@ -2646,7 +2671,7 @@ Par=Par_BU;
         Log.Events(Log.nEvents).t=Par.ResponseStateChangeTime;
     end
 % Change stimulus polarity
-    function ChangePolarity(CurrPol)
+    function CurrPol = ChangePolarity(CurrPol)
         if CurrPol == 1
             CurrPol = 2;
         else
