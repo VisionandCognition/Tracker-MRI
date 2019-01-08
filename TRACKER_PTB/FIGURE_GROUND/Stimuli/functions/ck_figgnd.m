@@ -136,6 +136,8 @@ for gs = 1:Stm.Gnd_all.NumSeeds
                         offscr.center,Stm.Gnd_all.dots.type);
                     stimulus.Gnd_all.array{gs,1,2} = ...
                         Screen('GetImage',offscr.w);
+                    stimulus.Gnd(g).array{gs,1,1} = ...
+                        uint8(stimulus.Gnd(g).array{gs,1,1});
                 end
                 
             end
