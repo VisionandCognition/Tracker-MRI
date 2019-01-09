@@ -129,13 +129,19 @@ Stm.FigGnd{5} = [5 1];
 Stm.FigGnd{6} = [6 1];
 Stm.FigGnd{7} = [7 2];
 Stm.FigGnd{8} = [8 2];
+Stm.FigGnd{9} = [0 1];
+Stm.FigGnd{10} = [0 2];
+
+Stm.InterLeave_FigGnd = false;
+% if true, do fig - gnd - fig - gnd - fig - etc...
+% if false, only do figures
 
 % Timing --
-Stm.stim_rep = 5; % BLOCK: n stim + n backgrounds
+Stm.stim_rep = 20; % BLOCK: n stim + n backgrounds
 Stm.stim_TRs = 2; % stim duration in TRs
 Stm.int_TRs =  1; % interval duration in TRs 
 
-Stm.RandomizeStim = false; % randomizes stimulus order within block
+Stm.RandomizeStim = true; % randomizes stimulus order within block
 Stm.PreDur_TRs = 1; % volumes
 Stm.PostDur_TRs = 1; % volumes
 Stm.nRepeatsStimSet = 2; % 0=unlimited

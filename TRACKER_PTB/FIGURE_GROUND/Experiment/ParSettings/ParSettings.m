@@ -15,7 +15,7 @@ elseif strcmp(Par.ScreenChoice,'NIN')
 end
 
 %% Triggering =============================================================
-Par.TR = 2.5; % Not important during training
+Par.TR = 2.5;
 Par.MRITriggeredStart = false;
 Par.MRITrigger_OnlyOnce = true;
 
@@ -143,7 +143,7 @@ Par.GoBarSize = Gobar_length*[1, .25] + [0, 0.01]; % [length width] in deg
 Par.GoBarColor = [0.6 0.7 0.7]; % [R G B] 0-1
 
 % Color of the Response indicator (which hand)
-Par.RespLeverMatters = false;
+Par.RespLeverMatters = true;
 Par.RespIndColor = 0.1*[1 1 1;1 1 1]; % colors for the left and right target
 Par.RespIndSize = 0.3;
 Par.RespIndPos = [0 0; 0 0]; % deg
@@ -193,7 +193,7 @@ Par.RewardFixFeedBack = true;
 % RESP_MISS         = 3;
 % RESP_EARLY        = 4;
 % RESP_BREAK_FIX    = 5;
-Par.FeedbackSound = [false true false true false];
+Par.FeedbackSound = [true true false true false];
 Par.FeedbackSoundPar = [ ...
     44100 800 1 0.03; ... CORRECT
     44100 300 1 0.03; ... FALSE
@@ -281,7 +281,7 @@ Par.HandInBothOrEither = 'Both'; % 'Both' or 'Either'
 Par.RewNeeds.HandIsIn =         false;
 Par.StimNeeds.HandIsIn =        false;
 Par.FixNeeds.HandIsIn =         false;
-Par.TrialNeeds.HandIsIn =       true;   % manual response task
+Par.TrialNeeds.HandIsIn =       false;   % manual response task
 Par.TrialNeeds.LeversAreDown =  true;   % manual response task
 
 Par.HandOutDimsScreen = false;

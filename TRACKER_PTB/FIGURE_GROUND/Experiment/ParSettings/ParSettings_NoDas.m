@@ -15,7 +15,7 @@ elseif strcmp(Par.ScreenChoice,'NIN')
 end
 
 %% Triggering =============================================================
-Par.TR = 0.5; % Not important during training
+Par.TR = 2.5;
 Par.MRITriggeredStart = false;
 Par.MRITrigger_OnlyOnce = true;
 
@@ -123,11 +123,13 @@ Par.StimB = 1;
 Par.LED_B = [2 3]; % [1/LEFT 2/RIGHT]
 Par.MicroB = 6;
 Par.CorrectB = 7;
+
 %% Response box ===========================================================
 Par.ResponseBox.Type='Beam'; % 'Beam' or'Lift'
 
 %% Response task ==========================================================
-Par.ResponseBox.Task = 'DetectGoSignal';
+%Par.ResponseBox.Task = 'DetectGoSignal';
+Par.ResponseBox.Task = 'Fixate';
 
 Par.RESP_STATE_WAIT = 1; % Go signal not yet given
 Par.RESP_STATE_GO = 2; % Go signal given
@@ -139,10 +141,14 @@ Par.GoBarSize = Gobar_length*[1, .25] + [0, 0.01]; % [length width] in deg
 Par.GoBarColor = [0.6 0.7 0.7]; % [R G B] 0-1
 
 % Color of the Response indicator
-Par.RespIndColor = [0 .65 0; 1 0 0]; % colors for the left and right target
+Par.RespLeverMatters = true;
+Par.RespIndColor = 0.1*[1 1 1;1 1 1]; % colors for the left and right target
 Par.RespIndSize = 0.3;
-Par.RespLeverGain = [1 1]; % [L R] 
+Par.RespIndPos = [0 0; 0 0]; % deg
 Par.RespIndLeds = false;
+
+Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
+Par.BlockedIndColor = [.7 .7 .7];
 
 Par.SwitchDur = 500; % (200) duration of alternative orientation
 Par.ResponseAllowed = [100 Par.SwitchDur+100]; % [after_onset after_offset] in ms
@@ -167,45 +173,69 @@ Par.CatchBlock.StartWithCatch = true;
 Par.EventPeriods = [0 1000]+2000; % Determines Go-bar onset (was 600 to 1600)
 
 %% connection box port assignment =========================================
-Par.ConnectBox.PhotoAmp = [4 5]; % 2 photo-amps can be connected
-Par.ConnectBox.PhotoAmp_used = 1; % vector with indeces to used channels
+Par.ConnectBox.PhotoAmp = [4 5 7 8]; % 2 photo-amps can be connected
+Par.ConnectBox.PhotoAmp_Levers = 1:2;   % indeces to PhotoAmp channels
+Par.ConnectBox.PhotoAmp_HandIn = 3:4;   % indeces to PhotoAmp channels
 Par.ConnectBox.EyeRecStat = 6;
 
 %% Reward scheme ==========================================================
 Par.Reward = true; %boolean to enable reward stim bit or not
-
 Par.RewardSound = false; % give sound feedback about reward
 Par.RewSndPar = [44100 800 1]; % [FS(Hz) TonePitch(Hz) Amplitude]
 Par.RewardFixFeedBack = true;
 
-% Require hands in the box (reduces movement?)
-Par.HandSignalBothOrEither = 'Both'; 
-% if two channels are used, should 'Both' or 'Either' be ok?
+% RESP_CORRECT      = 1;
+% RESP_FALSE        = 2;
+% RESP_MISS         = 3;
+% RESP_EARLY        = 4;
+% RESP_BREAK_FIX    = 5;
+Par.FeedbackSound = [true true false true false];
+Par.FeedbackSoundPar = [ ...
+    44100 800 1 0.03; ... CORRECT
+    44100 300 1 0.03; ... FALSE
+    44100 200 1 0.03; ... MISS
+    44100 300 1 0.03; ... EARLY
+    44100 400 1.5 0.03 ... FIXATION BREAK
+    ];
 
-% Needed for initiation of tracker since it's in the gui now
-Par.RewNeedsHandInBox=false;
-Par.StimNeedsHandInBox=false;
-Par.FixNeedsHandInBox=false;
-Par.HandOutDimsScreen = false;
-Par.HandOutDimsScreen_perc = 0.9; %(0-1, fraction dimming)
+% [FS(Hz) TonePitch(Hz) Amplitude Duration]
+% duration matches 'open duration'
 
-Par.HandIsIn=false;
+% Create audio buffers for low latency sounds 
+% (they are closed in runstim cleanup) 
+if any(Par.FeedbackSound)
+    try
+        InitializePsychSound; % init driver
+        % if no speakers are connected, windows shuts down the snd device and
+        % this will return an error
+    catch
+        fprintf('There were no audio devices detected. Is the output connected?\n');
+    end
+end
+for i=1:size(Par.FeedbackSoundPar,1)
+    Par.FeedbackSoundSnd(i).Wav=nan;
+    Par.FeedbackSoundSnd(i).Fs=nan;
+    Par.FeedbackSoundSnd(i).h = nan;
+    if Par.FeedbackSound(i)
+        RewT=0:1/Par.FeedbackSoundPar(i,1):Par.FeedbackSoundPar(i,4);
+        Par.FeedbackSoundSnd(i).Wav=...
+            Par.FeedbackSoundPar(i,3)*sin(2*pi*Par.FeedbackSoundPar(i,2)*RewT);
+        Par.FeedbackSoundSnd(i).Fs=Par.FeedbackSoundPar(i,1);
+        Par.FeedbackSoundSnd(i).h = PsychPortAudio('Open', [], [], 2,...
+            Par.FeedbackSoundSnd(i).Fs, 1);
+        PsychPortAudio('FillBuffer', Par.FeedbackSoundSnd(i).h, Par.FeedbackSoundSnd(i).Wav);
+        clc;
+    end
+end
 
-% task related
-Par.HideFix_BasedOnBeam = @(BeamIsBlocked) false; % any(BeamIsBlocked) or all(BeamIsBlocked)
-Par.HideStim_BasedOnBeam = @(BeamIsBlocked) false;
-Par.CorrectResponseGiven = @(Par) Par.ResponseSide > 0 && Par.BeamIsBlocked(Par.ResponseSide);
-Par.IncorrectResponseGiven = @(Par) Par.ResponseSide > 0 && Par.BeamIsBlocked(mod(Par.ResponseSide,2)+1);
-Par.CanStartTrial = @(Par) ~any(Par.BeamIsBlocked);
-
-Par.RewardTaskMultiplier = 1.0;
-Par.RewardFixMultiplier = 0.0;
+Par.RewardTaskMultiplier = 0.0;
+Par.RewardFixMultiplier = 1.0;
 
 % duration matches 'open duration'
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.050;
+        Par.RewardTimeSet = 0.040;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -222,22 +252,92 @@ switch Par.RewardType
         Par.RewardTimeSet = 0; %no reward
 end
 
-Par.RewardTimeManual = 0.005; % amount of reward when given manually
+Par.RewardTimeManual = 0.02; % amount of reward when given manually
 
 Par.RewardFixHoldTimeProg = true;
 if Par.RewardFixHoldTimeProg
     Par.RewardFixHoldTime = [...
-        0 2000;...
-        5 1800;...   
-        10 1600;...
-        20 1400;...
-        30 1250;...
+        0 1500;...
+        5 1250;...   
+        10 1000;...
+        20 750;...
+        30 500;...
         ];
 else
     Par.RewardFixHoldTime = 1250; %time to maintain fixation for reward
 end
 
 Par.RewardTime=Par.RewardTimeSet;
+
+%% Hand requirements ======================================================
+% Require hands in the box (reduces movement?)
+Par.HandSignalBothOrEither = 'Both'; 
+
+% Needed for initiation of tracker since it's in the gui now
+Par.RewNeeds.HandIsIn =         false;
+Par.StimNeeds.HandIsIn =        false;
+Par.FixNeeds.HandIsIn =         false;
+Par.TrialNeeds.HandIsIn =       false;   % manual response task
+Par.TrialNeeds.LeversAreDown =  true;   % manual response task
+
+Par.HandOutDimsScreen = false;
+Par.HandOutDimsScreen_perc = 0.9; %(0-1, fraction dimming)
+
+% set-up function to check whether to draw stimulus
+if Par.StimNeeds.HandIsIn && strcmp(Par.HandInBothOrEither,'Both')
+    Par.HideStim_BasedOnHandIn = @(Par) ~all(Par.HandIsIn);
+elseif Par.StimNeeds.HandIsIn && strcmp(Par.HandInBothOrEither,'Either')
+    Par.HideStim_BasedOnHandIn = @(Par) ~any(Par.HandIsIn);
+else
+    Par.HideStim_BasedOnHandIn = @(Par) false;
+end
+
+% set-up function to check whether to draw fixation
+if Par.FixNeeds.HandIsIn && strcmp(Par.HandInBothOrEither,'Both')
+    Par.HideFix_BasedOnHandIn = @(Par) ~all(Par.HandIsIn);
+elseif Par.FixNeeds.HandIsIn && strcmp(Par.HandInBothOrEither,'Either')
+    Par.HideFix_BasedOnHandIn = @(Par) ~any(Par.HandIsIn);
+else
+    Par.HideFix_BasedOnHandIn = @(Par) false;
+end
+
+% set-up function to check whether to allow reward
+if Par.RewNeeds.HandIsIn && strcmp(Par.HandInBothOrEither,'Both')
+    Par.Rew_BasedOnHandIn = @(Par) all(Par.HandIsIn);
+elseif Par.RewNeeds.HandIsIn && strcmp(Par.HandInBothOrEither,'Either')
+    Par.Rew_BasedOnHandIn = @(Par) any(Par.HandIsIn);
+else
+    Par.Rew_BasedOnHandIn = @(Par) true;
+end
+
+% functions for lever task
+if Par.TrialNeeds.HandIsIn && Par.TrialNeeds.LeversAreDown % hands in / levers down
+    Par.CanStartTrial = @(Par) (all(Par.HandIsIn) && ~any(Par.LeverIsUp));
+elseif Par.TrialNeeds.HandIsIn % only hands in
+    Par.CanStartTrial = @(Par) all(Par.HandIsIn);
+elseif Par.TrialNeeds.LeversAreDown % only levers down
+    Par.CanStartTrial = @(Par) ~any(Par.LeverIsUp);
+else % independent of hand and lever position
+    Par.CanStartTrial = @(Par) true;
+end
+
+Par.CorrectResponseGiven    = ...
+    @(Par) Par.ResponseSide > 0 && Par.BeamIsBlocked(Par.ResponseSide);
+Par.IncorrectResponseGiven  = ...
+    @(Par) Par.ResponseSide > 0 && Par.BeamIsBlocked(mod(Par.ResponseSide,2)+1);
+
+% Reward for keeping hand in the box
+Par.RewardForHandsIn = false;
+Par.RewardForHandsIn_Quant = [0.04 0.08]; % 1 hand, both hands
+Par.RewardForHandsIn_MultiplierPerHand = [1.5 1]; % if only one hand in is rewarded [L R]
+Par.RewardForHandIn_MinInterval = 2; %s
+
+Par.RewardForHandIn_ResetIntervalWhenOut = false; 
+Par.RewardForHandIn_MinIntervalBetween = 1; %s
+% resets the timer for the next reward when the hand(s) are taken out 
+
+% Fixation rewards are multiplied with this factor when hands are in
+Par.FixReward_HandInGain = [1 1]; % one hand , both hands
 
 %% Create Eye-check windows based on stimulus positions ===================
 % The code below is preloaded and will be overwritten on stimulus basis
@@ -282,14 +382,26 @@ Par.Key2 = KbName('2@');
 Par.Key3 = KbName('3#');
 Par.Key4 = KbName('4$');
 Par.Key5 = KbName('5%');
+
 % ARROW KEYS, adn 'Z' ARE USED BY TRACKER WINDOW
 % Par.KeyNext = KbName('RightArrow');
 % Par.KeyPrevious = KbName('LeftArrow');
 Par.KeyNext = KbName('n');
 Par.KeyCyclePos = KbName('0)'); % toggle cycle position automatically
 Par.KeyLockPos = KbName('l'); % lock current position (switching keys will have no effect)
-
 Par.PositionLocked=true;
+
+Par.KeyBeam = KbName('b');          % cycle through possible beam requirements 
+Par.KeyBeamInd = 0;
+Par.KeyBeamStates = {...
+    'BeamState','Both/Either','TrialNeedsHand','FixNeedsHand';...
+    '1','Both',     1,1;...
+    '2','Both',     1,0;...
+    '3','Both',     0,1;...
+    '4','Either',   1,1;...
+    '5','Either',   1,0;...
+    '6','Either',   0,1;...    
+    '7','None',     0,0};
 
 %% Trial timing information (CvdT) ========================================
 % NB: Most of this is not used, but tracker may need it in initialization

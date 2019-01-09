@@ -755,13 +755,14 @@ while ~Par.ESC
                     srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).orient,...
                     [],[],[],[],kPsychUseTextureMatrixForRotation);
                 % fig
-                if strcmp(StimType,'Figure')
+                if strcmp(StimType,'Figure') && ...
+                        Stm.FigGnd{Log.StimOrder(StimNr)}(1) ~= 0
                     Screen('DrawTexture',Par.window, ...
                         Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).tex{GndTexNum,CurrPol},...
                         stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).RectSrc, ...
                         stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).RectDest);
                 end
-            elseif strcmp(Stm.StimType{2},'dots')
+            elseif strcmp(Stm.StimType{2},'dots') 
                 if Stm.MoveStim.Do && ...
                         lft>=Log.StartStim+Stm.MoveStim.SOA && ms<Stm.MoveStim.nFrames+1
                     ms=ms+1;
@@ -772,10 +773,13 @@ while ~Par.ESC
                     srcrect,[],[],...
                     [],[],[],[],kPsychUseTextureMatrixForRotation);
                 % fig
-                Screen('DrawTexture',Par.window, ...
-                    Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).tex{GndTexNum,ms,CurrPol},...
-                    stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).RectSrc, ...
-                    stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).RectDest);
+                if strcmp(StimType,'Figure') && ...
+                        Stm.FigGnd{Log.StimOrder(StimNr)}(1) ~= 0
+                    Screen('DrawTexture',Par.window, ...
+                        Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).tex{GndTexNum,ms,CurrPol},...
+                        stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).RectSrc, ...
+                        stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).RectDest);
+                end
             end
         end
     end
@@ -1321,9 +1325,17 @@ while ~Par.ESC
             % check for end of period ---
             if lft-Log.StartPre >= Stm.PreDur_TRs*Par.TR
                 ExpStatus = 'StimBlock';
-                WithinBlockStatus = 'FirstInt';
-                FirstIntLogDone = false;
-                StimNr = 1;
+                if Stm.int_TRs > 0
+                    WithinBlockStatus = 'FirstInt';
+                    FirstIntLogDone = false;
+                    StimNr = 1;
+                else
+                    WithinBlockStatus = 'Stim';
+                    StimLogDone = false;
+                    StimNr = 1;
+                    StimRepNr = 1;
+                    StimType = 'Figure'; % start with figure
+                end
             end
         case 'StimBlock'
             switch WithinBlockStatus
@@ -1356,15 +1368,57 @@ while ~Par.ESC
                         case 'Figure'
                             if lft-Log.StartStim >= Stm.stim_TRs*Par.TR
                                 LastStim = 'Figure';
-                                WithinBlockStatus = 'Int';
-                                IntLogDone = false;
+                                if Stm.int_TRs > 0
+                                    WithinBlockStatus = 'Int';
+                                    IntLogDone = false;
+                                elseif Stm.int_TRs == 0 && Stm.InterLeave_FigGnd
+                                    WithinBlockStatus = 'Stim';
+                                    StimType = 'Ground';
+                                    StimLogDone = false;
+                                elseif Stm.int_TRs == 0 && ~Stm.InterLeave_FigGnd
+                                    WithinBlockStatus = 'Stim';
+                                    StimType = 'Figure';
+                                    StimLogDone = false;
+                                    
+                                    if StimRepNr == Stm.stim_rep
+                                        StimRepNr = 1;
+                                        if StimNr == length(Log.StimOrder)
+                                            % all stimuli done
+                                            ExpStatus = 'PostDur';
+                                            PostDurLogDone = false;
+                                        else
+                                            StimNr = StimNr+1;
+                                        end
+                                    else
+                                        StimRepNr = StimRepNr+1;
+                                    end
+                                end
                                 NumGndMoves=0;
                             end
                         case 'Ground'
                             if lft-Log.StartStim >= Stm.stim_TRs*Par.TR
                                 LastStim = 'Ground';
-                                WithinBlockStatus = 'Int';
-                                IntLogDone = false;
+                                if Stm.int_TRs > 0
+                                    WithinBlockStatus = 'Int';
+                                    IntLogDone = false;
+                                elseif Stm.int_TRs == 0 && Stm.InterLeave_FigGnd
+                                    WithinBlockStatus = 'Stim';
+                                    StimType = 'Ground';
+                                    StimLogDone = false;  
+                                    
+                                    if StimRepNr == Stm.stim_rep
+                                        StimRepNr = 1;
+                                        if StimNr == length(Log.StimOrder)
+                                            % all stimuli done
+                                            ExpStatus = 'PostDur';
+                                            PostDurLogDone = false;
+                                        else
+                                            StimNr = StimNr+1;
+                                        end
+                                    else
+                                        StimRepNr = StimRepNr+1;
+                                    end
+                                end
                                 NumGndMoves=0;
                             end
                     end
@@ -1410,14 +1464,15 @@ while ~Par.ESC
                     
                 case 'Int'
                     if lft-Log.StartInt >= Stm.int_TRs*Par.TR
-                        if strcmp(LastStim,'Figure')
+                        if strcmp(LastStim,'Figure') && Stm.InterLeave_FigGnd
                             WithinBlockStatus = 'Stim';
                             StimType = 'Ground';
                             StimLogDone = false;
-                        else
+                        elseif strcmp(LastStim,'Figure') && ~Stm.InterLeave_FigGnd
                             WithinBlockStatus = 'Stim';
                             StimType = 'Figure';
                             StimLogDone = false;
+                            
                             if StimRepNr == Stm.stim_rep
                                 StimRepNr = 1;
                                 if StimNr == length(Log.StimOrder)
@@ -1430,6 +1485,24 @@ while ~Par.ESC
                             else
                                 StimRepNr = StimRepNr+1;
                             end
+                        elseif strcmp(LastStim,'Ground')
+                            WithinBlockStatus = 'Stim';
+                            StimType = 'Figure';
+                            StimLogDone = false;
+                            
+                            if StimRepNr == Stm.stim_rep
+                                StimRepNr = 1;
+                                if StimNr == length(Log.StimOrder)
+                                    % all stimuli done
+                                    ExpStatus = 'PostDur';
+                                    PostDurLogDone = false;
+                                else
+                                    StimNr = StimNr+1;
+                                end
+                            else
+                                StimRepNr = StimRepNr+1;
+                            end
+                            
                         end
                         NumGndMoves=0;
                     end
@@ -2696,4 +2769,5 @@ Par=Par_BU;
             ['Seed_' num2str(GndTexNum)];
         Log.Events(Log.nEvents).t=lft-Par.ExpStart;
     end
+
 end
