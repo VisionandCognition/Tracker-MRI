@@ -148,9 +148,18 @@ Log.StimOrder=[];
 for nR=1:Stm.nRepeatsStimSet
     if length(Stm.FigGnd)>1
         nSTIM=length(Stm.FigGnd);
-        if Stm.RandomizeStim
+        if Stm.RandomizeStimMode == 1
             Log.StimOrder = [Log.StimOrder randperm(nSTIM)];
-        else
+        elseif Stm.RandomizeStimMode == 2    
+            % this assumes pairs of fig and gnd are configures correct
+            % it does not check it !!!
+            FigInd = 1:2:length(Stm.FigGnd);
+            FigInd = Shuffle(FigInd);
+            for i=1:length(FigInd)
+                Log.StimOrder = [Log.StimOrder ...
+                    FigInd(i) FigInd(i)+1];
+            end
+        elseif Stm.RandomizeStimMode == 0
             Log.StimOrder = [Log.StimOrder 1:nSTIM];
         end
     else

@@ -139,7 +139,13 @@ Stm.stim_rep = 20; % BLOCK: n stim + n backgrounds
 Stm.stim_TRs = 2; % stim duration in TRs
 Stm.int_TRs =  1; % interval duration in TRs 
 
-Stm.RandomizeStim = false; % randomizes stimulus order within block
+Stm.RandomizeStimMode = 1; 
+% 0: no randomnisation
+% 1: full randomnisation
+% 2: randomnize pairs, so keep 1:2, 3:4, etc together
+%    useful to create random block design
+%    every 2nd configuration should be ground only
+
 Stm.PreDur_TRs = 5; % volumes
 Stm.PostDur_TRs = 5; % volumes
 Stm.nRepeatsStimSet = 2; % 0=unlimited
