@@ -1364,7 +1364,7 @@ while ~Par.ESC
                     end
                     
                     % check for end of period ---
-                    if lft-Log.StartInt >= Stm.int_TRs*Par.TR
+                    if lft-Log.StartInt >= Stm.firstint_TRs*Par.TR
                         WithinBlockStatus = 'Stim';
                         StimLogDone = false;
                         StimNr = 1;

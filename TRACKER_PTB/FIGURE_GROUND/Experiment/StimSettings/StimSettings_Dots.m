@@ -138,6 +138,7 @@ Stm.InterLeave_FigGnd = true;
 Stm.stim_rep = 20; % BLOCK: n stim + n backgrounds
 Stm.stim_TRs = 2; % stim duration in TRs
 Stm.int_TRs =  0; % interval duration in TRs 
+Stm.firstint_TRs =  0; % interval duration in TRs 
 
 Stm.RandomizeStimMode = 0; 
 % 0: no randomnisation

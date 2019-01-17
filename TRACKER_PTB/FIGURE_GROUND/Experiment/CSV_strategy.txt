@@ -1,0 +1,129 @@
+Processed by nipype
+
+ >> bids_minimal_processing 
+Grabs the file:
+	'sourcedata/sub-{subject_id}/ses-{session_id}/func/'
+        'sub-{subject_id}_ses-{session_id}_*events/Log_*_eventlog.csv',
+        >> So save with this naming format <<
+then runs:
+
+>> bids_convert_csv_eventlog.py (a nipype warpper of the py3 script 
+'bids_convert_csv_eventlog')
+	- Relies on the pandas module
+	- Gets the timestamp of 'MRI-trigger received'
+	- *all entries* from csv are put in tsv
+	- 	time-stamps are re-referenced to 'MRI-trigger received'
+
+>> /timeevents/task.py (e.g. /timeevents/curvetracing.py)
+	- converts events to ev files for fsl
+
+	- This 'helper-dictionary'  is populated by going through the tsv
+
+	split_ev = {
+        'AttendUL_COR': [],  # When correct response
+        'AttendDL_COR': [],
+        'AttendUR_COR': [],
+        'AttendDR_COR': [],
+        'AttendCenter_COR': [],
+        'CurveFalseHit': [],  # False hit / wrong hand
+        'CurveNoResponse': [],
+        'CurveFixationBreak': [],
+        'CurveNotCOR': [],  # Catch-all: Incorrect, NoResponse, Fix. Break
+
+        'PreSwitchCurves': [],  # All PreSwitch displays with Curves & targets
+        'ResponseCues': [],  # All response cues events, unless
+                             # subject is not fixating at all
+        'HandLeft': [],
+        'HandRight': [],
+        'Reward': [],
+        'FixationTask': [],
+        'Fixating': [],
+    }
+
+    - goes through the tsv file row-by-row ignoring everyting before MRI-Trigger
+    	ev_files for Curve tracing:
+    		ev_AttendDL_COR_0_1.txt
+			ev_AttendDR_COR_0_3.txt
+			ev_AttendUL_COR_0_5.txt
+			ev_AttendUR_COR_0_7.txt
+			
+			ev_CurveFalseHit_0_9.txt
+			ev_CurveFixationBreak_0_11.txt
+			ev_CurveNotCOR_0_13.txt
+			
+			ev_Fixating_0_15.txt
+			ev_HandLeft_0_17.txt
+			ev_HandRight_0_19.txt
+			
+			ev_PreSwitchCurves_0_21.txt
+			ev_ResponseCues_0_23.txt
+			ev_Reward_0_25.txt
+
+			ev_Outlier1_0_39.txt
+			ev_Outlier2_0_40.txt
+			ev_OutlierX_0_41.txt
+			
+			ev_Realign1_0_27.txt
+			ev_Realign2_0_28.txt
+			ev_RealignX_0_29.txt
+
+
+
+What to log for figure ground?
+
+columns: 
+time_s task event info [record_time_s]
+
+Exp control
+    t   Exp     MRI-trigger Waiting
+    t   Exp     MRI-trigger Received
+
+
+Fixation
+	t 	Fixate	Fixation 	start
+	t 	Fixate	Fixation 	stop
+
+Reward
+	t 	Reward	Manual 	start	
+	t 	Reward	Task 	start	
+	t 	Reward	Reward 	stop
+
+Stimulus FigGnd
+	t 	FigGnd	StimType line/dots
+	t 	FigGnd	PreDur	start
+	t 	FigGnd	PreDur	stop
+	t 	FigGnd	GndOrient	orientation (for lines)
+	t 	FigGnd	Ground	start
+	t 	FigGnd	GndSeed	seed
+	t 	FigGnd	StimPol	polarity
+	t 	FigGnd	Ground	move
+	t 	FigGnd	Ground	stop
+	t 	FigGnd	Intermediate	start
+	t 	FigGnd	Intermediate	stop
+	t 	FigGnd	FigLoc 	location
+	t 	FigGnd	FigShape	shape
+	t 	FigGnd	FigOrient	orient
+	t 	FigGnd	FigSeed	seed
+	t 	FigGnd	Figure	start
+	t 	FigGnd	Figure	stop
+	t 	FigGnd	PostDur	start
+	t 	FigGnd	PostDur	stop
+
+Levertask (if present)
+	t 	Lever 	Left 	up
+	t 	Lever 	Left 	down
+	t 	Lever 	Left 	up
+	t 	Lever 	Left 	down
+
+Control events
+    t   Control Autodim start
+    t   Control Autodim stop
+    t   Control SwitchPos #
+    t   Control ESC quit
+    t   Control HideStim start
+    t   Control HideStim stop
+    t   Control HideFix start
+    t   Control HideFix stop
+    t   Control TimeOut start
+    t   Control TimeOut stop
+

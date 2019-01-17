@@ -409,10 +409,13 @@ end
 lft=Screen('Flip', Par.window);
 
 Par.ExpStart = lft;
-Log.nEvents=1;
+
+% Init event logging
 Log.Events = [];
-Log.Events(Log.nEvents).type='ExpStart';
-Log.Events(Log.nEvents).t=0;
+Log.nEvents = 1; time_s = 0; 
+task = 'Exp'; event = 'ExpStart'; info = GetSecs;
+WriteToLog(Log.nEvents,time_s,task,event,info);
+LogCollect = {};
 
 Log.Eye =[];
 Par.CurrEyePos = [];
@@ -420,6 +423,9 @@ Par.CurrEyeZoom = [];
 
 EyeRecMsgShown=false;
 RunEnded=false;
+
+set_Pol_T0 = false;
+set_Seed_T0 = false;
 
 %% Eye-tracker recording --------------------------------------------------
 if Par.EyeRecAutoTrigger
@@ -450,6 +456,10 @@ if Par.EyeRecAutoTrigger
             SetEyeRecStatus(1); %trigger recording
         end
     end
+    Log.nEvents = Log.nEvents+1; 
+    time_s = StartEyeRecCheck-Par.ExpStart; 
+    task = 'Exp'; event = 'EyeRec'; info = 'start';
+    WriteToLog(Log.nEvents,time_s,task,event,info);
 else
     fprintf('Eye recording not triggered (ephys or training?).\n')
     fprintf('Make sure it''s running!\n');
@@ -460,11 +470,20 @@ Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
 lft=Screen('Flip', Par.window);
 if Par.MRITriggeredStart
     fprintf('Waiting for MRI trigger (or press ''t'' on keyboard)\n');
+    
+    Log.nEvents = Log.nEvents+1; time_s = lft-Par.ExpStart; 
+    task = 'Exp'; event = 'MRI_Trigger'; info = 'Waiting';
+    WriteToLog(Log.nEvents,time_s,task,event,info);
+    
     while ~Log.MRI.TriggerReceived
         CheckKeys;
         %Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
         %lft=Screen('Flip', Par.window);
     end
+    Log.nEvents = Log.nEvents+1; time_s = GetSecs-Par.ExpStart; 
+    task = 'Exp'; event = 'MRI_Trigger'; info = 'Received';
+    WriteToLog(Log.nEvents,time_s,task,event,info);
+    
     if Par.MRITrigger_OnlyOnce && lft-Par.ExpStart == 0
         fprintf('Triggering only once, move on automatically now.\n');
     else
@@ -496,10 +515,9 @@ while ~Par.ESC
             send_serial_data(0); % Blackrock
             WordsSent+1; %#ok<*VUNUS>
             Log.Words(WordsSent)=0;
-            Log.nEvents=Log.nEvents+1;
-            Log.Events(Log.nEvents).type='TrialStart';
-            Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-            Log.Events(Log.nEvents).StimName = 0;
+            nEvents = nEvents+1; time_s = GetSecs-Par.ExpStart; 
+            task = 'Exp'; event = 'TrialStart'; info = 0;
+            WriteToLog(nEvents,time_s,task,event,info);
         end
         
         Par.ResponseGiven=false;
@@ -593,12 +611,22 @@ while ~Par.ESC
         Par.LastFixInTime=GetSecs;
         %Par.GoBarOnset = rand(1)*Par.EventPeriods(2)/1000 + ...
         %    Par.EventPeriods(1)/1000;
+        
+        Log.nEvents = Log.nEvents+1; time_s = Par.LastFixInTime-Par.ExpStart; 
+        task = 'Fixate'; event = 'Fixation'; info = 'start';
+        WriteToLog(Log.nEvents,time_s,task,event,info);
+        
     elseif Par.CheckFixOut && Hit~=0
         % add time to non-fixation duration
         FixTimeThisFlip = FixTimeThisFlip+Time;
         Par.FixIn=false;
         %fprintf('fix out detected\n')
         Par.LastFixOutTime=GetSecs;
+        
+        Log.nEvents = Log.nEvents+1; time_s = Par.LastFixOutTime-Par.ExpStart; 
+        task = 'Fixate'; event = 'Fixation'; info = 'stop';
+        WriteToLog(Log.nEvents,time_s,task,event,info);
+        
     end
     
     %% what happens depends on the status of the experiment ---------------
@@ -606,23 +634,29 @@ while ~Par.ESC
         case 'PreDur'
             if ~PreLogDone
                 fprintf('>> Starting PreDur period <<\n')
+                
                 Log.StartPre=GetSecs;
-                Log.nEvents=Log.nEvents+1;
-                Log.Events(Log.nEvents).type='PreDurStart';
-                Log.Events(Log.nEvents).t=Log.StartPre-Par.ExpStart;
-                Log.Events(Log.nEvents).StimName = [];
+                StartWhat = 'Pre';
+                
+                Log.nEvents = Log.nEvents+1;
+                LogCollect = [LogCollect; ...
+                    {Log.nEvents,[],'FigGnd','StimType',Stm.StimType{2}}];
+                                                
+                Log.nEvents = Log.nEvents+1;
+                LogCollect = [LogCollect; ...
+                    {Log.nEvents,[],'FigGnd','PreDur','start'}];
                 
                 Pol_T0 = Log.StartPre;
                 CurrPol = 1;
-                Log.nEvents=Log.nEvents+1;
-                Log.Events(Log.nEvents).type=['CurrPol_' num2str(CurrPol)];
-                Log.Events(Log.nEvents).t=Log.StartPre-Par.ExpStart;
+                Log.nEvents = Log.nEvents+1;
+                LogCollect = [LogCollect; ...
+                    {Log.nEvents,[],'FigGnd','StimPol',CurrPol}];
                 
                 Seed_T0 = Log.StartPre;
                 GndTexNum=Ranint(Stm.Gnd(1).NumSeeds);
-                Log.nEvents=Log.nEvents+1;
-                Log.Events(Log.nEvents).type=['Seed_' num2str(GndTexNum)];
-                Log.Events(Log.nEvents).t=Log.StartPre-Par.ExpStart;
+                Log.nEvents = Log.nEvents+1;
+                LogCollect = [LogCollect; ...
+                    {Log.nEvents,[],'FigGnd','GndSeed',GndTexNum}];
                 
                 PreLogDone=true;
                 ms = 1; % for movement control
@@ -633,39 +667,66 @@ while ~Par.ESC
                     if ~FirstIntLogDone
                         fprintf('>> Starting Stimulus Block <<\n')
                         Log.StartInt=lft;
-                        Log.nEvents=Log.nEvents+1;
-                        Log.Events(Log.nEvents).type='Int';
-                        Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-                        Log.Events(Log.nEvents).StimName = [];
+                        StartWhat = 'Int';
+                        
+                        Log.nEvents = Log.nEvents+1;
+                            LogCollect = [LogCollect; ...
+                                {Log.nEvents,[],'FigGnd',...
+                                'Intermediate','start'}];
                         
                         Pol_T0 = lft;
                         CurrPol = 1;
-                        Log.nEvents=Log.nEvents+1;
-                        Log.Events(Log.nEvents).type=...
-                            ['CurrPol_' num2str(CurrPol)];
-                        Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-                        
+                        Log.nEvents = Log.nEvents+1;
+                            LogCollect = [LogCollect; ...
+                                {Log.nEvents,[],'FigGnd','StimPol',CurrPol}];
+                                                
                         Seed_T0 = lft;
                         GndTexNum=Ranint(Stm.Gnd(1).NumSeeds);
-                        Log.nEvents=Log.nEvents+1;
-                        Log.Events(Log.nEvents).type=...
-                            ['Seed_' num2str(GndTexNum)];
-                        Log.Events(Log.nEvents).t=lft-Par.ExpStart;
+                        Log.nEvents = Log.nEvents+1;
+                        LogCollect = [LogCollect; ...
+                            {Log.nEvents,[],'FigGnd','GndSeed',GndTexNum}];
                         
                         FirstIntLogDone = true;
                         ms = 1;
                     end
                     
                 case 'Stim'
+                    StartWhat = 'Stim';
                     switch StimType
                         case 'Figure'
                             if ~StimLogDone
-                                Log.StartStim=lft;
-                                Log.nEvents=Log.nEvents+1;
-                                Log.Events(Log.nEvents).type='Figure';
-                                Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-                                Log.Events(Log.nEvents).StimName = ...
-                                    Log.StimOrder(StimNr);
+                                % fig shape, orientation and location
+                                shape = Stm.Fig(Stm.FigGnd{...
+                                    Log.StimOrder(StimNr)}(1)).shape;
+                                orient = Stm.Fig(Stm.FigGnd{...
+                                    Log.StimOrder(StimNr)}(1)).orient;
+                                xpos = Stm.Fig(Stm.FigGnd{...
+                                    Log.StimOrder(StimNr)}(1)).position(1);
+                                if xpos<0
+                                    pos = 'left';
+                                elseif xpos>0
+                                    pos = 'right';
+                                end
+                                
+                                Log.nEvents = Log.nEvents+1;
+                                LogCollect = [LogCollect; ...
+                                    {Log.nEvents,[],'FigGnd',...
+                                    'FigShape',shape}];
+                                Log.nEvents = Log.nEvents+1;
+                                LogCollect = [LogCollect; ...
+                                    {Log.nEvents,[],'FigGnd',...
+                                    'FigLoc',pos}];
+                                Log.nEvents = Log.nEvents+1;
+                                LogCollect = [LogCollect; ...
+                                    {Log.nEvents,[],'FigGnd',...
+                                    'FigOrient',orient}];
+                                
+                                Log.nEvents = Log.nEvents+1;
+                                LogCollect = [LogCollect; ...
+                                    {Log.nEvents,[],'FigGnd',...
+                                    'Figure','start'}];
+                                
+                                
                                 StimLogDone=true;
                                 ms = 1;
                                 Par.Trlcount = Par.Trlcount+1;
@@ -675,12 +736,18 @@ while ~Par.ESC
                             
                         case 'Ground'
                             if ~StimLogDone
-                                Log.StartStim=lft;
-                                Log.nEvents=Log.nEvents+1;
-                                Log.Events(Log.nEvents).type='Ground';
-                                Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-                                Log.Events(Log.nEvents).StimName = ...
-                                    Log.StimOrder(StimNr);
+                                orient = Stm.Fig(Stm.FigGnd{...
+                                    Log.StimOrder(StimNr)}(2)).orient;
+                                Log.nEvents = Log.nEvents+1;
+                                LogCollect = [LogCollect; ...
+                                    {Log.nEvents,[],'FigGnd',...
+                                    'GndOrient',orient}];
+                                
+                                Log.nEvents = Log.nEvents+1;
+                                LogCollect = [LogCollect; ...
+                                    {Log.nEvents,[],'FigGnd',...
+                                    'Ground','start'}];
+                        
                                 StimLogDone=true;
                                 ms = 1;
                                 Par.Trlcount = Par.Trlcount+1;
@@ -690,11 +757,12 @@ while ~Par.ESC
                     
                 case 'Int'
                     if ~IntLogDone
-                        Log.StartInt=lft;
-                        Log.nEvents=Log.nEvents+1;
-                        Log.Events(Log.nEvents).type='Int';
-                        Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-                        Log.Events(Log.nEvents).StimName = [];
+                        StartWhat = 'Int';
+                        
+                        Log.nEvents = Log.nEvents+1;
+                        LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
+                                'Intermediate','start'}];
+
                         IntLogDone=true;
                         ms = 1;
                     end
@@ -702,11 +770,12 @@ while ~Par.ESC
         case 'PostDur'
             if ~PostDurLogDone
                 fprintf('>> Starting PostDur period <<\n')
-                Log.StartPostDur=lft;
+                StartWhat = 'Post';
+                
                 Log.nEvents=Log.nEvents+1;
-                Log.Events(Log.nEvents).type='PostDur';
-                Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-                Log.Events(Log.nEvents).StimName = [];
+                LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
+                    'PostDur','start'}];
+                            
                 PostDurLogDone=true;
                 ms = 1;
             end
@@ -756,7 +825,6 @@ while ~Par.ESC
             end
         elseif strcmp(ExpStatus,'StimBlock') && ...
                 strcmp(WithinBlockStatus,'Stim')
-            
             if strcmp(Stm.StimType{2},'lines')
                 % gnd
                 Screen('DrawTexture', Par.window, ...
@@ -917,15 +985,17 @@ while ~Par.ESC
                 Par.ResponseSide = CatchSides(1);
             end
             Par.CurrResponseSide = Par.ResponseSide;
-            Log.Events(Log.nEvents).StimName = num2str(Par.ResponseSide);
+            
+            LeverStimName = num2str(Par.ResponseSide);
+            
             Par.GoBarOnset = rand(1)*Par.EventPeriods(2)/1000 + ...
                 Par.EventPeriods(1)/1000 + CurrPostErrorDelay/1000;
             
             % Give side indicator (1 or 2) ... again
             Log.nEvents=Log.nEvents+1;
-            Log.Events(Log.nEvents).type=strcat(...
-                'HandTask-TargetSide', num2str(Par.ResponseSide));
-            Log.Events(Log.nEvents).t=Par.ResponseStateChangeTime;
+            LogCollect = [LogCollect; ...
+                {Log.nEvents,[],'Lever','HandTask-TargetSide',LeverStimName}];
+            
             % ==== During wait period ====
         elseif Par.ResponseState == Par.RESP_STATE_WAIT
             if Par.RespIndLeds; dasbit(Par.LED_B(1),0);dasbit(Par.LED_B(2),0);end % LEDS off
@@ -941,10 +1011,14 @@ while ~Par.ESC
                     Par.IncorrectResponseGiven(Par))
                 UpdateHandTaskState(Par.RESP_STATE_DONE);
                 if Par.CorrectResponseGiven(Par)
-                    Log.Events(Log.nEvents).StimName = 'EarlyCorrect';
+                    LeverStimName = 'EarlyCorrect';
                 else
-                    Log.Events(Log.nEvents).StimName = 'EarlyIncorrect';
+                    LeverStimName = 'EarlyIncorrect';
                 end
+                Log.nEvents=Log.nEvents+1;
+                WriteToLog(Log.nEvents, t-Par.ExpStart,...
+                    'Lever','Response',LeverStimName);
+                
                 Par.ManResponse(RESP_EARLY) = Par.ManResponse(RESP_EARLY)+1;
                 %fprintf('Early during wait\n');
                 CurrPostErrorDelay = Par.PostErrorDelay;
@@ -993,10 +1067,13 @@ while ~Par.ESC
                 % Early response after go-signal ------
                 UpdateHandTaskState(Par.RESP_STATE_DONE);
                 if Par.CorrectResponseGiven(Par)
-                    Log.Events(Log.nEvents).StimName = 'EarlyCorrect';
+                    LeverStimName = 'EarlyCorrect';
                 else
-                    Log.Events(Log.nEvents).StimName = 'EarlyIncorrect';
+                    LeverStimName = 'EarlyIncorrect';
                 end
+                Log.nEvents=Log.nEvents+1;
+                WriteToLog(Log.nEvents, t-Par.ExpStart,...
+                    'Lever','Response',LeverStimName);
                 Par.ManResponse(RESP_EARLY) = Par.ManResponse(RESP_EARLY)+1;
                 %fprintf('Early after go\n');
                 CurrPostErrorDelay = Par.PostErrorDelay;
@@ -1035,7 +1112,10 @@ while ~Par.ESC
                 % ---- Incorrect ----
             elseif Par.IncorrectResponseGiven(Par) && Par.RespLeverMatters
                 UpdateHandTaskState(Par.RESP_STATE_DONE);
-                Log.Events(Log.nEvents).StimName = 'Incorrect';
+                LeverStimName = 'Incorrect';
+                Log.nEvents=Log.nEvents+1;
+                WriteToLog(Log.nEvents, t-Par.ExpStart,...
+                    'Lever','Response',LeverStimName);
                 NumberOfConsecutiveErrors=NumberOfConsecutiveErrors+1;
                 if ~Par.ForceRespSide
                     if rand(1) <= Par.ProbSideRepeatOnError % same side
@@ -1080,7 +1160,10 @@ while ~Par.ESC
                 %Par.ResponseStateChangeTime = GetSecs;
                 %Par.ResponseState = Par.RESP_STATE_DONE;
                 UpdateHandTaskState(Par.RESP_STATE_DONE);
-                Log.Events(Log.nEvents).StimName = 'Hit';
+                LeverStimName = 'Hit';
+                Log.nEvents=Log.nEvents+1;
+                WriteToLog(Log.nEvents, t-Par.ExpStart,...
+                    'Lever','Response',LeverStimName);
                 NumberOfConsecutiveErrors=0;
                 GiveRewardAutoTask;
                 if ~Par.ForceRespSide
@@ -1125,7 +1208,10 @@ while ~Par.ESC
             elseif ~Par.RespLeverMatters && ...
                     (Par.CorrectResponseGiven(Par) || Par.IncorrectResponseGiven(Par))
                 UpdateHandTaskState(Par.RESP_STATE_DONE);
-                Log.Events(Log.nEvents).StimName = 'HitEither';
+                LeverStimName = 'HitEither';
+                Log.nEvents=Log.nEvents+1;
+                WriteToLog(Log.nEvents, t-Par.ExpStart,...
+                    'Lever','Response',LeverStimName);
                 GiveRewardAutoTask;
                 if ~Par.ForceRespSide
                     if rand(1) <= Par.ProbSideRepeatOnCorrect % same side
@@ -1169,7 +1255,10 @@ while ~Par.ESC
             elseif t >=  Par.ResponseStateChangeTime + ...
                     Par.ResponseAllowed(2)/1000
                 UpdateHandTaskState(Par.RESP_STATE_DONE);
-                Log.Events(Log.nEvents).StimName = 'Miss';
+                LeverStimName = 'Miss';
+                Log.nEvents=Log.nEvents+1;
+                WriteToLog(Log.nEvents, t-Par.ExpStart,...
+                    'Lever','Response',LeverStimName);
                 %Par.ResponseState = Par.RESP_STATE_DONE;
                 %Par.ResponseStateChangeTime = GetSecs;
                 if ~Par.ForceRespSide
@@ -1226,13 +1315,42 @@ while ~Par.ESC
     end
     
     %% dim the screen if requested due to hand position -------------------
-    AutoDim; % checks by itself if it's required
+    LogCollect=AutoDim(LogCollect); % checks by itself if it's required
     
     %% refresh the screen -------------------------------------------------
     %lft=Screen('Flip', Par.window, prevlft+0.9*Par.fliptimeSec);
     lft=Screen('Flip', Par.window); % as fast as possible
     nf=nf+1;
     
+    % Write collected events to log with correct timestamps
+    if ~isempty(LogCollect)
+        for li = 1: size(LogCollect,1)
+            WriteToLog(LogCollect{li,1},lft-Par.ExpStart,...
+                LogCollect{li,3},LogCollect{li,4},LogCollect{li,5});
+        end
+        LogCollect={};
+    end
+    
+    switch StartWhat
+        case'Pre'
+            Log.StartPre=lft;
+        case 'Int'
+            Log.StartInt=lft;
+        case 'Stim'
+            Log.StartStim=lft;
+        case 'Post'
+            Log.StartPostDur=lft;
+    end
+    
+    if set_Pol_T0
+        Pol_T0=lft;
+        set_Pol_T0=false;
+    end
+    
+    if set_Seed_T0
+        Seed_T0=lft;
+        set_Seed_T0=false;
+    end
     %% log eye-info if required -------------------------------------------
     LogEyeInfo;
     
@@ -1242,7 +1360,7 @@ while ~Par.ESC
         % next position
         Par.SwitchPos = true;
         Par.WhichPos = 'Next';
-        ChangeStimulus;
+        LogCollect=ChangeStimulus(LogCollect);
         Par.SwitchPos = false;
     end
     
@@ -1321,14 +1439,14 @@ while ~Par.ESC
             % check for refresh seed ---
             if Stm.Gnd(1).NumSeeds>1 && Stm.RefreshSeed > 0 && ...
                     lft-Seed_T0 >= Stm.RefreshSeed
-                GndTexNum=ChangeSeed(GndTexNum);
-                Seed_T0=lft;
+                [GndTexNum,LogCollect]=ChangeSeed(GndTexNum,LogCollect);
+                set_Seed_T0=trie;
             end
             
             % check for refresh polarity ---
             if Stm.InvertPolarity && lft-Pol_T0 >= Stm.RefreshPol
-                CurrPol = ChangePolarity(CurrPol);
-                Pol_T0=lft;
+                [CurrPol,LogCollect] = ChangePolarity(CurrPol,LogCollect);
+                set_Pol_T0=true;
             end
             
             % check for end of period ---
@@ -1345,6 +1463,9 @@ while ~Par.ESC
                     StimRepNr = 1;
                     StimType = 'Figure'; % start with figure
                 end
+                Log.nEvents = Log.nEvents+1;
+                LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
+                                'PreDur','stop'}];
             end
         case 'StimBlock'
             switch WithinBlockStatus
@@ -1353,29 +1474,36 @@ while ~Par.ESC
                     if Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).NumSeeds>1 && ...
                             Stm.RefreshSeed > 0 && ...
                             lft-Seed_T0 >= Stm.RefreshSeed
-                        GndTexNum=ChangeSeed(GndTexNum);
-                        Seed_T0=lft;
+                        [GndTexNum,LogCollect]=ChangeSeed(GndTexNum,LogCollect);
+                        set_Seed_T0=true;
                     end
                     
                     % check for refresh polarity ---
                     if Stm.InvertPolarity && lft-Pol_T0 >= Stm.RefreshPol
-                        CurrPol = ChangePolarity(CurrPol);
-                        Pol_T0=lft;
+                        [CurrPol,LogCollect] = ChangePolarity(CurrPol,LogCollect);
+                        set_Pol_T0=true;
                     end
                     
                     % check for end of period ---
-                    if lft-Log.StartInt >= Stm.int_TRs*Par.TR
+                    if lft-Log.StartInt >= Stm.firstint_TRs*Par.TR
                         WithinBlockStatus = 'Stim';
                         StimLogDone = false;
                         StimNr = 1;
                         StimRepNr = 1;
                         StimType = 'Figure'; % start with figure
+                        
+                        Log.nEvents = Log.nEvents+1;
+                        LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
+                                'Intermediate','stop'}];
                     end
                     
                 case 'Stim'
                     switch StimType
                         case 'Figure'
                             if lft-Log.StartStim >= Stm.stim_TRs*Par.TR
+                                Log.nEvents = Log.nEvents+1;
+                                LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
+                                    'Figure','stop'}];
                                 LastStim = 'Figure';
                                 if Stm.int_TRs > 0
                                     WithinBlockStatus = 'Int';
@@ -1406,6 +1534,9 @@ while ~Par.ESC
                             end
                         case 'Ground'
                             if lft-Log.StartStim >= Stm.stim_TRs*Par.TR
+                                Log.nEvents = Log.nEvents+1;
+                                LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
+                                    'Ground','stop'}];
                                 LastStim = 'Ground';
                                 if Stm.int_TRs > 0
                                     WithinBlockStatus = 'Int';
@@ -1436,14 +1567,14 @@ while ~Par.ESC
                     if Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).NumSeeds>1 && ...
                             Stm.RefreshSeed > 0 && ...
                             lft-Seed_T0 >= Stm.RefreshSeed
-                        GndTexNum=ChangeSeed(GndTexNum);
-                        Seed_T0=lft;
+                        [GndTexNum,LogCollect]=ChangeSeed(GndTexNum,LogCollect);
+                        set_Seed_T0=true;
                     end
                     
                     % check for refresh polarity ---
                     if Stm.InvertPolarity && lft-Pol_T0 >= Stm.RefreshPol
-                        CurrPol = ChangePolarity(CurrPol);
-                        Pol_T0=lft;
+                        [CurrPol,LogCollect] = ChangePolarity(CurrPol,LogCollect);
+                        set_Pol_T0=true;
                     end
                     
                     % move if required
@@ -1456,6 +1587,9 @@ while ~Par.ESC
                                 srcrect(3) + Stm.MoveStim.XY(1)*Par.PixPerDeg ...
                                 srcrect(4) + Stm.MoveStim.XY(2)*Par.PixPerDeg ]);
                             NumGndMoves=NumGndMoves+1;
+                            Log.nEvents = Log.nEvents+1;
+                            LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
+                                'Ground','move'}];
                         elseif lft < Log.StartStim + Stm.MoveStim.SOA
                             srcrect = round([Par.wrect(1)+offscr.center(1)/2 ...
                                 Par.wrect(2)+offscr.center(2)/2 ...
@@ -1520,28 +1654,28 @@ while ~Par.ESC
                     if Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).NumSeeds>1 && ...
                             Stm.RefreshSeed > 0 && ...
                             lft-Seed_T0 >= Stm.RefreshSeed
-                        GndTexNum=ChangeSeed(GndTexNum);
-                        Seed_T0=lft;
+                        [GndTexNum,LogCollect]=ChangeSeed(GndTexNum,LogCollect);
+                        set_Seed_T0=true;
                     end
                     
                     % check for refresh polarity ---
                     if Stm.InvertPolarity && lft-Pol_T0 >= Stm.RefreshPol
-                        CurrPol = ChangePolarity(CurrPol);
-                        Pol_T0=lft;
+                        [CurrPol,LogCollect] = ChangePolarity(CurrPol,LogCollect);
+                        set_Pol_T0=true;
                     end
             end
         case 'PostDur'
             % check for refresh seed ---
             if Stm.Gnd(1).NumSeeds>1 && Stm.RefreshSeed > 0 && ...
                     lft-Seed_T0 >= Stm.RefreshSeed
-                GndTexNum=ChangeSeed(GndTexNum);
-                Seed_T0=lft;
+                [GndTexNum,LogCollect]=ChangeSeed(GndTexNum,LogCollect);
+                set_Seed_T0=true;
             end
             
             % check for refresh polarity ---
             if Stm.InvertPolarity && lft-Pol_T0 >= Stm.RefreshPol
-                CurrPol = ChangePolarity(CurrPol);
-                Pol_T0=lft;
+                [CurrPol,LogCollect] = ChangePolarity(CurrPol,LogCollect);
+                set_Pol_T0=true;
             end
     end
     
@@ -1551,7 +1685,7 @@ while ~Par.ESC
         DoneOnce=true;
         
         %% check for key-presses --------------------------------------
-        CheckKeys; % internal function
+        CheckKeys(LogCollect); % internal function
         
         %% Change stimulus if required --------------------------------
         ChangeStimulus;
@@ -1649,13 +1783,16 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
         if strcmp(Par.SetUp,'NIN')
             FileName=['Log_' LogFn '_' ...
                 Stm.Descript '_Run' num2str(1) '_Block' num2str(blockstr)];
+            evFileName=[FileName '_eventlog.csv']
         else
             FileName=['Log_' LogFn '_' ...
                 Stm.Descript '_Run' num2str(1)];
+            evFileName=[FileName '_eventlog.csv']
         end
     else
         FileName=['Log_NODAS_' LogFn '_' ...
             Stm.Descript '_Run' num2str(1)];
+        evFileName=[FileName '_eventlog.csv']
     end
     warning off;
     if TestRunstimWithoutDAS; cd ..;end
@@ -1684,6 +1821,19 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
         
         RunParStim_Saved=true;
     end
+    
+    % save the events to a csv file
+    EventCell = cell(length(Log.Events)+1,4);
+    VarNames={'log_t','task','event','info'};
+    for ev = 1:length(Log.Events)
+        EventCell(ev,:)={...
+            Log.Events(ev).time_s,...
+            Log.Events(ev).task,...
+            Log.Events(ev).event,...
+            Log.Events(ev).info };
+    end
+    EvTable = cell2table(EventCell,'variablenames',VarNames');
+    writetable(EvTable,evFileName)
     
     % save mat and json files
     if ~TestRunstimWithoutDAS && ~json_done
@@ -2064,7 +2214,8 @@ Par=Par_BU;
         Screen('FillRect',Par.window,ceil(Par.BG.*Par.ScrWhite));
     end
 % auto-dim the screen if hand is out
-    function AutoDim
+    function LogCollect=AutoDim(LogCollect)
+        LogAutoDim=false;
         if Par.HandOutDimsScreen && (...
                 (strcmp(Par.HandInBothOrEither,'Both') && ~all(Par.HandIsIn)) || ...
                 (strcmp(Par.HandInBothOrEither,'Either') && ~any(Par.HandIsIn)) ...
@@ -2074,20 +2225,36 @@ Par=Par_BU;
                     Screen('FillRect',Par.window,...
                         [0 0 0 (Par.HandOutDimsScreen_perc(2))].*Par.ScrWhite,....
                         [Par.wrect(1:2) Par.wrect(3:4)+1]);
+                    LogAutoDim=true;
                 else
                     Screen('FillRect',Par.window,...
                         [0 0 0 (Par.HandOutDimsScreen_perc(1))].*Par.ScrWhite,....
                         [Par.wrect(1:2) Par.wrect(3:4)+1]);
+                    LogAutoDim=true;
                 end
             else % a hand in
                 Screen('FillRect',Par.window,...
                     [0 0 0 (Par.HandOutDimsScreen_perc(1))].*Par.ScrWhite,....
                     [Par.wrect(1:2) Par.wrect(3:4)+1]);
+                LogAutoDim=true;
             end
+        else
+            if Par.ScreenIsDimmed
+                Log.nEvents=Log.nEvents+1;
+                LogCollect = [LogCollect; {Log.nEvents,[],'Control',...
+                    'Autodim','stop'}];
+                Par.ScreenIsDimmed = false;
+            end   
+        end
+        if LogAutoDim
+            Log.nEvents=Log.nEvents+1;
+            LogCollect = [LogCollect; {Log.nEvents,[],'Control',...
+                    'Autodim','start'}];
+            Par.ScreenIsDimmed = true;
         end
     end
 % change stimulus features
-    function ChangeStimulus
+    function LogCollect=ChangeStimulus(LogCollect)
         % Change stimulus features if required
         % Position
         if Par.SwitchPos
@@ -2116,19 +2283,19 @@ Par=Par_BU;
                     %                     end
             end
             Log.nEvents=Log.nEvents+1;
-            Log.Events(Log.nEvents).type=['Pos' num2str(Par.PosNr)];
-            Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
+            LogCollect = [LogCollect; {Log.nEvents,[],'Control',...
+                    'SwitchPos',Par.PosNr}];
             DefineEyeWin;
         end
     end
 % check for key-presses
-    function CheckKeys
+    function CheckKeys(LogCollect)
         % check
         [Par.KeyIsDown,Par.KeyTime,KeyCode]=KbCheck; %#ok<*ASGLU>
-        InterpretKeys(KeyCode)
+        LogCollect = InterpretKeys(KeyCode,LogCollect);
     end
 % interpret key presses
-    function InterpretKeys(KeyCode)
+    function LogCollect = InterpretKeys(KeyCode,LogCollect)
         % Par.KeyDetectedInTrackerWindow is true when key press is detected
         % in the Tracker window, false if it's not. Allows key-press isolation
         
@@ -2140,6 +2307,10 @@ Par=Par_BU;
                     case Par.KeyEscape
                         if Par.KeyDetectedInTrackerWindow % only in Tracker
                             Par.ESC = true;
+                            Log.nEvents = Log.nEvents+1;
+                            WriteToLog(Log.nEvents,...
+                                GetSecs-Par.ExpStart,...
+                                'Control','ESC','quit');
                         elseif TestRunstimWithoutDAS
                             Par.ESC = true;
                         end
@@ -2147,10 +2318,6 @@ Par=Par_BU;
                         Log.MRI.TriggerReceived = true;
                         Log.MRI.TriggerTime = ...
                             [Log.MRI.TriggerTime; Par.KeyTime];
-                        Log.nEvents=Log.nEvents+1;
-                        Log.Events(Log.nEvents).type='MRITrigger';
-                        Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                        Log.Events(Log.nEvents).StimName = [];
                         if strcmp(Par.SetUp,'NIN') % send start bit to sync ephys system
                             %dasword(00000);
                             send_serial_data(0);
@@ -2167,16 +2334,14 @@ Par=Par_BU;
                         if Par.KeyDetectedInTrackerWindow % only in Tracker
                             if ~Par.ToggleHideStim
                                 Par.ToggleHideStim = true;
-                                Log.nEvents=Log.nEvents+1;
-                                Log.Events(Log.nEvents).type='StimOff';
-                                Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                                Log.Events(Log.nEvents).StimName = [];
+                                Log.nEvents = Log.nEvents+1;
+                                LogCollect = [LogCollect; {Log.nEvents,[],...
+                                    'Control','HideStim','start'}];
                             else
                                 Par.ToggleHideStim = false;
                                 Log.nEvents=Log.nEvents+1;
-                                Log.Events(Log.nEvents).type='StimOn';
-                                Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                                Log.Events(Log.nEvents).StimName = [];
+                                LogCollect = [LogCollect; {Log.nEvents,[],...
+                                    'Control','HideStim','stop'}];
                             end
                         end
                     case Par.KeyFix
@@ -2184,15 +2349,13 @@ Par=Par_BU;
                             if ~Par.ToggleHideFix
                                 Par.ToggleHideFix = true;
                                 Log.nEvents=Log.nEvents+1;
-                                Log.Events(Log.nEvents).type='FixOff';
-                                Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                                Log.Events(Log.nEvents).StimName = [];
+                                LogCollect = [LogCollect; {Log.nEvents,[],...
+                                    'Control','HideFix','start'}];
                             else
                                 Par.ToggleHideFix = false;
                                 Log.nEvents=Log.nEvents+1;
-                                Log.Events(Log.nEvents).type='FixOn';
-                                Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                                Log.Events(Log.nEvents).StimName = [];
+                                LogCollect = [LogCollect; {Log.nEvents,[],...
+                                    'Control','HideFix','stop'}];
                             end
                         end
                     case Par.KeyPause
@@ -2201,9 +2364,8 @@ Par=Par_BU;
                                 Par.Pause=true;
                                 fprintf('Time-out ON\n');
                                 Log.nEvents=Log.nEvents+1;
-                                Log.Events(Log.nEvents).type='PauseOn';
-                                Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                                Log.Events(Log.nEvents).StimName = [];
+                                LogCollect = [LogCollect; {Log.nEvents,[],...
+                                    'Control','TimeOut','start'}];
                                 Par.PauseStartTime=Par.KeyTime;
                             else
                                 Par.Pause=false;
@@ -2212,9 +2374,8 @@ Par=Par_BU;
                                 Log.TotalTimeOut = Log.TotalTimeOut+Par.PauseStopTime;
                                 Log.TimeOutThisRun=Log.TimeOutThisRun+Par.PauseStopTime;
                                 Log.nEvents=Log.nEvents+1;
-                                Log.Events(Log.nEvents).type='PauseOff';
-                                Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                                Log.Events(Log.nEvents).StimName = [];
+                                LogCollect = [LogCollect; {Log.nEvents,[],...
+                                    'Control','TimeOut','stop'}];
                             end
                         end
                     case Par.KeyRewTimeSet
@@ -2300,20 +2461,19 @@ Par=Par_BU;
                     case Par.KeyLeftResp
                         if Par.KeyDetectedInTrackerWindow % only in Tracker
                             fprintf('LEFT response indicators only\n');
+                            
                             Log.nEvents=Log.nEvents+1;
-                            Log.Events(Log.nEvents).type='LeftRespOnly';
-                            Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                            Log.Events(Log.nEvents).StimName = [];
+                            LogCollect = [LogCollect; {Log.nEvents,[],...
+                                    'Lever','Force','LeftRespOnly'}];
                             Par.RespProbSetting=1;
                             Par.ForceRespSide = true;
                         end
                     case Par.KeyRightResp
                         if Par.KeyDetectedInTrackerWindow % only in Tracker
                             fprintf('RIGHT response indicators only\n');
-                            Log.nEvents=Log.nEvents+1;
-                            Log.Events(Log.nEvents).type='RightRespOnly';
-                            Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                            Log.Events(Log.nEvents).StimName = [];
+                            LLog.nEvents=Log.nEvents+1;
+                            LogCollect = [LogCollect; {Log.nEvents,[],...
+                                    'Lever','Force','RightRespOnly'}];
                             Par.RespProbSetting=2;
                             Par.ForceRespSide = true;
                         end
@@ -2321,9 +2481,8 @@ Par=Par_BU;
                         if Par.KeyDetectedInTrackerWindow % only in Tracker
                             fprintf('PROBABLISTIC response indicators\n');
                             Log.nEvents=Log.nEvents+1;
-                            Log.Events(Log.nEvents).type='RandRespInd';
-                            Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                            Log.Events(Log.nEvents).StimName = [];
+                            LogCollect = [LogCollect; {Log.nEvents,[],...
+                                    'Lever','Force','RandRespInd'}];
                             Par.RespProbSetting=0;
                             Par.ForceRespSide = true;
                         end
@@ -2430,9 +2589,9 @@ Par=Par_BU;
         % Log any changes
         if any(Par.BeamWasBlocked(:) ~= Par.BeamIsBlocked(:))
             Log.nEvents=Log.nEvents+1;
-            Log.Events(Log.nEvents).type=...
-                strcat('BeamStateChange ', mat2str(Par.BeamIsBlocked));
-            Log.Events(Log.nEvents).t=lft-Par.ExpStart;
+            WriteToLog(Log.nEvents,GetSecs-Par.ExpStart,...
+                'Beam','StateChange',mat2str(Par.BeamIsBlocked))
+
             Par.HandIsIn =Par.BeamIsBlocked(Par.ConnectBox.PhotoAmp_HandIn);
             Par.LeverIsUp=Par.BeamIsBlocked(Par.ConnectBox.PhotoAmp_Levers);
             if any(Par.LeverIsUp ~= Par.LeverWasUp) && all(Par.LeverIsUp)
@@ -2469,8 +2628,9 @@ Par=Par_BU;
                         if ~any(Par.HandWasIn)
                             % only do this if 1 channel is used
                             Log.nEvents=Log.nEvents+1;
-                            Log.Events(Log.nEvents).type='BothHandsIn';
-                            Log.Events(Log.nEvents).t=lft-Par.ExpStart;
+                            WriteToLog(Log.nEvents,GetSecs-Par.ExpStart,...
+                                'Hand','BothHandsIn','1chan');
+
                             Par.HandWasIn=Par.HandIsIn;
                         end
                     elseif strcmp(Par.HandInBothOrEither, 'Either') && ...
@@ -2478,19 +2638,22 @@ Par=Par_BU;
                         if ~all(Par.HandWasIn)
                             % only do this if 1 channel is used
                             Log.nEvents=Log.nEvents+1;
+
                             if Par.HandIsIn(1)
-                                Log.Events(Log.nEvents).type='LeftHandIn';
+                                type='LeftHandIn';
                             else
-                                Log.Events(Log.nEvents).type='RightHandIn';
+                                type='RightHandIn';
                             end
-                            Log.Events(Log.nEvents).t=lft-Par.ExpStart;
+                            WriteToLog(Log.nEvents,GetSecs-Par.ExpStart,...
+                                'Hand',type,'2chan');
+                            
                             Par.HandWasIn=Par.HandIsIn;
                         end
                     elseif ~all(Par.HandIsIn)
                         if any(Par.HandWasIn)
                             Log.nEvents=Log.nEvents+1;
-                            Log.Events(Log.nEvents).type='HandsOut';
-                            Log.Events(Log.nEvents).t=lft-Par.ExpStart;
+                            WriteToLog(Log.nEvents,GetSecs-Par.ExpStart,...
+                                'Hand','HandsOut','2chan');
                             Par.HandWasIn=Par.HandIsIn;
                         end
                     end
@@ -2539,6 +2702,7 @@ Par=Par_BU;
         if Par.RewardTimeCurrent>0
             % Give the reward
             Par.RewardStartTime=GetSecs;
+            
             if strcmp(computer,'PCWIN64')
                 dasjuice(10); % 64bit das card
             else
@@ -2552,11 +2716,9 @@ Par=Par_BU;
                 RewY=Par.RewSndPar(3)*sin(2*pi*Par.RewSndPar(2)*RewT);
                 sound(RewY,Par.RewSndPar(1));
             end
-            
             Log.nEvents=Log.nEvents+1;
-            Log.Events(Log.nEvents).type='RewardFix';
-            Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-            Log.Events(Log.nEvents).StimName = [];
+            WriteToLog(Log.nEvents, Par.RewardStartTime-Par.Exp,...
+                'Reward','AutoFix','start');
         end
     end
 % stop reward delivery
@@ -2568,9 +2730,9 @@ Par=Par_BU;
             Log.TotalReward = Log.TotalReward+Par.RewardTimeCurrent;
             %Par.ResponseSide = 0;
             Log.nEvents=Log.nEvents+1;
-            Log.Events(Log.nEvents).type='RewardStopped';
-            Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-            Log.Events(Log.nEvents).StimName = [];
+            WriteToLog(Log.nEvents, GetSecs-Par.Exp,...
+                'Reward','Any','stop');
+
         end
     end
 % give automated reward for task
@@ -2612,11 +2774,9 @@ Par=Par_BU;
                     RewY=Par.RewSndPar(3)*sin(2*pi*Par.RewSndPar(2)*RewT);
                     sound(RewY,Par.RewSndPar(1));
                 end
-                
                 Log.nEvents=Log.nEvents+1;
-                Log.Events(Log.nEvents).type='RewardAutoTask';
-                Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-                Log.Events(Log.nEvents).StimName = [];
+                WriteToLog(Log.nEvents, Par.RewardStartTime-Par.Exp,...
+                    'Reward','AutoTask','start');
             end
         end
     end
@@ -2644,11 +2804,9 @@ Par=Par_BU;
                 RewY=Par.RewSndPar(3)*sin(2*pi*Par.RewSndPar(2)*RewT);
                 sound(RewY,Par.RewSndPar(1));
             end
-            
             Log.nEvents=Log.nEvents+1;
-            Log.Events(Log.nEvents).type='RewardAutoHand';
-            Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-            Log.Events(Log.nEvents).StimName = [];
+            WriteToLog(Log.nEvents, Par.RewardStartTime-Par.Exp,...
+                'Reward','AutoHand','start');
         end
     end
 % give manual reward
@@ -2669,11 +2827,9 @@ Par=Par_BU;
             RewY=Par.RewSndPar(3)*sin(2*pi*Par.RewSndPar(2)*RewT);
             sound(RewY,Par.RewSndPar(1));
         end
-        
         Log.nEvents=Log.nEvents+1;
-        Log.Events(Log.nEvents).type='RewardMan';
-        Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-        Log.Events(Log.nEvents).StimName = [];
+        WriteToLog(Log.nEvents, Par.RewardStartTime-Par.Exp,...
+            'Reward','Manual','start');
     end
 % check eye-tracker recording status
     function CheckEyeRecStatus
@@ -2702,12 +2858,12 @@ Par=Par_BU;
         dasbit(0,Par.EyeRecTriggerLevel);
         Log.nEvents=Log.nEvents+1;
         if Par.EyeRecTriggerLevel
-            Log.Events(Log.nEvents).type='EyeRecOff';
+            type='EyeRecOff';
         else
-            Log.Events(Log.nEvents).type='EyeRecOn';
+            type='EyeRecOn';
         end
-        Log.Events(Log.nEvents).t=tEyeRecSet-Par.ExpStart;
-        Log.Events(Log.nEvents).StimName = [];
+        WriteToLog(Log.nEvents, tEyeRecSet-Par.Exp,...
+            'Eye',type,'none');
     end
 % check eye only (dascheck without tracker gui update)
     function [Hit, Time] = DasCheckEyeOnly %#ok<*DEFNU>
@@ -2737,46 +2893,49 @@ Par=Par_BU;
     function UpdateHandTaskState(NewState)
         Par.ResponseState = NewState;
         Par.ResponseStateChangeTime = GetSecs;
-        Log.nEvents=Log.nEvents+1;
         switch NewState
             case Par.RESP_STATE_WAIT
-                Log.Events(Log.nEvents).type=...
-                    'HandTaskState-Wait';
+                type='HandTaskState-Wait';
             case Par.RESP_STATE_GO
-                Log.Events(Log.nEvents).type=...
-                    'HandTaskState-Go';
+                type='HandTaskState-Go';
             case Par.RESP_STATE_DONE
-                Log.Events(Log.nEvents).type=...
-                    'HandTaskState-Done';
+                type='HandTaskState-Done';
             otherwise
-                Log.Events(Log.nEvents).type=...
-                    strcat('HandTaskState-Unknown-',NewState);
+                type=strcat('HandTaskState-Unknown-',NewState);
         end
-        Log.Events(Log.nEvents).t=Par.ResponseStateChangeTime;
+        Log.nEvents=Log.nEvents+1;
+        WriteToLog(Log.nEvents, Par.ResponseStateChangeTime-Par.Exp,...
+                    'Lever','State',type);
     end
 % Change stimulus polarity
-    function CurrPol = ChangePolarity(CurrPol)
+    function [CurrPol, LogCollect] = ChangePolarity(CurrPol,LogCollect)
         if CurrPol == 1
             CurrPol = 2;
         else
             CurrPol = 1;
         end
+        
         Log.nEvents=Log.nEvents+1;
-        Log.Events(Log.nEvents).type=...
-            ['CurrPol_' num2str(CurrPol)];
-        Log.Events(Log.nEvents).t=lft-Par.ExpStart;
+        LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
+            'StimPol',CurrPol}];
     end
 % Refresh seed
-    function GndTexNum=ChangeSeed(GndTexNum)
+    function [GndTexNum, LogCollect]=ChangeSeed(GndTexNum,LogCollect)
         NewGndTexNum = Ranint(Stm.Gnd(1).NumSeeds);
         while NewGndTexNum == GndTexNum
             NewGndTexNum = Ranint(Stm.Gnd(1).NumSeeds);
         end
         GndTexNum = NewGndTexNum;
+        
         Log.nEvents=Log.nEvents+1;
-        Log.Events(Log.nEvents).type=...
-            ['Seed_' num2str(GndTexNum)];
-        Log.Events(Log.nEvents).t=lft-Par.ExpStart;
+        LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
+            'GndSeed',GndTexNum}];
     end
-
+% Write to log
+    function WriteToLog(nEvents,log_t,log_task,log_event,log_info)
+        Log.Events(nEvents).time_s = log_t;
+        Log.Events(nEvents).task = log_task;
+        Log.Events(nEvents).event = log_event;
+        Log.Events(nEvents).info = log_info;
+    end
 end

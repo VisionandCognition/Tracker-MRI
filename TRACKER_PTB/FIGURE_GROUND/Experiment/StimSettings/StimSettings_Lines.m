@@ -135,9 +135,10 @@ Stm.InterLeave_FigGnd = true;
 % if false, only do figures
 
 % Timing --
-Stm.stim_rep = 20; % BLOCK: n stim + n backgrounds
-Stm.stim_TRs = 2; % stim duration in TRs
-Stm.int_TRs =  1; % interval duration in TRs 
+Stm.stim_rep = 5*6; % BLOCK: n stim + n backgrounds
+Stm.stim_TRs = 0.18; % stim duration in TRs
+Stm.int_TRs =  0.01; % interval duration in TRs 
+Stm.firstint_TRs =  1; % interval duration in TRs 
 
 Stm.RandomizeStimMode = 1; 
 % 0: no randomnisation
