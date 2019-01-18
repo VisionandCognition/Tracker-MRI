@@ -122,33 +122,41 @@ Stm.IntGnd.orient = 90;
 % Stimulus combination to include --
 % >> always followed by background only <<
 Stm.FigGnd{1} = [1 1]; % [figure ground]
-Stm.FigGnd{2} = [2 1];
-Stm.FigGnd{3} = [3 2];
-Stm.FigGnd{4} = [4 2];
-Stm.FigGnd{5} = [5 1];
-Stm.FigGnd{6} = [6 1];
-Stm.FigGnd{7} = [7 2];
-Stm.FigGnd{8} = [8 2];
+Stm.FigGnd{2} = [0 1];
+Stm.FigGnd{3} = [2 1];
+Stm.FigGnd{4} = [0 1];
+Stm.FigGnd{5} = [3 2];
+Stm.FigGnd{6} = [0 2];
+Stm.FigGnd{7} = [4 2];
+Stm.FigGnd{8} = [0 2];
+Stm.FigGnd{9} = [5 1];
+Stm.FigGnd{10} = [0 1];
+Stm.FigGnd{11} = [6 1];
+Stm.FigGnd{12} = [0 1];
+Stm.FigGnd{13} = [7 2];
+Stm.FigGnd{14} = [0 2];
+Stm.FigGnd{15} = [8 2];
+Stm.FigGnd{16} = [0 2];
 
-Stm.InterLeave_FigGnd = true;
+Stm.InterLeave_FigGnd = false;
 % if true, do fig - gnd - fig - gnd - fig - etc...
 % if false, only do figures
 
 % Timing --
-Stm.stim_rep = 5*6; % BLOCK: n stim + n backgrounds
-Stm.stim_TRs = 0.18; % stim duration in TRs
-Stm.int_TRs =  0.01; % interval duration in TRs 
+Stm.stim_rep = 10; % BLOCK: n stim + n backgrounds
+Stm.stim_TRs = 0.4; % stim duration in TRs
+Stm.int_TRs =  0.2; % interval duration in TRs 
 Stm.firstint_TRs =  1; % interval duration in TRs 
 
-Stm.RandomizeStimMode = 1; 
+Stm.RandomizeStimMode = 2; 
 % 0: no randomnisation
 % 1: full randomnisation
 % 2: randomnize pairs, so keep 1:2, 3:4, etc together
 %    useful to create random block design
 %    every 2nd configuration should be ground only
 
-Stm.PreDur_TRs = 5; % volumes
-Stm.PostDur_TRs = 5; % volumes
+Stm.PreDur_TRs = 1; % volumes
+Stm.PostDur_TRs = 1; % volumes
 Stm.nRepeatsStimSet = 2; % 0=unlimited
 
 %% ========================================================================

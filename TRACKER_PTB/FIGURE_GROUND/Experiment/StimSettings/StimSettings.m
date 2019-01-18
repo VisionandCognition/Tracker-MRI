@@ -144,7 +144,7 @@ Stm.InterLeave_FigGnd = false;
 
 % Timing --
 Stm.stim_rep = 10; % BLOCK: n stim + n backgrounds
-Stm.stim_TRs = 0.8; % stim duration in TRs
+Stm.stim_TRs = 0.4; % stim duration in TRs
 Stm.int_TRs =  0.2; % interval duration in TRs 
 Stm.firstint_TRs =  1; % interval duration in TRs 
 
