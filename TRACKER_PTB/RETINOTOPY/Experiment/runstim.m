@@ -2265,18 +2265,26 @@ Par=Par_BU;
     end
 % draw handindicator
     function DrawHandIndicator(STIMNR)
-       if any(any(Par.RespIndPos)) % stimuli not centered
-           cen = [Par.ScrCenter(1),Par.ScrCenter(2)];
-           cen1 = [Par.RespIndPos(1,1)*Par.PixPerDeg+Par.ScrCenter(1), ...
-            Par.RespIndPos(1,2)*Par.PixPerDeg+Par.ScrCenter(2)];
-           cen2 = [Par.RespIndPos(2,1)*Par.PixPerDeg+Par.ScrCenter(1), ...
-            Par.RespIndPos(2,2)*Par.PixPerDeg+Par.ScrCenter(2)];
-       else % stimulus centered (but can be cycled)
-           cen = [Stm(STIMNR).Center(Par.PosNr,1)+Par.ScrCenter(1), ...
-            Stm(STIMNR).Center(Par.PosNr,2)+Par.ScrCenter(2)];
+        if any(any(Par.RespIndPos)) % stimuli not centered
+            cen = [Par.ScrCenter(1),Par.ScrCenter(2)];
+            if size(Par.RespIndPos,1)>2
+                % pick a target location from the options
+                s_order=randperm(size(Par.RespIndPos,1));p=s_order(1);
+                cen1 = [Par.RespIndPos(p,1)*Par.PixPerDeg+Par.ScrCenter(1), ...
+                    Par.RespIndPos(p,2)*Par.PixPerDeg+Par.ScrCenter(2)];
+                cen2=cen1;
+            else
+                cen1 = [Par.RespIndPos(1,1)*Par.PixPerDeg+Par.ScrCenter(1), ...
+                    Par.RespIndPos(1,2)*Par.PixPerDeg+Par.ScrCenter(2)];
+                cen2 = [Par.RespIndPos(2,1)*Par.PixPerDeg+Par.ScrCenter(1), ...
+                    Par.RespIndPos(2,2)*Par.PixPerDeg+Par.ScrCenter(2)];
+            end
+        else % stimulus centered (but can be cycled)
+            cen = [Stm(STIMNR).Center(Par.PosNr,1)+Par.ScrCenter(1), ...
+                Stm(STIMNR).Center(Par.PosNr,2)+Par.ScrCenter(2)];
             cen1=cen;cen2=cen;
-       end
-       
+        end
+        
         if strcmp(Par.ResponseBox.Task, 'DetectGoSignal')
             if Par.ResponseState == Par.RESP_STATE_DONE && ...
                     ~Par.CanStartTrial(Par) && ...
@@ -2300,13 +2308,13 @@ Par=Par_BU;
             elseif Par.ResponseState == Par.RESP_STATE_DONE && ...
                     Par.CurrResponseSide == 1
                 if Par.RespIndLeds; dasbit(Par.LED_B(1),0);dasbit(Par.LED_B(2),0);end % LEDS off
-%                 Screen('FillPoly',Par.window, Par.RespIndColor(1,:).*Par.ScrWhite, ...
-%                     [cen1;cen1;cen1;cen1] + Par.RespIndSizePix*left_square)
+                %                 Screen('FillPoly',Par.window, Par.RespIndColor(1,:).*Par.ScrWhite, ...
+                %                     [cen1;cen1;cen1;cen1] + Par.RespIndSizePix*left_square)
             elseif Par.ResponseState == Par.RESP_STATE_DONE && ...
                     Par.CurrResponseSide == 2
-                    if Par.RespIndLeds; dasbit(Par.LED_B(1),0);dasbit(Par.LED_B(2),0);end % LEDS off
-%                 Screen('FillPoly',Par.window, Par.RespIndColor(2,:).*Par.ScrWhite, ...
-%                     [cen2;cen2;cen2;cen2] + Par.RespIndSizePix*right_diamond)
+                if Par.RespIndLeds; dasbit(Par.LED_B(1),0);dasbit(Par.LED_B(2),0);end % LEDS off
+                %                 Screen('FillPoly',Par.window, Par.RespIndColor(2,:).*Par.ScrWhite, ...
+                %                     [cen2;cen2;cen2;cen2] + Par.RespIndSizePix*right_diamond)
             end
         end
     end
