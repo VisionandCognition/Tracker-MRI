@@ -150,7 +150,7 @@ for nR=1:Stm.nRepeatsStimSet
         nSTIM=length(Stm.FigGnd);
         if Stm.RandomizeStimMode == 1
             Log.StimOrder = [Log.StimOrder randperm(nSTIM)];
-        elseif Stm.RandomizeStimMode == 2    
+        elseif Stm.RandomizeStimMode == 2
             % this assumes pairs of fig and gnd are configures correct
             % it does not check it !!!
             FigInd = 1:2:length(Stm.FigGnd);
@@ -239,7 +239,7 @@ switch Stm.StimType{2}
                     if Stm.InvertPolarity
                         Gnd_all.tex{gs,ms,2} = Screen(...
                             'MakeTexture',Par.window,...
-                        stimulus.Gnd_all.array{gs,ms,2});
+                            stimulus.Gnd_all.array{gs,ms,2});
                     end
                 end
             else
@@ -249,7 +249,7 @@ switch Stm.StimType{2}
                     Gnd_all.tex{gs,1,2} = Screen(...
                         'MakeTexture',Par.window,...
                         stimulus.Gnd_all.array{gs,1,2});
-               end
+                end
             end
         end
         
@@ -412,7 +412,7 @@ Par.ExpStart = lft;
 
 % Init event logging
 Log.Events = [];
-Log.nEvents = 1; time_s = 0; 
+Log.nEvents = 1; time_s = 0;
 task = 'Exp'; event = 'ExpStart'; info = GetSecs;
 WriteToLog(Log.nEvents,time_s,task,event,info);
 LogCollect = {};
@@ -454,8 +454,8 @@ if Par.EyeRecAutoTrigger
             SetEyeRecStatus(1); %trigger recording
         end
     end
-    Log.nEvents = Log.nEvents+1; 
-    time_s = StartEyeRecCheck-Par.ExpStart; 
+    Log.nEvents = Log.nEvents+1;
+    time_s = StartEyeRecCheck-Par.ExpStart;
     task = 'Exp'; event = 'EyeRec'; info = 'start';
     WriteToLog(Log.nEvents,time_s,task,event,info);
 else
@@ -469,7 +469,7 @@ lft=Screen('Flip', Par.window);
 if Par.MRITriggeredStart
     fprintf('Waiting for MRI trigger (or press ''t'' on keyboard)\n');
     
-    Log.nEvents = Log.nEvents+1; time_s = lft-Par.ExpStart; 
+    Log.nEvents = Log.nEvents+1; time_s = lft-Par.ExpStart;
     task = 'Exp'; event = 'MRI_Trigger'; info = 'Waiting';
     WriteToLog(Log.nEvents,time_s,task,event,info);
     
@@ -478,7 +478,7 @@ if Par.MRITriggeredStart
         %Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
         %lft=Screen('Flip', Par.window);
     end
-    Log.nEvents = Log.nEvents+1; time_s = GetSecs-Par.ExpStart; 
+    Log.nEvents = Log.nEvents+1; time_s = GetSecs-Par.ExpStart;
     task = 'Exp'; event = 'MRI_Trigger'; info = 'Received';
     WriteToLog(Log.nEvents,time_s,task,event,info);
     
@@ -513,7 +513,7 @@ while ~Par.ESC
             send_serial_data(0); % Blackrock
             WordsSent+1; %#ok<*VUNUS>
             Log.Words(WordsSent)=0;
-            nEvents = nEvents+1; time_s = GetSecs-Par.ExpStart; 
+            nEvents = nEvents+1; time_s = GetSecs-Par.ExpStart;
             task = 'Exp'; event = 'TrialStart'; info = 0;
             WriteToLog(nEvents,time_s,task,event,info);
         end
@@ -610,7 +610,7 @@ while ~Par.ESC
         %Par.GoBarOnset = rand(1)*Par.EventPeriods(2)/1000 + ...
         %    Par.EventPeriods(1)/1000;
         
-        Log.nEvents = Log.nEvents+1; time_s = Par.LastFixInTime-Par.ExpStart; 
+        Log.nEvents = Log.nEvents+1; time_s = Par.LastFixInTime-Par.ExpStart;
         task = 'Fixate'; event = 'Fixation'; info = 'start';
         WriteToLog(Log.nEvents,time_s,task,event,info);
         
@@ -621,7 +621,7 @@ while ~Par.ESC
         %fprintf('fix out detected\n')
         Par.LastFixOutTime=GetSecs;
         
-        Log.nEvents = Log.nEvents+1; time_s = Par.LastFixOutTime-Par.ExpStart; 
+        Log.nEvents = Log.nEvents+1; time_s = Par.LastFixOutTime-Par.ExpStart;
         task = 'Fixate'; event = 'Fixation'; info = 'stop';
         WriteToLog(Log.nEvents,time_s,task,event,info);
         
@@ -637,18 +637,19 @@ while ~Par.ESC
                 Log.nEvents = Log.nEvents+1;
                 LogCollect = [LogCollect; ...
                     {Log.nEvents,[],'FigGnd','StimType',Stm.StimType{2}}];
-                                                
+                
                 Log.nEvents = Log.nEvents+1;
                 LogCollect = [LogCollect; ...
                     {Log.nEvents,[],'FigGnd','PreDur','start'}];
                 
-                Pol_T0 = Log.StartPre;
+                %Pol_T0 = Log.StartPre;
+                
                 CurrPol = 1;
                 Log.nEvents = Log.nEvents+1;
                 LogCollect = [LogCollect; ...
                     {Log.nEvents,[],'FigGnd','StimPol',CurrPol}];
                 
-                Seed_T0 = Log.StartPre;
+                %Seed_T0 = Log.StartPre;
                 GndTexNum=Ranint(Stm.Gnd(1).NumSeeds);
                 Log.nEvents = Log.nEvents+1;
                 LogCollect = [LogCollect; ...
@@ -661,21 +662,22 @@ while ~Par.ESC
             switch WithinBlockStatus
                 case 'FirstInt'
                     if ~FirstIntLogDone
+                        %fprintf(['StimType is ' WithinBlockStatus '\n']);
                         fprintf('>> Starting Stimulus Block <<\n')
                         StartWhat = 'Int';
                         
                         Log.nEvents = Log.nEvents+1;
-                            LogCollect = [LogCollect; ...
-                                {Log.nEvents,[],'FigGnd',...
-                                'Intermediate','start'}];
+                        LogCollect = [LogCollect; ...
+                            {Log.nEvents,[],'FigGnd',...
+                            'Intermediate','start'}];
                         
-                        Pol_T0 = lft;
+                        %Pol_T0 = lft;
                         CurrPol = 1;
                         Log.nEvents = Log.nEvents+1;
-                            LogCollect = [LogCollect; ...
-                                {Log.nEvents,[],'FigGnd','StimPol',CurrPol}];
-                                                
-                        Seed_T0 = lft;
+                        LogCollect = [LogCollect; ...
+                            {Log.nEvents,[],'FigGnd','StimPol',CurrPol}];
+                        
+                        %Seed_T0 = lft;
                         GndTexNum=Ranint(Stm.Gnd(1).NumSeeds);
                         Log.nEvents = Log.nEvents+1;
                         LogCollect = [LogCollect; ...
@@ -689,6 +691,7 @@ while ~Par.ESC
                     switch StimType
                         case 'Figure'
                             if ~StimLogDone
+                                %fprintf(['StimType is ' StimType '\n']);
                                 StartWhat = 'Stim';
                                 % fig shape, orientation and location
                                 shape = Stm.Fig(Stm.FigGnd{...
@@ -731,6 +734,7 @@ while ~Par.ESC
                             
                         case 'Ground'
                             if ~StimLogDone
+                                %fprintf(['StimType is ' StimType '\n']);
                                 StartWhat = 'Stim';
                                 orient = Stm.Fig(Stm.FigGnd{...
                                     Log.StimOrder(StimNr)}(2)).orient;
@@ -743,7 +747,7 @@ while ~Par.ESC
                                 LogCollect = [LogCollect; ...
                                     {Log.nEvents,[],'FigGnd',...
                                     'Ground','start'}];
-                        
+                                
                                 StimLogDone=true;
                                 ms = 1;
                                 Par.Trlcount = Par.Trlcount+1;
@@ -753,12 +757,13 @@ while ~Par.ESC
                     
                 case 'Int'
                     if ~IntLogDone
+                        %fprintf(['StimType is ' WithinBlockStatus '\n']);
                         StartWhat = 'Int';
                         
                         Log.nEvents = Log.nEvents+1;
                         LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
-                                'Intermediate','start'}];
-
+                            'Intermediate','start'}];
+                        
                         IntLogDone=true;
                         ms = 1;
                     end
@@ -771,7 +776,7 @@ while ~Par.ESC
                 Log.nEvents=Log.nEvents+1;
                 LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
                     'PostDur','start'}];
-                            
+                
                 PostDurLogDone=true;
                 ms = 1;
             end
@@ -835,7 +840,7 @@ while ~Par.ESC
                         stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).RectSrc, ...
                         stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).RectDest);
                 end
-            elseif strcmp(Stm.StimType{2},'dots') 
+            elseif strcmp(Stm.StimType{2},'dots')
                 if Stm.MoveStim.Do && ...
                         lft>=Log.StartStim+Stm.MoveStim.SOA && ms<Stm.MoveStim.nFrames+1
                     ms=ms+1;
@@ -1323,6 +1328,11 @@ while ~Par.ESC
         for li = 1: size(LogCollect,1)
             WriteToLog(LogCollect{li,1},lft-Par.ExpStart,...
                 LogCollect{li,3},LogCollect{li,4},LogCollect{li,5});
+            if strcmp(LogCollect{li,4},'StimPol')
+                Pol_T0=lft;
+            elseif strcmp(LogCollect{li,4},'GndSeed')
+                Seed_T0 = lft;
+            end
         end
         LogCollect={};
     end
@@ -1466,7 +1476,7 @@ while ~Par.ESC
                 end
                 Log.nEvents = Log.nEvents+1;
                 LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
-                                'PreDur','stop'}];
+                    'PreDur','stop'}];
             end
         case 'StimBlock'
             switch WithinBlockStatus
@@ -1499,12 +1509,13 @@ while ~Par.ESC
                         
                         Log.nEvents = Log.nEvents+1;
                         LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
-                                'Intermediate','stop'}];
+                            'Intermediate','stop'}];
                     end
                     
                 case 'Stim'
                     switch StimType
                         case 'Figure'
+                            % end of figure
                             if lft-Log.StartStim >= Stm.stim_TRs*Par.TR
                                 Log.nEvents = Log.nEvents+1;
                                 LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
@@ -1549,7 +1560,7 @@ while ~Par.ESC
                                 elseif Stm.int_TRs == 0 && Stm.InterLeave_FigGnd
                                     WithinBlockStatus = 'Stim';
                                     StimType = 'Ground';
-                                    StimLogDone = false;  
+                                    StimLogDone = false;
                                     
                                     if StimRepNr == Stm.stim_rep
                                         StimRepNr = 1;
@@ -1617,40 +1628,60 @@ while ~Par.ESC
                             StimType = 'Ground';
                             StimLogDone = false;
                         elseif strcmp(LastStim,'Figure') && ~Stm.InterLeave_FigGnd
+                            if StimNr == length(Log.StimOrder)
+                                % all stimuli done
+                                ExpStatus = 'PostDur';
+                                PostDurLogDone = false;
+                            else
+                                if StimRepNr == Stm.stim_rep 
+                                    StimNr = StimNr+1;
+                                    StimRepNr = 1;
+                                    if Stm.FigGnd{Log.StimOrder(StimNr)}(1) > 0
+                                        WithinBlockStatus = 'Stim';
+                                        StimType = 'Figure';
+                                        StimLogDone = false;
+                                    else
+                                        WithinBlockStatus = 'Stim';
+                                        StimType = 'Ground';
+                                        StimLogDone = false;
+                                    end
+                                else
+                                    StimRepNr =  StimRepNr+1; 
+                                    WithinBlockStatus = 'Stim';
+                                    StimType = 'Figure';
+                                    StimLogDone = false;
+                                end
+                            end
+                        elseif strcmp(LastStim,'Ground') && Stm.InterLeave_FigGnd
                             WithinBlockStatus = 'Stim';
                             StimType = 'Figure';
                             StimLogDone = false;
-                            
-                            if StimRepNr == Stm.stim_rep
-                                StimRepNr = 1;
-                                if StimNr == length(Log.StimOrder)
-                                    % all stimuli done
-                                    ExpStatus = 'PostDur';
-                                    PostDurLogDone = false;
-                                else
-                                    StimNr = StimNr+1;
-                                end
+                            StimRepNr =  StimRepNr+1; 
+                        elseif strcmp(LastStim,'Ground') && ~Stm.InterLeave_FigGnd
+                            if StimNr == length(Log.StimOrder)
+                                % all stimuli done
+                                ExpStatus = 'PostDur';
+                                PostDurLogDone = false;
                             else
-                                StimRepNr = StimRepNr+1;
-                            end
-                        elseif strcmp(LastStim,'Ground')
-                            WithinBlockStatus = 'Stim';
-                            StimType = 'Figure';
-                            StimLogDone = false;
-                            
-                            if StimRepNr == Stm.stim_rep
-                                StimRepNr = 1;
-                                if StimNr == length(Log.StimOrder)
-                                    % all stimuli done
-                                    ExpStatus = 'PostDur';
-                                    PostDurLogDone = false;
-                                else
+                                if StimRepNr == Stm.stim_rep 
                                     StimNr = StimNr+1;
+                                    StimRepNr = 1;
+                                    if Stm.FigGnd{Log.StimOrder(StimNr)}(1) > 0
+                                        WithinBlockStatus = 'Stim';
+                                        StimType = 'Figure';
+                                        StimLogDone = false;
+                                    else
+                                        WithinBlockStatus = 'Stim';
+                                        StimType = 'Ground';
+                                        StimLogDone = false;
+                                    end
+                                else
+                                    StimRepNr =  StimRepNr+1; 
+                                    WithinBlockStatus = 'Stim';
+                                    StimType = 'Ground';
+                                    StimLogDone = false;    
                                 end
-                            else
-                                StimRepNr = StimRepNr+1;
                             end
-                            
                         end
                         NumGndMoves=0;
                     end
@@ -2249,12 +2280,12 @@ Par=Par_BU;
                 LogCollect = [LogCollect; {Log.nEvents,[],'Control',...
                     'Autodim','stop'}];
                 Par.ScreenIsDimmed = false;
-            end   
+            end
         end
         if LogAutoDim
             Log.nEvents=Log.nEvents+1;
             LogCollect = [LogCollect; {Log.nEvents,[],'Control',...
-                    'Autodim','start'}];
+                'Autodim','start'}];
             Par.ScreenIsDimmed = true;
         end
     end
@@ -2289,7 +2320,7 @@ Par=Par_BU;
             end
             Log.nEvents=Log.nEvents+1;
             LogCollect = [LogCollect; {Log.nEvents,[],'Control',...
-                    'SwitchPos',Par.PosNr}];
+                'SwitchPos',Par.PosNr}];
             DefineEyeWin;
         end
     end
@@ -2469,7 +2500,7 @@ Par=Par_BU;
                             
                             Log.nEvents=Log.nEvents+1;
                             LogCollect = [LogCollect; {Log.nEvents,[],...
-                                    'Lever','Force','LeftRespOnly'}];
+                                'Lever','Force','LeftRespOnly'}];
                             Par.RespProbSetting=1;
                             Par.ForceRespSide = true;
                         end
@@ -2478,7 +2509,7 @@ Par=Par_BU;
                             fprintf('RIGHT response indicators only\n');
                             LLog.nEvents=Log.nEvents+1;
                             LogCollect = [LogCollect; {Log.nEvents,[],...
-                                    'Lever','Force','RightRespOnly'}];
+                                'Lever','Force','RightRespOnly'}];
                             Par.RespProbSetting=2;
                             Par.ForceRespSide = true;
                         end
@@ -2487,7 +2518,7 @@ Par=Par_BU;
                             fprintf('PROBABLISTIC response indicators\n');
                             Log.nEvents=Log.nEvents+1;
                             LogCollect = [LogCollect; {Log.nEvents,[],...
-                                    'Lever','Force','RandRespInd'}];
+                                'Lever','Force','RandRespInd'}];
                             Par.RespProbSetting=0;
                             Par.ForceRespSide = true;
                         end
@@ -2596,7 +2627,7 @@ Par=Par_BU;
             Log.nEvents=Log.nEvents+1;
             WriteToLog(Log.nEvents,GetSecs-Par.ExpStart,...
                 'Beam','StateChange',mat2str(Par.BeamIsBlocked))
-
+            
             Par.HandIsIn =Par.BeamIsBlocked(Par.ConnectBox.PhotoAmp_HandIn);
             Par.LeverIsUp=Par.BeamIsBlocked(Par.ConnectBox.PhotoAmp_Levers);
             if any(Par.LeverIsUp ~= Par.LeverWasUp) && all(Par.LeverIsUp)
@@ -2635,7 +2666,7 @@ Par=Par_BU;
                             Log.nEvents=Log.nEvents+1;
                             WriteToLog(Log.nEvents,GetSecs-Par.ExpStart,...
                                 'Hand','BothHandsIn','1chan');
-
+                            
                             Par.HandWasIn=Par.HandIsIn;
                         end
                     elseif strcmp(Par.HandInBothOrEither, 'Either') && ...
@@ -2643,7 +2674,7 @@ Par=Par_BU;
                         if ~all(Par.HandWasIn)
                             % only do this if 1 channel is used
                             Log.nEvents=Log.nEvents+1;
-
+                            
                             if Par.HandIsIn(1)
                                 type='LeftHandIn';
                             else
@@ -2722,7 +2753,7 @@ Par=Par_BU;
                 sound(RewY,Par.RewSndPar(1));
             end
             Log.nEvents=Log.nEvents+1;
-            WriteToLog(Log.nEvents, Par.RewardStartTime-Par.Exp,...
+            WriteToLog(Log.nEvents, Par.RewardStartTime-Par.ExpStart,...
                 'Reward','AutoFix','start');
         end
     end
@@ -2735,9 +2766,9 @@ Par=Par_BU;
             Log.TotalReward = Log.TotalReward+Par.RewardTimeCurrent;
             %Par.ResponseSide = 0;
             Log.nEvents=Log.nEvents+1;
-            WriteToLog(Log.nEvents, GetSecs-Par.Exp,...
+            WriteToLog(Log.nEvents, GetSecs-Par.ExpStart,...
                 'Reward','Any','stop');
-
+            
         end
     end
 % give automated reward for task
@@ -2780,7 +2811,7 @@ Par=Par_BU;
                     sound(RewY,Par.RewSndPar(1));
                 end
                 Log.nEvents=Log.nEvents+1;
-                WriteToLog(Log.nEvents, Par.RewardStartTime-Par.Exp,...
+                WriteToLog(Log.nEvents, Par.RewardStartTime-Par.ExpStart,...
                     'Reward','AutoTask','start');
             end
         end
@@ -2810,7 +2841,7 @@ Par=Par_BU;
                 sound(RewY,Par.RewSndPar(1));
             end
             Log.nEvents=Log.nEvents+1;
-            WriteToLog(Log.nEvents, Par.RewardStartTime-Par.Exp,...
+            WriteToLog(Log.nEvents, Par.RewardStartTime-Par.ExpStart,...
                 'Reward','AutoHand','start');
         end
     end
@@ -2833,7 +2864,7 @@ Par=Par_BU;
             sound(RewY,Par.RewSndPar(1));
         end
         Log.nEvents=Log.nEvents+1;
-        WriteToLog(Log.nEvents, Par.RewardStartTime-Par.Exp,...
+        WriteToLog(Log.nEvents, Par.RewardStartTime-Par.ExpStart,...
             'Reward','Manual','start');
     end
 % check eye-tracker recording status
@@ -2867,7 +2898,7 @@ Par=Par_BU;
         else
             type='EyeRecOn';
         end
-        WriteToLog(Log.nEvents, tEyeRecSet-Par.Exp,...
+        WriteToLog(Log.nEvents, tEyeRecSet-Par.ExpStart,...
             'Eye',type,'none');
     end
 % check eye only (dascheck without tracker gui update)
@@ -2909,8 +2940,8 @@ Par=Par_BU;
                 type=strcat('HandTaskState-Unknown-',NewState);
         end
         Log.nEvents=Log.nEvents+1;
-        WriteToLog(Log.nEvents, Par.ResponseStateChangeTime-Par.Exp,...
-                    'Lever','State',type);
+        WriteToLog(Log.nEvents, Par.ResponseStateChangeTime-Par.ExpStart,...
+            'Lever','State',type);
     end
 % Change stimulus polarity
     function [CurrPol, LogCollect] = ChangePolarity(CurrPol,LogCollect)
