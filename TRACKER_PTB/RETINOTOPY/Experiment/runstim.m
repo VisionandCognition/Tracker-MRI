@@ -811,6 +811,7 @@ for STIMNR = Log.StimOrder
             Par.RewHandStart = GetSecs;
             Par.HandInNew_Moment = 0;
             Par.HandInPrev_Moment = 0;
+            Par.PickRandomIndicatorPosition = true;
             
             if StimLoopNr == 1 % allow time-outs to across runs
                 Par.Pause=false;
@@ -1395,6 +1396,12 @@ for STIMNR = Log.StimOrder
                 %Par.ResponseState = Par.RESP_STATE_WAIT;
                 %Par.ResponseStateChangeTime = GetSecs;
                 StartWaitTime = Par.ResponseStateChangeTime;
+                
+                if Par.PickRandomIndicatorPosition;
+                    Par.s_order=randperm(size(Par.RespIndPos,1));
+                    Par.PickRandomIndicatorPosition = false;
+                end
+                
                 if ~Par.IsCatchBlock
                     if Par.ResponseSide == 0 || Par.ForceRespSide
                         if NumberOfConsecutiveErrors >= Par.MaxNumberOfConsecutiveErrors 
@@ -2269,7 +2276,7 @@ Par=Par_BU;
             cen = [Par.ScrCenter(1),Par.ScrCenter(2)];
             if size(Par.RespIndPos,1)>2
                 % pick a target location from the options
-                s_order=randperm(size(Par.RespIndPos,1));p=s_order(1);
+                p=Par.s_order(1);
                 cen1 = [Par.RespIndPos(p,1)*Par.PixPerDeg+Par.ScrCenter(1), ...
                     Par.RespIndPos(p,2)*Par.PixPerDeg+Par.ScrCenter(2)];
                 cen2=cen1;
@@ -3071,6 +3078,7 @@ Par=Par_BU;
             case Par.RESP_STATE_WAIT
                 Log.Events(Log.nEvents).type=...
                     'HandTaskState-Wait';
+                Par.PickRandomIndicatorPosition = true;
             case Par.RESP_STATE_GO
                 Log.Events(Log.nEvents).type=...
                     'HandTaskState-Go';
