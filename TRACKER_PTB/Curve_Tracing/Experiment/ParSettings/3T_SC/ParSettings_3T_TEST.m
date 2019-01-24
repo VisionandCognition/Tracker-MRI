@@ -8,6 +8,10 @@ global StimObj
 eval('ParSettings'); % loads the default parameters
 Stm = StimObj.Stm;
 
+% ONLY FOR THIS 'TEST' PARSETTINGS -----
+Par.IsTestBeforeScanning = true;
+% ONLY FOR THIS 'TEST' PARSETTINGS -----
+
 Par.FixWinSize = [3 3]; % [W H] in deg
 Stm(1).FixWinSizeDeg = Par.FixWinSize(1);
 

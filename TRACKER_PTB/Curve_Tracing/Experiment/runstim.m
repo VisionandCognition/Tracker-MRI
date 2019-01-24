@@ -430,16 +430,19 @@ fprintf('\n##### Start Main tasks loop ##########\n');
 args=struct;
 args.alternateWithRestingBlocks=Stm(1).alternateWithRestingBlocks;
 
-hardStopTime = Log.MRI.TriggerTime(1) + Par.TR * Par.NumVols;
-args.maxTimeSecs = hardStopTime - GetSecs;
+if isfield(Par,'IsTestBeforeScanning') && Par.IsTestBeforeScanning
+    % do nothing
+else
+    hardStopTime = Log.MRI.TriggerTime(1) + Par.TR * Par.NumVols;
+    args.maxTimeSecs = hardStopTime - GetSecs;
 
-% "Soft" stop time
-args.noNewBlocksAfterTime = hardStopTime - 16; % BlockSize * TrialDur
+    % "Soft" stop time
+    args.noNewBlocksAfterTime = hardStopTime - 16; % BlockSize * TrialDur
 
-Log.events.add_entry(GetSecs, NaN, 'MainExperimentLoop', 'BeginLoop');
-CurveTracing_MainLoop(Hnd, Stm(1).tasksToCycle, 1000, args);
-Log.events.add_entry(GetSecs, NaN, 'MainExperimentLoop', 'EndLoop');
-
+    Log.events.add_entry(GetSecs, NaN, 'MainExperimentLoop', 'BeginLoop');
+    CurveTracing_MainLoop(Hnd, Stm(1).tasksToCycle, 1000, args);
+    Log.events.add_entry(GetSecs, NaN, 'MainExperimentLoop', 'EndLoop');
+end
 % = = =                                                               = = =
 % =                           END MAIN LOOP                               =
 % =                                                                       =
