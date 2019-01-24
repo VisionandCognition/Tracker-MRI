@@ -148,6 +148,7 @@ Par.RespIndSize = 0.3;
 Par.RespIndPos = [0 0; 0 0]; % deg
 Par.RespIndLeds = false;
 
+Par.DrawNeutralWaitInd = false;
 Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
 Par.BlockedIndColor = [.7 .7 .7];
 

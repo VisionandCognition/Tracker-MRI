@@ -138,6 +138,8 @@ Gobar_length = 0.12; % .02
 Par.GoBarSize = Gobar_length*[1, .25] + [0, 0.01]; % [length width] in deg
 Par.GoBarColor = [0.6 0.7 0.7]; % [R G B] 0-1
 
+Par.DrawNeutralWaitInd = false;
+
 % Color of the Response indicator
 Par.RespIndColor = [0 .65 0; 1 0 0]; % colors for the left and right target
 Par.RespIndSize = 0.3;
