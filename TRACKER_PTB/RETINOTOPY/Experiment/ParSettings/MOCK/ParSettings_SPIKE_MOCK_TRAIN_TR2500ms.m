@@ -135,7 +135,7 @@ Par.RESP_STATE_GO = 2; % Go signal given
 Par.RESP_STATE_DONE = 4;  % Go signal given and response no longer possible (hit or miss)
 
 % Go-bar (vertical / horizontal target bar) -------------------------------
-Gobar_length = 2; % .02
+Gobar_length = 1.5; % .02
 Par.GoBarSize = Gobar_length*[1, .25] + [0, 0.01]; % [length width] in deg
 Par.GoBarColor = [0.8 0.8 0.8]; % [R G B] 0-1
 
@@ -150,7 +150,7 @@ Par.RespIndSize = 2.5;
 
 % if multiple (>2) positions are defined the position will be chosen
 % randomly from the defined options
-r=4; rr=sqrt((r^2)/2);
+r=3; rr=sqrt((r^2)/2);
 Par.RespIndPos = [...
      0  0;...
     -r  0;...
@@ -162,12 +162,15 @@ Par.RespIndPos = [...
      rr  rr;...
      rr -rr];
 
+%Par.RespIndPos = [0  0]; 
+
 Par.RespLeverGain = [1 1]; % [L R] 
 Par.RespIndLeds = false;
 
-Par.DrawNeutralWaitInd = true;
+Par.DrawNeutralWaitInd = false;
+Par.DrawDuringWait_SOA = 0.300; % s  
 Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
-Par.BlockedIndColor = [.7 .7 .7];
+Par.BlockedIndColor = [.5 .5 .5]; %[.7 .7 .7];
 
 Par.SwitchDur = 10000; % (200) duration of alternative orientation
 Par.ResponseAllowed = [0 Par.SwitchDur+100]; % [after_onset after_offset] in ms
@@ -196,7 +199,7 @@ Par.CatchBlock.StartWithCatch = false;
 % set time-windows in which something can happen (ms)
 % [baseduration_without_switch ... 
 %  period_in_which_switch_randomly_occurs]
-Par.EventPeriods = [500 500]; % Determines Go-bar onset (was 600 to 1600)
+Par.EventPeriods = [600 500]; % Determines Go-bar onset (was 600 to 1600)
 
 %% Connection box port assignment =========================================
 Par.ConnectBox.PhotoAmp = [4 5 7 8];    % channels for photo-amps 

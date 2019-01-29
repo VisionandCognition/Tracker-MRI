@@ -789,7 +789,7 @@ for STIMNR = Log.StimOrder
             if strcmp(Par.SetUp,'NIN') % ephys
                 %dasword(Par.Trlcount(1)); % TDT
                 send_serial_data(Par.Trlcount(1)); % Blackrock
-                WordsSent+1;
+                WordsSent+1; %#ok<*VUNUS>
                 Log.Words(WordsSent)=Par.Trlcount(1);
                 Log.nEvents=Log.nEvents+1;
                 Log.Events(Log.nEvents).type='TrialStart';
@@ -812,7 +812,7 @@ for STIMNR = Log.StimOrder
             Par.HandInNew_Moment = 0;
             Par.HandInPrev_Moment = 0;
             Par.PickRandomIndicatorPosition = true;
-            Par.s_order=[1];
+            Par.s_order=[1]; %#ok<*NBRAK>
             
             if StimLoopNr == 1 % allow time-outs to across runs
                 Par.Pause=false;
@@ -1427,6 +1427,7 @@ for STIMNR = Log.StimOrder
                 Log.Events(Log.nEvents).StimName = num2str(Par.ResponseSide);
                 Par.GoBarOnset = rand(1)*Par.EventPeriods(2)/1000 + ...
                     Par.EventPeriods(1)/1000 + CurrPostErrorDelay/1000;
+                Par.WaitIndicatorOnset = Par.DrawDuringWait_SOA + CurrPostErrorDelay/1000;
                 
                 % Give side indicator (1 or 2) ... again
                 Log.nEvents=Log.nEvents+1;
@@ -2304,20 +2305,28 @@ Par=Par_BU;
                 end
             elseif Par.ResponseState == Par.RESP_STATE_WAIT && Par.ResponseSide == 1
                 if Par.DrawNeutralWaitInd
-                    Screen('FillOval',Par.window, Par.RespIndColor(1,:).*Par.ScrWhite, ...
-                        [cen1,cen1] + Par.RespIndSizePix*blocked_circle)
+                    if GetSecs >= Par.ResponseStateChangeTime + Par.WaitIndicatorOnset
+                        Screen('FillOval',Par.window, Par.BlockedIndColor.*Par.ScrWhite, ...
+                            [cen1,cen1] + Par.RespIndSizePix*blocked_circle)
+                    end
                 else
-                    Screen('FillPoly',Par.window, Par.RespIndColor(1,:).*Par.ScrWhite, ...
-                        [cen1;cen1;cen1;cen1] + Par.RespIndSizePix*left_square)
+                    if GetSecs >= Par.ResponseStateChangeTime + Par.WaitIndicatorOnset
+                        Screen('FillPoly',Par.window, Par.RespIndColor(1,:).*Par.ScrWhite, ...
+                            [cen1;cen1;cen1;cen1] + Par.RespIndSizePix*left_square)
+                    end
                 end
                 if Par.RespIndLeds; dasbit(Par.LED_B(Par.ResponseSide),1); end % LED on
             elseif Par.ResponseState == Par.RESP_STATE_WAIT && Par.ResponseSide == 2
                 if Par.DrawNeutralWaitInd
-                    Screen('FillOval',Par.window, Par.RespIndColor(2,:).*Par.ScrWhite, ...
-                        [cen2,cen2] + Par.RespIndSizePix*blocked_circle)
+                    if GetSecs >= Par.ResponseStateChangeTime + Par.WaitIndicatorOnset
+                        Screen('FillOval',Par.window, Par.BlockedIndColor.*Par.ScrWhite, ...
+                            [cen2,cen2] + Par.RespIndSizePix*blocked_circle)
+                    end
                 else
-                    Screen('FillPoly',Par.window, Par.RespIndColor(2,:).*Par.ScrWhite, ...
-                        [cen2;cen2;cen2;cen2] + Par.RespIndSizePix*right_diamond)
+                    if GetSecs >= Par.ResponseStateChangeTime + Par.WaitIndicatorOnset
+                        Screen('FillPoly',Par.window, Par.RespIndColor(2,:).*Par.ScrWhite, ...
+                            [cen2;cen2;cen2;cen2] + Par.RespIndSizePix*right_diamond)
+                    end
                 end
                 if Par.RespIndLeds; dasbit(Par.LED_B(Par.ResponseSide),1); end % LED on    
             elseif Par.ResponseState == Par.RESP_STATE_GO && ...
@@ -3064,7 +3073,7 @@ Par=Par_BU;
         chkimg(:,:,3)=circap.*Par.ScrWhite;
     end
 % check eye only (dascheck without tracker gui update)
-    function [Hit, Time] = DasCheckEyeOnly
+    function [Hit, Time] = DasCheckEyeOnly %#ok<*DEFNU>
         Hit = LPStat(1);   %Hit yes or no
         Time = LPStat(0);  %time
         POS = dasgetposition();
