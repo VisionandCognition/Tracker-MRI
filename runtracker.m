@@ -7,7 +7,9 @@ fprintf('Starting Tracker. Please have some patience...\n');
 
 %what matlab version
 MatlabVersion=version;
-if str2double([MatlabVersion(1) MatlabVersion(3)]) >= 84 % R2014b or later
+if str2double([MatlabVersion(1) MatlabVersion(3)]) == 94 % R2018
+    Par.ML = 2018;
+elseif str2double([MatlabVersion(1) MatlabVersion(3)]) == 84 % R2014 
     Par.ML = 2014;
 else % before R2014b
     Par.ML = 2013;
