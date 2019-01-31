@@ -20,19 +20,19 @@ function [Hit Time] = DasCheck
         if  ishandle(LObj)
             % Erasemode is no longer supported in Matlab 2014b ------------
             % Use 'animatedline' instead
-            if Par.ML >= 2014 % R2014b or later
-                addpoints(LObj,[PC(1) P(1)],[PC(2) P(2)]);
-            else % before R2014b
-                set(LObj,  'XData', [PC(1) P(1)],  'YData', [PC(2) P(2)])
-            end
+            %if Par.ML >= 2014 % R2014b or later
+            addpoints(LObj,[PC(1) P(1)],[PC(2) P(2)]);
+            %else % before R2014b
+            %    set(LObj,  'XData', [PC(1) P(1)],  'YData', [PC(2) P(2)])
+            %end
         else
             % Erasemode is no longer supported in Matlab 2014b ------------
             % Use 'animatedline' instead
-            if Par.ML >= 2014 % R2014b or later
-                LObj = animatedline( [P(1) P(1)],  [P(2) P(2)], 'MaximumNumPoints',100);
-            else
-                LObj = line( 'XData', [P(1) P(1)],  'YData', [P(2) P(2)], 'EraseMode','none');
-            end        
+            %if Par.ML >= 2014 % R2014b or later
+            LObj = animatedline( [P(1) P(1)],  [P(2) P(2)], 'MaximumNumPoints',100);
+            %else
+            %    LObj = line( 'XData', [P(1) P(1)],  'YData', [P(2) P(2)], 'EraseMode','none');
+            %end        
         end
                
 %         if isempty(Tick) || Tick > Time

@@ -168,7 +168,7 @@ Par.RespLeverGain = [1 1]; % [L R]
 Par.RespIndLeds = false;
 
 Par.DrawNeutralWaitInd = false;
-Par.DrawDuringWait_SOA = 0.300; % s  
+Par.DrawDuringWait_SOA = 0.200; % s  
 Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
 Par.BlockedIndColor = [.5 .5 .5]; %[.7 .7 .7];
 
