@@ -21,7 +21,6 @@ function varargout = tracker_CK(varargin)
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
 % Edit the above text to modify the response to help tracker_CK
-
 % Last Modified by GUIDE v2.5 11-Jan-2016 18:10:00
 
 % Begin initialization code - DO NOT EDIT

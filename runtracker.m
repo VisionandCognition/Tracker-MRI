@@ -37,7 +37,6 @@ if Par.ExpFolder
     cd(Par.ExpFolder);
     % Run tracker
     Par.hTracker=tracker_CK;
-    commandwindow;
 else
     fprintf('You did not choose a valid Experiment folder. Exiting...\n')
 end
