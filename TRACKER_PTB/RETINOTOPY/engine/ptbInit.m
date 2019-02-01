@@ -9,4 +9,4 @@ KbName('UnifyKeyNames');
 
 clc
 fprintf('Started Tracker with PTB-3 extensions\n');
-fprintf('(StimGui functionality won''t be available)\n');
+%fprintf('(StimGui functionality won''t be available)\n');

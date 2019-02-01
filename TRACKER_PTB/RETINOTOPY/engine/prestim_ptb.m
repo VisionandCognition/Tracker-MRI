@@ -22,13 +22,13 @@ for InitializeDasAndPTB=1 %allows code folding
     %% PTB
     warning('off','MATLAB:dispatcher:InexactMatch')
         
-    if ~isfield(Par,'window') % assume that is a window has een opened, it's still there
+    if ~isfield(Par,'window') % assume that if a window has been opened, it's still there
         ptbInit % initialize PTB
         Par.scr=Screen('screens');
         Par.ScrNr=max(Par.scr); % use the screen with the highest #
         PsychImaging('PrepareConfiguration');
         % Check which screen and flip if 3T BOLD
-        if strcmp(Par.ScreenChoice,'3T'); % 3T
+        if strcmp(Par.ScreenChoice,'3T') % 3T
             % flip horizontal
             PsychImaging('AddTask','AllViews','FlipHorizontal');
             fprintf([Par.ScreenChoice ' BOLD display: Flipping the screen\n']);
@@ -41,7 +41,6 @@ for InitializeDasAndPTB=1 %allows code folding
         %[Par.window, Par.wrect] = Screen('OpenWindow',Par.ScrNr,0,[],[],2,[],[],1);
         [Par.window, Par.wrect] = PsychImaging('OpenWindow',Par.ScrNr,0,[],[],2,[],[],1);
     end
-    
     %Set-up blend function
     [sourceFactorOld,destinationFactorOld,colorMaskOld] = ...
         Screen('BlendFunction',Par.window,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);

@@ -218,7 +218,7 @@ Par.RewardFixFeedBack = true;
 % RESP_MISS         = 3;
 % RESP_EARLY        = 4;
 % RESP_BREAK_FIX    = 5;
-Par.FeedbackSound = [false true false true false];
+Par.FeedbackSound = [true true true true false];
 Par.FeedbackSoundPar = [ ...
     44100 800 1 0.03; ... CORRECT
     44100 300 0.5 0.1; ... FALSE
@@ -250,7 +250,7 @@ for i=1:size(Par.FeedbackSoundPar,1)
         Par.FeedbackSoundSnd(i).Wav=...
             Par.FeedbackSoundPar(i,3)*sin(2*pi*Par.FeedbackSoundPar(i,2)*RewT);
         Par.FeedbackSoundSnd(i).Fs=Par.FeedbackSoundPar(i,1);
-        Par.FeedbackSoundSnd(i).h = PsychPortAudio('Open', [], [], 2,...
+        Par.FeedbackSoundSnd(i).h = PsychPortAudio('Open', 1, [], 2,...
             Par.FeedbackSoundSnd(i).Fs, 1);
         PsychPortAudio('FillBuffer', Par.FeedbackSoundSnd(i).h, Par.FeedbackSoundSnd(i).Wav);
         clc;
