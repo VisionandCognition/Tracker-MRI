@@ -6,7 +6,7 @@ global StimObj
 eval('StimSettings__Defaults__'); % loads the default parameters
 
 %% Change block size to 3
-Params.BlockSize = 3;
+Params.BlockSize = 3; % overwrite the default of 1 to use mini-blocks
 
 Stm = StimObj.Stm;
 

@@ -14,6 +14,9 @@ Stm(1).FixWinSizeDeg = Par.FixWinSize(1);
 Par.FixWdDeg = Par.FixWinSize(1);
 Par.FixHtDeg = Par.FixWinSize(2);
 
+Par.StreakReward.Type = 'block'; % can be 'trials' or 'block' 
+% use block for mini-blocks @ scanner
+
 %% Setup ==================================================================
 % Spinoza_Mock / Spinoza_3T / NIN
 if strcmp(Par.ScreenChoice,'3T')
