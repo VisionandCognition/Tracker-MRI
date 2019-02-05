@@ -8,6 +8,8 @@ global StimObj
 eval('ParSettings'); % loads the default parameters
 Stm = StimObj.Stm;
 
+Par.NumVols = 210; % default is 420 (which is about the scanner max)
+
 Par.FixWinSize = [3 3]; % [W H] in deg
 Stm(1).FixWinSizeDeg = Par.FixWinSize(1);
 
