@@ -137,7 +137,7 @@ FixParams.fixationPeriod = 540;  % just for fixation task
 FixParams.postfixPeriod = 0;  % just for fixation task
 
 FixParams.rewardMultiplier = .15; % 0.5;
-FixParams.BlockSize = 3; %round(3* 3500 / FixParams.fixationPeriod * FixParams.subtrialsInTrial);
+FixParams.BlockSize = 1; %round(3* 3500 / FixParams.fixationPeriod * FixParams.subtrialsInTrial);
 
 CtrlParams = Params;
 CtrlParams.NumOfPawIndicators = 5;

@@ -168,7 +168,7 @@ Par.RespLeverGain = [1 1]; % [L R]
 Par.RespIndLeds = false;
 
 Par.DrawNeutralWaitInd = false;
-Par.DrawDuringWait_SOA = 0.200; % s  
+Par.DrawDuringWait_SOA = 0.250; % s  
 Par.DrawBlockedInd = false; % indicator to draw when a lever is still up
 Par.BlockedIndColor = [.5 .5 .5]; %[.7 .7 .7];
 
@@ -218,7 +218,7 @@ Par.RewardFixFeedBack = true;
 % RESP_MISS         = 3;
 % RESP_EARLY        = 4;
 % RESP_BREAK_FIX    = 5;
-Par.FeedbackSound = [true true true true false];
+Par.FeedbackSound = [false true false false false];
 Par.FeedbackSoundPar = [ ...
     44100 800 1 0.03; ... CORRECT
     44100 300 0.5 0.1; ... FALSE

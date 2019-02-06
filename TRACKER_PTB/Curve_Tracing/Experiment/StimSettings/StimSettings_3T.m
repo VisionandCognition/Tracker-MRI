@@ -7,14 +7,14 @@ eval('StimSettings__Defaults__'); % loads the default parameters
 
 %% Change block size to 3
 StimObj.DefaultParams.BlockSize = 3; % overwrite the default of 1 to use mini-blocks
-
+fprintf(['Mini-block size: ' num2str(StimObj.DefaultParams.BlockSize) '\n'])
 Stm = StimObj.Stm;
 
 curvetracing = CurveTracingJoystickTask(StimObj.DefaultParams, 'StimSettings/CurveTracingJoyStickTask.csv');
 
 %  curvecatch = CurveTracingCatchBlockTask(StimObj.DefaultParams, 'StimSettings/CurveTracingJoyStickTask.csv');
 busy = CurveTracingJoystickTask(StimObj.DefaultParams, 'StimSettings/CurveTracingJoyStickTask.csv', 'Keep Busy', 'GroupConnections', false);
-%busy = CurveTracingJoystickTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv', 'Keep Busy', 'GroupConnections', false);
+% busy = CurveTracingJoystickTask(Params, 'StimSettings/CurveTracingJoyStickTask.csv', 'Keep Busy', 'GroupConnections', false);
 % busy = CurveTracingJoystickTask(StimObj.DefaultCtrlParams, 'StimSettings/CurveTracingJoyStickTask-Control.csv', 'Control CT', 'TargetLoc');
 fixation = FixationTask(StimObj.DefaultFixParams);
 

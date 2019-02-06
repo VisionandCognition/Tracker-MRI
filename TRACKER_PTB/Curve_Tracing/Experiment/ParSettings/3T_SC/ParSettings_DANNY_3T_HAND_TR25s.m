@@ -8,6 +8,8 @@ global StimObj
 eval('ParSettings'); % loads the default parameters
 Stm = StimObj.Stm;
 
+% shorter runs for Danny (210) to be more efficient
+% Danny can't do long runs, Eddy doesn't like breaks ...
 Par.NumVols = 210; % default is 420 (which is about the scanner max)
 
 Par.FixWinSize = [3 3]; % [W H] in deg
