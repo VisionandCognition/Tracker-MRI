@@ -135,7 +135,7 @@ Par.RESP_STATE_GO = 2; % Go signal given
 Par.RESP_STATE_DONE = 4;  % Go signal given and response no longer possible (hit or miss)
 
 % Go-bar (vertical / horizontal target bar) -------------------------------
-Gobar_length = 1.5; % .02
+Gobar_length = 1.0; % .02
 Par.GoBarSize = Gobar_length*[1, .25] + [0, 0.01]; % [length width] in deg
 Par.GoBarColor = [0.8 0.8 0.8]; % [R G B] 0-1
 
@@ -162,7 +162,7 @@ Par.RespIndPos = [...
      rr  rr;...
      rr -rr];
 
-%Par.RespIndPos = [0  0]; 
+Par.RespIndPos = [0  0]; 
 
 Par.RespLeverGain = [1 1]; % [L R] 
 Par.RespIndLeds = false;

@@ -12,6 +12,7 @@ elseif strcmp(Par.ScreenChoice,'Mock')
     Par.SetUp = 'Spinoza_MOCK';
 end
 
+Par.IsTestBeforeScanning = false; % overwrite in test-parsettings
 %% Triggering =============================================================
 % Par.TR * Par.NumVols Determines length of MRI scan
 % (first MRI trigger to last scanned volume)

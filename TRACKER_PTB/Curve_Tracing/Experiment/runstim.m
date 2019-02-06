@@ -485,6 +485,7 @@ if Par.EyeRecAutoTrigger && ~EyeRecMsgShown
     end
     if Par.EyeRecStatus % recording
         while Par.EyeRecStatus
+            fprintf('Trying to stop eye recording...\n')
             SetEyeRecStatus(0);
             pause(1)
             CheckEyeRecStatus
@@ -677,6 +678,7 @@ copyfile( ...
 %if Par.TestRunstimWithoutDAS
 %    Screen('closeall');
 %end
+Par.IsTestBeforeScanning = false;
 fprintf('\nDone.\n');
 fprintf(['Suggested eye filename: ' suggestedTdaFilename '\n']);
 
@@ -721,7 +723,7 @@ Par.lft=Screen('Flip', Par.window);
         daspause(5);
         ChanLevels=dasgetlevel;
         Par.CheckRecLevel=ChanLevels(Par.ConnectBox.EyeRecStat-2);
-        %Par.CheckRecLevel
+        % fprintf(['Eye rec level is ' num2str(Par.CheckRecLevel) '\n']);
         % dasgetlevel starts reporting at channel 3, so subtract 2 from the channel you want (1 based)
         if strcmp(computer,'PCWIN64') && Par.CheckRecLevel < 48000 % 64bit das card
             Par.EyeRecStatus = 1;
