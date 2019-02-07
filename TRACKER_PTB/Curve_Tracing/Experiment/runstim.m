@@ -432,6 +432,7 @@ args.alternateWithRestingBlocks=Stm(1).alternateWithRestingBlocks;
 
 if isfield(Par,'IsTestBeforeScanning') && Par.IsTestBeforeScanning
     % do nothing
+    fprintf('Not doing this because it is just a stimulus test\n')
 else
     hardStopTime = Log.MRI.TriggerTime(1) + Par.TR * Par.NumVols;
     args.maxTimeSecs = hardStopTime - GetSecs;
@@ -532,7 +533,7 @@ else
     FileName=['Log_NODAS_' Par.SetUp '_' Par.MONKEY '_' Par.STIMSETFILE '_' ...
         DateString];
 end
-warning off; %#ok<WNOFF>
+warning off;
 
 logPath = getenv('TRACKER_LOGS');
 %[~, currDir, ~] = fileparts(pwd);
@@ -553,7 +554,7 @@ Par.hTracker = temp_hTracker;
 Log.events.write_csv([filePath '_eventlog.csv']);
 
 % also save a json file ==========
-if do_json;
+if do_json
     Par.jf.Project      = 'CurveTracing';
     Par.jf.Method       = 'MRI';
     Par.jf.Protocol     = '17.29.02';
@@ -579,8 +580,8 @@ if do_json;
         json_answer = inputdlg(...
             {'Project','Method','Protocol',...
             'Dataset','Subject','Researcher',...
-            'Setup','Group','Run','Quality (0-10)'},...
-            'Comment','JSON SPECS',1,json_defanswer,'on');
+            'Setup','Group','Run','Quality (0-10)',...
+            'Comment'},'JSON SPECS',1,json_defanswer,'on');
         if isempty(json_answer);json_answer=json_defanswer;end
         Par.jf.Project      = json_answer{1};
         Par.jf.Method       = json_answer{2};
@@ -648,7 +649,7 @@ end
 fclose(fout);
 
 %if Par.TestRunstimWithoutDAS; cd Experiment;end
-warning on; %#ok<WNON>
+warning on; 
 
 % save a copy of the current runstim
 thisfile = mfilename('fullpath');

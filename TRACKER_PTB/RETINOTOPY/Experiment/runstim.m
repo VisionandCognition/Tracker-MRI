@@ -1963,6 +1963,7 @@ for STIMNR = Log.StimOrder
             Par.jf.fixperc      = Log.FixPerc;
             Par.jf.RunNumber	= 'XXX';
             Par.jf.QualityAsses = '10';
+            Par.jf.Comment      = '';
             % give the possibility to change
             % only when at scanner
             if strcmp(Par.SetUp, 'Spinoza_3T') || strcmp(Par.SetUp, 'NIN')
@@ -1973,8 +1974,8 @@ for STIMNR = Log.StimOrder
                 json_answer = inputdlg(...
                     {'Project','Method','Protocol',...
                     'Dataset','Subject','Researcher',...
-                    'Setup','Group','Run','Quality (0-10)'},...
-                    'JSON SPECS',1,json_defanswer,'on');
+                    'Setup','Group','Run','Quality (0-10)',...
+                    'Comment'},'JSON SPECS',1,json_defanswer,'on');
                if isempty(json_answer);json_answer=json_defanswer;end
                Par.jf.Project      = json_answer{1};
                Par.jf.Method       = json_answer{2};
@@ -1986,6 +1987,7 @@ for STIMNR = Log.StimOrder
                Par.jf.Group        = json_answer{8};
                Par.jf.RunNumber    = json_answer{9};
                Par.jf.QualityAsses = json_answer{10};
+               Par.jf.Comment      = json_answer{11};
             end
             json.project.title      = Par.jf.Project;
             json.project.method     = Par.jf.Method;
@@ -2002,6 +2004,7 @@ for STIMNR = Log.StimOrder
             json.session.fixperc    = Par.jf.fixperc;
             json.session.run        = Par.jf.RunNumber;
             json.session.quality    = Par.jf.QualityAsses;
+            json.session.comment    = Par.jf.Comment;
             
             % retrospectively create jsons for all runs
             for jj = 1:StimLoopNr % save json files for all runs

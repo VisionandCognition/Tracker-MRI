@@ -1894,18 +1894,19 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
         Par.jf.fixperc      = Log.FixPerc;
         Par.jf.RunNumber	= 'XXX';
         Par.jf.QualityAsses = '10';
+        Par.jf.Comment      = '';
         % give the possibility to change
         % only when at scanner
         if strcmp(Par.SetUp, 'Spinoza_3T') || strcmp(Par.SetUp, 'NIN')
-            json_answer = inputdlg(...
-                {'Project','Method','Protocol',...
-                'Dataset','Subject','Researcher',...
-                'Setup','Group','Run','Quality (0-10)'},...
-                'JSON SPECS',1,...
-                {Par.jf.Project,Par.jf.Method,Par.jf.Protocol,...
+            json_defanswer = {Par.jf.Project,Par.jf.Method,Par.jf.Protocol,...
                 Par.jf.Dataset,Par.jf.Subject,Par.jf.Researcher,...
                 Par.jf.Setup,Par.jf.Group,Par.jf.RunNumber,...
-                Par.jf.QualityAsses},'on');
+                Par.jf.QualityAsses,Par.jf.Comment};
+            json_answer = inputdlg(...
+            {'Project','Method','Protocol',...
+            'Dataset','Subject','Researcher',...
+            'Setup','Group','Run','Quality (0-10)',...
+            'Comment'},'JSON SPECS',1,json_defanswer,'on');
             Par.jf.Project      = json_answer{1};
             Par.jf.Method       = json_answer{2};
             Par.jf.Protocol     = json_answer{3};
@@ -1916,6 +1917,7 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
             Par.jf.Group        = json_answer{8};
             Par.jf.RunNumber    = json_answer{9};
             Par.jf.QualityAsses = json_answer{10};
+            Par.jf.Comment      = json_answer{11};
         end
         json.project.title      = Par.jf.Project;
         json.project.method     = Par.jf.Method;
@@ -1932,7 +1934,13 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
         json.session.fixperc    = Par.jf.fixperc;
         json.session.run        = Par.jf.RunNumber;
         json.session.quality    = Par.jf.QualityAsses;
-        
+        json.session.comment    = Par.jf.Comment;
+        if isempty(json.session.stimulus)
+            json.session.stimulus='undefined';
+        end
+        json.session.logfile    = Par.jf.logfile_name;
+        json.session.logfolder  = Par.jf.LogFolder;
+        savejson('', json, fullfile(logPath,['Log_' DateString '_session.json']));
         json_done=true;
     end
     
