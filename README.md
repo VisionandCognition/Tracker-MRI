@@ -1,4 +1,4 @@
-# VCscripts-MRI
+# Tracker-MRI
 Vision and Cognition matlab software for MRI
 
 Psychophysical experimentation and training, with eye control using a Measurement and Computing IO card.
