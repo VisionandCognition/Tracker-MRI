@@ -8,8 +8,11 @@ eval('StimSettings__Defaults__'); % loads the default parameters
 %% Change block size to 3
 StimObj.DefaultParams.BlockSize = 3; % overwrite the default of 1 to use mini-blocks
 StimObj.DefaultCtrlParams.BlockSize = StimObj.DefaultParams.BlockSize; % also miniblocks for central task
+StimObj.DefaultCtrlParams.PawIndSizeDeg(5) = 0.5;
 
-fprintf(['Mini-block size: ' num2str(StimObj.DefaultParams.BlockSize) '\n'])
+fprintf(['Mini-block size: ' num2str(StimObj.DefaultParams.BlockSize) '\n'] )
+
+
 Stm = StimObj.Stm;
 
 curvetracing = CurveTracingJoystickTask(StimObj.DefaultParams, 'StimSettings/CurveTracingJoyStickTask.csv');
@@ -29,8 +32,8 @@ Stm(1).RestingTask = fixation;
 
 % tasksToCycle contain the tasks presented during scan
 Stm(1).tasksToCycle = [...
-    repmat({curvetracing}, 1, 4) ... curve tracing
-     repmat({curvecontrol}, 1, 1) ... central task
+	 repmat({curvetracing}, 1, 4) ... curve tracing
+     repmat({curvecontrol}, 1, 1) ... central taskt
      %repmat({fixation}, 1, 1*2) ... fixation
     ... {curvecatch} ... catch trial
     ];
