@@ -13,23 +13,24 @@ elseif strcmp(Par.ScreenChoice,'Mock')
 end
 
 %% Triggering =============================================================
-Par.TR = 3; % Not important during training
-Par.MRITriggeredStart = true;
+Par.TR = 2.5; % Not important during training
+Par.MRITriggeredStart = false;
 Par.MRITrigger_OnlyOnce = true; 
 
 %% Get stimulus info ======================================================
 eval(Par.STIMSETFILE); % loads the chosen stimfile
 Stm=StimObj.Stm;
 
-StimObj.Stm.FixDotCol = [.3 .3 .3 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
+%StimObj.Stm.FixDotCol = [Stm.BackColor;Stm.BackColor];
+%[.1 .1 .1 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
-Par.FixWinSize = [1.4 1.4]; % [W H] in deg 
+Par.FixWinSize = [1.5 1.5]; % [W H] in deg 
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
-Par.SCx = 0.1; %initial scale in control window
-Par.SCy = 0.09;
+Par.SCx = 0.11; %initial scale in control window
+Par.SCy = 0.11;
 Par.OFFx = 0; %initial eye offset x => (center) of camera das output
 Par.OFFy = 0; %initial eye offset y
 Par.ScaleOff = [Par.OFFx; Par.OFFy; Par.SCx; Par.SCy]; 
@@ -100,12 +101,12 @@ else
 end
 Par.fliptimeSec = Par.fliptime/1000;
 
-Par.nFlipsRefresh=round(Stm(1).FlipTimePredef/Par.fliptimeSec);
-if Par.nFlipsRefresh==0 || ~Stm(1).UsePreDefFlipTime
+Par.nFlipsRefresh=round(Stm.FlipTimePredef/Par.fliptimeSec);
+if Par.nFlipsRefresh==0 || ~Stm.UsePreDefFlipTime
     Par.nFlipsRefresh=1;
 end
 
-Par.BG = Stm(1).BackColor; % get from stimulus file
+Par.BG = Stm.BackColor; % get from stimulus file
 
 Par.ScrWhite=WhiteIndex(Par.window);
 Par.ScrBlack=BlackIndex(Par.window);
@@ -125,15 +126,16 @@ Par.CorrectB = 7;
 Par.ResponseBox.Type='Beam'; % 'Beam' or'Lift'
 
 %% connection box port assignment =========================================
-Par.ConnectBox.PhotoAmp = [4 5]; % 2 photo-amps can be connected
-Par.ConnectBox.PhotoAmp_used = 1; % vector with indeces to used channels
-Par.ConnectBox.EyeRecStat = 6;
+Par.ConnectBox.PhotoAmp = [4 5 7 8];    % channels for photo-amps 
+Par.ConnectBox.EyeRecStat = 6;          % channel for eye-tracker signal
+Par.ConnectBox.PhotoAmp_Levers = 1:2;   % indeces to PhotoAmp channels
+Par.ConnectBox.PhotoAmp_HandIn = 3:4;   % indeces to PhotoAmp channels
 
 %% Reward scheme ==========================================================
 Par.Reward = true; %boolean to enable reward stim bit or not
 
 Par.RewardSound = false; % give sound feedback about reward
-Par.RewSndPar = [44100 800 1]; % [FS(Hz) TonePitch(Hz) Amplitude]
+Par.RewSndPar = [44100 800 0.05]; % [FS(Hz) TonePitch(Hz) Amplitude]
 Par.RewardFixFeedBack = true;
 
 % Require hands in the box (reduces movement?)
@@ -280,3 +282,6 @@ end
 %% Tracker window control =================================================
 Par.ZOOM = 0.6;   %control - cogent window zoom
 Par.P1 = 1; Par.P2 = 1;
+
+%% Logging ================================================================
+Par.LogFolder = Stm.LogFolder; 

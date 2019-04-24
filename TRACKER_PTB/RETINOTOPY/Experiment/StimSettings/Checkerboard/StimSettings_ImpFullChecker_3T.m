@@ -55,8 +55,8 @@ Stm(1).RetMap.PostDur_TRs = 5; % TR's scan a few more volumes for HRF to catch u
 Stm(1).RetMap.StimType{1} = 'checkerboard'; % face / walker / checkerboard / none
 Stm(1).RetMap.Checker.Size = 15; % radius deg (limited of course by screen size)
 Stm(1).RetMap.Checker.Sector = [-180 180]; % part of the circle that is drawn
-Stm(1).RetMap.Checker.OnOff_TRs = [1 8]; % TR's on , TR's off
-Stm(1).RetMap.nCycles = 1; %20; % 0=unlimited
+Stm(1).RetMap.Checker.OnOff_TRs = [1 7.8]; % TR's on , TR's off << uneven off-time to sample HRF better
+Stm(1).RetMap.nCycles = 20; %20; % 0=unlimited
 Stm(1).RetMap.Checker.chsz = [6 22.5]; 
 Stm(1).RetMap.Checker.FlickFreq_Approx = 8; % Hz 
 % size of checks in log factors & degrees respectively = [eccentricity, angle]
