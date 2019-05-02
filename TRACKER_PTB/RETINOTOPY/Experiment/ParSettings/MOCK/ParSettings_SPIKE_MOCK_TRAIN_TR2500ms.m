@@ -22,8 +22,7 @@ eval(Par.STIMSETFILE); % loads the chosen stimfile
 Stm=StimObj.Stm;
 
 % overwrites the stimsetting!
-StimObj.Stm.FixDotCol = [Stm(1).BackColor;Stm(1).BackColor];
-%[.1 .1 .1 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
+StimObj.Stm.FixDotCol = [Stm(1).BackColor;Stm(1).BackColor];%[.1 .1 .1 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
 Par.FixWinSize = [4 4]; % [W H] in deg

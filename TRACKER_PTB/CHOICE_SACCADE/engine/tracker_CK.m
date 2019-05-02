@@ -21,7 +21,6 @@ function varargout = tracker_CK(varargin)
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
 % Edit the above text to modify the response to help tracker_CK
-
 % Last Modified by GUIDE v2.5 11-Jan-2016 18:10:00
 
 % Begin initialization code - DO NOT EDIT
@@ -144,12 +143,12 @@ set(handles.ScrWid, 'String', num2str(Par.ScreenWidthD2 * 2));
 set(handles.PixDeg, 'String', num2str(Par.PixPerDeg, 4));
 
 % some hand control and fix parameters
-set(handles.RewHIB,'Value',Par.RewNeedsHandInBox);
-set(handles.StimHIB,'Value',Par.StimNeedsHandInBox);
-set(handles.FixHIB,'Value',Par.FixNeedsHandInBox);
-set(handles.SecFixCol,'Value',Par.RewardFixFeedBack);
-set(handles.AutoDim,'Value',Par.HandOutDimsScreen);
-set(handles.AutoDimPerc,'Value',Par.HandOutDimsScreen_perc);
+% set(handles.RewHIB,'Value',Par.RewNeeds.HandIsIn);
+% set(handles.StimHIB,'Value',Par.StimNeeds.HandIsIn);
+% set(handles.FixHIB,'Value',Par.FixNeeds.HandIsIn);
+% set(handles.SecFixCol,'Value',Par.RewardFixFeedBack);
+% set(handles.AutoDim,'Value',Par.HandOutDimsScreen);
+% set(handles.AutoDimPerc,'Value',Par.HandOutDimsScreen_perc);
 
 
 handles.RUNFUNC = @runstim;
@@ -415,9 +414,9 @@ if exist(Pf)
     set(handles.PixDeg, 'String', num2str(Par.PixPerDeg, 4));
     
     % some hand control and fix parameters
-    set(handles.RewHIB,'Value',Par.RewNeedsHandInBox);
-    set(handles.StimHIB,'Value',Par.StimNeedsHandInBox);
-    set(handles.FixHIB,'Value',Par.FixNeedsHandInBox);
+    set(handles.RewHIB,'Value',Par.RewNeeds.HandIsIn);
+    set(handles.StimHIB,'Value',Par.StimNeeds.HandIsIn);
+    set(handles.FixHIB,'Value',Par.FixNeeds.HandIsIn);
     set(handles.SecFixCol,'Value',Par.RewardFixFeedBack);
     set(handles.AutoDim,'Value',Par.HandOutDimsScreen);
     set(handles.AutoDimPerc,'Value',Par.HandOutDimsScreen_perc);

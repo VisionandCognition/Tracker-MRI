@@ -11,12 +11,12 @@ Stm.FlipTimePredef = 1/75;
 
 % Background --------------------------------------------------------------
 %Stm.BackColor = [.5 .5 .5]; % [R G B] 0-1
-Stm.BackColor = (88/255).*[1 1 1]; % [R G B] 0-1
+Stm.BackColor = [.667 .667 .667]; % [R G B] 0-1, from Retinotopy
 % Leuven retinotopy clips have a background of 88 out of 256
 
 % Fixation ----------------------------------------------------------------
 Stm.FixDotSize = 0.15;
-Stm.FixDotSurrSize = 0.75;
+Stm.FixDotSurrSize = 0.4;
 Stm.FixDotCol = [1 0 0;1 0 0]; %[RGB if not fixating; RGB fixating]
 
 % Fixation position can be toggled with 1-5 keys --------------------------
@@ -50,8 +50,8 @@ Stm.RefreshSeed = 0; % s set to 0 for no refresh
 Stm.InvertPolarity = false;
 Stm.RefreshPol = 0.500;
 
-Stm.SaveToFile = false;
-Stm.LoadFromFile = true;
+Stm.SaveToFile = true;
+Stm.LoadFromFile = false; %% Overwrites settings
 Stm.FileName = 'FigGnd_Triangles_lines.mat';
 %Stm.FileName = 'FigGnd_Triangles_dots.mat';
 
@@ -84,8 +84,8 @@ Stm.Gnd(2).orient = -45;
 % inherits texture feats from gnd
 Stm.Fig_all.orientations = [-Stm.Gnd(1).orient -Stm.Gnd(2).orient];
 %
-Stm.Fig(1).size = [5 5]; % DVA in case of triangle only take (1)
-Stm.Fig(1).position = [-5 0]; % DVA
+Stm.Fig(1).size = [3 3]; % DVA in case of triangle only take (1)
+Stm.Fig(1).position = [-4 0]; % DVA
 Stm.Fig(1).ori_ind = 1;
 Stm.Fig(1).orient = ...
     Stm.Fig_all.orientations(Stm.Fig(1).ori_ind);
@@ -93,7 +93,7 @@ Stm.Fig(1).shape = 'Triangle_up';
 % 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down'
 % -
 Stm.Fig(2) = Stm.Fig(1); 
-Stm.Fig(2).position = [5 0]; % DVA
+Stm.Fig(2).position = [4 0]; % DVA
 % -
 Stm.Fig(3) = Stm.Fig(1);
 Stm.Fig(3).ori_ind = 2;
@@ -101,7 +101,7 @@ Stm.Fig(3).orient = ...
     Stm.Fig_all.orientations(Stm.Fig(3).ori_ind);
 % -
 Stm.Fig(4) = Stm.Fig(3);
-Stm.Fig(4).position = [5 0]; % DVA
+Stm.Fig(4).position = [4 0]; % DVA
 % -
 Stm.Fig(5) = Stm.Fig(1);
 Stm.Fig(5).shape = 'Triangle_down';
@@ -143,8 +143,8 @@ Stm.InterLeave_FigGnd = false;
 % if false, only do figures
 
 % Timing --
-Stm.stim_rep = 10; % BLOCK: n stim + n backgrounds
-Stm.stim_TRs = 0.4; % stim duration in TRs
+Stm.stim_rep = 15; % BLOCK: n stim + n backgrounds
+Stm.stim_TRs = 0.2; % stim duration in TRs
 Stm.int_TRs =  0.2; % interval duration in TRs 
 Stm.firstint_TRs =  1; % interval duration in TRs 
 
@@ -155,8 +155,8 @@ Stm.RandomizeStimMode = 2;
 %    useful to create random block design
 %    every 2nd configuration should be ground only
 
-Stm.PreDur_TRs = 1; % volumes
-Stm.PostDur_TRs = 1; % volumes
+Stm.PreDur_TRs = 5; % volumes
+Stm.PostDur_TRs = 5; % volumes
 Stm.nRepeatsStimSet = 2; % 0=unlimited
 
 %% ========================================================================

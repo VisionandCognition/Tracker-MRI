@@ -185,7 +185,7 @@ end
 %% Load stimuli before entering the display loop to be faster later =======
 % Load stimuli
 if Stm.LoadFromFile
-    fprintf(['\nLoading figure-ground stimulus: ' Stm.FileName '...\n']);
+    fprintf(['\nLoading figure-ground stimulus: ' Stm.FileName '\n']);
     cd Stimuli; cd FigGnd
     FullStimFilePath = which(Stm.FileName);
     D=load(Stm.FileName);
@@ -193,13 +193,13 @@ if Stm.LoadFromFile
     offscr=D.offscr;
     cd ..; cd ..;
 else
-    fprintf('Creating figure-ground stimulus...\n');
+    fprintf('Creating figure-ground stimulus\n');
     [stimulus, offscr] = ck_figgnd(Stm, Par.ScrNr);
 end
 
 % Save stimuli
 if Stm.SaveToFile
-    fprintf(['Saving figure-ground stimulus: ' Stm.FileName '...\n']);
+    fprintf(['Saving figure-ground stimulus: ' Stm.FileName '\n']);
     warning off; cd Stimuli; mkdir FigGnd; cd FigGnd; warning on;
     save(Stm.FileName,'stimulus','offscr','Stm','-v7.3');
     FullStimFilePath = which(Stm.FileName);
@@ -424,7 +424,7 @@ Par.CurrEyeZoom = [];
 EyeRecMsgShown=false;
 set_Pol_T0 = false;
 set_Seed_T0 = false;
-
+ExpFinished = false;
 %% Eye-tracker recording --------------------------------------------------
 if Par.EyeRecAutoTrigger
     if ~FirstEyeRecSet
@@ -474,7 +474,7 @@ if Par.MRITriggeredStart
     WriteToLog(Log.nEvents,time_s,task,event,info);
     
     while ~Log.MRI.TriggerReceived
-        CheckKeys;
+       CheckKeys(LogCollect);
         %Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
         %lft=Screen('Flip', Par.window);
     end
@@ -496,7 +496,7 @@ srcrect = round([Par.wrect(1)+offscr.center(1)/2 ...
     Par.wrect(4)+offscr.center(2)/2]);
 
 %% Stimulus loop ==========================================================
-while ~Par.ESC
+while ~Par.ESC ~ExpFinished
     %% First INIT ---------------------------------------------------------
     while ~Par.FirstInitDone
         %set control window positions and dimensions
@@ -780,6 +780,9 @@ while ~Par.ESC
                 PostDurLogDone=true;
                 ms = 1;
             end
+        case 'Finish'
+            fprintf('>> Experiment Finished <<\n')
+            ExpFinished=true;
     end
     
     %% Draw Stimulus ------------------------------------------------------
@@ -1713,6 +1716,14 @@ while ~Par.ESC
                 [CurrPol,LogCollect] = ChangePolarity(CurrPol,LogCollect);
                 set_Pol_T0=true;
             end
+            
+            % check for end of period ---
+            if lft-Log.StartPostDur >= Stm.PostDur_TRs*Par.TR
+                ExpStatus = 'Finish';
+                Log.nEvents = Log.nEvents+1;
+                LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
+                    'PostDur','stop'}];
+            end
     end
     
     %% Do this routine for all remaining flip time ------------------------
@@ -1940,7 +1951,7 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
         end
         json.session.logfile    = Par.jf.logfile_name;
         json.session.logfolder  = Par.jf.LogFolder;
-        savejson('', json, fullfile(logPath,['Log_' DateString '_session.json']));
+        savejson('', json, fullfile(LogPath,['Log_' DateString '_session.json']));
         json_done=true;
     end
     
@@ -2177,7 +2188,6 @@ Par=Par_BU;
         
         Screen('FillOval',Par.window,Par.BG.*Par.ScrWhite,rect2);
         Screen('FillOval',Par.window,Par.CurrFixCol,rect);
-        
         cen = [Stm.Center(Par.PosNr,1)+Par.ScrCenter(1), ...
             Stm.Center(Par.PosNr,2)+Par.ScrCenter(2)];
     end
