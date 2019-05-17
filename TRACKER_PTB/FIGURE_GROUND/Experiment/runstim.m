@@ -297,7 +297,7 @@ if Stm.nRepeatsStimSet == 0
 else
     NumVolNeeded = Stm.nRepeatsStimSet*...
         (length(Stm.FigGnd)*(Stm.stim_rep*...
-        (Stm.stim_TRs+Stm.int_TRs)+Stm.int_TRs))+...
+        (Stm.stim_TRs+Stm.int_TRs)+Stm.firstint_TRs))+...
         Stm.PreDur_TRs+Stm.PostDur_TRs;
     TotTime = NumVolNeeded*Par.TR;
     
@@ -425,6 +425,7 @@ EyeRecMsgShown=false;
 set_Pol_T0 = false;
 set_Seed_T0 = false;
 ExpFinished = false;
+
 %% Eye-tracker recording --------------------------------------------------
 if Par.EyeRecAutoTrigger
     if ~FirstEyeRecSet
@@ -496,7 +497,7 @@ srcrect = round([Par.wrect(1)+offscr.center(1)/2 ...
     Par.wrect(4)+offscr.center(2)/2]);
 
 %% Stimulus loop ==========================================================
-while ~Par.ESC ~ExpFinished
+while ~Par.ESC && ~ExpFinished
     %% First INIT ---------------------------------------------------------
     while ~Par.FirstInitDone
         %set control window positions and dimensions
@@ -1871,7 +1872,7 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
     
     % save the events to a csv file
     EventCell = cell(length(Log.Events)+1,4);
-    VarNames={'log_t','task','event','info'};
+    VarNames={'time_s','task','event','info'};
     for ev = 1:length(Log.Events)
         EventCell(ev,:)={...
             Log.Events(ev).time_s,...

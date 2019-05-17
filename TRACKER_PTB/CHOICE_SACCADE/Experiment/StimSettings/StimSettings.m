@@ -6,29 +6,29 @@ Stm(1).UsePreDefFlipTime=false; %else as fast as possible
 Stm(1).FlipTimePredef = 1/75;
 
 %% Background -------------------------------------------------------------
-Stm.BackColor = [.25 .25 .25]; % [R G B] 0-1
+Stm.BackColor =  [.667 .667 .667]; % [R G B] 0-1
 
 %% Timing -----------------------------------------------------------------
 % pre-defined in ParSettings at init: will be overwritten with these values
 Stm.PreFixT = 5000; % time to enter fixation window
-Stm.FixT = 350; % time to fix before stim onset
-Stm.KeepFixT = 200; % time to fix before target onset. before 26-9-2014 this was 150
-Stm.ReacT = 3000; % max allowed reaction time (leave fixwin after target onset)
+Stm.FixT = 250; % time to fix before stim onset
+Stm.KeepFixT = 330; % time to fix before target onset. before 26-9-2014 this was 150
+Stm.ReacT = 2000; % max allowed reaction time (leave fixwin after target onset)
 Stm.StimT = Stm.KeepFixT + Stm.ReacT; % stimulus display duration
 Stm.SaccT = 500; % max allowed saccade time (from leave fixwin to enter target win)
 Stm.ErrT = 500; % punishment extra ISI after error trial (there are no error trials here)
-Stm.ISI = 300; % base inter-stimulus interval
-Stm.ISI_RAND = 200; % maximum extra (random) ISI to break any possible rythm
+Stm.ISI = 100; % base inter-stimulus interval
+Stm.ISI_RAND = 300; % maximum extra (random) ISI to break any possible rythm
 
 %% Fixation ---------------------------------------------------------------
 %NB! may be overruled in the parsettings file
 %Stm.FixWinSize = [10 10]; % [W H] in deg 
 %NB! may be overruled in the parsettings file
 
-Stm.FixDotSize = 0.15;
-Stm.FixDotCol = [.1 .1 .1 ; .1 .1 .1]; %[Hold ; Respond]
+Stm.FixDotSize = 0.2;
+Stm.FixDotCol = [.3 .3 .3 ; .1 .1 .1]; %[Hold ; Respond]
 Stm.FixRemoveOnGo = true;
-Stm.FixWinSize = [1.25 1.25];
+Stm.FixWinSize = [2 2];
 
 % Fixation position can be toggled with 1-5 keys --------------------------
 Stm.Position{1} = [0 0]; % deg from center [vert hor] (-=left/down)
@@ -58,7 +58,7 @@ if TarCreateAlgorithm == 1
     Stm.Cond(c).Targ(1).Size = 3; % diameter in deg
     Stm.Cond(c).Targ(1).WinSize = 4; % deg
     Stm.Cond(c).Targ(1).Position = [-5 0]; % deg
-    Stm.Cond(c).Targ(1).PreTargCol = [0.27 0.27 0.27];
+    Stm.Cond(c).Targ(1).PreTargCol = [0.2 0.2 0.2];
     Stm.Cond(c).Targ(1).Color = [1 0 0]; % RGB 0-1
     Stm.Cond(c).Targ(1).Reward = 0.04;
     
@@ -103,7 +103,7 @@ elseif TarCreateAlgorithm == 2
         Stm.Cond(c).Targ(1).Size = 2; % diameter in deg
         Stm.Cond(c).Targ(1).WinSize = 3; % deg
         Stm.Cond(c).Targ(1).Position = Stm.TarPos(c,:); % deg
-        Stm.Cond(c).Targ(1).PreTargCol = [0.45 0.45 0.45];
+        Stm.Cond(c).Targ(1).PreTargCol = [0.6 0.6 0.6];
         Stm.Cond(c).Targ(1).Color = [.1 .1 .1]; % RGB 0-1
         Stm.Cond(c).Targ(1).Reward = 0.120;
     end

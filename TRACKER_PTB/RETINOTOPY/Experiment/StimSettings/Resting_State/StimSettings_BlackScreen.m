@@ -39,8 +39,8 @@ Stm(1).RetMap.Dir = +1; % +1 = expanding / ccw, -1 = contracting / cw
 Stm(1).RetMap.TRsPerStep = 1; %s 
 Stm(1).RetMap.PreDur_TRs = 5; % volumes
 Stm(1).RetMap.PostDur_TRs = 5; % volumes
-Stm(1).RetMap.nCycles = 2; % 0=unlimited
-Stm(1).RetMap.nSteps = 32; 
+Stm(1).RetMap.nCycles = 1; % 0=unlimited
+Stm(1).RetMap.nSteps = 240; 
 % (32 for KUL face/walkers; multiple of 8 for 8bar)
 Stm(1).RetMap.nBlanks_each_nSteps = [0 0]; % if either is zero, it won't work
 
