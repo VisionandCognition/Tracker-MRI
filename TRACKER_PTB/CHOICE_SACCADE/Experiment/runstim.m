@@ -9,286 +9,279 @@ global Log
 
 %% ========================================================================
 clc;
-for PriorToDealingWithStimuli=1
-    
-    % set PTB priority to max
-    Par.priorityLevel=MaxPriority(Par.window);
-    Par.oldPriority=Priority(Par.priorityLevel);
-    
-    Par.ESC = false; %escape has not been pressed
-    Log.TotalReward=0;
-    
-    % re-run parameter-file to update stim-settings without restarting Tracker
-    eval(Par.PARSETFILE); % can be chosen in menu
-    DateString = datestr(clock,30);
-    
-    % output stimsettings filename to cmd
-    fprintf(['=== Running ' Par.STIMSETFILE ' for ' Par.MONKEY ' ===\n']);
-    Stm = StimObj.Stm;
-    fprintf(['Started at ' DateString(1:end-2) '\n']);
-    
-    % import fixwinsize
-    Par.FixWinSize = Stm.FixWinSize;
-    
-    % This control parameter needs to be outside the stimulus loop
-    FirstEyeRecSet=false;
-    %dasbit(0,1); %set eye-recording trigger to 1 (=stopped)
-    
-    % Initial stimulus position is 1
-    Par.PosNr=1;
-    Par.PrevPosNr=1;
-    
-    % Initialize KeyLogging
-    Par.KeyIsDown=false;
-    Par.KeyWasDown=false;
-    
-    % Initialize control parameters
-    Par.SwitchPos = false;
-    Par.ToggleCyclePos = false; % overrules the Stim(1)setting; toggles with 'p'
-    Par.ToggleHideStim = false;
-    Par.ToggleHideFix = false;
-    Par.ToggleHideStim2 = false;
-    Par.ToggleHideFix2 = false;
-    Par.ManualReward = false;
-    Par.AutoReward=false;
-    Par.RewardStarted=false;
-    Par.RewardRunning=false;
-    
-    Log.ManualRewardTime = [];
-    Log.MRI.TriggerReceived=false;
-    
-    Par.PosReset=false;
-    Par.Pause=false;
-    
-    % Initialize photosensor manual response
-    Par.BeamIsBlocked=false;
-    
-    %Screen('FillRect',Par.window,[0 0 0].*Par.ScrWhite); % black first
-    % Flip the proper background on screen
-    %Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
-    lft=Screen('Flip', Par.window);
-    lft=Screen('Flip', Par.window, lft+.1);
-    Par.ExpStart = lft;
-    Log.nEvents=1;
-    Log.Events(Log.nEvents).type='ExpStart';
-    Log.Events(Log.nEvents).t=0;
-    
-    % Initial stimulus position is 1
-    Par.PosNr=1;
-    Par.PrevPosNr=1;
-    
-    % make sure timing settings are taken from stimsettings once
-    TimingFromStimsettingsDone=false;
-    EyeRecMsgShown=false;
-end
+%% PriorToDealingWithStimuli
+
+% set PTB priority to max
+Par.priorityLevel=MaxPriority(Par.window);
+Par.oldPriority=Priority(Par.priorityLevel);
+
+Par.ESC = false; %escape has not been pressed
+Log.TotalReward=0;
+
+% re-run parameter-file to update stim-settings without restarting Tracker
+eval(Par.PARSETFILE); % can be chosen in menu
+DateString = datestr(clock,30);
+
+% output stimsettings filename to cmd
+fprintf(['=== Running ' Par.STIMSETFILE ' for ' Par.MONKEY ' ===\n']);
+Stm = StimObj.Stm;
+fprintf(['Started at ' DateString(1:end-2) '\n']);
+
+% import fixwinsize
+Par.FixWinSize = Stm.FixWinSize;
+
+% This control parameter needs to be outside the stimulus loop
+FirstEyeRecSet=false;
+%dasbit(0,1); %set eye-recording trigger to 1 (=stopped)
+
+% Initial stimulus position is 1
+Par.PosNr=1;
+Par.PrevPosNr=1;
+
+% Initialize KeyLogging
+Par.KeyIsDown=false;
+Par.KeyWasDown=false;
+
+% Initialize control parameters
+Par.SwitchPos = false;
+Par.ToggleCyclePos = false; % overrules the Stim(1)setting; toggles with 'p'
+Par.ToggleHideStim = false;
+Par.ToggleHideFix = false;
+Par.ToggleHideStim2 = false;
+Par.ToggleHideFix2 = false;
+Par.ManualReward = false;
+Par.AutoReward=false;
+Par.RewardStarted=false;
+Par.RewardRunning=false;
+
+Log.ManualRewardTime = [];
+Log.MRI.TriggerReceived=false;
+
+Par.PosReset=false;
+Par.Pause=false;
+
+% Initialize photosensor manual response
+Par.BeamIsBlocked=false;
+
+%Screen('FillRect',Par.window,[0 0 0].*Par.ScrWhite); % black first
+% Flip the proper background on screen
+%Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
+lft=Screen('Flip', Par.window);
+lft=Screen('Flip', Par.window, lft+.1);
+Par.ExpStart = lft;
+Log.nEvents=1;
+Log.Events(Log.nEvents).type='ExpStart';
+Log.Events(Log.nEvents).t=0;
+
+% Initial stimulus position is 1
+Par.PosNr=1;
+Par.PrevPosNr=1;
+
+% make sure timing settings are taken from stimsettings once
+TimingFromStimsettingsDone=false;
+EyeRecMsgShown=false;
 
 %% Run this loop for as many repeats as are defined in the StimSettings ===
 nR=0;
 while nR<Stm.nRepeatsStimSet && ~Par.ESC
     fprintf(['---- Repetition number ' num2str(nR+1) '----\n']);
-    for PreStim=1
-        nR=nR+1;
-        if length(Stm.Cond)>1
-            nSTIM=length(Stm.Cond);
-            if Stm.RandomizeCond
-                StimOrder = randperm(nSTIM);
-            else
-                StimOrder = 1:nSTIM;
-            end
+    %% PreStim
+    nR=nR+1;
+    if length(Stm.Cond)>1
+        nSTIM=length(Stm.Cond);
+        if Stm.RandomizeCond
+            StimOrder = randperm(nSTIM);
         else
-            StimOrder = 1;
+            StimOrder = 1:nSTIM;
         end
-        StimOrder_ORG = StimOrder;
-        StimDynamic = StimOrder_ORG;
-        
-        % keep track of how many trials are initiated this repeat
-        TrialsStartedThisRep=0;
-        TrialsTargThisRep=0;
-        TrialsSlowThisRep=0;
-        TrialsMissThisRep=0;
-        TrialsAbortThisRep=0;
+    else
+        StimOrder = 1;
     end
+    StimOrder_ORG = StimOrder;
+    StimDynamic = StimOrder_ORG;
     
-    for InitiateEyetracker=1
-        if Par.EyeRecAutoTrigger
-            if ~FirstEyeRecSet
-                hmb=msgbox('Prepare the eye-tracker for recording','Eye-tracking');
-                uiwait(hmb);
-                FirstEyeRecSet=true;
+    % keep track of how many trials are initiated this repeat
+    TrialsStartedThisRep=0;
+    TrialsTargThisRep=0;
+    TrialsSlowThisRep=0;
+    TrialsMissThisRep=0;
+    TrialsAbortThisRep=0;
+    
+    %% InitiateEyetracker
+    if Par.EyeRecAutoTrigger
+        if ~FirstEyeRecSet
+            hmb=msgbox('Prepare the eye-tracker for recording','Eye-tracking');
+            uiwait(hmb);
+            FirstEyeRecSet=true;
+        end
+        
+        MoveOn=false; MsgShown=false;
+        while ~MoveOn
+            CheckEyeRecStatus; % checks the current status of eye-recording
+            if ~Par.EyeRecStatus % not recording
+                SetEyeRecStatus(1); %trigger recording
+            else % recording
+                SetEyeRecStatus(0);
+                pause(0.5);
+                SetEyeRecStatus(1);
             end
             
-            MoveOn=false; MsgShown=false;
-            while ~MoveOn
-                CheckEyeRecStatus; % checks the current status of eye-recording
-                if ~Par.EyeRecStatus % not recording
-                    SetEyeRecStatus(1); %trigger recording
-                else % recording
-                    SetEyeRecStatus(0);
-                    pause(0.5);
-                    SetEyeRecStatus(1);
-                end
-                
-                pause(.2)
-                CheckEyeRecStatus; %check whether eye-recording has started
-                if Par.EyeRecStatus
-                    fprintf('Started Eye-signal recording\n\n');
-                    MoveOn=true;
-                else
-                    if ~MsgShown
-                        fprintf('Eye-signal recording won''t start. Check eye-tracker\n');
-                        MsgShown=true;
-                    end
+            pause(.2)
+            CheckEyeRecStatus; %check whether eye-recording has started
+            if Par.EyeRecStatus
+                fprintf('Started Eye-signal recording\n\n');
+                MoveOn=true;
+            else
+                if ~MsgShown
+                    fprintf('Eye-signal recording won''t start. Check eye-tracker\n');
+                    MsgShown=true;
                 end
             end
         end
     end
     
+    %% Run trials
     while ~isempty(StimDynamic) && ~Par.ESC
         %% Timing ---------------------------------------------------------
-        for TimingSet=1
-            % get values from stimsettings and overwrite intial ones from
-            % parsettings
-            if ~TimingFromStimsettingsDone % only first time
-                Par.Times.ToFix=Stm.PreFixT; % time to enter fixation window
-                Par.Times.Fix=Stm.FixT; % time to fix before stim onset
-                Par.Times.Targ=Stm.KeepFixT; % time to fix before target onset. before 26-9-2014 this was 150
-                Par.Times.Stim=Stm.StimT; 
-                Par.Times.Rt=Stm.ReacT; % max allowed reaction time (leave fixwin after target onset)
-                Par.Times.Sacc=Stm.SaccT; % max allowed saccade time (from leave fixwin to enter target win)
-                Par.Times.Err=Stm.ErrT; % punishment extra ISI after error trial (there are no error trials here)
-                Par.Times.InterTrial=Stm.ISI; % base inter-stimulus interval
-                Par.Times.RndInterTrial=Stm.ISI_RAND; % maximum extra (random) ISI to break any possible rythm
-                
-                % update gui fields
-                handles=guihandles(Par.hTracker);
-                set(handles.ToFixTime, 'String', num2str(Par.Times.ToFix, 4))
-                set(handles.FixT, 'String', num2str(Par.Times.Fix, 4))
-                set(handles.TargT, 'String', num2str(Par.Times.Targ, 4))
-                set(handles.StimT, 'String', num2str(Par.Times.Stim, 4))
-                set(handles.ReactionT, 'String', num2str(Par.Times.Rt, 4))
-                set(handles.e_Sacc, 'String', num2str(Par.Times.Sacc, 4))
-                set(handles.e_Err, 'String', num2str(Par.Times.Err, 4))
-                set(handles.InterTT, 'String', num2str(Par.Times.InterTrial, 4))
-
-                TimingFromStimsettingsDone=true;
-            end
+        % get values from stimsettings and overwrite intial ones from
+        % parsettings
+        if ~TimingFromStimsettingsDone % only first time
+            Par.Times.ToFix=Stm.PreFixT; % time to enter fixation window
+            Par.Times.Fix=Stm.FixT; % time to fix before stim onset
+            Par.Times.Targ=Stm.KeepFixT(1); % time to fix before target onset. before 26-9-2014 this was 150
+            Par.Times.TargRange=Stm.KeepFixT;
+            Par.Times.Stim=Stm.StimT;
+            Par.Times.Rt=Stm.ReacT; % max allowed reaction time (leave fixwin after target onset)
+            Par.Times.Sacc=Stm.SaccT; % max allowed saccade time (from leave fixwin to enter target win)
+            Par.Times.Err=Stm.ErrT; % punishment extra ISI after error trial (there are no error trials here)
+            Par.Times.InterTrial=Stm.ISI; % base inter-stimulus interval
+            Par.Times.RndInterTrial=Stm.ISI_RAND; % maximum extra (random) ISI to break any possible rythm
             
-            % put into shorter variables (and/or read from gui)
-            PREFIXT = Par.Times.ToFix; % time allowed to initiate fixation
-            FIXT = Par.Times.Fix; % duration to hold fixation before stimuli appear
-            TARGT = Par.Times.Targ; % Duration to hold fixation while stimuli are on the screen
-            STIMT = Par.Times.Stim; % Duration that stim/targets are displayed
-            RACT = Par.Times.Rt; % Time allowed to select a target after target onset
-            SACCT= Par.Times.Sacc; % Allowed saccade time between leaving fixwin and entering targwin
-            ISI = Par.Times.InterTrial; % interstimulus interval
-            ISI_R = Par.Times.RndInterTrial; % max random addition to ISI
-            ERRT = Par.Times.Err; % % punishment addition to ISI after error trial
-            % there are no error trials here
+            % update gui fields
+            handles=guihandles(Par.hTracker);
+            set(handles.ToFixTime, 'String', num2str(Par.Times.ToFix, 4))
+            set(handles.FixT, 'String', num2str(Par.Times.Fix, 4))
+            set(handles.TargT, 'String', num2str(Par.Times.Targ, 4))
+            set(handles.StimT, 'String', num2str(Par.Times.Stim, 4))
+            set(handles.ReactionT, 'String', num2str(Par.Times.Rt, 4))
+            set(handles.e_Sacc, 'String', num2str(Par.Times.Sacc, 4))
+            set(handles.e_Err, 'String', num2str(Par.Times.Err, 4))
+            set(handles.InterTT, 'String', num2str(Par.Times.InterTrial, 4))
+            
+            TimingFromStimsettingsDone=true;
         end
         
+        % put into shorter variables (and/or read from gui)
+        PREFIXT = Par.Times.ToFix; % time allowed to initiate fixation
+        FIXT = Par.Times.Fix; % duration to hold fixation before stimuli appear
+        TARGT = Par.Times.Targ; % Duration to hold fixation while stimuli are on the screen
+        STIMT = Par.Times.Stim; % Duration that stim/targets are displayed
+        RACT = Par.Times.Rt; % Time allowed to select a target after target onset
+        SACCT= Par.Times.Sacc; % Allowed saccade time between leaving fixwin and entering targwin
+        ISI = Par.Times.InterTrial; % interstimulus interval
+        ISI_R = Par.Times.RndInterTrial; % max random addition to ISI
+        ERRT = Par.Times.Err; % % punishment addition to ISI after error trial
+        % there are no error trials here
+        
         %% Prepare stimuli ------------------------------------------------
-        for PrepStim=1
-            CurCond=StimDynamic(1);
-            for TargNum=1:length(Stm.Cond(CurCond).Targ)
-                Tar(TargNum).Shape = Stm.Cond(CurCond).Targ(TargNum).Shape; %#ok<*AGROW>
-                Tar(TargNum).PosPix = Stm.Cond(CurCond).Targ(TargNum).Position*Par.PixPerDeg;
-                if strcmp(Tar(TargNum).Shape,'circle')
-                    Tar(TargNum).SizePix = Stm.Cond(CurCond).Targ(TargNum).Size*Par.PixPerDeg;
-                    Tar(TargNum).Rot = 0;
-                elseif strcmp(Tar(TargNum).Shape,'square')
-                    Tar(TargNum).SizePix = ...
-                        round(sqrt(...
-                        ((Stm.Cond(CurCond).Targ(TargNum).Size/2*Par.PixPerDeg).^2)*pi));
-                    Tar(TargNum).Rot = 0;
-                elseif strcmp(Tar(TargNum).Shape,'diamond')
-                    Tar(TargNum).SizePix = ...
-                        round(sqrt(...
-                        ((Stm.Cond(CurCond).Targ(TargNum).Size/2*Par.PixPerDeg).^2)*pi));
-                    Tar(TargNum).Points = [...
-                        Par.ScrCenter(1)+Tar(TargNum).PosPix(1)-Tar(TargNum).SizePix/2 ...
-                        Par.ScrCenter(2)+Tar(TargNum).PosPix(2); ...
-                        Par.ScrCenter(1)+Tar(TargNum).PosPix(1) ...
-                        Par.ScrCenter(2)+Tar(TargNum).PosPix(2)-Tar(TargNum).SizePix/2;...
-                        Par.ScrCenter(1)+Tar(TargNum).PosPix(1)+Tar(TargNum).SizePix/2 ...
-                        Par.ScrCenter(2)+Tar(TargNum).PosPix(2); ...
-                        Par.ScrCenter(1)+Tar(TargNum).PosPix(1) ...
-                        Par.ScrCenter(2)+Tar(TargNum).PosPix(2)+Tar(TargNum).SizePix/2;...\
-                        Par.ScrCenter(1)+Tar(TargNum).PosPix(1)-Tar(TargNum).SizePix/2 ...
-                        Par.ScrCenter(2)+Tar(TargNum).PosPix(2)];
-                end
-                Tar(TargNum).Rect = [...
+        %% PrepStim
+        CurCond=StimDynamic(1);
+        for TargNum=1:length(Stm.Cond(CurCond).Targ)
+            Tar(TargNum).Shape = Stm.Cond(CurCond).Targ(TargNum).Shape; %#ok<*AGROW>
+            Tar(TargNum).PosPix = Stm.Cond(CurCond).Targ(TargNum).Position*Par.PixPerDeg;
+            if strcmp(Tar(TargNum).Shape,'circle')
+                Tar(TargNum).SizePix = Stm.Cond(CurCond).Targ(TargNum).Size*Par.PixPerDeg;
+                Tar(TargNum).Rot = 0;
+            elseif strcmp(Tar(TargNum).Shape,'square')
+                Tar(TargNum).SizePix = ...
+                    round(sqrt(...
+                    ((Stm.Cond(CurCond).Targ(TargNum).Size/2*Par.PixPerDeg).^2)*pi));
+                Tar(TargNum).Rot = 0;
+            elseif strcmp(Tar(TargNum).Shape,'diamond')
+                Tar(TargNum).SizePix = ...
+                    round(sqrt(...
+                    ((Stm.Cond(CurCond).Targ(TargNum).Size/2*Par.PixPerDeg).^2)*pi));
+                Tar(TargNum).Points = [...
                     Par.ScrCenter(1)+Tar(TargNum).PosPix(1)-Tar(TargNum).SizePix/2 ...
-                    Par.ScrCenter(2)+Tar(TargNum).PosPix(2)-Tar(TargNum).SizePix/2 ...
+                    Par.ScrCenter(2)+Tar(TargNum).PosPix(2); ...
+                    Par.ScrCenter(1)+Tar(TargNum).PosPix(1) ...
+                    Par.ScrCenter(2)+Tar(TargNum).PosPix(2)-Tar(TargNum).SizePix/2;...
                     Par.ScrCenter(1)+Tar(TargNum).PosPix(1)+Tar(TargNum).SizePix/2 ...
-                    Par.ScrCenter(2)+Tar(TargNum).PosPix(2)+Tar(TargNum).SizePix/2 ];
-                Tar(TargNum).WinSizePix = Stm.Cond(CurCond).Targ(TargNum).WinSize*Par.PixPerDeg;
-                Tar(TargNum).Color = Stm.Cond(CurCond).Targ(TargNum).Color.*Par.ScrWhite;
-                Tar(TargNum).Reward = Stm.Cond(CurCond).Targ(TargNum).Reward;
-                Tar(TargNum).PreTargCol = Stm.Cond(CurCond).Targ(TargNum).PreTargCol.*Par.ScrWhite;
+                    Par.ScrCenter(2)+Tar(TargNum).PosPix(2); ...
+                    Par.ScrCenter(1)+Tar(TargNum).PosPix(1) ...
+                    Par.ScrCenter(2)+Tar(TargNum).PosPix(2)+Tar(TargNum).SizePix/2;...\
+                    Par.ScrCenter(1)+Tar(TargNum).PosPix(1)-Tar(TargNum).SizePix/2 ...
+                    Par.ScrCenter(2)+Tar(TargNum).PosPix(2)];
             end
+            Tar(TargNum).Rect = [...
+                Par.ScrCenter(1)+Tar(TargNum).PosPix(1)-Tar(TargNum).SizePix/2 ...
+                Par.ScrCenter(2)+Tar(TargNum).PosPix(2)-Tar(TargNum).SizePix/2 ...
+                Par.ScrCenter(1)+Tar(TargNum).PosPix(1)+Tar(TargNum).SizePix/2 ...
+                Par.ScrCenter(2)+Tar(TargNum).PosPix(2)+Tar(TargNum).SizePix/2 ];
+            Tar(TargNum).WinSizePix = Stm.Cond(CurCond).Targ(TargNum).WinSize*Par.PixPerDeg;
+            Tar(TargNum).Color = Stm.Cond(CurCond).Targ(TargNum).Color.*Par.ScrWhite;
+            Tar(TargNum).Reward = Stm.Cond(CurCond).Targ(TargNum).Reward;
+            Tar(TargNum).PreTargCol = Stm.Cond(CurCond).Targ(TargNum).PreTargCol.*Par.ScrWhite;
         end
         
         %% Prepare fix dot ------------------------------------------------
-        for PrepFix=1
-            Stm.FixWinSizePix = [...
-                round(Par.FixWdDeg.*Par.PixPerDeg) ...
-                round(Par.FixHtDeg.*Par.PixPerDeg)];
-            Stm.FixDotSizePix = round(Stm.FixDotSize*Par.PixPerDeg);
-            
-            Stm.Center =[];
-            for i=1:size(Stm.Position,2);
-                Stm.Center =[Stm.Center;round(Stm.Position{i}.*Par.PixPerDeg)];
-            end
+        Stm.FixWinSizePix = [...
+            round(Par.FixWdDeg.*Par.PixPerDeg) ...
+            round(Par.FixHtDeg.*Par.PixPerDeg)];
+        Stm.FixDotSizePix = round(Stm.FixDotSize*Par.PixPerDeg);
+        
+        Stm.Center =[];
+        for i=1:size(Stm.Position,2)
+            Stm.Center =[Stm.Center;round(Stm.Position{i}.*Par.PixPerDeg)];
         end
         
         %% Prepare control windows ----------------------------------------
-        for PrepWin=1
-            DefineEyeWin(Tar)
-            refreshtracker(1) %for your control display: update with windows
-            SetWindowDas      %for the dascard
-        end
+        DefineEyeWin(Tar)
+        refreshtracker(1) %for your control display: update with windows
+        SetWindowDas      %for the dascard
         
         %% Initialize control stuff ---------------------------------------
-        for CodeControl=1 %allow code folding
-            Log.MRI.TriggerTime = [];
-            % Some intitialization of control parameters
-            if Par.MRITriggeredStart && ~Log.MRI.TriggerReceived
-                if Par.MRITrigger_OnlyOnce && nR==1 ;
-                    Log.MRI.TriggerReceived = false;
-                elseif Par.MRITrigger_OnlyOnce && nR > 1;
-                    Log.MRI.TriggerReceived = true;
-                elseif ~Par.MRITrigger_OnlyOnce
-                    Log.MRI.TriggerReceived = false;
-                end
-            else % act as if trigger has been received
+        Log.MRI.TriggerTime = [];
+        % Some intitialization of control parameters
+        if Par.MRITriggeredStart && ~Log.MRI.TriggerReceived
+            if Par.MRITrigger_OnlyOnce && nR==1 
+                Log.MRI.TriggerReceived = false;
+            elseif Par.MRITrigger_OnlyOnce && nR > 1
                 Log.MRI.TriggerReceived = true;
+            elseif ~Par.MRITrigger_OnlyOnce
+                Log.MRI.TriggerReceived = false;
             end
+        else % act as if trigger has been received
+            Log.MRI.TriggerReceived = true;
         end
         
         % Wait for MRI trigger to allow er-fMRI ---------------------------
-        for WaitForMRI=1 %allow code folding
-            if Par.MRITriggeredStart && ~Log.MRI.TriggerReceived
-                fprintf('Waiting for MRI trigger (or press ''t'' on keyboard)\n');
-                while ~Log.MRI.TriggerReceived
-                    CheckKeys;
-                    Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
-                    lft=Screen('Flip', Par.window);
-                end
-                if Par.MRITrigger_OnlyOnce && Par.Trlcount > 0
-                    %fprintf('Triggering only once, move on automatically now.\n');
-                else
-                    fprintf(['Trigger received after ' num2str(lft-Par.ExpStart) ' s\n\n']);
-                end
-                Log.nEvents=Log.nEvents+1;
-                Log.Events(Log.nEvents).type='MRITrigger';
-                Log.Events(Log.nEvents).t=lft-Par.ExpStart;
+        if Par.MRITriggeredStart && ~Log.MRI.TriggerReceived
+            fprintf('Waiting for MRI trigger (or press ''t'' on keyboard)\n');
+            while ~Log.MRI.TriggerReceived
+                CheckKeys;
+                Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
+                lft=Screen('Flip', Par.window);
             end
+            if Par.MRITrigger_OnlyOnce && Par.Trlcount > 0
+                %fprintf('Triggering only once, move on automatically now.\n');
+            else
+                fprintf(['Trigger received after ' num2str(lft-Par.ExpStart) ' s\n\n']);
+            end
+            Log.nEvents=Log.nEvents+1;
+            Log.Events(Log.nEvents).type='MRITrigger';
+            Log.Events(Log.nEvents).t=lft-Par.ExpStart;
         end
         
         %% TRIAL LOOP =====================================================
         TrialStarted=false;
-        TrialEnded=false; 
-        while ~Par.ESC && ~TrialEnded;
+        TrialEnded=false;
+        while ~Par.ESC && ~TrialEnded
+            
+            % pick a hold-fix time from the specified range
+            TARGT = round(...
+                Par.Times.TargRange(1) + rand(1)*diff(Par.Times.TargRange));
+            STIMT = RACT + TARGT;
             %/////////// START THE TRIAL //////////////////////////////////
             Abort = false;    %whether subject has aborted before end of trial
             
@@ -297,7 +290,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
             DrawBackground;
             DrawFix;
             lft=Screen('Flip', Par.window);
-            StartFixDot=lft; 
+            StartFixDot=lft;
             
             dasreset(0);   %test enter fix window
             %     0 enter fix window
@@ -321,9 +314,8 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                     Hit=0;
                 end
             end
-            
-            
-%             ///////// EVENT 1 KEEP FIXATING or REDO  /////////////////////
+                        
+            %             ///////// EVENT 1 KEEP FIXATING or REDO  /////////////////////
             if Hit ~= 0  %subjects eyes are in fixation window keep fixating for FIX time
                 %fprintf('fixation detected\n');
                 dasreset(1);     %set test parameters for exiting fix window
@@ -367,8 +359,8 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                         dasreset( 1); %test for exiting fix window
                         Time = 1; Hit = 0;
                         %tic;
-                        %while toc*1000 < FIXT && Hit == 0  
-                        while Time < FIXT && Hit == 0 
+                        %while toc*1000 < FIXT && Hit == 0
+                        while Time < FIXT && Hit == 0
                             dasrun(5)
                             [Hit Time] = DasCheck;
                             CheckKeys; %check key presses
@@ -395,9 +387,9 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
             %///////// EVENT 2 DISPLAY STIMULUS ///////////////////////////
             if Hit == 0
                 Par.Trlcount = Par.Trlcount + 1; %counts total number of trials for this session
-%                 if mod(Par.Trlcount,25)==0 || Par.Trlcount==1
-%                     fprintf(['Started trial ' num2str(Par.Trlcount) '\n']);
-%                 end
+                %                 if mod(Par.Trlcount,25)==0 || Par.Trlcount==1
+                %                     fprintf(['Started trial ' num2str(Par.Trlcount) '\n']);
+                %                 end
                 TrialStarted = true;
                 TrialsStartedThisRep=TrialsStartedThisRep+1;
                 DrawBackground;
@@ -458,14 +450,14 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                     Log.Trial(Par.Trlcount).TargStart = TargStart;
                     
                     if TARGT == 0
-                      refreshtracker(2);
-                      StimStart=lft;
-                      % Log trial specs ----
+                        refreshtracker(2);
+                        StimStart=lft;
+                        % Log trial specs ----
                         Log.Trial(Par.Trlcount).CondNr = CurCond;
                         Log.Trial(Par.Trlcount).StimStart = StimStart;
-                        Log.Trial(Par.Trlcount).Timing = Par.Times;  
+                        Log.Trial(Par.Trlcount).Timing = Par.Times;
                     end
-                                        
+                    
                     % Record response -------------------------------------
                     dasreset(2); %check target window  enter
                     refreshtracker(3) %set fix point to green
@@ -544,7 +536,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                     HP = line('XData', Par.ZOOM * LPStat(2), 'YData', Par.ZOOM * LPStat(3));
                 end
                 set(HP, 'Marker', '+', 'MarkerSize', 20, 'MarkerEdgeColor', 'm');
-                    
+                
                 % Check the response
                 if Hit == 2 && LPStat(5) < SACCT % target 1 within max allowed saccade time
                     TrialStatus='Target_1';
@@ -573,11 +565,11 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                     
                     StimDynamic(1)=[];
                     
-                elseif Hit ~= 0 && LPStat(5) >= SACCT % too slow   
+                elseif Hit ~= 0 && LPStat(5) >= SACCT % too slow
                     TrialStatus='SaccadeTooSlow';
                     Par.Slowcount=Par.Slowcount+1;
                     TrialsSlowThisRep=TrialsSlowThisRep+1;
-              
+                    
                     Log.Trial(Par.Trlcount).Aborted = false;
                     if Hit==1
                         Log.Trial(Par.Trlcount).TargChosen = 2;
@@ -595,11 +587,11 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                 % log some behavioral info --------------------
                 Log.Trial(Par.Trlcount).ReactTime = LPStat(4);
                 Log.Trial(Par.Trlcount).SaccTime = LPStat(5);
-                Log.Trial(Par.Trlcount).HitPos = [LPStat(2) LPStat(3)];   
+                Log.Trial(Par.Trlcount).HitPos = [LPStat(2) LPStat(3)];
                 Log.Trial(Par.Trlcount).Status = TrialStatus;
                 Log.Trial(Par.Trlcount).TotRew = Log.TotalReward;
                 
-            elseif Par.Trlcount>0 && ~Abort 
+            elseif Par.Trlcount>0 && ~Abort
                 % trial was not aborted but no target was selected in time
                 TrialStatus='NoHit';
                 Par.Misscount=Par.Misscount+1;
@@ -613,10 +605,10 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                 Log.Trial(Par.Trlcount).HitPos = [];
                 Log.Trial(Par.Trlcount).Status = TrialStatus;
                 Log.Trial(Par.Trlcount).TotRew = Log.TotalReward;
-
+                
                 StimDynamic(1)=[];
                 
-            elseif Par.Trlcount>0 && TrialStarted && Abort 
+            elseif Par.Trlcount>0 && TrialStarted && Abort
                 % trial was started but aborted
                 TrialStatus='Aborted';
                 TrialsAbortThisRep=TrialsAbortThisRep+1;
@@ -671,7 +663,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
             ISI_R2=ISI_R*rand(1);
             tic;
             while toc*1000 <  (ISI + ISI_R2)
-            %while Time < Lasttime + (ISI + ISI_R*rand(1))
+                %while Time < Lasttime + (ISI + ISI_R*rand(1))
                 daspause(5);
                 [Hit Time] = DasCheck;
                 CheckKeys; %check key presses
@@ -680,7 +672,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                 ChangeFixPos;
                 ControlVisibility(Tar,[0 0]);
             end
-            TrialEnded=true; 
+            TrialEnded=true;
             
             % finish giving reward if necessary
             while Par.RewardRunning
@@ -690,80 +682,77 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
         
     end % multiple trials or stopped
     
-    for WrapUpRep=1
-        % give some statistics on the screen when there are > 10 conditions
-        if length(Stm.Cond)>=10
-            fprintf(['THIS REPETITION ------\nSTARTED: ' num2str(TrialsStartedThisRep) ...
-                '\nTARG: ' num2str(TrialsTargThisRep) ...
-                '\nSLOW: ' num2str(TrialsSlowThisRep) ...
-                '\nMISS: ' num2str(TrialsMissThisRep) ...
-                '\nABORT: ' num2str(TrialsAbortThisRep) ...
-                '\nREW(total): ' num2str(Log.TotalReward) '\n']);
+    %% WrapUpRep
+    % give some statistics on the screen when there are > 10 conditions
+    if length(Stm.Cond)>=10
+        fprintf(['THIS REPETITION ------\nSTARTED: ' num2str(TrialsStartedThisRep) ...
+            '\nTARG: ' num2str(TrialsTargThisRep) ...
+            '\nSLOW: ' num2str(TrialsSlowThisRep) ...
+            '\nMISS: ' num2str(TrialsMissThisRep) ...
+            '\nABORT: ' num2str(TrialsAbortThisRep) ...
+            '\nREW(total): ' num2str(Log.TotalReward) '\n']);
+    end
+    % end eye recording if necessary
+    if nR==Stm.nRepeatsStimSet && isempty(StimDynamic) && ...
+            Par.EyeRecAutoTrigger && ~EyeRecMsgShown
+        cn=0;
+        while Par.EyeRecStatus == 0 || cn < 100
+            pause(0.005)
+            CheckEyeRecStatus; % checks the current status of eye-recording
+            cn=cn+1;
         end
-        % end eye recording if necessary
-        if nR==Stm.nRepeatsStimSet && isempty(StimDynamic) && ...
-                Par.EyeRecAutoTrigger && ~EyeRecMsgShown
-            cn=0;
-            while Par.EyeRecStatus == 0 || cn < 100
-                pause(0.005)
-                CheckEyeRecStatus; % checks the current status of eye-recording
-                cn=cn+1;
-            end
-            if Par.EyeRecStatus % not recording
-                SetEyeRecStatus(0);
-                fprintf('\nStopped eye-recording. Save the file or add more runs.\n');
-                fprintf(['Suggested filename: ' Par.MONKEY '_' DateString(1:end-2) '.tda\n']);
-            else % not recording
-                fprintf('\n>> Alert! Could not find a running eye-recording!\n');
-            end
-            EyeRecMsgShown=true;
+        if Par.EyeRecStatus % not recording
+            SetEyeRecStatus(0);
+            fprintf('\nStopped eye-recording. Save the file or add more runs.\n');
+            fprintf(['Suggested filename: ' Par.MONKEY '_' DateString(1:end-2) '.tda\n']);
+        else % not recording
+            fprintf('\n>> Alert! Could not find a running eye-recording!\n');
         end
+        EyeRecMsgShown=true;
     end
     fprintf('Repetition finished \n');
 end % repeat conditions
 
 %% Clean up and Save Log ==================================================
-for CleanUpAndSave=1 % code folding
-    DrawBackground;
-    lft=Screen('Flip', Par.window);
-    dasjuice(0); %stop reward if its running
-    
-    % go back to default priority
-    Priority(Par.oldPriority);
-            
-    % save stuff
-    FileName=['Log_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString];
-    warning off; %#ok<WNOFF>
-    mkdir('Log');cd('Log');
-    StimObj.Stm=Stm;
-    mkdir([ Par.MONKEY '_' Par.STIMSETFILE '_' DateString]);
-    cd([ Par.MONKEY '_' Par.STIMSETFILE '_' DateString]);
-    fn=['Runstim_'  Par.MONKEY '_' Par.STIMSETFILE '_' DateString];
-    cfn=[mfilename('fullpath') '.m'];
-    copyfile(cfn,fn);
-    save(FileName,'Log','Par','StimObj');
-    cd .. % back to Log folder
-    cd .. % back to root folder
-    warning on; %#ok<WNON>
-            
-    % print overview to cmd
-    fprintf(['\n\nTOTAL ============\nSTARTED: ' num2str(Par.Trlcount) ...
-        '\nTARG: ' num2str(Par.Corrcount) ...
-        '\nSLOW: ' num2str(Par.Slowcount) ...
-        '\nMISS: ' num2str(Par.Misscount) ...
-        '\nABORT: ' num2str(Par.Trlcount-...
-        Par.Corrcount-Par.Misscount-Par.Slowcount) ...
-        '\nREWARD: ' num2str(Log.TotalReward)]);
-    
-    % end exp
-    Screen('FillRect',Par.window,[0 0 0].*Par.ScrWhite);
-    Screen('Flip', Par.window);
-    Screen('FillRect',Par.window,[0 0 0].*Par.ScrWhite);
-    Screen('Flip', Par.window);
-    fprintf('\n\n------------------------------\n');
-    fprintf('Experiment ended as planned\n');
-    fprintf('------------------------------\n');
-end
+DrawBackground;
+lft=Screen('Flip', Par.window);
+dasjuice(0); %stop reward if its running
+
+% go back to default priority
+Priority(Par.oldPriority);
+
+% save stuff
+FileName=['Log_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString];
+warning off; 
+mkdir('Log');cd('Log');
+StimObj.Stm=Stm;
+mkdir([ Par.MONKEY '_' Par.STIMSETFILE '_' DateString]);
+cd([ Par.MONKEY '_' Par.STIMSETFILE '_' DateString]);
+fn=['Runstim_'  Par.MONKEY '_' Par.STIMSETFILE '_' DateString];
+cfn=[mfilename('fullpath') '.m'];
+copyfile(cfn,fn);
+save(FileName,'Log','Par','StimObj');
+cd .. % back to Log folder
+cd .. % back to root folder
+warning on; 
+
+% print overview to cmd
+fprintf(['\n\nTOTAL ============\nSTARTED: ' num2str(Par.Trlcount) ...
+    '\nTARG: ' num2str(Par.Corrcount) ...
+    '\nSLOW: ' num2str(Par.Slowcount) ...
+    '\nMISS: ' num2str(Par.Misscount) ...
+    '\nABORT: ' num2str(Par.Trlcount-...
+    Par.Corrcount-Par.Misscount-Par.Slowcount) ...
+    '\nREWARD: ' num2str(Log.TotalReward)]);
+
+% end exp
+Screen('FillRect',Par.window,[0 0 0].*Par.ScrWhite);
+Screen('Flip', Par.window);
+Screen('FillRect',Par.window,[0 0 0].*Par.ScrWhite);
+Screen('Flip', Par.window);
+fprintf('\n\n------------------------------\n');
+fprintf('Experiment ended as planned\n');
+fprintf('------------------------------\n');
 
 %% Standard functions called throughout the runstim =======================
 % =========================================================================
@@ -828,20 +817,20 @@ end
     function ControlVisibility(Tar,FixStim) %#ok<INUSD>
         if Par.Pause
             Screen('FillRect',Par.window,[0 0 0].*Par.ScrWhite);
-            Screen('Flip', Par.window); 
+            Screen('Flip', Par.window);
             while Par.Pause
                 CheckKeys
             end
-%         elseif Par.ToggleHideFix || Par.ToggleHideFix2 || ...
-%                 Par.ToggleHideStim || Par.ToggleHideStim2
-%             DrawBackground;
-%             if ~Par.ToggleHideFix && ~Par.ToggleHideFix2 && FixStim(1)
-%                 DrawFix;
-%             end
-%             if ~Par.ToggleHideStim && ~Par.ToggleHideStim2 && FixStim(2)
-%                 DrawTargets(Tar);
-%             end
-%             Screen('Flip', Par.window);    
+            %         elseif Par.ToggleHideFix || Par.ToggleHideFix2 || ...
+            %                 Par.ToggleHideStim || Par.ToggleHideStim2
+            %             DrawBackground;
+            %             if ~Par.ToggleHideFix && ~Par.ToggleHideFix2 && FixStim(1)
+            %                 DrawFix;
+            %             end
+            %             if ~Par.ToggleHideStim && ~Par.ToggleHideStim2 && FixStim(2)
+            %                 DrawTargets(Tar);
+            %             end
+            %             Screen('Flip', Par.window);
         end
     end
 % change stimulus features
@@ -901,7 +890,7 @@ end
                         Log.ManualRewardTime = ...
                             [Log.ManualRewardTime; Par.KeyTime];
                     case Par.KeyStim
-                        if ~Par.ToggleHideStim;
+                        if ~Par.ToggleHideStim
                             Par.ToggleHideStim = true;
                             Log.nEvents=Log.nEvents+1;
                             Log.Events(Log.nEvents).type='StimOff';
@@ -913,7 +902,7 @@ end
                             Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
                         end
                     case Par.KeyFix
-                        if ~Par.ToggleHideFix;
+                        if ~Par.ToggleHideFix
                             Par.ToggleHideFix = true;
                             Log.nEvents=Log.nEvents+1;
                             Log.Events(Log.nEvents).type='FixOff';
@@ -1069,24 +1058,24 @@ end
                 Par.HandIsIn=true;
             end
         end
-%         
-%         
-%         % interpret
-%         if Par.StimNeedsHandInBox && ~Par.BeamIsBlocked
-%             Par.ToggleHideStim2 = true;
-%         elseif Par.StimNeedsHandInBox && Par.BeamIsBlocked
-%             Par.ToggleHideStim2 = false;
-%         elseif ~Par.StimNeedsHandInBox
-%             Par.ToggleHideStim2 = false;
-%         end
-%         
-%         if Par.FixNeedsHandInBox  && ~Par.BeamIsBlocked
-%             Par.ToggleHideFix2 = true;
-%         elseif Par.StimNeedsHandInBox && Par.BeamIsBlocked
-%             Par.ToggleHideFix2 = false;
-%         elseif ~Par.StimNeedsHandInBox
-%             Par.ToggleHideFix2 = false;
-%         end
+        %
+        %
+        %         % interpret
+        %         if Par.StimNeedsHandInBox && ~Par.BeamIsBlocked
+        %             Par.ToggleHideStim2 = true;
+        %         elseif Par.StimNeedsHandInBox && Par.BeamIsBlocked
+        %             Par.ToggleHideStim2 = false;
+        %         elseif ~Par.StimNeedsHandInBox
+        %             Par.ToggleHideStim2 = false;
+        %         end
+        %
+        %         if Par.FixNeedsHandInBox  && ~Par.BeamIsBlocked
+        %             Par.ToggleHideFix2 = true;
+        %         elseif Par.StimNeedsHandInBox && Par.BeamIsBlocked
+        %             Par.ToggleHideFix2 = false;
+        %         elseif ~Par.StimNeedsHandInBox
+        %             Par.ToggleHideFix2 = false;
+        %         end
         
     end
 % reward control (check start/stop)
@@ -1104,7 +1093,7 @@ end
                 GiveRewardAuto;
             end
         else %reward is running
-            if GetSecs >= Par.RewardStartTime+Par.RewardTimeCurrent;
+            if GetSecs >= Par.RewardStartTime+Par.RewardTimeCurrent
                 daspause(5);
                 dasjuice(0);
                 Par.RewardRunning=false;
