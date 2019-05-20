@@ -1900,13 +1900,16 @@ for STIMNR = Log.StimOrder
             if strcmp(Par.SetUp,'NIN')
                 FileName=['Log_' LogFn '_' ...
                     Stm(STIMNR).Descript '_Run' num2str(StimLoopNr) '_Block' num2str(blockstr)];
+                 evFileName=[FileName '_eventlog.csv'];
             else
                 FileName=['Log_' LogFn '_' ...
                     Stm(STIMNR).Descript '_Run' num2str(StimLoopNr)];
+                evFileName=[FileName '_eventlog.csv'];
             end
         else
             FileName=['Log_NODAS_' LogFn '_' ...
                 Stm(STIMNR).Descript '_Run' num2str(StimLoopNr)];
+            evFileName=[FileName '_eventlog.csv'];
         end
         warning off; 
         if TestRunstimWithoutDAS; cd ..;end
@@ -1936,6 +1939,18 @@ for STIMNR = Log.StimOrder
             end
             RunParStim_Saved=true;
         end
+        
+        % save the events to a csv file
+        EventCell = cell(length(Log.Events)+1,4);
+        VarNames={'time_s','type','StimName'};
+        for ev = 1:length(Log.Events)
+            EventCell(ev,:)={...
+                Log.Events(ev).t,...
+                Log.Events(ev).type,...
+                Log.Events(ev).StimName };
+        end
+        EvTable = cell2table(EventCell,'variablenames',VarNames');
+        writetable(EvTable,evFileName)
         
         % save mat and json files
         if ~TestRunstimWithoutDAS && ~json_done &&...
