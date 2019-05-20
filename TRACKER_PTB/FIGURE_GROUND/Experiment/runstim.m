@@ -1632,7 +1632,7 @@ while ~Par.ESC && ~ExpFinished
                             StimType = 'Ground';
                             StimLogDone = false;
                         elseif strcmp(LastStim,'Figure') && ~Stm.InterLeave_FigGnd
-                            if StimNr == length(Log.StimOrder)
+                            if StimNr == length(Log.StimOrder) && StimRepNr == Stm.stim_rep
                                 % all stimuli done
                                 ExpStatus = 'PostDur';
                                 PostDurLogDone = false;
@@ -1662,7 +1662,7 @@ while ~Par.ESC && ~ExpFinished
                             StimLogDone = false;
                             StimRepNr =  StimRepNr+1; 
                         elseif strcmp(LastStim,'Ground') && ~Stm.InterLeave_FigGnd
-                            if StimNr == length(Log.StimOrder)
+                            if StimNr == length(Log.StimOrder) && StimRepNr == Stm.stim_rep
                                 % all stimuli done
                                 ExpStatus = 'PostDur';
                                 PostDurLogDone = false;
