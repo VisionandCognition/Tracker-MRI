@@ -12,7 +12,7 @@ Stm.BackColor =  [.667 .667 .667]; % [R G B] 0-1
 % pre-defined in ParSettings at init: will be overwritten with these values
 Stm.PreFixT = 5000; % time to enter fixation window
 Stm.FixT = 250; % time to fix before stim onset
-Stm.KeepFixT = [300 500]; %[300 500]; % time to fix before target onset. [min max]
+Stm.KeepFixT = [350 500]; %[300 500]; % time to fix before target onset. [min max]
 Stm.ReacT = 2000; % max allowed reaction time (leave fixwin after target onset)
 Stm.StimT = Stm.KeepFixT(1) + Stm.ReacT; % stimulus display duration
 Stm.SaccT = 500; % max allowed saccade time (from leave fixwin to enter target win)
