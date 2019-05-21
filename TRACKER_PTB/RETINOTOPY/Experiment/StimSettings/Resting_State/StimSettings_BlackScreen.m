@@ -40,7 +40,7 @@ Stm(1).RetMap.TRsPerStep = 1; %s
 Stm(1).RetMap.PreDur_TRs = 5; % volumes
 Stm(1).RetMap.PostDur_TRs = 5; % volumes
 Stm(1).RetMap.nCycles = 1; % 0=unlimited
-Stm(1).RetMap.nSteps = 240; 
+Stm(1).RetMap.nSteps = 230; 
 % (32 for KUL face/walkers; multiple of 8 for 8bar)
 Stm(1).RetMap.nBlanks_each_nSteps = [0 0]; % if either is zero, it won't work
 
