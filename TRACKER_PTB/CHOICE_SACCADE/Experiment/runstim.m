@@ -279,8 +279,11 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
         while ~Par.ESC && ~TrialEnded
             
             % pick a hold-fix time from the specified range
-            TARGT = round(...
-                Par.Times.TargRange(1) + rand(1)*diff(Par.Times.TargRange));
+            TARGT=Par.Times.TargRange(1);
+            while TARGT >= Par.Times.TargRange(1)-Par.Times.TargRange(2) && ...
+                    TARGT <= Par.Times.TargRange(1)+Par.Times.TargRange(2)
+                TARGT = round(normrnd(Par.Times.TargRange(1),Par.Times.TargRange(2)));
+            end
             STIMT = RACT + TARGT;
             %/////////// START THE TRIAL //////////////////////////////////
             Abort = false;    %whether subject has aborted before end of trial
