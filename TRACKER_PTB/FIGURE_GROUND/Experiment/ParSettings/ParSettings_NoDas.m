@@ -23,15 +23,16 @@ Par.MRITrigger_OnlyOnce = true;
 eval(Par.STIMSETFILE); % loads the chosen stimfile
 Stm=StimObj.Stm;
 
-StimObj.Stm.FixDotCol = [.3 .3 .3 ; .1 .1 .1]; %[RGB if not fixating; RGB fixating]
+StimObj.Stm.FixDotCol = [.7 0 0;1 0 0]; 
+ %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
 Par.FixWinSize = [1.8 1.8]; % [W H] in deg
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
-Par.SCx = 0.1; %initial scale in control window
-Par.SCy = 0.09;
+Par.SCx = 0.135; %initial scale in control window
+Par.SCy = 0.135;
 Par.OFFx = 0; %initial eye offset x => (center) of camera das output
 Par.OFFy = 0; %initial eye offset y
 Par.ScaleOff = [Par.OFFx; Par.OFFy; Par.SCx; Par.SCy]; 
@@ -125,7 +126,7 @@ Par.MicroB = 6;
 Par.CorrectB = 7;
 
 %% Response box ===========================================================
-Par.ResponseBox.Type='Beam'; % 'Beam' or'Lift'
+Par.ResponseBox.Type='Lift'; % 'Beam' or'Lift'
 
 %% Response task ==========================================================
 %Par.ResponseBox.Task = 'DetectGoSignal';
@@ -189,7 +190,7 @@ Par.RewardFixFeedBack = true;
 % RESP_MISS         = 3;
 % RESP_EARLY        = 4;
 % RESP_BREAK_FIX    = 5;
-Par.FeedbackSound = [true true false true false];
+Par.FeedbackSound = [false false false false false];
 Par.FeedbackSoundPar = [ ...
     44100 800 1 0.03; ... CORRECT
     44100 300 1 0.03; ... FALSE
