@@ -141,7 +141,7 @@ Stm.InterLeave_FigGnd = false;
 % if false, only do figures
 
 % Timing --
-Stm.stim_rep = 2;%16; % BLOCK: n stim + n backgrounds
+Stm.stim_rep = 16; % BLOCK: n stim + n backgrounds
 Stm.stim_TRs = 0.3; % stim duration in TRs
 Stm.int_TRs =  0.2; % interval duration in TRs 
 Stm.firstint_TRs =  1; % interval duration in TRs 
@@ -153,9 +153,9 @@ Stm.RandomizeStimMode = 2;
 %    useful to create random block design
 %    every 2nd configuration should be ground only
 
-Stm.PreDur_TRs = 2;%5; % volumes
-Stm.PostDur_TRs = 2;%5; % volumes
-Stm.nRepeatsStimSet = 1;%2; % 0=unlimited
+Stm.PreDur_TRs = 5; % volumes
+Stm.PostDur_TRs = 5; % volumes
+Stm.nRepeatsStimSet = 2; % 0=unlimited
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

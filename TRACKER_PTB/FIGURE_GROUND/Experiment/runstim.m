@@ -319,7 +319,7 @@ else
         % collect all the words that are sent to TDT
     else
         fprintf(['This StimSettings file requires at least ' ...
-            num2str(ceil(NumVolNeeded)) ...
+            num2str(ceil(NumVolNeeded+3)) ...
             ' scanvolumes (check scanner)\n']);
     end
 end
@@ -541,7 +541,7 @@ while ~Par.ESC && ~ExpFinished
         Par.HandInPrev_Moment = 0;
         Par.Pause=false;
         
-        nf=0;
+        UpdateFixLog = false;
         
         if TestRunstimWithoutDAS; Hit=0; end
         
@@ -798,7 +798,7 @@ while ~Par.ESC && ~ExpFinished
         if strcmp(ExpStatus,'PreDur') || strcmp(ExpStatus,'PostDur')
             % gnd
             if strcmp(Stm.StimType{2},'lines') && ...
-                    (~strcmp(CurrentlyDrawn,'PreDur') || FlipScreenNow)
+                    (~strcmp(CurrentlyDrawn,'PreDur') && FlipScreenNow)
                 Screen('DrawTexture', Par.window, ...
                     Gnd_all.tex{GndTexNum,CurrPol},...
                     srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(1)}(2)).orient,0,[],[],[],...
@@ -820,7 +820,7 @@ while ~Par.ESC && ~ExpFinished
                 strcmp(WithinBlockStatus,'Int'))
             
             if strcmp(Stm.StimType{2},'lines') && ...
-                    (~strcmp(CurrentlyDrawn,'Int') || FlipScreenNow)
+                    (~strcmp(CurrentlyDrawn,'Int') && FlipScreenNow)
                 % int gnd
                 Screen('DrawTexture', Par.window, ...
                     Gnd_all.tex{GndTexNum,CurrPol},...
@@ -841,7 +841,7 @@ while ~Par.ESC && ~ExpFinished
         elseif strcmp(ExpStatus,'StimBlock') && ...
                 strcmp(WithinBlockStatus,'Stim')
             if strcmp(Stm.StimType{2},'lines') && ...
-                    (~strcmp(CurrentlyDrawn,'Stim') || FlipScreenNow)
+                    (~strcmp(CurrentlyDrawn,'Stim') && FlipScreenNow)
                 % gnd
                 Screen('DrawTexture', Par.window, ...
                     Gnd_all.tex{GndTexNum,CurrPol},...
@@ -877,6 +877,7 @@ while ~Par.ESC && ~ExpFinished
             end
         end
     end
+    
     %% Draw fixation dot --------------------------------------------------
     if ~Par.ToggleHideFix && ~Par.HideFix_BasedOnHandIn(Par) ...
             && ~Par.Pause
@@ -1332,13 +1333,14 @@ while ~Par.ESC && ~ExpFinished
     
     %% dim the screen if requested due to hand position -------------------
     LogCollect=AutoDim(LogCollect); % checks by itself if it's required
+    
     %% refresh the screen -------------------------------------------------
     %lft=Screen('Flip', Par.window, prevlft+0.9*Par.fliptimeSec);
     if FlipScreenNow
-        fprintf('Flipping screen...\n')
+        %fprintf('Flipping screen...\n')
         lft=Screen('Flip', Par.window); % as fast as possible
         FlipScreenNow = false;
-        nf=nf+1;
+        UpdateFixLog = true;
         
         % Write collected events to log with correct timestamps
         if ~isempty(LogCollect)
@@ -1378,6 +1380,12 @@ while ~Par.ESC && ~ExpFinished
             Seed_T0=lft;
             set_Seed_T0=false;
         end
+    else
+        lft=GetSecs;
+        if lft-prevlft > 0.010
+            % update fixation performance logging
+            UpdateFixLog = true;
+        end
     end
     
     %% log eye-info if required -------------------------------------------
@@ -1394,7 +1402,7 @@ while ~Par.ESC && ~ExpFinished
     end
     
     %% update fixation times ----------------------------------------------
-    if nf>1 %&& ~Stm.IsPreDur
+    if UpdateFixLog
         dt=lft-prevlft;
         % log the screen flip timing
         Log.dtm=[Log.dtm;dt GetSecs-Par.ExpStart];
@@ -1463,24 +1471,24 @@ while ~Par.ESC && ~ExpFinished
     StopRewardIfNeeded();
 
     %% Check time, adjust status, and change stim -------------------------
-    tnow=GetSecs;
+    DrawDur = 0.03;
     switch ExpStatus
         case 'PreDur'
             % check for refresh seed ---
             if Stm.Gnd(1).NumSeeds>1 && Stm.RefreshSeed > 0 && ...
-                    tnow-Seed_T0 >= Stm.RefreshSeed
+                    lft-Seed_T0 >= Stm.RefreshSeed
                 [GndTexNum,LogCollect]=ChangeSeed(GndTexNum,LogCollect);
                 set_Seed_T0=trie;
             end
             
             % check for refresh polarity ---
-            if Stm.InvertPolarity && tnow-Pol_T0 >= Stm.RefreshPol
+            if Stm.InvertPolarity && lft-Pol_T0 >= Stm.RefreshPol
                 [CurrPol,LogCollect] = ChangePolarity(CurrPol,LogCollect);
                 set_Pol_T0=true;
             end
             
             % check for end of period ---
-            if tnow-Log.StartPre >= Stm.PreDur_TRs*Par.TR
+            if lft-Log.StartPre >= (Stm.PreDur_TRs*Par.TR) - DrawDur
                 ExpStatus = 'StimBlock';
                 if Stm.int_TRs > 0
                     WithinBlockStatus = 'FirstInt';
@@ -1504,21 +1512,21 @@ while ~Par.ESC && ~ExpFinished
                     % check for refresh seed ---
                     if Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).NumSeeds>1 && ...
                             Stm.RefreshSeed > 0 && ...
-                            tnow-Seed_T0 >= Stm.RefreshSeed
+                            lft-Seed_T0 >= Stm.RefreshSeed
                         [GndTexNum,LogCollect]=ChangeSeed(GndTexNum,LogCollect);
                         set_Seed_T0=true;
                         FlipScreenNow = true;
                     end
                     
                     % check for refresh polarity ---
-                    if Stm.InvertPolarity && tnow-Pol_T0 >= Stm.RefreshPol
+                    if Stm.InvertPolarity && lft-Pol_T0 >= Stm.RefreshPol
                         [CurrPol,LogCollect] = ChangePolarity(CurrPol,LogCollect);
                         set_Pol_T0=true;
                         FlipScreenNow = true;
                     end
                     
                     % check for end of period ---
-                    if tnow-Log.StartInt >= Stm.firstint_TRs*Par.TR
+                    if lft-Log.StartInt >= (Stm.firstint_TRs*Par.TR) - DrawDur
                         WithinBlockStatus = 'Stim';
                         StimLogDone = false;
                         StimNr = 1;
@@ -1539,7 +1547,7 @@ while ~Par.ESC && ~ExpFinished
                     switch StimType
                         case 'Figure'
                             % end of figure
-                            if tnow-Log.StartStim >= Stm.stim_TRs*Par.TR
+                            if lft-Log.StartStim >= (Stm.stim_TRs*Par.TR) - DrawDur
                                 Log.nEvents = Log.nEvents+1;
                                 LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
                                     'Figure','stop'}];
@@ -1573,7 +1581,7 @@ while ~Par.ESC && ~ExpFinished
                                 FlipScreenNow = true;
                             end
                         case 'Ground'
-                            if tnow-Log.StartStim >= Stm.stim_TRs*Par.TR
+                            if lft-Log.StartStim >= (Stm.stim_TRs*Par.TR) - DrawDur
                                 Log.nEvents = Log.nEvents+1;
                                 LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
                                     'Ground','stop'}];
@@ -1607,14 +1615,14 @@ while ~Par.ESC && ~ExpFinished
                     % check for refresh seed ---
                     if Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).NumSeeds>1 && ...
                             Stm.RefreshSeed > 0 && ...
-                            tnow-Seed_T0 >= Stm.RefreshSeed
+                            lft-Seed_T0 >= Stm.RefreshSeed
                         [GndTexNum,LogCollect]=ChangeSeed(GndTexNum,LogCollect);
                         set_Seed_T0=true;
                         FlipScreenNow = true;
                     end
                     
                     % check for refresh polarity ---
-                    if Stm.InvertPolarity && tnow-Pol_T0 >= Stm.RefreshPol
+                    if Stm.InvertPolarity && lft-Pol_T0 >= Stm.RefreshPol
                         [CurrPol,LogCollect] = ChangePolarity(CurrPol,LogCollect);
                         set_Pol_T0=true;
                         FlipScreenNow = true;
@@ -1622,7 +1630,7 @@ while ~Par.ESC && ~ExpFinished
                     
                     % move if required
                     if Stm.MoveStim.Do && strcmp(Stm.StimType{2},'lines')
-                        if tnow-Log.StartStim >= Stm.MoveStim.SOA && ...
+                        if lft-Log.StartStim >= Stm.MoveStim.SOA && ...
                                 NumGndMoves < Stm.MoveStim.nFrames
                             srcrect = round([...
                                 srcrect(1) + Stm.MoveStim.XY(1)*Par.PixPerDeg ...
@@ -1634,7 +1642,7 @@ while ~Par.ESC && ~ExpFinished
                             LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
                                 'Ground','move'}];
                             FlipScreenNow = true;
-                        elseif tnow < Log.StartStim + Stm.MoveStim.SOA
+                        elseif lft < Log.StartStim + Stm.MoveStim.SOA
                             srcrect = round([Par.wrect(1)+offscr.center(1)/2 ...
                                 Par.wrect(2)+offscr.center(2)/2 ...
                                 Par.wrect(3)+offscr.center(1)/2 ...
@@ -1650,7 +1658,7 @@ while ~Par.ESC && ~ExpFinished
                     end
                     
                 case 'Int'
-                    if tnow-Log.StartInt >= Stm.int_TRs*Par.TR
+                    if lft-Log.StartInt >= (Stm.int_TRs*Par.TR) - DrawDur
                         Log.nEvents = Log.nEvents+1;
                         LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
                             'Intermediate','stop'}];
@@ -1721,14 +1729,14 @@ while ~Par.ESC && ~ExpFinished
                     % check for refresh seed ---
                     if Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).NumSeeds>1 && ...
                             Stm.RefreshSeed > 0 && ...
-                            tnow-Seed_T0 >= Stm.RefreshSeed
+                            lft-Seed_T0 >= Stm.RefreshSeed
                         [GndTexNum,LogCollect]=ChangeSeed(GndTexNum,LogCollect);
                         set_Seed_T0=true;
                         FlipScreenNow = true;
                     end
                     
                     % check for refresh polarity ---
-                    if Stm.InvertPolarity && tnow-Pol_T0 >= Stm.RefreshPol
+                    if Stm.InvertPolarity && lft-Pol_T0 >= Stm.RefreshPol
                         [CurrPol,LogCollect] = ChangePolarity(CurrPol,LogCollect);
                         set_Pol_T0=true;
                         FlipScreenNow = true;
@@ -1737,21 +1745,21 @@ while ~Par.ESC && ~ExpFinished
         case 'PostDur'
             % check for refresh seed ---
             if Stm.Gnd(1).NumSeeds>1 && Stm.RefreshSeed > 0 && ...
-                    tnow-Seed_T0 >= Stm.RefreshSeed
+                    lft-Seed_T0 >= Stm.RefreshSeed
                 [GndTexNum,LogCollect]=ChangeSeed(GndTexNum,LogCollect);
                 set_Seed_T0=true;
                 FlipScreenNow = true;
             end
             
             % check for refresh polarity ---
-            if Stm.InvertPolarity && tnow-Pol_T0 >= Stm.RefreshPol
+            if Stm.InvertPolarity && lft-Pol_T0 >= Stm.RefreshPol
                 [CurrPol,LogCollect] = ChangePolarity(CurrPol,LogCollect);
                 set_Pol_T0=true;
                 FlipScreenNow = true;
             end
             
             % check for end of period ---
-            if tnow-Log.StartPostDur >= Stm.PostDur_TRs*Par.TR
+            if lft-Log.StartPostDur >= (Stm.PostDur_TRs*Par.TR) - DrawDur
                 ExpStatus = 'Finish';
                 Log.nEvents = Log.nEvents+1;
                 LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
@@ -1760,60 +1768,53 @@ while ~Par.ESC && ~ExpFinished
             end
     end
     
-    %% Do this routine for all remaining flip time ------------------------
-    DoneOnce=false;
-    %while ~DoneOnce || GetSecs < tnow+0.80*Par.fliptimeSec
-        DoneOnce=true;
-        
-        %% check for key-presses --------------------------------------
-        CheckKeys(LogCollect); % internal function
-        
-        %% Change stimulus if required --------------------------------
-        ChangeStimulus;
-        
-        %% give manual reward -----------------------------------------
-        if Par.ManualReward && ~TestRunstimWithoutDAS
-            GiveRewardManual;
-            Par.ManualReward=false;
-        end
-        
-        %% give reward for hand in box --------------------------------
-        if Par.RewardForHandsIn && any(Par.HandIsIn) && ~Par.Pause && ...
-                ~Par.RewardRunning && ...
-                GetSecs - Par.HandInNew_Moment > Par.RewardForHandsIn_Delay
-            if GetSecs - Par.RewHandStart > Par.RewardForHandIn_MinInterval % kept in long enough
-                GiveRewardAutoHandIn;
-            elseif Par.RewardForHandIn_ResetIntervalWhenOut && ...
-                    Par.HandInPrev_Moment ~= Par.HandInNew_Moment && ...
-                    GetSecs - Par.RewHandStart > Par.RewardForHandIn_MinIntervalBetween
-                GiveRewardAutoHandIn;
-            end
-        end
-        
-        %% check photosensor ------------------------------------------
-        if ~TestRunstimWithoutDAS
-            CheckManual;
-            if ~strcmp(Par.ResponseBox.Task,'DetectGoSignal') && ...
-                    Par.StimNeeds.HandIsIn && ...
-                    ((strcmp(Par.HandInBothOrEither,'Both') && ~any(Par.HandIsIn)) || ...
-                    (strcmp(Par.HandInBothOrEither,'Either') && ~all(Par.HandIsIn)))
-                % assumes only 1 photo-channel in use, or only checks
-                % first defined channel
-                Par.FixIn = false;
-                % reset the fixation status to false if his hands are not where
-                % they should be, otherwise he may get an immediate reward when
-                % he maintains the proper eye-position and puts his hand in
-                %
-                % Doing this via StimNeedsHandInBox allows showing a fix dot
-                % which is only marked as fixating when the hands are also in
-                % the box
-            end
-        end
-        
-        %% Stop reward ------------------------------------------------
-        StopRewardIfNeeded();
-    %end
+    %% check for key-presses --------------------------------------
+    CheckKeys(LogCollect); % internal function
     
+    %% Change stimulus if required --------------------------------
+    ChangeStimulus;
+    
+    %% give manual reward -----------------------------------------
+    if Par.ManualReward && ~TestRunstimWithoutDAS
+        GiveRewardManual;
+        Par.ManualReward=false;
+    end
+    
+    %% give reward for hand in box --------------------------------
+    if Par.RewardForHandsIn && any(Par.HandIsIn) && ~Par.Pause && ...
+            ~Par.RewardRunning && ...
+            GetSecs - Par.HandInNew_Moment > Par.RewardForHandsIn_Delay
+        if GetSecs - Par.RewHandStart > Par.RewardForHandIn_MinInterval % kept in long enough
+            GiveRewardAutoHandIn;
+        elseif Par.RewardForHandIn_ResetIntervalWhenOut && ...
+                Par.HandInPrev_Moment ~= Par.HandInNew_Moment && ...
+                GetSecs - Par.RewHandStart > Par.RewardForHandIn_MinIntervalBetween
+            GiveRewardAutoHandIn;
+        end
+    end
+    
+    %% check photosensor ------------------------------------------
+    if ~TestRunstimWithoutDAS
+        CheckManual;
+        if ~strcmp(Par.ResponseBox.Task,'DetectGoSignal') && ...
+                Par.StimNeeds.HandIsIn && ...
+                ((strcmp(Par.HandInBothOrEither,'Both') && ~any(Par.HandIsIn)) || ...
+                (strcmp(Par.HandInBothOrEither,'Either') && ~all(Par.HandIsIn)))
+            % assumes only 1 photo-channel in use, or only checks
+            % first defined channel
+            Par.FixIn = false;
+            % reset the fixation status to false if his hands are not where
+            % they should be, otherwise he may get an immediate reward when
+            % he maintains the proper eye-position and puts his hand in
+            %
+            % Doing this via StimNeedsHandInBox allows showing a fix dot
+            % which is only marked as fixating when the hands are also in
+            % the box
+        end
+    end
+    
+    %% Stop reward ------------------------------------------------
+    StopRewardIfNeeded();
 end
 
 %% Clean up and Save Log --------------------------------------------------
@@ -2653,7 +2654,7 @@ Par=Par_BU;
     function CheckManual
         %check the incoming signal on DAS channel #3
         % NB dasgetlevel only starts counting at the third channel (#2)
-        daspause(5);
+        daspause(2);
         ChanLevels=dasgetlevel;
         Log.RespSignal = ChanLevels(Par.ConnectBox.PhotoAmp(:)-2);
         % dasgetlevel starts reporting at channel 3, so
