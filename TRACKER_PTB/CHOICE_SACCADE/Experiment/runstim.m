@@ -150,6 +150,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
             Par.Times.Fix=Stm.FixT; % time to fix before stim onset
             Par.Times.Targ=Stm.KeepFixT(1); % time to fix before target onset. before 26-9-2014 this was 150
             Par.Times.TargRange=Stm.KeepFixT;
+            Par.Times.TargFlashDur=Stm.PreTargFlashDur;
             Par.Times.Stim=Stm.StimT;
             Par.Times.Rt=Stm.ReacT; % max allowed reaction time (leave fixwin after target onset)
             Par.Times.Sacc=Stm.SaccT; % max allowed saccade time (from leave fixwin to enter target win)
@@ -175,6 +176,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
         PREFIXT = Par.Times.ToFix; % time allowed to initiate fixation
         FIXT = Par.Times.Fix; % duration to hold fixation before stimuli appear
         TARGT = Par.Times.Targ; % Duration to hold fixation while stimuli are on the screen
+        TARGFLASHDUR =  Par.Times.TargFlashDur;
         STIMT = Par.Times.Stim; % Duration that stim/targets are displayed
         RACT = Par.Times.Rt; % Time allowed to select a target after target onset
         SACCT= Par.Times.Sacc; % Allowed saccade time between leaving fixwin and entering targwin
@@ -279,9 +281,9 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
         while ~Par.ESC && ~TrialEnded
             
             % pick a hold-fix time from the specified range
-            TARGT=Par.Times.TargRange(1);
-            while TARGT >= Par.Times.TargRange(1)-Par.Times.TargRange(2) && ...
-                    TARGT <= Par.Times.TargRange(1)+Par.Times.TargRange(2)
+            TARGT=round(normrnd(Par.Times.TargRange(1),Par.Times.TargRange(2)));
+            while TARGT <= Par.Times.TargRange(1)-Par.Times.TargRange(2) || ...
+                    TARGT >= Par.Times.TargRange(1)+Par.Times.TargRange(2)
                 TARGT = round(normrnd(Par.Times.TargRange(1),Par.Times.TargRange(2)));
             end
             STIMT = RACT + TARGT;
@@ -361,8 +363,6 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                         %fprintf('fixation regained\n');
                         dasreset( 1); %test for exiting fix window
                         Time = 1; Hit = 0;
-                        %tic;
-                        %while toc*1000 < FIXT && Hit == 0
                         while Time < FIXT && Hit == 0
                             dasrun(5)
                             [Hit Time] = DasCheck;
@@ -388,6 +388,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
             
             
             %///////// EVENT 2 DISPLAY STIMULUS ///////////////////////////
+            fprintf(['TARGT is ' num2str(TARGT) '\n']);
             if Hit == 0
                 Par.Trlcount = Par.Trlcount + 1; %counts total number of trials for this session
                 %                 if mod(Par.Trlcount,25)==0 || Par.Trlcount==1
@@ -395,25 +396,36 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                 %                 end
                 TrialStarted = true;
                 TrialsStartedThisRep=TrialsStartedThisRep+1;
-                DrawBackground;
-                DrawPreTargets(Tar);
-                Par.CurrFixCol = Stm.FixDotCol(1,1:3).*Par.ScrWhite;
-                DrawFix;
-                
+                        
                 if TARGT > 0
-                    lft=Screen('Flip', Par.window);
-                    StimStart=lft;
-                    
-                    % Log trial specs ----
-                    Log.Trial(Par.Trlcount).CondNr = CurCond;
-                    Log.Trial(Par.Trlcount).StimStart = StimStart;
-                    Log.Trial(Par.Trlcount).Timing = Par.Times;
-                    
+                    PreTarLogDone = false;
+
                     % check for breaking fixation
                     dasreset(1); %test for exiting fix window
                     refreshtracker(2)
                     Time = 0;
+
                     while Time < TARGT  && Hit == 0
+                        DrawBackground;
+                        if Time < TARGFLASHDUR
+                            DrawTargets(Tar);
+                        else
+                            DrawPreTargets(Tar);
+                        end
+                        Par.CurrFixCol = Stm.FixDotCol(1,1:3).*Par.ScrWhite;
+                        DrawFix;
+                        
+                        lft=Screen('Flip', Par.window);
+                        StimStart=lft;
+                        
+                        if ~PreTarLogDone
+                            % Log trial specs ----
+                            Log.Trial(Par.Trlcount).CondNr = CurCond;
+                            Log.Trial(Par.Trlcount).StimStart = StimStart;
+                            Log.Trial(Par.Trlcount).Timing = Par.Times;
+                            PreTarLogDone = true;
+                        end
+                        
                         %Keep fixating till target onset
                         delay=ceil(Par.fliptime);
                         if TARGT - Time < delay
@@ -791,6 +803,7 @@ fprintf('------------------------------\n');
 % draw pre-target stimuli
     function DrawPreTargets(Tar)
         for tn=1:length(Tar)
+            
             if strcmp(Tar(tn).Shape,'circle')
                 Screen('FillOval',Par.window,Tar(tn).PreTargCol,Tar(tn).Rect);
             elseif strcmp(Tar(tn).Shape,'square')
