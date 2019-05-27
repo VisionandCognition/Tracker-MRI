@@ -10,6 +10,16 @@ CHOICE_SACCADE
 >> Targets selected with eye movement
 >> Reward based on selection and target
 
+Curve_Tracing
+>> Curve tracing experiments
+>> Lever responses
+>> Training possibilities
+
+FIGURE_GROUND
+>> Figure ground experiments
+>> fixation or lever task
+>> different stimulus types
+
 INITIAL_TRAINING
 >> same as REPORT_FIXORIENTCHANGE ?
 
