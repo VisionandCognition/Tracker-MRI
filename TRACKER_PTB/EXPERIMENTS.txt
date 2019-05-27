@@ -20,6 +20,9 @@ FIGURE_GROUND
 >> fixation or lever task
 >> different stimulus types
 
+HRF-checker
+>> Flashed checkerboards to estimate individual HRF
+
 INITIAL_TRAINING
 >> same as REPORT_FIXORIENTCHANGE ?
 
