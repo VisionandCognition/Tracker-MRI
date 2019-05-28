@@ -11,15 +11,16 @@ Stm.BackColor =  [.667 .667 .667]; % [R G B] 0-1
 %% Timing -----------------------------------------------------------------
 % pre-defined in ParSettings at init: will be overwritten with these values
 Stm.PreFixT = 5000; % time to enter fixation window
-Stm.FixT = 250; % time to fix before stim onset
+Stm.FixT = 300; % time to fix before stim onset
 Stm.KeepFixT = [500 50]; % [mean sd] of NORM % time to fix before target onset. not <|> m+/-sd
 Stm.PreTargFlashDur = 20;
 Stm.ReacT = 2000; % max allowed reaction time (leave fixwin after target onset)
 Stm.StimT = Stm.KeepFixT(1) + Stm.ReacT; % stimulus display duration
 Stm.SaccT = 500; % max allowed saccade time (from leave fixwin to enter target win)
 Stm.ErrT = 500; % punishment extra ISI after error trial (there are no error trials here)
-Stm.ISI = 100; % base inter-stimulus interval
-Stm.ISI_RAND = 300; % maximum extra (random) ISI to break any possible rythm
+Stm.ErrT_onEarly = true;
+Stm.ISI = 500; % base inter-stimulus interval
+Stm.ISI_RAND = 200; % maximum extra (random) ISI to break any possible rythm
 
 %% Fixation ---------------------------------------------------------------
 %NB! may be overruled in the parsettings file

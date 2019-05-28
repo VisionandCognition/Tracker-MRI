@@ -155,6 +155,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
             Par.Times.Rt=Stm.ReacT; % max allowed reaction time (leave fixwin after target onset)
             Par.Times.Sacc=Stm.SaccT; % max allowed saccade time (from leave fixwin to enter target win)
             Par.Times.Err=Stm.ErrT; % punishment extra ISI after error trial (there are no error trials here)
+            Par.Times.ErrT_onEarly = Stm.ErrT_onEarly;
             Par.Times.InterTrial=Stm.ISI; % base inter-stimulus interval
             Par.Times.RndInterTrial=Stm.ISI_RAND; % maximum extra (random) ISI to break any possible rythm
             
@@ -184,6 +185,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
         ISI_R = Par.Times.RndInterTrial; % max random addition to ISI
         ERRT = Par.Times.Err; % % punishment addition to ISI after error trial
         % there are no error trials here
+        ERRT_ONEARLY = Par.Times.ErrT_onEarly;
         
         %% Prepare stimuli ------------------------------------------------
         %% PrepStim
@@ -287,6 +289,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                 TARGT = round(normrnd(Par.Times.TargRange(1),Par.Times.TargRange(2)));
             end
             STIMT = RACT + TARGT;
+            ERR_ISI = 0;
             %/////////// START THE TRIAL //////////////////////////////////
             Abort = false;    %whether subject has aborted before end of trial
             
@@ -388,7 +391,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
             
             
             %///////// EVENT 2 DISPLAY STIMULUS ///////////////////////////
-            fprintf(['TARGT is ' num2str(TARGT) '\n']);
+            %fprintf(['TARGT is ' num2str(TARGT) '\n']);
             if Hit == 0
                 Par.Trlcount = Par.Trlcount + 1; %counts total number of trials for this session
                 %                 if mod(Par.Trlcount,25)==0 || Par.Trlcount==1
@@ -431,6 +434,9 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                         if TARGT - Time < delay
                             dasrun(delay)
                             Hit = LPStat(1); % became 0-based MEX
+                            if ERRT_ONEARLY
+                                ERR_ISI = ERRT;
+                            end
                             break
                         else
                             dasrun(5)
@@ -677,7 +683,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
             %fprintf('ITI\n');
             ISI_R2=ISI_R*rand(1);
             tic;
-            while toc*1000 <  (ISI + ISI_R2)
+            while toc*1000 <  (ISI + ISI_R2 + ERR_ISI)
                 %while Time < Lasttime + (ISI + ISI_R*rand(1))
                 daspause(5);
                 [Hit Time] = DasCheck;
