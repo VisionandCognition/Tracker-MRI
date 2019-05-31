@@ -604,7 +604,8 @@ for STIMNR = Log.StimOrder
                 RetMapStimuli=false;
                 DispChecker=false;
                 MovieRun=true;
-                moviename = [Par.ExpFolder '\Stimuli\Movies\' Stm(STIMNR).RetMap.FileName];
+                moviename = fullfile(Par.ExpFolder,'Stimuli','Movies',Stm(STIMNR).RetMap.FileName);
+                %moviename = [Par.ExpFolder '\Stimuli\Movies\' Stm(STIMNR).RetMap.FileName];
                 % prepare the movie
                 [Log.movie.name, Log.movie.duration, ...
                     Log.movie.fps, Log.movie.imgw, Log.movie.imgh] = ...
