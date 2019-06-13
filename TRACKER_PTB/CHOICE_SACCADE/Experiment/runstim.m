@@ -323,7 +323,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                 end
             end
                         
-            %             ///////// EVENT 1 KEEP FIXATING or REDO  /////////////////////
+            %///////// EVENT 1 KEEP FIXATING or REDO  /////////////////////
             if Hit ~= 0  %subjects eyes are in fixation window keep fixating for FIX time
                 %fprintf('fixation detected\n');
                 dasreset(1);     %set test parameters for exiting fix window
@@ -409,8 +409,9 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                     Time = 0;
 
                     while Time < TARGT  && Hit == 0
+                        %fprintf(['stuck here...' num2str(Time) '\n'])
                         DrawBackground;
-                        if Time < TARGFLASHDUR
+                        if TARGFLASHDUR > 0 && Time < TARGFLASHDUR
                             DrawTargets(Tar);
                         else
                             DrawPreTargets(Tar);
@@ -430,17 +431,11 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                         end
                         
                         %Keep fixating till target onset
-                        delay=ceil(Par.fliptime);
-                        if TARGT - Time < delay
-                            dasrun(delay)
-                            Hit = LPStat(1); % became 0-based MEX
-                            if ERRT_ONEARLY
-                                ERR_ISI = ERRT;
-                            end
+                        dasrun(5)
+                        [Hit Time] = DasCheck;
+                        if Hit && ERRT_ONEARLY
+                            ERR_ISI = ERRT;
                             break
-                        else
-                            dasrun(5)
-                            [Hit Time] = DasCheck;
                         end
                         CheckKeys; %check key presses
                         CheckManual; %check status of the photo amp
@@ -451,12 +446,14 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                             Hit=-1;
                             Abort=true;
                         end
+                        
                     end
                     
                 end
                 
                 %///////// EVENT 3 TARGET ONSET, REACTION TIME%%///////////
                 if Hit == 0 %subject kept fixation, subject may make an eye movement
+                    %fprintf('Target status on\n')
                     DrawBackground;
                     DrawTargets(Tar);
                     if ~Stm.FixRemoveOnGo
@@ -693,6 +690,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                 ChangeFixPos;
                 ControlVisibility(Tar,[0 0]);
             end
+            %fprintf(['ISI was ' num2str(toc) 's\n']);
             TrialEnded=true;
             
             % finish giving reward if necessary
