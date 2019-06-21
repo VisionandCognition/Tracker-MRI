@@ -741,18 +741,38 @@ dasjuice(0); %stop reward if its running
 Priority(Par.oldPriority);
 
 % save stuff
-FileName=['Log_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString];
+LogPath = fullfile(Par.LogFolder,Par.SetUp,Par.MONKEY,...
+    [Par.MONKEY '_' DateString(1:8)],[Par.MONKEY '_' DateString]);
+warning off;mkdir(LogPath);warning on;
+LogFn = [Par.SetUp '_' Par.MONKEY '_' DateString];
+cd(LogPath)
+
+%FileName=['Log_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString];
+FileName=['Log_' LogFn];
 warning off; 
-mkdir('Log');cd('Log');
+
+%mkdir('Log');cd('Log');
 StimObj.Stm=Stm;
-mkdir([ Par.MONKEY '_' Par.STIMSETFILE '_' DateString]);
-cd([ Par.MONKEY '_' Par.STIMSETFILE '_' DateString]);
-fn=['Runstim_'  Par.MONKEY '_' Par.STIMSETFILE '_' DateString];
+%mkdir([ Par.MONKEY '_' Par.STIMSETFILE '_' DateString]);
+%cd([ Par.MONKEY '_' Par.STIMSETFILE '_' DateString]);
+
+% runstim
+fn=['Runstim_'  LogFn '.m'];
 cfn=[mfilename('fullpath') '.m'];
 copyfile(cfn,fn);
+% parsettings
+parsetpath = which(Par.PARSETFILE);
+if isempty(ls(Par.PARSETFILE)) % doesn't exist yet
+    copyfile(parsetpath,[Par.PARSETFILE '.m']);
+end
+% stimsettings
+stimsetpath = which(Par.STIMSETFILE);
+if isempty(ls(Par.STIMSETFILE)) % doesn't exist yet
+    copyfile(stimsetpath,[Par.STIMSETFILE '.m']);
+end
+
 save(FileName,'Log','Par','StimObj');
-cd .. % back to Log folder
-cd .. % back to root folder
+cd(Par.ExpFolder) 
 warning on; 
 
 % print overview to cmd

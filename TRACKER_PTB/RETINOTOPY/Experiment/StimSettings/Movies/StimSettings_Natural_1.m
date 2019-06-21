@@ -36,7 +36,7 @@ Stm(1).RetMap.StimType{2} = 'Natural'; % circle / wedge
 % ret: pRF_8bar / wedge_cw/ccw / ring_con/exp
 Stm(1).RetMap.Dir = -1; % +1 = expanding / ccw, -1 = contracting / cw
 % only informative for face/walker stimuli
-Stm(1).RetMap.TRsPerStep = 228; %s 
+Stm(1).RetMap.TRsPerStep = 381; %s 
 Stm(1).RetMap.PreDur_TRs = 5; % volumes
 Stm(1).RetMap.PostDur_TRs = 5; % volumes
 Stm(1).RetMap.nCycles = 1; % 0=unlimited
@@ -48,9 +48,9 @@ Stm(1).RetMap.LoadFromFile = false;
 % NB! loading a stimulus overwrites all settings with the ones saved!
 Stm(1).RetMap.SaveToFile = false;
 Stm(1).RetMap.FileName = 'MOVIE1_CC1_v2.mp4';
-Stm(1).RetMap.moviefps = 30; % framerate of moviefile
-Stm(1).RetMap.movierate = 0.5; % speed of playing
-Stm(1).RetMap.moviedur = 185; % sec
+Stm(1).RetMap.moviefps = 24; % framerate of moviefile
+Stm(1).RetMap.movierate = 1; % speed of playing
+Stm(1).RetMap.moviedur = 921; % sec
 Stm(1).RetMap.PlaySize = [640*(1080/480) 1080]; % max height & keep ratio
 
 % Logfolder
