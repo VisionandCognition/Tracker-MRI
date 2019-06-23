@@ -34,7 +34,7 @@ if TestRunstimWithoutDAS
     
     %Set ParFile and Stimfile
     Par.PARSETFILE = 'ParSettings_NoDas';
-    Par.STIMSETFILE = 'StimSettings_pRF_8bars'; %'StimSettings_FullscreenCheckerboard';
+    Par.STIMSETFILE = 'StimSettings_Natural_1'; %'StimSettings_pRF_8bars'; %'StimSettings_FullscreenCheckerboard';
     Par.MONKEY = 'TestWithoutDAS';
 end
 clc;
@@ -864,6 +864,7 @@ for STIMNR = Log.StimOrder
             
             Par.FirstInitDone=true;
         end
+        
         %% Check what to draw depending on time ---------------------------
         if RetMapStimuli || MovieRun
             if GetSecs < Log.StartBlock + Stm(STIMNR).RetMap.PreDur % PreDur
@@ -1194,7 +1195,8 @@ for STIMNR = Log.StimOrder
             end
             
             %% give reward for hand in box --------------------------------
-            if Par.RewardForHandsIn && any(Par.HandIsIn) && ~Par.Pause && ...
+            if Par.RewardForHandsIn && ...
+                    any(Par.HandIsIn) && ~Par.Pause && ...
                     ~Par.RewardRunning && ...
                     GetSecs - Par.HandInNew_Moment > Par.RewardForHandsIn_Delay 
                 if GetSecs - Par.RewHandStart > Par.RewardForHandIn_MinInterval % kept in long enough
@@ -1399,7 +1401,7 @@ for STIMNR = Log.StimOrder
                 %Par.ResponseStateChangeTime = GetSecs;
                 StartWaitTime = Par.ResponseStateChangeTime;
                 
-                if Par.PickRandomIndicatorPosition;
+                if Par.PickRandomIndicatorPosition
                     Par.s_order=randperm(size(Par.RespIndPos,1));
                     Par.PickRandomIndicatorPosition = false;
                 end
