@@ -8,7 +8,7 @@ Stm(1).FlipTimePredef = 1/75;
 
 % Background --------------------------------------------------------------
 %Stm(1).BackColor = [.5 .5 .5]; % [R G B] 0-1
-Stm(1).BackColor = [.25 .25 .25]; % [R G B] 0-1
+Stm(1).BackColor = 0*[.25 .25 .25]; % [R G B] 0-1
 % Leuven retinotopy clips have a background of 88 out of 256
 
 % Fixation ----------------------------------------------------------------
@@ -37,7 +37,7 @@ Stm(1).RetMap.StimType{2} = 'Natural'; % circle / wedge
 Stm(1).RetMap.Dir = -1; % +1 = expanding / ccw, -1 = contracting / cw
 % only informative for face/walker stimuli
 Stm(1).RetMap.TRsPerStep = 381; %s 
-Stm(1).RetMap.PreDur_TRs = 5; % volumes
+Stm(1).RetMap.PreDur_TRs = 0; % volumes
 Stm(1).RetMap.PostDur_TRs = 5; % volumes
 Stm(1).RetMap.nCycles = 1; % 0=unlimited
 Stm(1).RetMap.nSteps = 1; 

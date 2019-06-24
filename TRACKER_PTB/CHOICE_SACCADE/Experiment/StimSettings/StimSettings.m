@@ -12,8 +12,8 @@ Stm.BackColor =  [.667 .667 .667]; % [R G B] 0-1
 % pre-defined in ParSettings at init: will be overwritten with these values
 Stm.PreFixT = 5000; % time to enter fixation window
 Stm.FixT = 300; % time to fix before stim onset
-Stm.KeepFixT = [600 100]; % [mean sd] of NORM % time to fix before target onset. not <|> m+/-sd
-Stm.PreTargFlashDur = 300;%500;
+Stm.KeepFixT = [700 100]; % [mean sd] of NORM % time to fix before target onset. not <|> m+/-sd
+Stm.PreTargFlashDur = 0;%500;
 Stm.ReacT = 2000; % max allowed reaction time (leave fixwin after target onset)
 Stm.StimT = Stm.KeepFixT(1) + Stm.ReacT; % stimulus display duration
 Stm.SaccT = 500; % max allowed saccade time (from leave fixwin to enter target win)
@@ -110,8 +110,8 @@ elseif TarCreateAlgorithm == 2
         Stm.Cond(c).Targ(1).WinSize = 3; % deg
         Stm.Cond(c).Targ(1).Position = Stm.TarPos(c,:); % deg
         Stm.Cond(c).Targ(1).Color = [.1 .1 .1]; % RGB 0-1
-        %Stm.Cond(c).Targ(1).PreTargCol = Stm.Cond(c).Targ(1).Color;
-        Stm.Cond(c).Targ(1).PreTargCol = [0.65 0.65 0.65];
+        Stm.Cond(c).Targ(1).PreTargCol = .9*Stm.Cond(c).Targ(1).Color;
+        %Stm.Cond(c).Targ(1).PreTargCol = [0.65 0.65 0.65];
         Stm.Cond(c).Targ(1).Reward = 0.120;
     end
 end

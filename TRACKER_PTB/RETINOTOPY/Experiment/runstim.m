@@ -402,8 +402,8 @@ for i=1:length(Stm)
         Stm(i).RetMap.PostDur = ...
             Stm(i).RetMap.PostDur_TRs*Par.TR;
         TotTime = TotTime + ...
-                    (Stm(i).RetMap.moviedur/Stm(i).RetMap.movierate) + ...
-                    Stm(i).RetMap.PreDur + Stm(i).RetMap.PostDur;
+            (Stm(i).RetMap.moviedur/Stm(i).RetMap.movierate) + ...
+            Stm(i).RetMap.PreDur + Stm(i).RetMap.PostDur;
     else
         Stm(i).RetMap.PreDur = ...
             Stm(i).RetMap.PreDur_TRs*Par.TR;
@@ -435,21 +435,21 @@ end
 if ~isinf(TotTime)
     NumVolNeeded=(Stm(1).nRepeatsStimSet*TotTime)/Par.TR;
     if strcmp(Par.SetUp,'NIN') % ephys
-       fprintf(['This StimSettings file will take ' ...
-           num2str(ceil(Stm(1).nRepeatsStimSet*TotTime)) ' seconds.\n']); 
-       Log.uniqueID = round(rand(1).*2^14); 
-       
-       if strcmp(Par.SetUp,'NIN')
-           send_serial_data(Log.uniqueID); % Xing's Blackrock rig
-           % dasword(Log.uniqueID); % other ephys
-       else
-           dasword(Log.uniqueID);
-       end
-       
-       pause(.05); % make sure the word is received
-       dasclearword();
-       WordsSent=1; %keep track of how many words are sent so we back-check TDT against the log
-       Log.Words(WordsSent)=Log.uniqueID; %collect all the words that are sent to TDT
+        fprintf(['This StimSettings file will take ' ...
+            num2str(ceil(Stm(1).nRepeatsStimSet*TotTime)) ' seconds.\n']);
+        Log.uniqueID = round(rand(1).*2^14);
+        
+        if strcmp(Par.SetUp,'NIN')
+            send_serial_data(Log.uniqueID); % Xing's Blackrock rig
+            % dasword(Log.uniqueID); % other ephys
+        else
+            dasword(Log.uniqueID);
+        end
+        
+        pause(.05); % make sure the word is received
+        dasclearword();
+        WordsSent=1; %keep track of how many words are sent so we back-check TDT against the log
+        Log.Words(WordsSent)=Log.uniqueID; %collect all the words that are sent to TDT
     else
         fprintf(['This StimSettings file requires at least ' num2str(ceil(NumVolNeeded)) ...
             ' scanvolumes (check scanner)\n']);
@@ -678,7 +678,7 @@ for STIMNR = Log.StimOrder
         Par.BothLeversUp_time = Inf;
         AutoPauseStartTime = Inf;
         AutoPausing = false;
-                      
+        
         %video control
         Par.VideoLoaded=false;
         Par.VideoPlaying=false;
@@ -719,7 +719,7 @@ for STIMNR = Log.StimOrder
         
         EyeRecMsgShown=false;
         RunEnded=false;
-               
+        
         %% Eye-tracker recording
         if Par.EyeRecAutoTrigger
             if ~FirstEyeRecSet
@@ -771,7 +771,6 @@ for STIMNR = Log.StimOrder
                 fprintf(['MRI trigger received after ' num2str(GetSecs-Par.ExpStart) ' s\n']);
             end
         end
-        
     end
     
     %% Displaying the stimuli ---------------------------------------------
@@ -782,7 +781,7 @@ for STIMNR = Log.StimOrder
                 DefineEyeWin(STIMNR);
                 refreshtracker(1) %for your control display
                 last_tracker_update = GetSecs;
-                SetWindowDas      %for the dascard, initializes eye control windows
+                SetWindowDas;      %for the dascard, initializes eye control windows
             end
             
             Par.Trlcount = Par.Trlcount+1; %keep track of trial numbers
@@ -832,7 +831,7 @@ for STIMNR = Log.StimOrder
             Log.Events(Log.nEvents).t=Log.StartBlock-Par.ExpStart;
             Log.Events(Log.nEvents).StimName = [];
             if TestRunstimWithoutDAS; Hit=0; end
-                      
+            
             PreStarted = false;
             OnStarted = false;
             OffStarted = false;
@@ -908,11 +907,11 @@ for STIMNR = Log.StimOrder
                     Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
                     Log.Events(Log.nEvents).StimName = posn;
                     if strcmp(Par.SetUp,'NIN') % ephys
-                    	dasbit(Par.StimB,1);
+                        dasbit(Par.StimB,1);
                         daspause(0.05);
                         dasbit(Par.StimB,0);
                         %send_serial_data(posn);
-                        %WordsSent+1; 
+                        %WordsSent+1;
                         %Log.Words(WordsSent)=posn;
                     end
                 end
@@ -926,13 +925,13 @@ for STIMNR = Log.StimOrder
                         texn=texn-numel(ret_vid(posn_adj).text);
                     end
                 elseif posn
-%                     posn_adj = mod(posn-1,length(stimulus(1).img))+1;
-%                     texn = ceil(mod(GetSecs-Log.StartBlock,Par.TR)*...
-%                         ret_vid(Stm(STIMNR).Order(posn_adj)).fps);
-%                     if ~texn; texn=1; end;
-%                     while texn>numel(ret_vid(Stm(STIMNR).Order(posn_adj)).text);
-%                         texn=texn-numel(ret_vid(Stm(STIMNR).Order(posn_adj)).text);
-%                     end
+                    %                     posn_adj = mod(posn-1,length(stimulus(1).img))+1;
+                    %                     texn = ceil(mod(GetSecs-Log.StartBlock,Par.TR)*...
+                    %                         ret_vid(Stm(STIMNR).Order(posn_adj)).fps);
+                    %                     if ~texn; texn=1; end;
+                    %                     while texn>numel(ret_vid(Stm(STIMNR).Order(posn_adj)).text);
+                    %                         texn=texn-numel(ret_vid(Stm(STIMNR).Order(posn_adj)).text);
+                    %                     end
                     texn = ceil(mod(GetSecs-Log.StartBlock,Par.TR)*...
                         ret_vid(Stm(STIMNR).Order(posn)).fps);
                     if ~texn; texn=1; end
@@ -1198,9 +1197,9 @@ for STIMNR = Log.StimOrder
             if Par.RewardForHandsIn && ...
                     any(Par.HandIsIn) && ~Par.Pause && ...
                     ~Par.RewardRunning && ...
-                    GetSecs - Par.HandInNew_Moment > Par.RewardForHandsIn_Delay 
+                    GetSecs - Par.HandInNew_Moment > Par.RewardForHandsIn_Delay
                 if GetSecs - Par.RewHandStart > Par.RewardForHandIn_MinInterval % kept in long enough
-                    GiveRewardAutoHandIn; 
+                    GiveRewardAutoHandIn;
                 elseif Par.RewardForHandIn_ResetIntervalWhenOut && ...
                         Par.HandInPrev_Moment ~= Par.HandInNew_Moment && ...
                         GetSecs - Par.RewHandStart > Par.RewardForHandIn_MinIntervalBetween
@@ -1267,7 +1266,7 @@ for STIMNR = Log.StimOrder
                         && ~Par.Pause
                     % start the movie if it hasn't started yet
                     if ~MovieRunning
-                        Screen('PlayMovie', Log.movie.name, Stm(STIMNR).RetMap.movierate, 1, 0); 
+                        Screen('PlayMovie', Log.movie.name, Stm(STIMNR).RetMap.movierate, 1, 0);
                         % looping avoid early stops (duration is regulated
                         % based on movieduration separately)
                         MovieRunning=true;
@@ -1275,11 +1274,10 @@ for STIMNR = Log.StimOrder
                         PlayWindow = [ (Par.wrect(3)-Stm(STIMNR).RetMap.PlaySize(1))/2 0 ...
                             Par.wrect(3)-(Par.wrect(3)-Stm(STIMNR).RetMap.PlaySize(1))/2  ...
                             Stm(STIMNR).RetMap.PlaySize(2)];
-                        Par.BG
                     end
                     % grab a texture
                     movietex = Screen('GetMovieImage', Par.window, Log.movie.name, 1);
-                    % draw that texture 
+                    % draw that texture
                     if movietex>0
                         Screen('DrawTexture', Par.window, movietex, [], ...
                             PlayWindow, [], [], [], [], []);
@@ -1337,7 +1335,7 @@ for STIMNR = Log.StimOrder
                 % start Reward
                 if ~Par.RewardRunning && ~TestRunstimWithoutDAS && ~Par.Pause && ...
                         Par.Rew_BasedOnHandIn(Par) && ~Par.HideFix_BasedOnHandIn(Par)
-                     % nCons correct fixations
+                    % nCons correct fixations
                     Par.CorrStreakcount=Par.CorrStreakcount+1;
                     Par.Response=Par.Response+1;
                     Par.ResponsePos=Par.ResponsePos+1;
@@ -1377,7 +1375,7 @@ for STIMNR = Log.StimOrder
                 AutoPausing = true;
             elseif GetSecs > AutoPauseStartTime + Par.LeversUpTimeOut(2) && ...
                     Par.Pause && AutoPausing % Time-out time over
-                if all(Par.LeverIsUp) 
+                if all(Par.LeverIsUp)
                     % still both up, continue time-out
                 else
                     Par.Pause=false;
@@ -1388,13 +1386,13 @@ for STIMNR = Log.StimOrder
                     Log.Events(Log.nEvents).StimName = [];
                     AutoPausing = false;
                 end
-           end
+            end
         end
         
         %% if doing Par.ResponseBox.Task of 'DetectGoSignal': -------------
         if strcmp(Par.ResponseBox.Task, 'DetectGoSignal') && ~TestRunstimWithoutDAS
             % ==== Start wait period ====
-            if Par.ResponseState == Par.RESP_STATE_DONE && ... 
+            if Par.ResponseState == Par.RESP_STATE_DONE && ...
                     Par.CanStartTrial(Par)
                 UpdateHandTaskState(Par.RESP_STATE_WAIT);
                 %Par.ResponseState = Par.RESP_STATE_WAIT;
@@ -1408,14 +1406,14 @@ for STIMNR = Log.StimOrder
                 
                 if ~Par.IsCatchBlock
                     if Par.ResponseSide == 0 || Par.ForceRespSide
-                        if NumberOfConsecutiveErrors >= Par.MaxNumberOfConsecutiveErrors 
+                        if NumberOfConsecutiveErrors >= Par.MaxNumberOfConsecutiveErrors
                             if Par.ResponseSide == 1
                                 Par.ResponseSide = 2;
                             else
                                 Par.ResponseSide =1;
                             end
                         else
-                           if Par.RespProbSetting % 0=random, 1=left, 2=right
+                            if Par.RespProbSetting % 0=random, 1=left, 2=right
                                 Par.ResponseSide = Par.RespProbSetting;
                             else
                                 Par.ResponseSide = randi([1 2]);
@@ -1437,8 +1435,8 @@ for STIMNR = Log.StimOrder
                 Log.Events(Log.nEvents).type=strcat(...
                     'HandTask-TargetSide', num2str(Par.ResponseSide));
                 Log.Events(Log.nEvents).t=Par.ResponseStateChangeTime;
-            % ==== During wait period ====
-            elseif Par.ResponseState == Par.RESP_STATE_WAIT 
+                % ==== During wait period ====
+            elseif Par.ResponseState == Par.RESP_STATE_WAIT
                 if Par.RespIndLeds; dasbit(Par.LED_B(1),0);dasbit(Par.LED_B(2),0);end % LEDS off
                 if GetSecs >= Par.ResponseStateChangeTime + Par.GoBarOnset
                     UpdateHandTaskState(Par.RESP_STATE_GO);
@@ -1493,11 +1491,11 @@ for STIMNR = Log.StimOrder
                     end
                 end
                 % -----
-            % ==== Go signal is given ====
-            elseif Par.ResponseState == Par.RESP_STATE_GO 
+                % ==== Go signal is given ====
+            elseif Par.ResponseState == Par.RESP_STATE_GO
                 t = GetSecs;
                 % ---- Early after go ----
-                if (Par.CorrectResponseGiven(Par) || ... 
+                if (Par.CorrectResponseGiven(Par) || ...
                         Par.IncorrectResponseGiven(Par)) && ...
                         t < Par.ResponseStateChangeTime + ...
                         Par.ResponseAllowed(1)/1000
@@ -1524,7 +1522,7 @@ for STIMNR = Log.StimOrder
                         if Par.IsCatchBlock
                             CatchSides = Shuffle(CatchSides);
                         else
-                            nNonCatchTrials = nNonCatchTrials+1;   
+                            nNonCatchTrials = nNonCatchTrials+1;
                         end
                     end
                     LastMissed = false;
@@ -1543,8 +1541,8 @@ for STIMNR = Log.StimOrder
                             end
                         end
                     end
-                % ---- Incorrect ----
-                elseif Par.IncorrectResponseGiven(Par) && Par.RespLeverMatters 
+                    % ---- Incorrect ----
+                elseif Par.IncorrectResponseGiven(Par) && Par.RespLeverMatters
                     UpdateHandTaskState(Par.RESP_STATE_DONE);
                     Log.Events(Log.nEvents).StimName = 'Incorrect';
                     NumberOfConsecutiveErrors=NumberOfConsecutiveErrors+1;
@@ -1586,7 +1584,7 @@ for STIMNR = Log.StimOrder
                             end
                         end
                     end
-                % ---- Correct ----    
+                    % ---- Correct ----
                 elseif Par.CorrectResponseGiven(Par) && Par.RespLeverMatters
                     %Par.ResponseStateChangeTime = GetSecs;
                     %Par.ResponseState = Par.RESP_STATE_DONE;
@@ -1604,7 +1602,7 @@ for STIMNR = Log.StimOrder
                                 Par.ResponseSide=1;
                             end
                         end
-                    end                    
+                    end
                     % RESP_NONE =  0; RESP_CORRECT = 1;
                     % RESP_FALSE = 2; RESP_MISS = 3;
                     % RESP_EARLY = 4; RESP_BREAK_FIX = 5;
@@ -1632,7 +1630,7 @@ for STIMNR = Log.StimOrder
                             end
                         end
                     end
-                % Correct if side doesn't matter
+                    % Correct if side doesn't matter
                 elseif ~Par.RespLeverMatters && ...
                         (Par.CorrectResponseGiven(Par) || Par.IncorrectResponseGiven(Par))
                     UpdateHandTaskState(Par.RESP_STATE_DONE);
@@ -1648,7 +1646,7 @@ for STIMNR = Log.StimOrder
                                 Par.ResponseSide=1;
                             end
                         end
-                    end                    
+                    end
                     % RESP_NONE =  0; RESP_CORRECT = 1;
                     % RESP_FALSE = 2; RESP_MISS = 3;
                     % RESP_EARLY = 4; RESP_BREAK_FIX = 5;
@@ -1676,8 +1674,8 @@ for STIMNR = Log.StimOrder
                             end
                         end
                     end
-                % ---- Miss ----
-                elseif t >=  Par.ResponseStateChangeTime + ... 
+                    % ---- Miss ----
+                elseif t >=  Par.ResponseStateChangeTime + ...
                         Par.ResponseAllowed(2)/1000
                     UpdateHandTaskState(Par.RESP_STATE_DONE);
                     Log.Events(Log.nEvents).StimName = 'Miss';
@@ -1701,7 +1699,7 @@ for STIMNR = Log.StimOrder
                     LastMissed = true;
                     %fprintf('Miss\n');
                     CurrPostErrorDelay = Par.DelayOnMiss;
-                    if Par.IsCatchBlock 
+                    if Par.IsCatchBlock
                         CatchSides = Shuffle(CatchSides);
                     else
                         nNonCatchTrials = nNonCatchTrials+1;
@@ -1837,8 +1835,8 @@ for STIMNR = Log.StimOrder
             Prev_nNonCatchTrials = nNonCatchTrials;
         elseif strcmp(Par.ResponseBox.Task,'DetectGoSignal') && ...
                 Par.CatchBlock.do && Par.IsCatchBlock && isempty(CatchSides)
-             Par.IsCatchBlock = false;
-             %fprintf('completed\n')
+            Par.IsCatchBlock = false;
+            %fprintf('completed\n')
         end
         
         %% Stop reward ----------------------------------------------------
@@ -1903,7 +1901,7 @@ for STIMNR = Log.StimOrder
             if strcmp(Par.SetUp,'NIN')
                 FileName=['Log_' LogFn '_' ...
                     Stm(STIMNR).Descript '_Run' num2str(StimLoopNr) '_Block' num2str(blockstr)];
-                 evFileName=[FileName '_eventlog.csv'];
+                evFileName=[FileName '_eventlog.csv'];
             else
                 FileName=['Log_' LogFn '_' ...
                     Stm(STIMNR).Descript '_Run' num2str(StimLoopNr)];
@@ -1914,7 +1912,7 @@ for STIMNR = Log.StimOrder
                 Stm(STIMNR).Descript '_Run' num2str(StimLoopNr)];
             evFileName=[FileName '_eventlog.csv'];
         end
-        warning off; 
+        warning off;
         if TestRunstimWithoutDAS; cd ..;end
         StimObj.Stm=Stm;
         % 1st is PreStim, last is PostStim
@@ -1944,105 +1942,107 @@ for STIMNR = Log.StimOrder
         end
         
         % save the events to a csv file
-        EventCell = cell(length(Log.Events)+1,4);
-        VarNames={'time_s','type','StimName'};
-        for ev = 1:length(Log.Events)
-            EventCell(ev,:)={...
-                Log.Events(ev).t,...
-                Log.Events(ev).type,...
-                Log.Events(ev).StimName };
-        end
-        EvTable = cell2table(EventCell,'variablenames',VarNames');
-        writetable(EvTable,evFileName)
-        
-        % save mat and json files
-        if ~TestRunstimWithoutDAS && ~json_done &&...
-                (StimLoopNr==Stm(1).nRepeatsStimSet || ...
-                (Par.ESC && StimLoopNr~=Stm(1).nRepeatsStimSet))
-            
-            % save json file ===========
-            Par.jf.Project      = 'Retinotopy';
-            if strcmp(Par.SetUp,'NIN')
-                Par.jf.Method   = 'EPHYS';
-            else
-                Par.jf.Method   = 'MRI';
+        if length(Log.Events) > 8
+            EventCell = cell(length(Log.Events)+1,4);
+            VarNames={'time_s','type','StimName'};
+            for ev = 1:length(Log.Events)
+                EventCell(ev,:)={...
+                    Log.Events(ev).t,...
+                    Log.Events(ev).type,...
+                    Log.Events(ev).StimName };
             end
-            Par.jf.Protocol     = '17.25.01'; 
-            Par.jf.Dataset      = Par.LogFolder(...
-                find(Par.LogFolder=='\',1,'last')+1:end);
-            Par.jf.Date         = datestr(now,'yyyymmdd');
-            Par.jf.Subject      = Par.MONKEY;
-            Par.jf.Researcher   = 'ChrisKlink';
-            Par.jf.Setup        = Par.SetUp;
-            Par.jf.Group        = 'awake';
-            Par.jf.Stimulus     = Stm(STIMNR).Descript;
-            Par.jf.LogFolder    = [Par.MONKEY '_' DateString];
-            Par.jf.logfile_name = FileName; %%%%%%%%
-            Par.jf.fixperc      = Log.FixPerc;
-            Par.jf.RunNumber	= 'XXX';
-            Par.jf.QualityAsses = '10';
-            Par.jf.Comment      = '';
-            % give the possibility to change
-            % only when at scanner
-            if strcmp(Par.SetUp, 'Spinoza_3T') || strcmp(Par.SetUp, 'NIN')
-                json_defanswer = {Par.jf.Project,Par.jf.Method,Par.jf.Protocol,...
-                    Par.jf.Dataset,Par.jf.Subject,Par.jf.Researcher,...
-                    Par.jf.Setup,Par.jf.Group,Par.jf.RunNumber,...
-                    Par.jf.QualityAsses,Par.jf.Comment};
-                json_answer = inputdlg(...
-                    {'Project','Method','Protocol',...
-                    'Dataset','Subject','Researcher',...
-                    'Setup','Group','Run','Quality (0-10)',...
-                    'Comment'},'JSON SPECS',1,json_defanswer,'on');
-               if isempty(json_answer);json_answer=json_defanswer;end
-               Par.jf.Project      = json_answer{1};
-               Par.jf.Method       = json_answer{2};
-               Par.jf.Protocol     = json_answer{3};
-               Par.jf.Dataset      = json_answer{4};
-               Par.jf.Subject      = json_answer{5};
-               Par.jf.Researcher   = json_answer{6};
-               Par.jf.Setup        = json_answer{7};
-               Par.jf.Group        = json_answer{8};
-               Par.jf.RunNumber    = json_answer{9};
-               Par.jf.QualityAsses = json_answer{10};
-               Par.jf.Comment      = json_answer{11};
-            end
-            json.project.title      = Par.jf.Project;
-            json.project.method     = Par.jf.Method;
-            json.dataset.protocol   = Par.jf.Protocol; 
-            json.dataset.name       = Par.jf.Dataset;  
-            json.session.date       = Par.jf.Date;
-            json.session.subjectId  = Par.jf.Subject;
-            json.session.investigator = Par.jf.Researcher;
-            json.session.setup      = Par.jf.Setup;
-            json.session.group      = Par.jf.Group;  
-            json.session.stimulus   = Par.jf.Stimulus;
-            json.session.logfile    = Par.jf.logfile_name;
-            json.session.logfolder  = Par.jf.LogFolder;
-            json.session.fixperc    = Par.jf.fixperc;
-            json.session.run        = Par.jf.RunNumber;
-            json.session.quality    = Par.jf.QualityAsses;
-            json.session.comment    = Par.jf.Comment;
+            EvTable = cell2table(EventCell,'variablenames',VarNames');
+            writetable(EvTable,evFileName)
             
-            % retrospectively create jsons for all runs
-            for jj = 1:StimLoopNr % save json files for all runs
+            % save mat and json files
+            if ~TestRunstimWithoutDAS && ~json_done &&...
+                    (StimLoopNr==Stm(1).nRepeatsStimSet || ...
+                    (Par.ESC && StimLoopNr~=Stm(1).nRepeatsStimSet))
+                
+                % save json file ===========
+                Par.jf.Project      = 'Retinotopy';
                 if strcmp(Par.SetUp,'NIN')
-                    json.session.logfile=['Log_' LogFn '_' ...
-                        Stm(STIMNR).Descript '_Run' num2str(jj) '_Block' num2str(blockstr)];
+                    Par.jf.Method   = 'EPHYS';
                 else
-                    json.session.logfile=['Log_' LogFn '_' ...
-                        Stm(STIMNR).Descript '_Run' num2str(jj)];
+                    Par.jf.Method   = 'MRI';
                 end
-                if jj<StimLoopNr
-                    json.session.fixperc = CollectPerformance{jj,2};
-                else
-                    json.session.fixperc    = Par.jf.fixperc;
+                Par.jf.Protocol     = '17.25.01';
+                Par.jf.Dataset      = Par.LogFolder(...
+                    find(Par.LogFolder=='\',1,'last')+1:end);
+                Par.jf.Date         = datestr(now,'yyyymmdd');
+                Par.jf.Subject      = Par.MONKEY;
+                Par.jf.Researcher   = 'ChrisKlink';
+                Par.jf.Setup        = Par.SetUp;
+                Par.jf.Group        = 'awake';
+                Par.jf.Stimulus     = Stm(STIMNR).Descript;
+                Par.jf.LogFolder    = [Par.MONKEY '_' DateString];
+                Par.jf.logfile_name = FileName; %%%%%%%%
+                Par.jf.fixperc      = Log.FixPerc;
+                Par.jf.RunNumber	= 'XXX';
+                Par.jf.QualityAsses = '10';
+                Par.jf.Comment      = '';
+                % give the possibility to change
+                % only when at scanner
+                if strcmp(Par.SetUp, 'Spinoza_3T') || strcmp(Par.SetUp, 'NIN')
+                    json_defanswer = {Par.jf.Project,Par.jf.Method,Par.jf.Protocol,...
+                        Par.jf.Dataset,Par.jf.Subject,Par.jf.Researcher,...
+                        Par.jf.Setup,Par.jf.Group,Par.jf.RunNumber,...
+                        Par.jf.QualityAsses,Par.jf.Comment};
+                    json_answer = inputdlg(...
+                        {'Project','Method','Protocol',...
+                        'Dataset','Subject','Researcher',...
+                        'Setup','Group','Run','Quality (0-10)',...
+                        'Comment'},'JSON SPECS',1,json_defanswer,'on');
+                    if isempty(json_answer);json_answer=json_defanswer;end
+                    Par.jf.Project      = json_answer{1};
+                    Par.jf.Method       = json_answer{2};
+                    Par.jf.Protocol     = json_answer{3};
+                    Par.jf.Dataset      = json_answer{4};
+                    Par.jf.Subject      = json_answer{5};
+                    Par.jf.Researcher   = json_answer{6};
+                    Par.jf.Setup        = json_answer{7};
+                    Par.jf.Group        = json_answer{8};
+                    Par.jf.RunNumber    = json_answer{9};
+                    Par.jf.QualityAsses = json_answer{10};
+                    Par.jf.Comment      = json_answer{11};
                 end
-                savejson('', json, ['Log_' DateString ...
+                json.project.title      = Par.jf.Project;
+                json.project.method     = Par.jf.Method;
+                json.dataset.protocol   = Par.jf.Protocol;
+                json.dataset.name       = Par.jf.Dataset;
+                json.session.date       = Par.jf.Date;
+                json.session.subjectId  = Par.jf.Subject;
+                json.session.investigator = Par.jf.Researcher;
+                json.session.setup      = Par.jf.Setup;
+                json.session.group      = Par.jf.Group;
+                json.session.stimulus   = Par.jf.Stimulus;
+                json.session.logfile    = Par.jf.logfile_name;
+                json.session.logfolder  = Par.jf.LogFolder;
+                json.session.fixperc    = Par.jf.fixperc;
+                json.session.run        = Par.jf.RunNumber;
+                json.session.quality    = Par.jf.QualityAsses;
+                json.session.comment    = Par.jf.Comment;
+                
+                % retrospectively create jsons for all runs
+                for jj = 1:StimLoopNr % save json files for all runs
+                    if strcmp(Par.SetUp,'NIN')
+                        json.session.logfile=['Log_' LogFn '_' ...
+                            Stm(STIMNR).Descript '_Run' num2str(jj) '_Block' num2str(blockstr)];
+                    else
+                        json.session.logfile=['Log_' LogFn '_' ...
+                            Stm(STIMNR).Descript '_Run' num2str(jj)];
+                    end
+                    if jj<StimLoopNr
+                        json.session.fixperc = CollectPerformance{jj,2};
+                    else
+                        json.session.fixperc    = Par.jf.fixperc;
+                    end
+                    savejson('', json, ['Log_' DateString ...
                         '_Run' num2str(jj,'%03.f') '_session.json']);
-                %savejson('', json, ['Log_' DateString '_session.json']);
+                    %savejson('', json, ['Log_' DateString '_session.json']);
+                end
+                json_done=true;
             end
-            json_done=true;
         end
         
         if ~TestRunstimWithoutDAS
@@ -2079,10 +2079,10 @@ for STIMNR = Log.StimOrder
             fprintf(fid,['\nTotal reward: ' num2str(Log.TotalReward) '\n']);
             fclose(fid);
         end
-        cd(Par.ExpFolder)        
-
+        cd(Par.ExpFolder)
+        
         if TestRunstimWithoutDAS; cd Experiment;end
-        warning on; 
+        warning on;
         
         % if running without DAS close ptb windows
         if TestRunstimWithoutDAS
@@ -2111,7 +2111,7 @@ for STIMNR = Log.StimOrder
         fprintf(['Total time-out this run: ' num2str(Log.TimeOutThisRun) '\n']);
         fprintf(['Total time-out thusfar: ' num2str(Log.TotalTimeOut) '\n']);
         fprintf(['Fixation percentage: ' num2str(nanmean(Log.FixPerc)) '\n']);
-
+        
         CollectPerformance{StimLoopNr,1} = Stm(STIMNR).Descript;
         CollectPerformance{StimLoopNr,2} = nanmean(Log.FixPerc);
         CollectPerformance{StimLoopNr,3} = nanstd(Log.FixPerc);
@@ -2156,7 +2156,7 @@ end
 %% Process performance ====================================================
 if ~isempty(CollectPerformance) && ~TestRunstimWithoutDAS
     ColPerf=[];
-
+    
     cd(LogPath);
     fid2=fopen(['SUMMARY_' LogFn '.txt'],'w');
     fprintf(fid2,['Runstim: ' Par.RUNFUNC '\n']);
@@ -2247,9 +2247,9 @@ if ~isempty(CollectPerformance) && ~TestRunstimWithoutDAS
             CP,'FontSize',10,'interpreter','none')
         set(figperf,'Color','w');
         
-%         saveas(figperf,['PERFORM_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString],'fig');
-%         export_fig(['PERFORM_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString],...
-%             '-pdf','-nocrop',figperf);
+        %         saveas(figperf,['PERFORM_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString],'fig');
+        %         export_fig(['PERFORM_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString],...
+        %             '-pdf','-nocrop',figperf);
         saveas(figperf,['PERFORM_' LogFn],'fig');
         export_fig(['PERFORM_' LogFn],'-pdf','-nocrop',figperf);
         close(figperf);
@@ -2349,7 +2349,7 @@ Par=Par_BU;
                             [cen2;cen2;cen2;cen2] + Par.RespIndSizePix*right_diamond)
                     end
                 end
-                if Par.RespIndLeds; dasbit(Par.LED_B(Par.ResponseSide),1); end % LED on    
+                if Par.RespIndLeds; dasbit(Par.LED_B(Par.ResponseSide),1); end % LED on
             elseif Par.ResponseState == Par.RESP_STATE_GO && ...
                     Par.ResponseSide == 1
                 Screen('FillPoly',Par.window, Par.RespIndColor(1,:).*Par.ScrWhite, ...
@@ -2715,7 +2715,7 @@ Par=Par_BU;
                             else
                                 Par.HideFix_BasedOnHandIn = @(Par) false;
                             end
-
+                            
                             % functions for lever task
                             if Par.TrialNeeds.HandIsIn && Par.TrialNeeds.LeversAreDown % hands in / levers down
                                 Par.CanStartTrial = @(Par) (all(Par.HandIsIn) && ~any(Par.LeverIsUp));
@@ -2783,12 +2783,12 @@ Par=Par_BU;
                 Par.BothLeversUp_time = Inf;
                 Par.LeverWasUp = Par.LeverIsUp;
             end
-        end        
+        end
         
         if ~strcmp(Par.ResponseBox.Task, 'DetectGoSignal')
             % interpret depending on response box type
             switch Par.ResponseBox.Type
-%                 case 'Beam'
+                %                 case 'Beam'
                 case 'Lift'
                     if ~any(Par.HandWasIn) && any(Par.HandIsIn) % from none to any
                         %fprintf('going from none to one\n')
@@ -2931,7 +2931,7 @@ Par=Par_BU;
             if isfield(Par,'TaskReward_HandInGain')
                 if any(Par.HandIsIn) && ~all(Par.HandIsIn) % only hand in
                     Par.RewardTimeCurrent  = Par.TaskReward_HandInGain(1)*Par.RewardTimeCurrent;
-                elseif all(Par.HandIsIn) % both hands in 
+                elseif all(Par.HandIsIn) % both hands in
                     Par.RewardTimeCurrent  = Par.TaskReward_HandInGain(2)*Par.RewardTimeCurrent;
                 end
             end
@@ -2965,7 +2965,7 @@ Par=Par_BU;
         if ~all(Par.HandIsIn) && any(Par.HandIsIn) % only one hand in
             Par.RewardTimeCurrent = ...
                 Par.RewardForHandsIn_MultiplierPerHand(Par.HandIsIn)*Par.RewardTimeCurrent;
-        end    
+        end
         % Give the reward
         if Par.RewardTimeCurrent>0
             Par.RewardStartTime=GetSecs;
