@@ -37,8 +37,8 @@ Stm(1).RetMap.StimType{2} = 'Natural'; % circle / wedge
 Stm(1).RetMap.Dir = -1; % +1 = expanding / ccw, -1 = contracting / cw
 % only informative for face/walker stimuli
 Stm(1).RetMap.TRsPerStep = 381; %s 
-Stm(1).RetMap.PreDur_TRs = 0; % volumes
-Stm(1).RetMap.PostDur_TRs = 5; % volumes
+Stm(1).RetMap.PreDur_TRs = 1; % volumes
+Stm(1).RetMap.PostDur_TRs = 1; % volumes
 Stm(1).RetMap.nCycles = 1; % 0=unlimited
 Stm(1).RetMap.nSteps = 1; 
 % (32 for KUL face/walkers; multiple of 8 for 8bar)
@@ -54,7 +54,7 @@ Stm(1).RetMap.moviedur = 921; % sec
 Stm(1).RetMap.PlaySize = [640*(1080/480) 1080]; % max height & keep ratio
 
 % Logfolder
-Stm(1).LogFolder = 'C:\Users\NINuser\Documents\Log_CK\Retinotopy\Natural';
+Stm(1).LogFolder = 'C:\Users\NINuser\Documents\Log_CK\Retinotopy\NaturalMovie';
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj
