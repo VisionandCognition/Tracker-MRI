@@ -12,8 +12,8 @@ Stm.BackColor =  [.667 .667 .667]; % [R G B] 0-1
 % pre-defined in ParSettings at init: will be overwritten with these values
 Stm.PreFixT = 5000; % time to enter fixation window
 Stm.FixT = 300; % time to fix before stim onset
-Stm.KeepFixT = [700 100]; % [mean sd] of NORM % time to fix before target onset. not <|> m+/-sd
-Stm.PreTargFlashDur = 0;%500;
+Stm.KeepFixT = [800 100]; % [mean sd] of NORM % time to fix before target onset. not <|> m+/-sd
+Stm.PreTargFlashDur = 800;%500;
 Stm.ReacT = 2000; % max allowed reaction time (leave fixwin after target onset)
 Stm.StimT = Stm.KeepFixT(1) + Stm.ReacT; % stimulus display duration
 Stm.SaccT = 500; % max allowed saccade time (from leave fixwin to enter target win)
@@ -57,9 +57,9 @@ if TarCreateAlgorithm == 1
     %--- Condition 1 -----
     c=1;
     Stm.Cond(c).Targ(1).Shape = 'circle';
-    Stm.Cond(c).Targ(1).Size = 3; % diameter in deg
-    Stm.Cond(c).Targ(1).WinSize = 4; % deg
-    Stm.Cond(c).Targ(1).Position = [-5 0]; % deg
+    Stm.Cond(c).Targ(1).Size = 2; % diameter in deg
+    Stm.Cond(c).Targ(1).WinSize = 2.5; % deg
+    Stm.Cond(c).Targ(1).Position = [-6 0]; % deg
     Stm.Cond(c).Targ(1).Color = [1 0 0]; % RGB 0-1
     Stm.Cond(c).Targ(1).PreTargCol = [0.2 0.2 0.2];
     Stm.Cond(c).Targ(1).Reward = 0.04;
@@ -98,7 +98,7 @@ elseif TarCreateAlgorithm == 2
     % place stimuli on an imaginary circle around screen center
     Stm.PolarAngles = 0:10:359 ; % deg
     %Stm.PolarAngles = [210*ones(1,1000) -30*ones(1,1000)]; % deg
-    Stm.Eccentricity = 4.0; % deg
+    Stm.Eccentricity = 5.0; % deg
     
     x=Stm.Eccentricity.*cosd(Stm.PolarAngles);
     y=Stm.Eccentricity.*sind(Stm.PolarAngles);
@@ -106,12 +106,12 @@ elseif TarCreateAlgorithm == 2
     
     for c=1:length(Stm.PolarAngles)
         Stm.Cond(c).Targ(1).Shape = 'circle';
-        Stm.Cond(c).Targ(1).Size = 2; % diameter in deg
-        Stm.Cond(c).Targ(1).WinSize = 3; % deg
+        Stm.Cond(c).Targ(1).Size = 1.5; % diameter in deg
+        Stm.Cond(c).Targ(1).WinSize = 2; % deg
         Stm.Cond(c).Targ(1).Position = Stm.TarPos(c,:); % deg
         Stm.Cond(c).Targ(1).Color = [.1 .1 .1]; % RGB 0-1
-        Stm.Cond(c).Targ(1).PreTargCol = .9*Stm.Cond(c).Targ(1).Color;
-        %Stm.Cond(c).Targ(1).PreTargCol = [0.65 0.65 0.65];
+        %Stm.Cond(c).Targ(1).PreTargCol = 3*Stm.Cond(c).Targ(1).Color;
+        Stm.Cond(c).Targ(1).PreTargCol = [0.65 0.65 0.65];
         Stm.Cond(c).Targ(1).Reward = 0.120;
     end
 end
