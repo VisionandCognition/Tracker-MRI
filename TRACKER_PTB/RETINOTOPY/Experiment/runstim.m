@@ -1943,7 +1943,7 @@ for STIMNR = Log.StimOrder
         
         % save the events to a csv file
         if length(Log.Events) > 8
-            EventCell = cell(length(Log.Events)+1,4);
+            EventCell = cell(length(Log.Events)+1,3);
             VarNames={'time_s','type','StimName'};
             for ev = 1:length(Log.Events)
                 EventCell(ev,:)={...
