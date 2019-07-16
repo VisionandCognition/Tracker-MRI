@@ -30,7 +30,7 @@ Stm(1).CyclePosition = 0; % set zero for manual cycling
 Stm(1).RandomizeStim=false;
 Stm(1).nRepeatsStimSet=1;
 
-Stm(1).RetMap.StimType{1} = 'movie'; % ignores many of the settings due to irrelevance
+Stm(1).RetMap.StimType{1} = 'movie-vlc'; % ignores many of the settings due to irrelevance
 Stm(1).RetMap.StimType{2} = 'Natural'; % circle / wedge
 % face / walker: circle / wedge
 % ret: pRF_8bar / wedge_cw/ccw / ring_con/exp
@@ -48,10 +48,18 @@ Stm(1).RetMap.LoadFromFile = false;
 % NB! loading a stimulus overwrites all settings with the ones saved!
 Stm(1).RetMap.SaveToFile = false;
 Stm(1).RetMap.FileName = 'MOVIE2_HO1_v2.mp4';
+
+%-- this duration setting is relevant for all movie types
+Stm(1).RetMap.moviedur = 918; % sec
+%-- these setting only work for internal gstreamer videos (which is buggy)
+% == (StimType{1}='movie' ==
 Stm(1).RetMap.moviefps = 24; % framerate of moviefile
 Stm(1).RetMap.movierate = 1; % speed of playing
-Stm(1).RetMap.moviedur = 918; % sec
 Stm(1).RetMap.PlaySize = [640*(1080/480) 1080]; % max height & keep ratio
+%-- these settings apply to external VLC based movies
+% == (StimType{1}='movie-vlc' ==
+Stm(1).RetMap.VLC_batfile = 'Run_NatMovie2.bat'; % in stimuli/movies folder
+Stm(1).RetMap.VLC_stop = 'StopVLC.bat';
 
 % Logfolder
 Stm(1).LogFolder = 'C:\Users\NINuser\Documents\Log_CK\Retinotopy\NaturalMovie';

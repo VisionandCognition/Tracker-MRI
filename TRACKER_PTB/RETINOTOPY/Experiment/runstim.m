@@ -34,7 +34,7 @@ if TestRunstimWithoutDAS
     
     %Set ParFile and Stimfile
     Par.PARSETFILE = 'ParSettings_NoDas';
-    Par.STIMSETFILE = 'StimSettings_Natural_1'; %'StimSettings_pRF_8bars'; %'StimSettings_FullscreenCheckerboard';
+    Par.STIMSETFILE = 'StimSettings_NaturalMovie_1'; %'StimSettings_pRF_8bars'; %'StimSettings_FullscreenCheckerboard';
     Par.MONKEY = 'TestWithoutDAS';
 end
 clc;
@@ -94,6 +94,11 @@ end
 if ~isfield(Par,'LeversUpTimeOut')
     Par.LeversUpTimeOut = [Inf 0];
     fprintf('No LeversUpTimeOut defined: Setting it to [Inf 0]\n');
+end
+if strcmp(StimObj.Stm(1).RetMap.StimType{1},'movie-vlc')
+    Par.ResponseBox.Task = 'Fixate';
+    fprintf('No hand task possible during vlc-movies\n');
+    fprintf('Setting task to fixate\n');
 end
 
 % Add keys to fix left/right/random responses
@@ -381,6 +386,8 @@ for STIMNR = unique(Log.StimOrder)
             Stm(STIMNR).Descript = 'FullChecker';
         case 'movie'
             Stm(STIMNR).Descript = 'movie';
+        case 'movie-vlc'
+            Stm(STIMNR).Descript = 'movie-vlc';    
     end
 end
 
@@ -396,13 +403,14 @@ for i=1:length(Stm)
         TotTime = TotTime + ...
             (sum(Stm(i).RetMap.Checker.OnOff)*Stm(i).RetMap.nCycles)+...
             Stm(i).RetMap.PreDur+Stm(i).RetMap.PostDur;
-    elseif strcmp(Stm(i).RetMap.StimType{1},'movie')
+    elseif strcmp(Stm(i).RetMap.StimType{1},'movie') || ...
+            strcmp(Stm(i).RetMap.StimType{1},'vlc-movie')
         Stm(i).RetMap.PreDur = ...
             Stm(i).RetMap.PreDur_TRs*Par.TR;
         Stm(i).RetMap.PostDur = ...
             Stm(i).RetMap.PostDur_TRs*Par.TR;
         TotTime = TotTime + ...
-            (Stm(i).RetMap.moviedur/Stm(i).RetMap.movierate) + ...
+            Stm(i).RetMap.moviedur + ...
             Stm(i).RetMap.PreDur + Stm(i).RetMap.PostDur;
     else
         Stm(i).RetMap.PreDur = ...
@@ -493,16 +501,19 @@ for STIMNR = Log.StimOrder
                 RetMapStimuli=false;
                 DispChecker=false;
                 MovieRun=false;
+                VLCMovieRun=false;
             case 'ret'
                 %% Population receptive field stim
                 RetMapStimuli=true;
                 DispChecker=false;
                 MovieRun=false;
+                VLCMovieRun=false;
             case 'face'
                 %% Classic retinotopy: faces
                 RetMapStimuli=true;
                 DispChecker=false;
                 MovieRun=false;
+                VLCMovieRun=false;
                 if strcmp(Stm(STIMNR).RetMap.StimType{2},'circle')
                     ret_vid=vid_face_ring.ret_vid;
                 elseif strcmp(Stm(STIMNR).RetMap.StimType{2},'wedge')
@@ -513,6 +524,7 @@ for STIMNR = Log.StimOrder
                 RetMapStimuli=true;
                 DispChecker=false;
                 MovieRun=false;
+                VLCMovieRun=false;
                 if strcmp(Stm(STIMNR).RetMap.StimType{2},'circle')
                     ret_vid=vid_walker_ring.ret_vid;
                 elseif strcmp(Stm(STIMNR).RetMap.StimType{2},'wedge')
@@ -525,6 +537,7 @@ for STIMNR = Log.StimOrder
                 RetMapStimuli=false;
                 DispChecker=true;
                 MovieRun=false;
+                VLCMovieRun=false;
                 if Stm(STIMNR).RetMap.Checker.LoadFromFile
                     fprintf(['\nLoading checkerboard ' ...
                         Stm(STIMNR).RetMap.Checker.FileName '...\n']);
@@ -604,12 +617,24 @@ for STIMNR = Log.StimOrder
                 RetMapStimuli=false;
                 DispChecker=false;
                 MovieRun=true;
-                moviename = fullfile(Par.ExpFolder,'Stimuli','Movies',Stm(STIMNR).RetMap.FileName);
-                %moviename = [Par.ExpFolder '\Stimuli\Movies\' Stm(STIMNR).RetMap.FileName];
+                VLCMovieRun=false;
+                moviename = fullfile(Par.ExpFolder,'Stimuli','Movies',...
+                    Stm(STIMNR).RetMap.FileName);
                 % prepare the movie
                 [Log.movie.name, Log.movie.duration, ...
                     Log.movie.fps, Log.movie.imgw, Log.movie.imgh] = ...
-                    Screen('OpenMovie', Par.window, moviename, [], [], [], [], []);
+                    Screen('OpenMovie', Par.window, moviename, ...
+                    [], [], [], [], []);
+                MovieRunning=false;
+            case 'movie-vlc'
+                RetMapStimuli=false;
+                DispChecker=false;
+                MovieRun=false;
+                VLCMovieRun=true;
+                moviebat = fullfile(Par.ExpFolder,'Stimuli','Movies',...
+                    Stm(STIMNR).RetMap.VLC_batfile);
+                stopVLCbat = fullfile(Par.ExpFolder,'Stimuli','Movies',...
+                    Stm(STIMNR).RetMap.VLC_stop);
                 MovieRunning=false;
         end
         
@@ -656,6 +681,7 @@ for STIMNR = Log.StimOrder
         Par.PosReset=false;
         Par.RewardStarted=false;
         Par.MovieStopped=false;
+        Par.Allow_Calls_To_PTB_win = true;
         
         % Trial Logging
         Par.Response = 0; % maintained fixations
@@ -865,7 +891,7 @@ for STIMNR = Log.StimOrder
         end
         
         %% Check what to draw depending on time ---------------------------
-        if RetMapStimuli || MovieRun
+        if RetMapStimuli || MovieRun || VLCMovieRun
             if GetSecs < Log.StartBlock + Stm(STIMNR).RetMap.PreDur % PreDur
                 IsPre=true;
                 IsPost=false;
@@ -939,7 +965,7 @@ for STIMNR = Log.StimOrder
                         texn=texn-numel(ret_vid(Stm(STIMNR).Order(posn)).text);
                     end
                 end
-            elseif MovieRun && ...
+            elseif (MovieRun || VLCMovieRun) && ...
                     GetSecs >= Log.StartBlock + Stm(STIMNR).RetMap.PreDur && ...
                     GetSecs < Log.StartBlock + Stm(STIMNR).RetMap.PreDur + ...
                     (Stm(STIMNR).RetMap.moviedur/Stm(STIMNR).RetMap.movierate)
@@ -986,7 +1012,23 @@ for STIMNR = Log.StimOrder
                     Screen('CloseMovie', Log.movie.name);
                     MovieRunning=false;
                 end
-                
+            elseif VLCMovieRun && ...
+                    GetSecs < Log.StartBlock + Stm(STIMNR).RetMap.PreDur + ...
+                    Stm(STIMNR).RetMap.moviedur + Stm(STIMNR).RetMap.PostDur % PostDur
+                IsPre=false;
+                IsPost = true;
+                if ~PostStarted
+                    PostStarted=true;
+                    Log.nEvents=Log.nEvents+1;
+                    Log.Events(Log.nEvents).type='PostDurStart';
+                    Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
+                    Log.Events(Log.nEvents).StimName = [];
+                    tPostStarted=GetSecs;
+                    % Done. Stop playback:
+                    eval(['!' stopVLCbat])
+                    Reopen_PTB_win;
+                    MovieRunning=false;
+                end   
             else
                 RunEnded=true;
                 IsPre=false;
@@ -1259,28 +1301,41 @@ for STIMNR = Log.StimOrder
                         end
                     end
                 end
-            elseif MovieRun
-                DrawStimuli;
+            elseif MovieRun || VLCMovieRun
+                if MovieRun
+                    DrawStimuli;
+                end
                 if ~IsPre && ~IsPost && ~RunEnded && ~Par.ToggleHideStim ...
                         && ~Par.HideStim_BasedOnHandIn(Par) ...
                         && ~Par.Pause
                     % start the movie if it hasn't started yet
                     if ~MovieRunning
-                        Screen('PlayMovie', Log.movie.name, Stm(STIMNR).RetMap.movierate, 1, 0);
-                        % looping avoid early stops (duration is regulated
-                        % based on movieduration separately)
-                        MovieRunning=true;
-                        % calculate movie presentation size
-                        PlayWindow = [ (Par.wrect(3)-Stm(STIMNR).RetMap.PlaySize(1))/2 0 ...
-                            Par.wrect(3)-(Par.wrect(3)-Stm(STIMNR).RetMap.PlaySize(1))/2  ...
-                            Stm(STIMNR).RetMap.PlaySize(2)];
+                        if MovieRun
+                            Screen('PlayMovie', Log.movie.name, Stm(STIMNR).RetMap.movierate, 1, 0);
+                            % looping avoid early stops (duration is regulated
+                            % based on movieduration separately)
+                            MovieRunning=true;
+                            % calculate movie presentation size
+                            PlayWindow = [ (Par.wrect(3)-Stm(STIMNR).RetMap.PlaySize(1))/2 0 ...
+                                Par.wrect(3)-(Par.wrect(3)-Stm(STIMNR).RetMap.PlaySize(1))/2  ...
+                                Stm(STIMNR).RetMap.PlaySize(2)];
+                        elseif VLCMovieRun
+                            fprintf('\n========================================\n');
+                            fprintf('Temporarily closing PTB window for VLC\n');
+                            fprintf('========================================\n');
+                            Close_PTB_win;
+                            eval(['!' moviebat ' &']);
+                            MovieRunning=true;
+                        end
                     end
-                    % grab a texture
-                    movietex = Screen('GetMovieImage', Par.window, Log.movie.name, 1);
-                    % draw that texture
-                    if movietex>0
-                        Screen('DrawTexture', Par.window, movietex, [], ...
-                            PlayWindow, [], [], [], [], []);
+                    if MovieRun
+                        % grab a texture
+                        movietex = Screen('GetMovieImage', Par.window, Log.movie.name, 1);
+                        % draw that texture
+                        if movietex>0
+                            Screen('DrawTexture', Par.window, movietex, [], ...
+                                PlayWindow, [], [], [], [], []);
+                        end
                     end
                 end
             elseif DrawChecker
@@ -1297,7 +1352,7 @@ for STIMNR = Log.StimOrder
         %% Draw fixation dot ----------------------------------------------
         if ~Par.ToggleHideFix ...
                 && ~Par.HideFix_BasedOnHandIn(Par) ...
-                && ~Par.Pause && ~MovieRun
+                && ~Par.Pause && ~MovieRun && ~VLCMovieRun
             DrawFix(STIMNR);
         end
         
@@ -1738,9 +1793,11 @@ for STIMNR = Log.StimOrder
         AutoDim; % checks by itself if it's required
         
         %% refresh the screen ---------------------------------------------
-        %lft=Screen('Flip', Par.window, prevlft+0.9*Par.fliptimeSec);
-        lft=Screen('Flip', Par.window); % as fast as possible
-        nf=nf+1;
+        if Par.Allow_Calls_To_PTB_win
+            %lft=Screen('Flip', Par.window, prevlft+0.9*Par.fliptimeSec);
+            lft=Screen('Flip', Par.window); % as fast as possible
+            nf=nf+1;
+        end
         
         %% log eye-info if required ---------------------------------------
         LogEyeInfo;
@@ -2535,7 +2592,7 @@ Par=Par_BU;
                             end
                         end
                     case Par.KeyPause
-                        if Par.KeyDetectedInTrackerWindow % only in Tracker
+                        if Par.KeyDetectedInTrackerWindow && Par.Allow_Calls_To_PTB_win % only in Tracker
                             if ~Par.Pause
                                 Par.Pause=true;
                                 fprintf('Time-out ON\n');
@@ -2555,6 +2612,8 @@ Par=Par_BU;
                                 Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
                                 Log.Events(Log.nEvents).StimName = [];
                             end
+                        elseif ~Par.Allow_Calls_To_PTB_win
+                            fprintf('You cannot give a time-out during a vlc-movie...\n');
                         end
                     case Par.KeyRewTimeSet
                         if Par.KeyDetectedInTrackerWindow % only in Tracker
@@ -3138,5 +3197,20 @@ Par=Par_BU;
                     strcat('HandTaskState-Unknown-',NewState);
         end
         Log.Events(Log.nEvents).t=Par.ResponseStateChangeTime;
+    end
+% Close the current PTB window
+    function Close_PTB_win
+        Screen('Close', Par.window);
+        Par.Allow_Calls_To_PTB_win = false;
+    end
+% Re-open the default PTB window
+    function Reopen_PTB_win
+        [Par.window, Par.wrect] = PsychImaging('OpenWindow',...
+            Par.ScrNr,0,[],[],2,[],[],1);
+        [sourceFactorOld,destinationFactorOld,colorMaskOld] = ...
+            Screen('BlendFunction',Par.window,...
+            GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        MaxPriority(Par.window);
+        Par.Allow_Calls_To_PTB_win = true;
     end
 end
