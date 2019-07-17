@@ -167,7 +167,7 @@ switch Par.RewardType
         % NB! this will be overruled once you manually set the reward time
         % with the slider in the Tracker window
     case 2
-        Par.RewardTimeSet = 0.090; %no reward
+        Par.RewardTimeSet = 0.100; %no reward
 end
 
 Par.RewardTimeManual = 0.03; % amount of reward when given manually

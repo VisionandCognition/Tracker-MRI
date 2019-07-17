@@ -53,6 +53,7 @@ Par.ManualReward = false;
 Par.AutoReward=false;
 Par.RewardStarted=false;
 Par.RewardRunning=false;
+Par.EnterRewDelay=false;
 
 Log.ManualRewardTime = [];
 Log.MRI.TriggerReceived=false;
@@ -158,6 +159,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
             Par.Times.ErrT_onEarly = Stm.ErrT_onEarly;
             Par.Times.InterTrial=Stm.ISI; % base inter-stimulus interval
             Par.Times.RndInterTrial=Stm.ISI_RAND; % maximum extra (random) ISI to break any possible rythm
+            Par.Times.RewDelay=Stm.RewardDelay;
             
             % update gui fields
             handles=guihandles(Par.hTracker);
@@ -186,6 +188,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
         ERRT = Par.Times.Err; % % punishment addition to ISI after error trial
         % there are no error trials here
         ERRT_ONEARLY = Par.Times.ErrT_onEarly;
+        REWDELAY = Par.Times.RewDelay;
         
         %% Prepare stimuli ------------------------------------------------
         %% PrepStim
@@ -224,8 +227,11 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                 Par.ScrCenter(2)+Tar(TargNum).PosPix(2)+Tar(TargNum).SizePix/2 ];
             Tar(TargNum).WinSizePix = Stm.Cond(CurCond).Targ(TargNum).WinSize*Par.PixPerDeg;
             Tar(TargNum).Color = Stm.Cond(CurCond).Targ(TargNum).Color.*Par.ScrWhite;
-            Tar(TargNum).Reward = Stm.Cond(CurCond).Targ(TargNum).Reward;
+            Tar(TargNum).RewardGain = Stm.Cond(CurCond).Targ(TargNum).RewardGain;
             Tar(TargNum).PreTargCol = Stm.Cond(CurCond).Targ(TargNum).PreTargCol.*Par.ScrWhite;
+            
+            Tar(TargNum).RewDel_LW = round(...
+                Stm.Cond(CurCond).Targ(TargNum).RewDelayOutlineWidth * Par.PixPerDeg);
         end
         
         %% Prepare fix dot ------------------------------------------------
@@ -544,7 +550,6 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                 Abort = true;
             end %END EVENT 2
             
-            
             %///////// POSTTRIAL AND REWARD ///////////////////////////////
             if Hit ~= 0 && ~Abort %has entered a target window
                 if Par.Mouserun
@@ -560,12 +565,14 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                     TrialStatus='Target_1';
                     TrialsTargThisRep=TrialsTargThisRep+1;
                     Par.Corrcount = Par.Corrcount + 1; %log correct trials
-                    Par.RewardTimeTarg = Tar(1).Reward;
-                    Par.AutoReward=true;
+                    Par.RewardTimeTarg = Tar(1).RewardGain*Par.RewardTime;
+                    Par.TarChosen = 1;
+                    Par.EnterRewDelay = true;
+                    %Par.AutoReward=true;
                     
                     % Log which target was chosen
                     Log.Trial(Par.Trlcount).Aborted = false;
-                    Log.Trial(Par.Trlcount).TargChosen = 1;
+                    Log.Trial(Par.Trlcount).TargChosen = Par.TarChosen;
                     Log.TotalReward=Log.TotalReward+Par.RewardTimeTarg;
                     
                     StimDynamic(1)=[];
@@ -574,11 +581,13 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                     TrialStatus='Target_2';
                     TrialsTargThisRep=TrialsTargThisRep+1;
                     Par.Corrcount = Par.Corrcount + 1; %log correct trials
-                    Par.RewardTimeTarg = Tar(2).Reward;
-                    Par.AutoReward=true;
+                    Par.RewardTimeTarg = Tar(2).RewardGain*Par.RewardTime;
+                    Par.TarChosen = 2;
+                    Par.EnterRewDelay=true;
+                    %Par.AutoReward=true;
                     
                     Log.Trial(Par.Trlcount).Aborted = false;
-                    Log.Trial(Par.Trlcount).TargChosen = 2;
+                    Log.Trial(Par.Trlcount).TargChosen = Par.TarChosen;
                     Log.TotalReward=Log.TotalReward+Par.RewardTimeTarg;
                     
                     StimDynamic(1)=[];
@@ -659,6 +668,26 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
             end
             dasrun(5);
             [Hit Lasttime] = DasCheck;
+            
+            %///////// REWARD DELAY /////////////////////////////
+            if Par.EnterRewDelay
+                DrawBackground;
+                DrawRewDelayIndicator(Tar,Par.TarChosen);
+                lft=Screen('Flip', Par.window);
+                tic;
+                while toc*1000 <  REWDELAY
+                    daspause(5);
+                    [Hit Time] = DasCheck;
+                    CheckKeys; %check key presses
+                    CheckManual; %check status of the photo amp
+                    ControlReward; % switch reward on or off;
+                    ChangeFixPos;
+                    ControlVisibility(Tar,[0 0]);
+                end
+                Par.EnterRewDelay = false;
+                Par.AutoReward=true;
+                
+            end
             
             %///////// INTERTRIAL AND CLEANUP /////////////////////////////
             SCNT = {'TRIALS'};
@@ -827,7 +856,6 @@ fprintf('------------------------------\n');
 % draw pre-target stimuli
     function DrawPreTargets(Tar)
         for tn=1:length(Tar)
-            
             if strcmp(Tar(tn).Shape,'circle')
                 Screen('FillOval',Par.window,Tar(tn).PreTargCol,Tar(tn).Rect);
             elseif strcmp(Tar(tn).Shape,'square')
@@ -851,6 +879,19 @@ fprintf('------------------------------\n');
                 Screen('FillPoly',Par.window,Tar(tn).Color,...
                     Tar(tn).Points,1);
             end
+        end
+    end
+% Draw reward delay indicators
+    function DrawRewDelayIndicator(Tar,TarChosen)
+        if strcmp(Tar(TarChosen).Shape,'circle')
+            Screen('FrameOval',Par.window,Tar(TarChosen).Color,...
+                Tar(TarChosen).Rect,Tar(TarChosen).RewDel_LW);
+        elseif strcmp(Tar(TarChosen).Shape,'square')
+            Screen('FrameRect',Par.window,Tar(TarChosen).Color,...
+                Tar(TarChosen).Rect,Tar(TarChosen).RewDel_LW);
+        elseif strcmp(Tar(Par.TarChosen).Shape,'diamond')
+            Screen('FramePoly',Par.window,Tar(TarChosen).Color,...
+                Tar(TarChosen).Points,Rect,Tar(TarChosen).RewDel_LW);
         end
     end
 % control visibility of stimuli and fixation dot
