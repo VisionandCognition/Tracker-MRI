@@ -674,8 +674,9 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                 DrawBackground;
                 DrawRewDelayIndicator(Tar,Par.TarChosen);
                 lft=Screen('Flip', Par.window);
+                REWDELAY_CURR = REWDELAY(1) + rand(1)*(REWDELAY(2)-REWDELAY(1));
                 tic;
-                while toc*1000 <  REWDELAY
+                while toc*1000 <  REWDELAY_CURR
                     daspause(5);
                     [Hit Time] = DasCheck;
                     CheckKeys; %check key presses
