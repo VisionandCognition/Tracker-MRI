@@ -108,8 +108,8 @@ Par.KeyRandResp = KbName('/?');
 Par.RespProbSetting=0; % initialize with random left/right indicators
 
 Par.ScrCenter=Par.wrect(3:4)/2;
-DateString = datestr(clock,30);
-DateString = DateString(1:end-2);
+DateString_sec = datestr(clock,30);
+DateString = DateString_sec(1:end-2);
 Par_BU=Par;
 if ~TestRunstimWithoutDAS
     refreshtracker(1);
@@ -795,6 +795,14 @@ for STIMNR = Log.StimOrder
                 fprintf('Triggering only once, move on automatically now.\n');
             else
                 fprintf(['MRI trigger received after ' num2str(GetSecs-Par.ExpStart) ' s\n']);
+            end
+        end
+    else
+        if VLCMovieRun
+            if MovieRunning
+                eval(['!' stopVLCbat])
+                Reopen_PTB_win;
+                MovieRunning=false;
             end
         end
     end
@@ -1899,7 +1907,15 @@ for STIMNR = Log.StimOrder
         %% Stop reward ----------------------------------------------------
         StopRewardIfNeeded();
     end
-    
+    % if breaking out with stop/escape during vlc
+    if VLCMovieRun
+        if MovieRunning
+            eval(['!' stopVLCbat])
+            Reopen_PTB_win;
+            MovieRunning=false;
+        end
+    end
+        
     %% Clean up and Save Log ----------------------------------------------
     % end eye recording if necessary
     if Par.EyeRecAutoTrigger && ~EyeRecMsgShown
@@ -1933,6 +1949,7 @@ for STIMNR = Log.StimOrder
     end
     
     if ~isempty(Stm(STIMNR).Descript) && ~TestRunstimWithoutDAS
+        
         % Empty the screen
         if ~Par.Pause
             Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
@@ -1949,9 +1966,9 @@ for STIMNR = Log.StimOrder
         
         % save stuff
         LogPath = fullfile(Par.LogFolder,Par.SetUp,Par.MONKEY,...
-            [Par.MONKEY '_' DateString(1:8)],[Par.MONKEY '_' DateString]);
+            [Par.MONKEY '_' DateString(1:8)],[Par.MONKEY '_' DateString_sec]);
         warning off;mkdir(LogPath);warning on;
-        LogFn = [Par.SetUp '_' Par.MONKEY '_' DateString];
+        LogFn = [Par.SetUp '_' Par.MONKEY '_' DateString_sec];
         cd(LogPath)
         
         if ~TestRunstimWithoutDAS
@@ -2094,7 +2111,7 @@ for STIMNR = Log.StimOrder
                     else
                         json.session.fixperc    = Par.jf.fixperc;
                     end
-                    savejson('', json, ['Log_' DateString ...
+                    savejson('', json, ['Log_' DateString_sec ...
                         '_Run' num2str(jj,'%03.f') '_session.json']);
                     %savejson('', json, ['Log_' DateString '_session.json']);
                 end

@@ -104,8 +104,8 @@ Par.KeyRandResp = KbName('/?');
 Par.RespProbSetting=0; % initialize with random left/right indicators
 
 Par.ScrCenter=Par.wrect(3:4)/2;
-DateString = datestr(clock,30);
-DateString = DateString(1:end-2);
+DateString_sec = datestr(clock,30);
+DateString = DateString_sec(1:end-2);
 Par_BU=Par;
 
 if ~TestRunstimWithoutDAS; refreshtracker(1); end
@@ -1871,9 +1871,9 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
     
     % save stuff
     LogPath = fullfile(Par.LogFolder,Par.SetUp,Par.MONKEY,...
-        [Par.MONKEY '_' DateString(1:8)],[Par.MONKEY '_' DateString]);
+        [Par.MONKEY '_' DateString(1:8)],[Par.MONKEY '_' DateString_sec]);
     warning off;mkdir(LogPath);warning on;
-    LogFn = [Par.SetUp '_' Par.MONKEY '_' DateString];
+    LogFn = [Par.SetUp '_' Par.MONKEY '_' DateString_sec];
     cd(LogPath)
     
     if ~TestRunstimWithoutDAS
