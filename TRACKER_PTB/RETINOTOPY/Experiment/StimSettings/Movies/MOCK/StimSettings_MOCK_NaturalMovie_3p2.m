@@ -50,7 +50,7 @@ Stm(1).RetMap.SaveToFile = false;
 Stm(1).RetMap.FileName = 'MOVIE3_CC2_v2.mp4';
 
 %-- this duration setting is relevant for all movie types
-Stm(1).RetMap.moviedur = 509; % sec
+Stm(1).RetMap.moviedur = 510; % sec
 %-- these setting only work for internal gstreamer videos (which is buggy)
 % == (StimType{1}='movie' ==
 Stm(1).RetMap.moviefps = 24; % framerate of moviefile

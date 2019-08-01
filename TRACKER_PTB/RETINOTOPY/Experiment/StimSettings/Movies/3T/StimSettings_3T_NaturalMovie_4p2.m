@@ -50,7 +50,7 @@ Stm(1).RetMap.SaveToFile = false;
 Stm(1).RetMap.FileName = 'MOVIE4_HO2_v2.mp4';
 
 %-- this duration setting is relevant for all movie types
-Stm(1).RetMap.moviedur = 398; % sec
+Stm(1).RetMap.moviedur = 399; % sec
 %-- these setting only work for internal gstreamer videos (which is buggy)
 % == (StimType{1}='movie' ==
 Stm(1).RetMap.moviefps = 24; % framerate of moviefile
@@ -58,7 +58,7 @@ Stm(1).RetMap.movierate = 1; % speed of playing
 Stm(1).RetMap.PlaySize = [640*(1080/480) 1080]; % max height & keep ratio
 %-- these settings apply to external VLC based movies
 % == (StimType{1}='movie-vlc' ==
-Stm(1).RetMap.VLC_batfile = 'Run_MOCK_NatMovie4_part1.bat'; % in stimuli/movies folder
+Stm(1).RetMap.VLC_batfile = 'Run_3T_NatMovie4_part2.bat'; % in stimuli/movies folder
 Stm(1).RetMap.VLC_stop = 'StopVLC.bat';
 
 % Logfolder
