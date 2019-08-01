@@ -1,0 +1,10 @@
+MOVIE1_CC1_v2_part1.mp4 	8.46 	526
+MOVIE1_CC1_v2_part2.mp4 	6.55 	415
+MOVIE2_HO1_v2_part1.mp4 	9.05 	545
+MOVIE2_HO1_v2_part2.mp4 	6.32 	392
+MOVIE3_CC2_v2_part1.mp4 	7.05 	425
+MOVIE3_CC2_v2_part2.mp4 	8.29 	509
+MOVIE4_HO2_v2_part.mp4  	6.38 	398
+MOVIE4_HO2_v2_part1.mp4 	8.42 	522
+
+
