@@ -1519,6 +1519,9 @@ cd(Par.StartFolder);
 OldExpFolder = Par.ExpFolder;
 Par.ExpFolder=0;
 
+% carryover the current monkey name
+CurrMonkey = Par.MONKEY;
+
 % get new folder
 cd TRACKER_PTB
 while ~Par.ExpFolder
@@ -1538,6 +1541,7 @@ addpath(genpath(Par.ExpFolder));
 cd(Par.ExpFolder);
 % Run tracker
 Par.hTracker=tracker_CK;
+Par.MONKEY=CurrMonkey;
 
 
 % --------------------------------------------------------------------
