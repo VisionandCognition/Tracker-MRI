@@ -2567,7 +2567,7 @@ Par=Par_BU;
                         Log.MRI.TriggerTime = ...
                             [Log.MRI.TriggerTime; Par.KeyTime];
                         Log.nEvents=Log.nEvents+1;
-                        Log.Events(Log.nEvents).event='MRITrigger';
+                        Log.Events(Log.nEvents).event='MRI_Trigger';
                         Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
                         Log.Events(Log.nEvents).info = 'Received';
                         if strcmp(Par.SetUp,'NIN') % send start bit to sync ephys system
@@ -2724,7 +2724,7 @@ Par=Par_BU;
                             Log.nEvents=Log.nEvents+1;
                             Log.Events(Log.nEvents).event='LeftRespOnly';
                             Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                            Log.Events(Log.nEvents).info = [];
+                            Log.Events(Log.nEvents).info = 'None';
                             Par.RespProbSetting=1;
                             Par.ForceRespSide = true;
                         end
@@ -2734,7 +2734,7 @@ Par=Par_BU;
                             Log.nEvents=Log.nEvents+1;
                             Log.Events(Log.nEvents).event='RightRespOnly';
                             Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                            Log.Events(Log.nEvents).info = [];
+                            Log.Events(Log.nEvents).info = 'None';
                             Par.RespProbSetting=2;
                             Par.ForceRespSide = true;
                         end
@@ -2744,7 +2744,7 @@ Par=Par_BU;
                             Log.nEvents=Log.nEvents+1;
                             Log.Events(Log.nEvents).event='RandRespInd';
                             Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                            Log.Events(Log.nEvents).info = [];
+                            Log.Events(Log.nEvents).info = 'None';
                             Par.RespProbSetting=0;
                             Par.ForceRespSide = true;
                         end
@@ -2977,7 +2977,7 @@ Par=Par_BU;
             Log.nEvents=Log.nEvents+1;
             Log.Events(Log.nEvents).event='RewardFix';
             Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-            Log.Events(Log.nEvents).info = [];
+            Log.Events(Log.nEvents).info = 'None';
         end
     end
 % stop reward delivery
@@ -2991,7 +2991,7 @@ Par=Par_BU;
             Log.nEvents=Log.nEvents+1;
             Log.Events(Log.nEvents).event='RewardStopped';
             Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-            Log.Events(Log.nEvents).info = [];
+            Log.Events(Log.nEvents).info = 'None';
         end
     end
 % give automated reward for task
@@ -3037,7 +3037,7 @@ Par=Par_BU;
                 Log.nEvents=Log.nEvents+1;
                 Log.Events(Log.nEvents).event='RewardAutoTask';
                 Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-                Log.Events(Log.nEvents).info = [];
+                Log.Events(Log.nEvents).info = 'None';
             end
         end
     end
@@ -3069,7 +3069,7 @@ Par=Par_BU;
             Log.nEvents=Log.nEvents+1;
             Log.Events(Log.nEvents).event='RewardAutoHand';
             Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-            Log.Events(Log.nEvents).info = [];
+            Log.Events(Log.nEvents).info = 'None';
         end
     end
 % give manual reward
@@ -3094,7 +3094,7 @@ Par=Par_BU;
         Log.nEvents=Log.nEvents+1;
         Log.Events(Log.nEvents).event='RewardMan';
         Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-        Log.Events(Log.nEvents).info = [];
+        Log.Events(Log.nEvents).info = 'None';
     end
 % check eye-tracker recording status
     function CheckEyeRecStatus
@@ -3128,7 +3128,7 @@ Par=Par_BU;
             Log.Events(Log.nEvents).event='EyeRecOn';
         end
         Log.Events(Log.nEvents).t=tEyeRecSet-Par.ExpStart;
-        Log.Events(Log.nEvents).info = [];
+        Log.Events(Log.nEvents).info = 'None';
     end
 % create radial checkerboard
     function chkimg = RadialCheckerBoard(radius, sector, chsz)
