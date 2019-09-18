@@ -54,7 +54,7 @@ Stm(1).RetMap.moviedur = 185; % sec
 Stm(1).RetMap.PlaySize = [640*(1080/480) 1080]; % max height & keep ratio
 
 % Logfolder
-Stm(1).LogFolder = 'C:\Users\NINuser\Documents\Log_CK\Retinotopy\Natural';
+Stm(1).LogFolder = fullfile('Retinotopy','Natural');
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

@@ -1,7 +1,7 @@
 function drawFix(obj)
 % draw fixation point
     global Par
-
+    
     fix_pos = obj.taskParams.FixPositionsPix(Par.PosNr,:)+Par.ScrCenter(:)';
     dot_radius = obj.param('FixDotSizePix')/2;
     rect=[...

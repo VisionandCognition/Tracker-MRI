@@ -156,7 +156,7 @@ elseif TarCreateAlgorithm == 3
 end
 
 % Logfolder
-Stm.LogFolder = 'C:\Users\NINuser\Documents\Log_CK\ChoiceSaccade';
+Stm.LogFolder = 'ChoiceSaccade';
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

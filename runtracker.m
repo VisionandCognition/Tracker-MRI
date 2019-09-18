@@ -2,11 +2,10 @@ function runtracker
 global Par
 
 %clear and welcome message
-clc;
-fprintf('Starting Tracker. Please have some patience...\n');
+clc; fprintf('Starting Tracker. Please have some patience...\n');
 
 %what matlab version
-MatlabVersion=version;
+MatlabVersion = version;
 if str2double([MatlabVersion(1) MatlabVersion(3)]) == 95 % R2018
     Par.ML = 2018;
 elseif str2double([MatlabVersion(1) MatlabVersion(3)]) == 84 % R2014 
@@ -22,13 +21,22 @@ Par.ScreenChoice = questdlg('Which setup (3T/Mock/NIN)?', 'Select Setup',...
     '3T','Mock','NIN','Mock');
 
 % remember the startfolder
-Par.StartFolder=cd;
+Par.StartFolder = cd;
 
-addpath(genpath([pwd filesep 'SharedScripts'])); % add scripts shared between projects
+% add scripts shared between projects
+addpath(genpath(fullfile(pwd,'SharedScripts'))); 
+
+% Add the log-folder as an environment variable
+if ispc % windows
+    setenv('TRACKER_LOGS', 'C:\Users\NINuser\Documents\Logs');
+else % unix
+    setenv('TRACKER_LOGS', fullfile(getenv('HOME'),'Desktop','Logs'));
+end
+[~,~,~] = mkdir(getenv('TRACKER_LOGS'));
 
 % Select our experiment folder
 cd TRACKER_PTB
-Par.ExpFolder=uigetdir(pwd,'Choose your experiment root-folder (contains Engine & Experiment folders)');
+Par.ExpFolder = uigetdir(pwd,'Choose your experiment root-folder (contains Engine & Experiment folders)');
 
 if Par.ExpFolder
     % Add stuff to the path
@@ -36,7 +44,7 @@ if Par.ExpFolder
     % Go to folder
     cd(Par.ExpFolder);
     % Run tracker
-    Par.hTracker=tracker_CK;
+    Par.hTracker = tracker_CK;
 else
     fprintf('You did not choose a valid Experiment folder. Exiting...\n')
 end

@@ -12,6 +12,9 @@ clc;
 eval(Par.PARSETFILE); % this takes the ParSettings file chosen via the context menu
 
 Stm = StimObj.Stm;
+Par.ExpFolder = pwd;
+DateString_sec = datestr(clock,30);
+DateString = DateString_sec(1:end-2);
 
 %% Stimulus preparation ===================================================
 for PrepareStim=1
@@ -406,19 +409,24 @@ while ~Par.ESC %===========================================================
 end
 
 %% Clean up and Save Log ==================================================
-for CleanUp=1 % code folding
-    % Empty the screen
-    Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
-    lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
-    
-    % save stuff
-    FileName=['Log' datestr(clock,30)];
-    warning off; %#ok<WNOFF>
-    mkdir('Log');cd('Log');
-    save(FileName,'Log','Par','StimObj');
-    cd ..
-    warning on; %#ok<WNON>
-end
+% Empty the screen
+Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
+lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
+
+% save stuff
+LogPath = fullfile(getenv('TRACKER_LOGS'),... % base log folder
+    Par.SetUp,... % setup
+    Par.LogFolder,... % task (/subtask)
+    Par.MONKEY,... % subject
+    [Par.MONKEY '_' DateString(1:8)],... % session
+    [Par.MONKEY '_' DateString_sec]... % run
+    );
+LogFn = [Par.SetUp '_' Par.MONKEY '_' DateString_sec];
+FileName=['Log_' LogFn];
+[~,~,~] = mkdir(LogPath);
+cd(LogPath)
+save(FileName,'Log','Par','StimObj');
+cd(Par.ExpFolder)
 
 %% Standard functions called throughout the runstim =======================
 % create fixation window around target

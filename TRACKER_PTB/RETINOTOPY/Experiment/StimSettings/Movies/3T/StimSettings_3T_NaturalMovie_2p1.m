@@ -62,7 +62,7 @@ Stm(1).RetMap.VLC_batfile = 'Run_3T_NatMovie2_part1.bat'; % in stimuli/movies fo
 Stm(1).RetMap.VLC_stop = 'StopVLC.bat';
 
 % Logfolder
-Stm(1).LogFolder = 'C:\Users\NINuser\Documents\Log_CK\Retinotopy\NaturalMovie';
+Stm(1).LogFolder = fullfile('Retinotopy','NaturalMovie');
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

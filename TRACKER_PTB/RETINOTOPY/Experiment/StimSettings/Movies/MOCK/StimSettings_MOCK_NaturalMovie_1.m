@@ -62,7 +62,7 @@ Stm(1).RetMap.VLC_batfile = 'Run_MOCK_NatMovie1.bat'; % in stimuli/movies folder
 Stm(1).RetMap.VLC_stop = 'StopVLC.bat';
 
 % Logfolder
-Stm(1).LogFolder = 'C:\Users\NINuser\Documents\Log_CK\Retinotopy\NaturalMovie';
+Stm(1).LogFolder = fullfile('Retinotopy','NaturalMovie');
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

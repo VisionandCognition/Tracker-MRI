@@ -33,70 +33,68 @@ Par.CurveTracingRoot = fileparts(fileparts(scriptPath));
 %   run without the DAS...
 Par.TestRunstimWithoutDAS = exist('hasrealdas', 'file') && ~hasrealdas();
 %==========================================================================
-for DoThisOnlyForTestingWithoutDAS=1
-    if Par.TestRunstimWithoutDAS
-        %  #------ Not tested - not expected to work ------#
-        [~, basename, ext] = fileparts(pwd);
-        if strcmp([basename ext], 'Experiment')
-            % if not exited cleanly
-            % cd ..;
-            cd(Par.CurveTracingRoot);
-        end
-        cd engine;
-        ptbInit % initialize PTB
-        
-        cd(Par.CurveTracingRoot); cd Experiment;
-        Par.scr=Screen('screens');
-        Par.ScrNr=max(Par.scr); % use the screen with the highest #
-        
-        try
-            DesiredWidth = 1920;
-            DesiredHeight = 1080;
-            [W, H] = WindowSize(Par.window);
-        catch ME
-            [Par.window, Par.wrect] = Screen('OpenWindow', 0, 0,...
-                [0 0 DesiredWidth DesiredHeight], ... rect
-                [], 2, ... pixelSize, numberOfBuffers
-                [], [], [], ... stereomode, multisample, imagingmode
-                kPsychGUIWindow); % specialFlags
-            [W, H] = Par.wrect(3:4);
-        end
-        if abs(W-DesiredWidth) + abs(H-DesiredHeight) > 10
-            Screen('CloseAll');
-            Par.window = 0;
-            %Screen(Par.window,'Close'); causes errors
-            [Par.window, Par.wrect] = Screen('OpenWindow', Par.window, 0,...
-                [0 0 DesiredWidth DesiredHeight], ... rect
-                [], 2, ... pixelSize, numberOfBuffers
-                [], [], [], ... stereomode, multisample, imagingmode
-                kPsychGUIWindow); % specialFlags
-        end
-        
-        
+if Par.TestRunstimWithoutDAS
+    %  #------ Not tested - not expected to work ------#
+    [~, basename, ext] = fileparts(pwd);
+    if strcmp([basename ext], 'Experiment')
+        % if not exited cleanly
+        % cd ..;
+        cd(Par.CurveTracingRoot);
+    end
+    cd engine;
+    ptbInit % initialize PTB
+    
+    cd(Par.CurveTracingRoot); cd Experiment;
+    Par.scr=Screen('screens');
+    Par.ScrNr=max(Par.scr); % use the screen with the highest #
+    
+    try
+        DesiredWidth = 1920;
+        DesiredHeight = 1080;
+        [W, H] = WindowSize(Par.window);
+    catch ME
+        [Par.window, Par.wrect] = Screen('OpenWindow', 0, 0,...
+            [0 0 DesiredWidth DesiredHeight], ... rect
+            [], 2, ... pixelSize, numberOfBuffers
+            [], [], [], ... stereomode, multisample, imagingmode
+            kPsychGUIWindow); % specialFlags
+        [W, H] = Par.wrect(3:4);
+    end
+    if abs(W-DesiredWidth) + abs(H-DesiredHeight) > 10
+        Screen('CloseAll');
+        Par.window = 0;
+        %Screen(Par.window,'Close'); causes errors
+        [Par.window, Par.wrect] = Screen('OpenWindow', Par.window, 0,...
+            [0 0 DesiredWidth DesiredHeight], ... rect
+            [], 2, ... pixelSize, numberOfBuffers
+            [], [], [], ... stereomode, multisample, imagingmode
+            kPsychGUIWindow); % specialFlags
+    end
+    
+    
+    blend = Screen('BlendFunction', Par.window);
+    if strcmp(blend, GL_ONE) || strcmp(blend, GL_ZERO)
+        % attempting to get around strange bug with Matlab 2016B Linux
+        Screen('BlendFunction', Par.window,...
+            GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         blend = Screen('BlendFunction', Par.window);
         if strcmp(blend, GL_ONE) || strcmp(blend, GL_ZERO)
-            % attempting to get around strange bug with Matlab 2016B Linux
-            Screen('BlendFunction', Par.window,...
-                GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-            blend = Screen('BlendFunction', Par.window);
-            if strcmp(blend, GL_ONE) || strcmp(blend, GL_ZERO)
-                smo = 0;
-            end
+            smo = 0;
         end
-        
-        % Reduce PTB3 verbosity
-        oldLevel = Screen('Preference', 'Verbosity', 0); %#ok<*NASGU>
-        Screen('Preference', 'VisualDebuglevel', 0);
-        Screen('Preference','SkipSyncTests',1);
-        
-        %Do some basic initializing
-        AssertOpenGL;
-        KbName('UnifyKeyNames');
-        
-        %Set ParFile and Stimfile
-        %Par.PARSETFILE = 'ParSettings';
-        %Par.STIMSETFILE = 'StimSettings';
     end
+    
+    % Reduce PTB3 verbosity
+    oldLevel = Screen('Preference', 'Verbosity', 0); %#ok<*NASGU>
+    Screen('Preference', 'VisualDebuglevel', 0);
+    Screen('Preference','SkipSyncTests',1);
+    
+    %Do some basic initializing
+    AssertOpenGL;
+    KbName('UnifyKeyNames');
+    
+    %Set ParFile and Stimfile
+    %Par.PARSETFILE = 'ParSettings';
+    %Par.STIMSETFILE = 'StimSettings';
 end
 clc;
 
@@ -142,80 +140,78 @@ end
 %Stm(1).task.updateState('INIT_EXPERIMENT', Par.lft);
 
 %% Code Control Preparation ===============================================
-for CodeControl=1 %allow code folding
-    % Some intitialization of control parameters
-    Par.ESC = false; %escape has not been pressed
-    Par.Pause = false;
-    Par.endExperiment  = false;
-    Log.MRI.TriggerReceived = false;
-    Log.MRI.TriggerTime = [];
-    Log.ManualReward = false;
-    Log.ManualRewardTime = [];
-    Log.TotalReward=0;
-    Log.TCMFR = [];
-    Log.numMiniBlocks = 0;
-    
-    % Turn off fixation for first block (so that it can be calibrated)
-    OldPar.WaitForFixation = Par.WaitForFixation;
-    OldPar.RequireFixationForReward = Par.RequireFixationForReward;
-    Par.RequireFixationForReward = false;
-    Par.WaitForFixation = false;
-    Log.events.add_entry(GetSecs, 'NA', 'FixationRequirement', 'Stop');
-    
-    % Flip the proper background on screen
-    Screen('FillRect',Par.window, Par.BG .* Par.ScrWhite);
-    Par.lft=Screen('Flip', Par.window);
-    Par.lft=Screen('Flip', Par.window, Par.lft+1);
-    
-    Par.ExpStart = Par.lft;
-    Log.events.begin_experiment(Par.ExpStart);
-    
-    % Initial stimulus position is 1
-    Par.PosNr=1;
-    Par.PrevPosNr=1;
-    
-    % Initialize KeyLogging
-    Par.KeyIsDown=false;
-    Par.KeyWasDown=false;
-    Par.KeyDetectedInTrackerWindow=false;
-    
-    % Initialize photosensor manual response
-    Par.BeamLIsBlocked=false;  Par.BeamRIsBlocked=false;
-    Par.BeamLWasBlocked=false; Par.BeamRWasBlocked=false;
-    Par.ForpRespLeft=false;  Par.ForpRespRight=false;
-    
-    Par.NewResponse = false; % updated every CheckManual
-    Par.TrialResponse = false; % updated with NewResponse when not false
-    Par.GoNewTrial = false;
-    
-    % Initialize control parameters
-    Par.SwitchPos = false;
-    Par.ToggleCyclePos = true; % overrules the Stim(1)setting; toggles with 'p'
-    Par.ManualReward = false;
-    Par.PosReset = false;
-    Par.BreakTrial = false;
-    Par.GiveRewardAmount = 0;
-    Par.GiveRewardAmount_onResponseRelease = 0;
-    Par.ExtraWaitTime = 0;
-    
-    % Trial Logging
-    Par.CurrResponse = Par.RESP_NONE;
-    
-    Par.Response = [0 0 0 0 0 0]; % counts [correct false-hit miss early fix.break hand-removed]
-    
-    Par.FirstInitDone=false;
-    Par.CheckFixIn=false;
-    Par.CheckFixOut=false;
-    Par.CheckTarget=false;
-    Par.RewardRunning=false;
-    
-    EyeRecMsgShown=false;
-    
-    Log.Eye =[];
-    Par.CurrEyePos = [];
-    Par.CurrEyeZoom = [];
-    Par.exitOnKeyWaitForMRITrigger = false;
-end
+% Some intitialization of control parameters
+Par.ESC = false; %escape has not been pressed
+Par.Pause = false;
+Par.endExperiment  = false;
+Log.MRI.TriggerReceived = false;
+Log.MRI.TriggerTime = [];
+Log.ManualReward = false;
+Log.ManualRewardTime = [];
+Log.TotalReward=0;
+Log.TCMFR = [];
+Log.numMiniBlocks = 0;
+
+% Turn off fixation for first block (so that it can be calibrated)
+OldPar.WaitForFixation = Par.WaitForFixation;
+OldPar.RequireFixationForReward = Par.RequireFixationForReward;
+Par.RequireFixationForReward = false;
+Par.WaitForFixation = false;
+Log.events.add_entry(GetSecs, 'NA', 'FixationRequirement', 'Stop');
+
+% Flip the proper background on screen
+Screen('FillRect',Par.window, Par.BG .* Par.ScrWhite);
+Par.lft=Screen('Flip', Par.window);
+Par.lft=Screen('Flip', Par.window, Par.lft+1);
+
+Par.ExpStart = Par.lft;
+Log.events.begin_experiment(Par.ExpStart);
+
+% Initial stimulus position is 1
+Par.PosNr=1;
+Par.PrevPosNr=1;
+
+% Initialize KeyLogging
+Par.KeyIsDown=false;
+Par.KeyWasDown=false;
+Par.KeyDetectedInTrackerWindow=false;
+
+% Initialize photosensor manual response
+Par.BeamLIsBlocked=false;  Par.BeamRIsBlocked=false;
+Par.BeamLWasBlocked=false; Par.BeamRWasBlocked=false;
+Par.ForpRespLeft=false;  Par.ForpRespRight=false;
+
+Par.NewResponse = false; % updated every CheckManual
+Par.TrialResponse = false; % updated with NewResponse when not false
+Par.GoNewTrial = false;
+
+% Initialize control parameters
+Par.SwitchPos = false;
+Par.ToggleCyclePos = true; % overrules the Stim(1)setting; toggles with 'p'
+Par.ManualReward = false;
+Par.PosReset = false;
+Par.BreakTrial = false;
+Par.GiveRewardAmount = 0;
+Par.GiveRewardAmount_onResponseRelease = 0;
+Par.ExtraWaitTime = 0;
+
+% Trial Logging
+Par.CurrResponse = Par.RESP_NONE;
+
+Par.Response = [0 0 0 0 0 0]; % counts [correct false-hit miss early fix.break hand-removed]
+
+Par.FirstInitDone=false;
+Par.CheckFixIn=false;
+Par.CheckFixOut=false;
+Par.CheckTarget=false;
+Par.RewardRunning=false;
+
+EyeRecMsgShown=false;
+
+Log.Eye =[];
+Par.CurrEyePos = [];
+Par.CurrEyeZoom = [];
+Par.exitOnKeyWaitForMRITrigger = false;
 
 
 % This control parameter needs to be outside the stimulus loop
@@ -533,19 +529,26 @@ else
     FileName=['Log_NODAS_' Par.SetUp '_' Par.MONKEY '_' Par.STIMSETFILE '_' ...
         DateString];
 end
-warning off;
 
-logPath = getenv('TRACKER_LOGS');
-%[~, currDir, ~] = fileparts(pwd);
-%logPath = fullfile(logPath, Par.ProjectLogDir, [Par.SetUp '_' Par.MONKEY '_' DateString(1:8)]);
-logPath = fullfile(logPath, Par.ProjectLogDir, ...
-    [Par.SetUp '_' Par.MONKEY '_' DateString(1:8)], ...
-    [Par.MONKEY '_' Par.ProjectLogDir, '_' Par.STIMSETFILE '_' Par.SetUp '_' DateString '-T' TimeWriteStr]);
-mkdir(logPath);
+% warning off;
+% logPath = getenv('TRACKER_LOGS');
+% logPath = fullfile(logPath, Par.ProjectLogDir, ...
+%     [Par.SetUp '_' Par.MONKEY '_' DateString(1:8)], ...
+%     [Par.MONKEY '_' Par.ProjectLogDir, '_' Par.STIMSETFILE '_' Par.SetUp '_' DateString '-T' TimeWriteStr]);
+% mkdir(logPath);
+% filePath = fullfile(logPath, FileName);
+
+logPath = fullfile(getenv('TRACKER_LOGS'),... % base log folder
+    Par.SetUp,... % setup
+    Par.ProjectLogDir,... % task (/subtask)
+    Par.MONKEY,... % subject
+    [Par.MONKEY '_' DateString(1:8)],... % session
+    [Par.MONKEY '_' Par.ProjectLogDir, '_' Par.STIMSETFILE '_' ...
+    Par.SetUp '_' DateString '-T' TimeWriteStr]... % run
+    );
+[~,~,~] = mkdir(logPath);    
 filePath = fullfile(logPath, FileName);
-%if Par.TestRunstimWithoutDAS; cd ..;end
 
-%mkdir('Log');cd('Log');
 temp_hTracker=Par.hTracker; % do not save Tracker handle (avoid errors on loading)
 Par=rmfield(Par,'hTracker');
 save(filePath,'Log','Par','StimObj');
@@ -673,15 +676,6 @@ copyfile( ...
     fullfile(Par.CurveTracingRoot, 'Experiment', 'ParSettings', 'ParSettings.m'), ...
     logPath );
 
-% === Old JW-version >> didn't work with parsettings in subfolders ====
-%copyfile( ...
-%    fullfile(Par.CurveTracingRoot, 'Experiment', 'ParSettings', [Par.PARSETFILE, '.m']), ...
-%    logPath );
-
-% if running without DAS close ptb windows
-%if Par.TestRunstimWithoutDAS
-%    Screen('closeall');
-%end
 Par.IsTestBeforeScanning = false;
 fprintf('\nDone.\n');
 fprintf(['Suggested eye filename: ' suggestedTdaFilename '\n']);

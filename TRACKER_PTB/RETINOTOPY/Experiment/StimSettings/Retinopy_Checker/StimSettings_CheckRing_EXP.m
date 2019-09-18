@@ -62,7 +62,7 @@ Stm(1).RetMap.SaveToFile = false;
 Stm(1).RetMap.FileName = 'CheckRing_EXP_MOCK.mat';
 
 % Logfolder
-Stm(1).LogFolder = 'C:\Users\NINuser\Documents\Log_CK\Retinotopy\RetCheck';
+Stm(1).LogFolder = fullfile('Retinotopy','RetCheck');
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

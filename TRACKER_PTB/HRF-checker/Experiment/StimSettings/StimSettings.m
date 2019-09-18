@@ -63,7 +63,7 @@ Stm(1).RetMap.SaveToFile = false;
 Stm(1).RetMap.FileName = 'pRF_8bars_MOCK.mat';
 
 % Logfolder
-Stm(1).LogFolder = 'C:\Users\NINuser\Documents\Log_CK\Retinotopy\Default';
+fullfile('HRF-checker','Default');
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

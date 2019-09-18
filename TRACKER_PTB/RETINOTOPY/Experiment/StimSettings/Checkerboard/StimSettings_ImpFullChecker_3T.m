@@ -68,7 +68,7 @@ Stm(1).RetMap.Checker.SaveToFile = false;
 Stm(1).RetMap.Checker.FileName = 'Checkerboard_3T.mat';
 
 % Logfolder
-Stm(1).LogFolder = 'C:\Users\NINuser\Documents\Log_CK\Retinotopy\Checkerboard';
+Stm(1).LogFolder = fullfile('Retinotopy','Checkerboard');
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

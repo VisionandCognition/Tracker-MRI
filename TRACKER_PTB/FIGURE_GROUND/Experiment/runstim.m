@@ -1870,9 +1870,14 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
     Priority(oldPriority);
     
     % save stuff
-    LogPath = fullfile(Par.LogFolder,Par.SetUp,Par.MONKEY,...
-        [Par.MONKEY '_' DateString(1:8)],[Par.MONKEY '_' DateString_sec]);
-    warning off;mkdir(LogPath);warning on;
+    LogPath = fullfile(getenv('TRACKER_LOGS'),... % base log folder
+        Par.SetUp,... % setup
+        Par.LogFolder,... % task (/subtask)
+        Par.MONKEY,... % subject
+        [Par.MONKEY '_' DateString(1:8)],... % session
+        [Par.MONKEY '_' DateString_sec]... % run
+        );
+    [~,~,~] = mkdir(LogPath);    
     LogFn = [Par.SetUp '_' Par.MONKEY '_' DateString_sec];
     cd(LogPath)
     

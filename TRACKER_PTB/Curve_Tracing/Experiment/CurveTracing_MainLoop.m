@@ -80,9 +80,7 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
     Par.HandRemoved = false;
     
     % Eye Window preparation ----------------------------------------------
-    for PrepareEyeWin=1
-        DefineEyeWin;
-    end
+    DefineEyeWin;
     if ~Par.TestRunstimWithoutDAS
         dasreset( 0 );
     end
@@ -195,16 +193,14 @@ for trial_iter = 1:maxTrials % ------------------------ for each trial ----
     end
     
     % Performance info on screen
-    for PerformanceOnCMD=1
-        if Par.PosReset
-            Log.events.add_entry(Par.lft, Stm(1).task.name, 'PosReset');
-            
-            % reset
-            Par.Trlcount(1) = 0;
-            Par.PosReset=false; %start new trial when switching position
-        else
-            Log.events.add_entry(Par.lft, Stm(1).task.name, 'TrialCompleted');
-        end
+    if Par.PosReset
+        Log.events.add_entry(Par.lft, Stm(1).task.name, 'PosReset');
+        
+        % reset
+        Par.Trlcount(1) = 0;
+        Par.PosReset=false; %start new trial when switching position
+    else
+        Log.events.add_entry(Par.lft, Stm(1).task.name, 'TrialCompleted');
     end
     
     % Update Tracker window

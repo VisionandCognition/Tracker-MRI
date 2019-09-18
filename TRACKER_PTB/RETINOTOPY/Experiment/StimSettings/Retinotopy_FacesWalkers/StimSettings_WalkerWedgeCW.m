@@ -45,7 +45,7 @@ Stm(1).RetMap.nSteps = 32;
 Stm(1).RetMap.nBlanks_each_nSteps = [0 0]; % if either is zero, it won't work
 
 % Logfolder
-Stm(1).LogFolder = 'C:\Users\NINuser\Documents\Log_CK\Retinotopy\Walkers';
+Stm(1).LogFolder = fullfile('Retinotopy','Walkers');
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

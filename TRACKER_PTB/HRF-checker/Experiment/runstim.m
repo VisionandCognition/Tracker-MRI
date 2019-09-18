@@ -34,7 +34,7 @@ if TestRunstimWithoutDAS
     
     %Set ParFile and Stimfile
     Par.PARSETFILE = 'ParSettings_NoDas';
-    Par.STIMSETFILE = 'StimSettings_pRF_8bars'; %'StimSettings_FullscreenCheckerboard';
+    Par.STIMSETFILE = 'StimSettings_NaturalMovie_1'; %'StimSettings_pRF_8bars'; %'StimSettings_FullscreenCheckerboard';
     Par.MONKEY = 'TestWithoutDAS';
 end
 clc;
@@ -94,6 +94,11 @@ end
 if ~isfield(Par,'LeversUpTimeOut')
     Par.LeversUpTimeOut = [Inf 0];
     fprintf('No LeversUpTimeOut defined: Setting it to [Inf 0]\n');
+end
+if strcmp(StimObj.Stm(1).RetMap.StimType{1},'movie-vlc')
+    Par.ResponseBox.Task = 'Fixate';
+    fprintf('No hand task possible during vlc-movies\n');
+    fprintf('Setting task to fixate\n');
 end
 
 % Add keys to fix left/right/random responses
@@ -381,6 +386,8 @@ for STIMNR = unique(Log.StimOrder)
             Stm(STIMNR).Descript = 'FullChecker';
         case 'movie'
             Stm(STIMNR).Descript = 'movie';
+        case 'movie-vlc'
+            Stm(STIMNR).Descript = 'movie-vlc';    
     end
 end
 
@@ -396,14 +403,15 @@ for i=1:length(Stm)
         TotTime = TotTime + ...
             (sum(Stm(i).RetMap.Checker.OnOff)*Stm(i).RetMap.nCycles)+...
             Stm(i).RetMap.PreDur+Stm(i).RetMap.PostDur;
-    elseif strcmp(Stm(i).RetMap.StimType{1},'movie')
+    elseif strcmp(Stm(i).RetMap.StimType{1},'movie') || ...
+            strcmp(Stm(i).RetMap.StimType{1},'movie-vlc')
         Stm(i).RetMap.PreDur = ...
             Stm(i).RetMap.PreDur_TRs*Par.TR;
         Stm(i).RetMap.PostDur = ...
             Stm(i).RetMap.PostDur_TRs*Par.TR;
         TotTime = TotTime + ...
-                    (Stm(i).RetMap.moviedur/Stm(i).RetMap.movierate) + ...
-                    Stm(i).RetMap.PreDur + Stm(i).RetMap.PostDur;
+            Stm(i).RetMap.moviedur + ...
+            Stm(i).RetMap.PreDur + Stm(i).RetMap.PostDur;
     else
         Stm(i).RetMap.PreDur = ...
             Stm(i).RetMap.PreDur_TRs*Par.TR;
@@ -435,21 +443,21 @@ end
 if ~isinf(TotTime)
     NumVolNeeded=(Stm(1).nRepeatsStimSet*TotTime)/Par.TR;
     if strcmp(Par.SetUp,'NIN') % ephys
-       fprintf(['This StimSettings file will take ' ...
-           num2str(ceil(Stm(1).nRepeatsStimSet*TotTime)) ' seconds.\n']); 
-       Log.uniqueID = round(rand(1).*2^14); 
-       
-       if strcmp(Par.SetUp,'NIN')
-           send_serial_data(Log.uniqueID); % Xing's Blackrock rig
-           % dasword(Log.uniqueID); % other ephys
-       else
-           dasword(Log.uniqueID);
-       end
-       
-       pause(.05); % make sure the word is received
-       dasclearword();
-       WordsSent=1; %keep track of how many words are sent so we back-check TDT against the log
-       Log.Words(WordsSent)=Log.uniqueID; %collect all the words that are sent to TDT
+        fprintf(['This StimSettings file will take ' ...
+            num2str(ceil(Stm(1).nRepeatsStimSet*TotTime)) ' seconds.\n']);
+        Log.uniqueID = round(rand(1).*2^14);
+        
+        if strcmp(Par.SetUp,'NIN')
+            send_serial_data(Log.uniqueID); % Xing's Blackrock rig
+            % dasword(Log.uniqueID); % other ephys
+        else
+            dasword(Log.uniqueID);
+        end
+        
+        pause(.05); % make sure the word is received
+        dasclearword();
+        WordsSent=1; %keep track of how many words are sent so we back-check TDT against the log
+        Log.Words(WordsSent)=Log.uniqueID; %collect all the words that are sent to TDT
     else
         fprintf(['This StimSettings file requires at least ' num2str(ceil(NumVolNeeded)) ...
             ' scanvolumes (check scanner)\n']);
@@ -493,16 +501,19 @@ for STIMNR = Log.StimOrder
                 RetMapStimuli=false;
                 DispChecker=false;
                 MovieRun=false;
+                VLCMovieRun=false;
             case 'ret'
                 %% Population receptive field stim
                 RetMapStimuli=true;
                 DispChecker=false;
                 MovieRun=false;
+                VLCMovieRun=false;
             case 'face'
                 %% Classic retinotopy: faces
                 RetMapStimuli=true;
                 DispChecker=false;
                 MovieRun=false;
+                VLCMovieRun=false;
                 if strcmp(Stm(STIMNR).RetMap.StimType{2},'circle')
                     ret_vid=vid_face_ring.ret_vid;
                 elseif strcmp(Stm(STIMNR).RetMap.StimType{2},'wedge')
@@ -513,6 +524,7 @@ for STIMNR = Log.StimOrder
                 RetMapStimuli=true;
                 DispChecker=false;
                 MovieRun=false;
+                VLCMovieRun=false;
                 if strcmp(Stm(STIMNR).RetMap.StimType{2},'circle')
                     ret_vid=vid_walker_ring.ret_vid;
                 elseif strcmp(Stm(STIMNR).RetMap.StimType{2},'wedge')
@@ -525,6 +537,7 @@ for STIMNR = Log.StimOrder
                 RetMapStimuli=false;
                 DispChecker=true;
                 MovieRun=false;
+                VLCMovieRun=false;
                 if Stm(STIMNR).RetMap.Checker.LoadFromFile
                     fprintf(['\nLoading checkerboard ' ...
                         Stm(STIMNR).RetMap.Checker.FileName '...\n']);
@@ -604,11 +617,24 @@ for STIMNR = Log.StimOrder
                 RetMapStimuli=false;
                 DispChecker=false;
                 MovieRun=true;
-                moviename = [Par.ExpFolder '\Stimuli\Movies\' Stm(STIMNR).RetMap.FileName];
+                VLCMovieRun=false;
+                moviename = fullfile(Par.ExpFolder,'Stimuli','Movies',...
+                    Stm(STIMNR).RetMap.FileName);
                 % prepare the movie
                 [Log.movie.name, Log.movie.duration, ...
                     Log.movie.fps, Log.movie.imgw, Log.movie.imgh] = ...
-                    Screen('OpenMovie', Par.window, moviename, [], [], [], [], []);
+                    Screen('OpenMovie', Par.window, moviename, ...
+                    [], [], [], [], []);
+                MovieRunning=false;
+            case 'movie-vlc'
+                RetMapStimuli=false;
+                DispChecker=false;
+                MovieRun=false;
+                VLCMovieRun=true;
+                moviebat = fullfile(Par.ExpFolder,'Stimuli','Movies',...
+                    Stm(STIMNR).RetMap.VLC_batfile);
+                stopVLCbat = fullfile(Par.ExpFolder,'Stimuli','Movies',...
+                    Stm(STIMNR).RetMap.VLC_stop);
                 MovieRunning=false;
         end
         
@@ -655,6 +681,7 @@ for STIMNR = Log.StimOrder
         Par.PosReset=false;
         Par.RewardStarted=false;
         Par.MovieStopped=false;
+        Par.Allow_Calls_To_PTB_win = true;
         
         % Trial Logging
         Par.Response = 0; % maintained fixations
@@ -677,7 +704,7 @@ for STIMNR = Log.StimOrder
         Par.BothLeversUp_time = Inf;
         AutoPauseStartTime = Inf;
         AutoPausing = false;
-                      
+        
         %video control
         Par.VideoLoaded=false;
         Par.VideoPlaying=false;
@@ -709,16 +736,17 @@ for STIMNR = Log.StimOrder
         Par.ExpStart = lft;
         Log.nEvents=1;
         Log.Events = [];
-        Log.Events(Log.nEvents).type='ExpStart';
+        Log.Events(Log.nEvents).event='ExpStart';
         Log.Events(Log.nEvents).t=0;
-        
+        Log.Events(Log.nEvents).info='Start';
+
         Log.Eye =[];
         Par.CurrEyePos = [];
         Par.CurrEyeZoom = [];
         
         EyeRecMsgShown=false;
         RunEnded=false;
-               
+        
         %% Eye-tracker recording
         if Par.EyeRecAutoTrigger
             if ~FirstEyeRecSet
@@ -770,7 +798,14 @@ for STIMNR = Log.StimOrder
                 fprintf(['MRI trigger received after ' num2str(GetSecs-Par.ExpStart) ' s\n']);
             end
         end
-        
+    else
+        if VLCMovieRun
+            if MovieRunning
+                eval(['!' stopVLCbat])
+                Reopen_PTB_win;
+                MovieRunning=false;
+            end
+        end
     end
     
     %% Displaying the stimuli ---------------------------------------------
@@ -781,7 +816,7 @@ for STIMNR = Log.StimOrder
                 DefineEyeWin(STIMNR);
                 refreshtracker(1) %for your control display
                 last_tracker_update = GetSecs;
-                SetWindowDas      %for the dascard, initializes eye control windows
+                SetWindowDas;      %for the dascard, initializes eye control windows
             end
             
             Par.Trlcount = Par.Trlcount+1; %keep track of trial numbers
@@ -792,9 +827,9 @@ for STIMNR = Log.StimOrder
                 WordsSent+1; %#ok<*VUNUS>
                 Log.Words(WordsSent)=Par.Trlcount(1);
                 Log.nEvents=Log.nEvents+1;
-                Log.Events(Log.nEvents).type='TrialStart';
+                Log.Events(Log.nEvents).event='TrialStart';
                 Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-                Log.Events(Log.nEvents).StimName = Par.Trlcount(1);
+                Log.Events(Log.nEvents).info = Par.Trlcount(1);
             end
             Par.ResponseGiven=false;
             Par.FalseResponseGiven=false;
@@ -827,11 +862,11 @@ for STIMNR = Log.StimOrder
             Log.StartBlock=lft;
             Stm(STIMNR).IsPreDur=true;
             Log.nEvents=Log.nEvents+1;
-            Log.Events(Log.nEvents).type='PreDurStart';
+            Log.Events(Log.nEvents).event='PreDurStart';
             Log.Events(Log.nEvents).t=Log.StartBlock-Par.ExpStart;
-            Log.Events(Log.nEvents).StimName = [];
+            Log.Events(Log.nEvents).info = 'Start';
             if TestRunstimWithoutDAS; Hit=0; end
-                      
+            
             PreStarted = false;
             OnStarted = false;
             OffStarted = false;
@@ -863,8 +898,9 @@ for STIMNR = Log.StimOrder
             
             Par.FirstInitDone=true;
         end
+        
         %% Check what to draw depending on time ---------------------------
-        if RetMapStimuli || MovieRun
+        if RetMapStimuli || MovieRun || VLCMovieRun
             if GetSecs < Log.StartBlock + Stm(STIMNR).RetMap.PreDur % PreDur
                 IsPre=true;
                 IsPost=false;
@@ -872,9 +908,9 @@ for STIMNR = Log.StimOrder
                     PreStarted = true;
                     CheckStartLogged = false;
                     Log.nEvents=Log.nEvents+1;
-                    Log.Events(Log.nEvents).type='PreDurStart';
+                    Log.Events(Log.nEvents).event='PreDurStart';
                     Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-                    Log.Events(Log.nEvents).StimName = [];
+                    Log.Events(Log.nEvents).info = 'Start';
                     posn=0;
                 end
             elseif RetMapStimuli && ...
@@ -887,9 +923,9 @@ for STIMNR = Log.StimOrder
                 if ~OnStarted
                     OnStarted=true;
                     Log.nEvents=Log.nEvents+1;
-                    Log.Events(Log.nEvents).type='StimON';
+                    Log.Events(Log.nEvents).event='StimON';
                     Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-                    Log.Events(Log.nEvents).StimName = Stm(STIMNR).Descript;
+                    Log.Events(Log.nEvents).info = Stm(STIMNR).Descript;
                 end
                 
                 TRn=ceil((GetSecs-Log.StartBlock-Stm(STIMNR).RetMap.PreDur)/Par.TR);
@@ -902,15 +938,15 @@ for STIMNR = Log.StimOrder
                 posn=Stm(STIMNR).RetMap.posmap(posn,2);
                 if posn ~= prevposn
                     Log.nEvents=Log.nEvents+1;
-                    Log.Events(Log.nEvents).type='NewPosition';
+                    Log.Events(Log.nEvents).event='NewPosition';
                     Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-                    Log.Events(Log.nEvents).StimName = posn;
+                    Log.Events(Log.nEvents).info = posn;
                     if strcmp(Par.SetUp,'NIN') % ephys
-                    	dasbit(Par.StimB,1);
+                        dasbit(Par.StimB,1);
                         daspause(0.05);
                         dasbit(Par.StimB,0);
                         %send_serial_data(posn);
-                        %WordsSent+1; 
+                        %WordsSent+1;
                         %Log.Words(WordsSent)=posn;
                     end
                 end
@@ -924,13 +960,13 @@ for STIMNR = Log.StimOrder
                         texn=texn-numel(ret_vid(posn_adj).text);
                     end
                 elseif posn
-%                     posn_adj = mod(posn-1,length(stimulus(1).img))+1;
-%                     texn = ceil(mod(GetSecs-Log.StartBlock,Par.TR)*...
-%                         ret_vid(Stm(STIMNR).Order(posn_adj)).fps);
-%                     if ~texn; texn=1; end;
-%                     while texn>numel(ret_vid(Stm(STIMNR).Order(posn_adj)).text);
-%                         texn=texn-numel(ret_vid(Stm(STIMNR).Order(posn_adj)).text);
-%                     end
+                    %                     posn_adj = mod(posn-1,length(stimulus(1).img))+1;
+                    %                     texn = ceil(mod(GetSecs-Log.StartBlock,Par.TR)*...
+                    %                         ret_vid(Stm(STIMNR).Order(posn_adj)).fps);
+                    %                     if ~texn; texn=1; end;
+                    %                     while texn>numel(ret_vid(Stm(STIMNR).Order(posn_adj)).text);
+                    %                         texn=texn-numel(ret_vid(Stm(STIMNR).Order(posn_adj)).text);
+                    %                     end
                     texn = ceil(mod(GetSecs-Log.StartBlock,Par.TR)*...
                         ret_vid(Stm(STIMNR).Order(posn)).fps);
                     if ~texn; texn=1; end
@@ -938,7 +974,7 @@ for STIMNR = Log.StimOrder
                         texn=texn-numel(ret_vid(Stm(STIMNR).Order(posn)).text);
                     end
                 end
-            elseif MovieRun && ...
+            elseif (MovieRun || VLCMovieRun) && ...
                     GetSecs >= Log.StartBlock + Stm(STIMNR).RetMap.PreDur && ...
                     GetSecs < Log.StartBlock + Stm(STIMNR).RetMap.PreDur + ...
                     (Stm(STIMNR).RetMap.moviedur/Stm(STIMNR).RetMap.movierate)
@@ -947,9 +983,9 @@ for STIMNR = Log.StimOrder
                 if ~OnStarted
                     OnStarted=true;
                     Log.nEvents=Log.nEvents+1;
-                    Log.Events(Log.nEvents).type='StimON';
+                    Log.Events(Log.nEvents).event='StimON';
                     Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-                    Log.Events(Log.nEvents).StimName = Stm(STIMNR).Descript;
+                    Log.Events(Log.nEvents).info = Stm(STIMNR).Descript;
                 end
             elseif RetMapStimuli && ...
                     GetSecs < Log.StartBlock + Stm(STIMNR).RetMap.PreDur + ...
@@ -961,9 +997,9 @@ for STIMNR = Log.StimOrder
                 if ~PostStarted
                     PostStarted=true;
                     Log.nEvents=Log.nEvents+1;
-                    Log.Events(Log.nEvents).type='PostDurStart';
+                    Log.Events(Log.nEvents).event='PostDurStart';
                     Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-                    Log.Events(Log.nEvents).StimName = [];
+                    Log.Events(Log.nEvents).info = 'Start';
                     tPostStarted=GetSecs;
                 end
             elseif MovieRun && ...
@@ -975,9 +1011,9 @@ for STIMNR = Log.StimOrder
                 if ~PostStarted
                     PostStarted=true;
                     Log.nEvents=Log.nEvents+1;
-                    Log.Events(Log.nEvents).type='PostDurStart';
+                    Log.Events(Log.nEvents).event='PostDurStart';
                     Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-                    Log.Events(Log.nEvents).StimName = [];
+                    Log.Events(Log.nEvents).info = 'Start';
                     tPostStarted=GetSecs;
                     % Done. Stop playback:
                     Screen('PlayMovie', Log.movie.name, 0);
@@ -985,15 +1021,31 @@ for STIMNR = Log.StimOrder
                     Screen('CloseMovie', Log.movie.name);
                     MovieRunning=false;
                 end
-                
+            elseif VLCMovieRun && ...
+                    GetSecs < Log.StartBlock + Stm(STIMNR).RetMap.PreDur + ...
+                    Stm(STIMNR).RetMap.moviedur + Stm(STIMNR).RetMap.PostDur % PostDur
+                IsPre=false;
+                IsPost = true;
+                if ~PostStarted
+                    PostStarted=true;
+                    Log.nEvents=Log.nEvents+1;
+                    Log.Events(Log.nEvents).event='PostDurStart';
+                    Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
+                    Log.Events(Log.nEvents).info = 'Start';
+                    tPostStarted=GetSecs;
+                    % Done. Stop playback:
+                    eval(['!' stopVLCbat])
+                    Reopen_PTB_win;
+                    MovieRunning=false;
+                end   
             else
                 RunEnded=true;
                 IsPre=false;
                 IsPost=false;
                 Log.nEvents=Log.nEvents+1;
-                Log.Events(Log.nEvents).type='RunStop';
+                Log.Events(Log.nEvents).event='RunStop';
                 Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-                Log.Events(Log.nEvents).StimName = [];
+                Log.Events(Log.nEvents).info = 'Stop';
             end
             DrawChecker=false;
         elseif DispChecker % coarse checkerboard
@@ -1028,9 +1080,9 @@ for STIMNR = Log.StimOrder
                     OffStarted=false;
                     Log.CheckerON = [Log.CheckerON; lft];
                     Log.nEvents=Log.nEvents+1;
-                    Log.Events(Log.nEvents).type='StimON';
+                    Log.Events(Log.nEvents).event='StimON';
                     Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-                    Log.Events(Log.nEvents).StimName = Stm(STIMNR).Descript;
+                    Log.Events(Log.nEvents).info = Stm(STIMNR).Descript;
                     CheckStartLogged = true;
                     CheckStopLogged =false;
                 end
@@ -1070,9 +1122,9 @@ for STIMNR = Log.StimOrder
                     OnStarted=false;
                     Log.CheckerOFF = [Log.CheckerOFF; lft];
                     Log.nEvents=Log.nEvents+1;
-                    Log.Events(Log.nEvents).type='StimOFF';
+                    Log.Events(Log.nEvents).event='StimOFF';
                     Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-                    Log.Events(Log.nEvents).StimName = Stm(STIMNR).Descript;
+                    Log.Events(Log.nEvents).info = Stm(STIMNR).Descript;
                     nCyclesDone=nCyclesDone+1;
                     CheckStartLogged = false;
                     CheckStopLogged =true;
@@ -1092,9 +1144,9 @@ for STIMNR = Log.StimOrder
                     PostStarted=true;
                     Log.StartPostDur=lft;
                     Log.nEvents=Log.nEvents+1;
-                    Log.Events(Log.nEvents).type='PostDurStart';
+                    Log.Events(Log.nEvents).event='PostDurStart';
                     Log.Events(Log.nEvents).t=Log.StartPostDur-Par.ExpStart;
-                    Log.Events(Log.nEvents).StimName = [];
+                    Log.Events(Log.nEvents).info = 'Start';
                     DrawChecker = false;
                     if nCyclesDone > 0 && nCyclesReported < nCyclesDone
                         %output fixation statistics
@@ -1116,9 +1168,9 @@ for STIMNR = Log.StimOrder
                     Stm(STIMNR).RetMap.PostDur
                 RunEnded = true;
                 Log.nEvents=Log.nEvents+1;
-                Log.Events(Log.nEvents).type='RunStop';
+                Log.Events(Log.nEvents).event='RunStop';
                 Log.Events(Log.nEvents).t=lft-Par.ExpStart;
-                Log.Events(Log.nEvents).StimName = [];
+                Log.Events(Log.nEvents).info = 'Stop';
             end
         else
             DrawChecker = false;
@@ -1193,11 +1245,12 @@ for STIMNR = Log.StimOrder
             end
             
             %% give reward for hand in box --------------------------------
-            if Par.RewardForHandsIn && any(Par.HandIsIn) && ~Par.Pause && ...
+            if Par.RewardForHandsIn && ...
+                    any(Par.HandIsIn) && ~Par.Pause && ...
                     ~Par.RewardRunning && ...
-                    GetSecs - Par.HandInNew_Moment > Par.RewardForHandsIn_Delay 
+                    GetSecs - Par.HandInNew_Moment > Par.RewardForHandsIn_Delay
                 if GetSecs - Par.RewHandStart > Par.RewardForHandIn_MinInterval % kept in long enough
-                    GiveRewardAutoHandIn; 
+                    GiveRewardAutoHandIn;
                 elseif Par.RewardForHandIn_ResetIntervalWhenOut && ...
                         Par.HandInPrev_Moment ~= Par.HandInNew_Moment && ...
                         GetSecs - Par.RewHandStart > Par.RewardForHandIn_MinIntervalBetween
@@ -1257,29 +1310,41 @@ for STIMNR = Log.StimOrder
                         end
                     end
                 end
-            elseif MovieRun
-                DrawStimuli;
+            elseif MovieRun || VLCMovieRun
+                if MovieRun
+                    DrawStimuli;
+                end
                 if ~IsPre && ~IsPost && ~RunEnded && ~Par.ToggleHideStim ...
                         && ~Par.HideStim_BasedOnHandIn(Par) ...
                         && ~Par.Pause
                     % start the movie if it hasn't started yet
                     if ~MovieRunning
-                        Screen('PlayMovie', Log.movie.name, Stm(STIMNR).RetMap.movierate, 1, 0); 
-                        % looping avoid early stops (duration is regulated
-                        % based on movieduration separately)
-                        MovieRunning=true;
-                        % calculate movie presentation size
-                        PlayWindow = [ (Par.wrect(3)-Stm(STIMNR).RetMap.PlaySize(1))/2 0 ...
-                            Par.wrect(3)-(Par.wrect(3)-Stm(STIMNR).RetMap.PlaySize(1))/2  ...
-                            Stm(STIMNR).RetMap.PlaySize(2)];
-                        Par.BG
+                        if MovieRun
+                            Screen('PlayMovie', Log.movie.name, Stm(STIMNR).RetMap.movierate, 1, 0);
+                            % looping avoid early stops (duration is regulated
+                            % based on movieduration separately)
+                            MovieRunning=true;
+                            % calculate movie presentation size
+                            PlayWindow = [ (Par.wrect(3)-Stm(STIMNR).RetMap.PlaySize(1))/2 0 ...
+                                Par.wrect(3)-(Par.wrect(3)-Stm(STIMNR).RetMap.PlaySize(1))/2  ...
+                                Stm(STIMNR).RetMap.PlaySize(2)];
+                        elseif VLCMovieRun
+                            fprintf('\n========================================\n');
+                            fprintf('Temporarily closing PTB window for VLC\n');
+                            fprintf('========================================\n');
+                            Close_PTB_win;
+                            eval(['!' moviebat ' &']);
+                            MovieRunning=true;
+                        end
                     end
-                    % grab a texture
-                    movietex = Screen('GetMovieImage', Par.window, Log.movie.name, 1);
-                    % draw that texture 
-                    if movietex>0
-                        Screen('DrawTexture', Par.window, movietex, [], ...
-                            PlayWindow, [], [], [], [], []);
+                    if MovieRun
+                        % grab a texture
+                        movietex = Screen('GetMovieImage', Par.window, Log.movie.name, 1);
+                        % draw that texture
+                        if movietex>0
+                            Screen('DrawTexture', Par.window, movietex, [], ...
+                                PlayWindow, [], [], [], [], []);
+                        end
                     end
                 end
             elseif DrawChecker
@@ -1296,7 +1361,7 @@ for STIMNR = Log.StimOrder
         %% Draw fixation dot ----------------------------------------------
         if ~Par.ToggleHideFix ...
                 && ~Par.HideFix_BasedOnHandIn(Par) ...
-                && ~Par.Pause && ~MovieRun
+                && ~Par.Pause && ~MovieRun && ~VLCMovieRun
             DrawFix(STIMNR);
         end
         
@@ -1334,7 +1399,7 @@ for STIMNR = Log.StimOrder
                 % start Reward
                 if ~Par.RewardRunning && ~TestRunstimWithoutDAS && ~Par.Pause && ...
                         Par.Rew_BasedOnHandIn(Par) && ~Par.HideFix_BasedOnHandIn(Par)
-                     % nCons correct fixations
+                    % nCons correct fixations
                     Par.CorrStreakcount=Par.CorrStreakcount+1;
                     Par.Response=Par.Response+1;
                     Par.ResponsePos=Par.ResponsePos+1;
@@ -1367,52 +1432,52 @@ for STIMNR = Log.StimOrder
                 fprintf(['Automatic time-out due to lever lifts ON (min ' ...
                     num2str(Par.LeversUpTimeOut(2)) 's)\n']);
                 Log.nEvents=Log.nEvents+1;
-                Log.Events(Log.nEvents).type='AutoPauseOn';
+                Log.Events(Log.nEvents).event='AutoPauseOn';
                 Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-                Log.Events(Log.nEvents).StimName = [];
+                Log.Events(Log.nEvents).info = 'Start';
                 AutoPauseStartTime=GetSecs;
                 AutoPausing = true;
             elseif GetSecs > AutoPauseStartTime + Par.LeversUpTimeOut(2) && ...
                     Par.Pause && AutoPausing % Time-out time over
-                if all(Par.LeverIsUp) 
+                if all(Par.LeverIsUp)
                     % still both up, continue time-out
                 else
                     Par.Pause=false;
                     fprintf('Automatic time-out due to lever lifts OFF\n');
                     Log.nEvents=Log.nEvents+1;
-                    Log.Events(Log.nEvents).type='AutoPauseOff';
+                    Log.Events(Log.nEvents).event='AutoPauseOff';
                     Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-                    Log.Events(Log.nEvents).StimName = [];
+                    Log.Events(Log.nEvents).info = 'Stop';
                     AutoPausing = false;
                 end
-           end
+            end
         end
         
         %% if doing Par.ResponseBox.Task of 'DetectGoSignal': -------------
         if strcmp(Par.ResponseBox.Task, 'DetectGoSignal') && ~TestRunstimWithoutDAS
             % ==== Start wait period ====
-            if Par.ResponseState == Par.RESP_STATE_DONE && ... 
+            if Par.ResponseState == Par.RESP_STATE_DONE && ...
                     Par.CanStartTrial(Par)
                 UpdateHandTaskState(Par.RESP_STATE_WAIT);
                 %Par.ResponseState = Par.RESP_STATE_WAIT;
                 %Par.ResponseStateChangeTime = GetSecs;
                 StartWaitTime = Par.ResponseStateChangeTime;
                 
-                if Par.PickRandomIndicatorPosition;
+                if Par.PickRandomIndicatorPosition
                     Par.s_order=randperm(size(Par.RespIndPos,1));
                     Par.PickRandomIndicatorPosition = false;
                 end
                 
                 if ~Par.IsCatchBlock
                     if Par.ResponseSide == 0 || Par.ForceRespSide
-                        if NumberOfConsecutiveErrors >= Par.MaxNumberOfConsecutiveErrors 
+                        if NumberOfConsecutiveErrors >= Par.MaxNumberOfConsecutiveErrors
                             if Par.ResponseSide == 1
                                 Par.ResponseSide = 2;
                             else
                                 Par.ResponseSide =1;
                             end
                         else
-                           if Par.RespProbSetting % 0=random, 1=left, 2=right
+                            if Par.RespProbSetting % 0=random, 1=left, 2=right
                                 Par.ResponseSide = Par.RespProbSetting;
                             else
                                 Par.ResponseSide = randi([1 2]);
@@ -1424,18 +1489,18 @@ for STIMNR = Log.StimOrder
                     Par.ResponseSide = CatchSides(1);
                 end
                 Par.CurrResponseSide = Par.ResponseSide;
-                Log.Events(Log.nEvents).StimName = num2str(Par.ResponseSide);
+                Log.Events(Log.nEvents).info = num2str(Par.ResponseSide);
                 Par.GoBarOnset = rand(1)*Par.EventPeriods(2)/1000 + ...
                     Par.EventPeriods(1)/1000 + CurrPostErrorDelay/1000;
                 Par.WaitIndicatorOnset = Par.DrawDuringWait_SOA + CurrPostErrorDelay/1000;
                 
                 % Give side indicator (1 or 2) ... again
                 Log.nEvents=Log.nEvents+1;
-                Log.Events(Log.nEvents).type=strcat(...
+                Log.Events(Log.nEvents).event=strcat(...
                     'HandTask-TargetSide', num2str(Par.ResponseSide));
                 Log.Events(Log.nEvents).t=Par.ResponseStateChangeTime;
-            % ==== During wait period ====
-            elseif Par.ResponseState == Par.RESP_STATE_WAIT 
+                % ==== During wait period ====
+            elseif Par.ResponseState == Par.RESP_STATE_WAIT
                 if Par.RespIndLeds; dasbit(Par.LED_B(1),0);dasbit(Par.LED_B(2),0);end % LEDS off
                 if GetSecs >= Par.ResponseStateChangeTime + Par.GoBarOnset
                     UpdateHandTaskState(Par.RESP_STATE_GO);
@@ -1449,9 +1514,9 @@ for STIMNR = Log.StimOrder
                         Par.IncorrectResponseGiven(Par))
                     UpdateHandTaskState(Par.RESP_STATE_DONE);
                     if Par.CorrectResponseGiven(Par)
-                        Log.Events(Log.nEvents).StimName = 'EarlyCorrect';
+                        Log.Events(Log.nEvents).info = 'EarlyCorrect';
                     else
-                        Log.Events(Log.nEvents).StimName = 'EarlyIncorrect';
+                        Log.Events(Log.nEvents).info = 'EarlyIncorrect';
                     end
                     Par.ManResponse(RESP_EARLY) = Par.ManResponse(RESP_EARLY)+1;
                     %fprintf('Early during wait\n');
@@ -1490,20 +1555,20 @@ for STIMNR = Log.StimOrder
                     end
                 end
                 % -----
-            % ==== Go signal is given ====
-            elseif Par.ResponseState == Par.RESP_STATE_GO 
+                % ==== Go signal is given ====
+            elseif Par.ResponseState == Par.RESP_STATE_GO
                 t = GetSecs;
                 % ---- Early after go ----
-                if (Par.CorrectResponseGiven(Par) || ... 
+                if (Par.CorrectResponseGiven(Par) || ...
                         Par.IncorrectResponseGiven(Par)) && ...
                         t < Par.ResponseStateChangeTime + ...
                         Par.ResponseAllowed(1)/1000
                     % Early response after go-signal ------
                     UpdateHandTaskState(Par.RESP_STATE_DONE);
                     if Par.CorrectResponseGiven(Par)
-                        Log.Events(Log.nEvents).StimName = 'EarlyCorrect';
+                        Log.Events(Log.nEvents).info = 'EarlyCorrect';
                     else
-                        Log.Events(Log.nEvents).StimName = 'EarlyIncorrect';
+                        Log.Events(Log.nEvents).info = 'EarlyIncorrect';
                     end
                     Par.ManResponse(RESP_EARLY) = Par.ManResponse(RESP_EARLY)+1;
                     %fprintf('Early after go\n');
@@ -1521,7 +1586,7 @@ for STIMNR = Log.StimOrder
                         if Par.IsCatchBlock
                             CatchSides = Shuffle(CatchSides);
                         else
-                            nNonCatchTrials = nNonCatchTrials+1;   
+                            nNonCatchTrials = nNonCatchTrials+1;
                         end
                     end
                     LastMissed = false;
@@ -1540,10 +1605,10 @@ for STIMNR = Log.StimOrder
                             end
                         end
                     end
-                % ---- Incorrect ----
-                elseif Par.IncorrectResponseGiven(Par) && Par.RespLeverMatters 
+                    % ---- Incorrect ----
+                elseif Par.IncorrectResponseGiven(Par) && Par.RespLeverMatters
                     UpdateHandTaskState(Par.RESP_STATE_DONE);
-                    Log.Events(Log.nEvents).StimName = 'Incorrect';
+                    Log.Events(Log.nEvents).info = 'Incorrect';
                     NumberOfConsecutiveErrors=NumberOfConsecutiveErrors+1;
                     if ~Par.ForceRespSide
                         if rand(1) <= Par.ProbSideRepeatOnError % same side
@@ -1583,12 +1648,12 @@ for STIMNR = Log.StimOrder
                             end
                         end
                     end
-                % ---- Correct ----    
+                    % ---- Correct ----
                 elseif Par.CorrectResponseGiven(Par) && Par.RespLeverMatters
                     %Par.ResponseStateChangeTime = GetSecs;
                     %Par.ResponseState = Par.RESP_STATE_DONE;
                     UpdateHandTaskState(Par.RESP_STATE_DONE);
-                    Log.Events(Log.nEvents).StimName = 'Hit';
+                    Log.Events(Log.nEvents).info = 'Hit';
                     NumberOfConsecutiveErrors=0;
                     GiveRewardAutoTask;
                     if ~Par.ForceRespSide
@@ -1601,7 +1666,7 @@ for STIMNR = Log.StimOrder
                                 Par.ResponseSide=1;
                             end
                         end
-                    end                    
+                    end
                     % RESP_NONE =  0; RESP_CORRECT = 1;
                     % RESP_FALSE = 2; RESP_MISS = 3;
                     % RESP_EARLY = 4; RESP_BREAK_FIX = 5;
@@ -1629,11 +1694,11 @@ for STIMNR = Log.StimOrder
                             end
                         end
                     end
-                % Correct if side doesn't matter
+                    % Correct if side doesn't matter
                 elseif ~Par.RespLeverMatters && ...
                         (Par.CorrectResponseGiven(Par) || Par.IncorrectResponseGiven(Par))
                     UpdateHandTaskState(Par.RESP_STATE_DONE);
-                    Log.Events(Log.nEvents).StimName = 'HitEither';
+                    Log.Events(Log.nEvents).info = 'HitEither';
                     GiveRewardAutoTask;
                     if ~Par.ForceRespSide
                         if rand(1) <= Par.ProbSideRepeatOnCorrect % same side
@@ -1645,7 +1710,7 @@ for STIMNR = Log.StimOrder
                                 Par.ResponseSide=1;
                             end
                         end
-                    end                    
+                    end
                     % RESP_NONE =  0; RESP_CORRECT = 1;
                     % RESP_FALSE = 2; RESP_MISS = 3;
                     % RESP_EARLY = 4; RESP_BREAK_FIX = 5;
@@ -1673,11 +1738,11 @@ for STIMNR = Log.StimOrder
                             end
                         end
                     end
-                % ---- Miss ----
-                elseif t >=  Par.ResponseStateChangeTime + ... 
+                    % ---- Miss ----
+                elseif t >=  Par.ResponseStateChangeTime + ...
                         Par.ResponseAllowed(2)/1000
                     UpdateHandTaskState(Par.RESP_STATE_DONE);
-                    Log.Events(Log.nEvents).StimName = 'Miss';
+                    Log.Events(Log.nEvents).Info = 'Miss';
                     %Par.ResponseState = Par.RESP_STATE_DONE;
                     %Par.ResponseStateChangeTime = GetSecs;
                     if ~Par.ForceRespSide
@@ -1698,7 +1763,7 @@ for STIMNR = Log.StimOrder
                     LastMissed = true;
                     %fprintf('Miss\n');
                     CurrPostErrorDelay = Par.DelayOnMiss;
-                    if Par.IsCatchBlock 
+                    if Par.IsCatchBlock
                         CatchSides = Shuffle(CatchSides);
                     else
                         nNonCatchTrials = nNonCatchTrials+1;
@@ -1737,9 +1802,11 @@ for STIMNR = Log.StimOrder
         AutoDim; % checks by itself if it's required
         
         %% refresh the screen ---------------------------------------------
-        %lft=Screen('Flip', Par.window, prevlft+0.9*Par.fliptimeSec);
-        lft=Screen('Flip', Par.window); % as fast as possible
-        nf=nf+1;
+        if Par.Allow_Calls_To_PTB_win
+            %lft=Screen('Flip', Par.window, prevlft+0.9*Par.fliptimeSec);
+            lft=Screen('Flip', Par.window); % as fast as possible
+            nf=nf+1;
+        end
         
         %% log eye-info if required ---------------------------------------
         LogEyeInfo;
@@ -1834,14 +1901,22 @@ for STIMNR = Log.StimOrder
             Prev_nNonCatchTrials = nNonCatchTrials;
         elseif strcmp(Par.ResponseBox.Task,'DetectGoSignal') && ...
                 Par.CatchBlock.do && Par.IsCatchBlock && isempty(CatchSides)
-             Par.IsCatchBlock = false;
-             %fprintf('completed\n')
+            Par.IsCatchBlock = false;
+            %fprintf('completed\n')
         end
         
         %% Stop reward ----------------------------------------------------
         StopRewardIfNeeded();
     end
-    
+    % if breaking out with stop/escape during vlc
+    if VLCMovieRun
+        if MovieRunning
+            eval(['!' stopVLCbat])
+            Reopen_PTB_win;
+            MovieRunning=false;
+        end
+    end
+        
     %% Clean up and Save Log ----------------------------------------------
     % end eye recording if necessary
     if Par.EyeRecAutoTrigger && ~EyeRecMsgShown
@@ -1875,6 +1950,7 @@ for STIMNR = Log.StimOrder
     end
     
     if ~isempty(Stm(STIMNR).Descript) && ~TestRunstimWithoutDAS
+        
         % Empty the screen
         if ~Par.Pause
             Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
@@ -1890,25 +1966,44 @@ for STIMNR = Log.StimOrder
         Priority(oldPriority);
         
         % save stuff
-        LogPath = fullfile(Par.LogFolder,Par.SetUp,Par.MONKEY,...
-            [Par.MONKEY '_' DateString(1:8)],[Par.MONKEY '_' DateString_sec]);
-        warning off;mkdir(LogPath);warning on;
+        if strcmp(Par.SetUp,'NIN') % ephys
+          LogPath = fullfile(Par.LogFolder,... % base log folder
+                Par.SetUp,... % setup
+                Par.LogFolder,... % task (/subtask)
+                Par.MONKEY,... % subject
+                [Par.MONKEY '_' DateString(1:8)],... % session
+                [Par.MONKEY '_' DateString_sec]... % run
+                );
+        else
+            LogPath = fullfile(getenv('TRACKER_LOGS'),... % base log folder
+                Par.SetUp,... % setup
+                Par.LogFolder,... % task (/subtask)
+                Par.MONKEY,... % subject
+                [Par.MONKEY '_' DateString(1:8)],... % session
+                [Par.MONKEY '_' DateString_sec]... % run
+                );
+            
+        end
         LogFn = [Par.SetUp '_' Par.MONKEY '_' DateString_sec];
+        [~,~,~] = mkdir(LogPath);
         cd(LogPath)
         
         if ~TestRunstimWithoutDAS
             if strcmp(Par.SetUp,'NIN')
                 FileName=['Log_' LogFn '_' ...
                     Stm(STIMNR).Descript '_Run' num2str(StimLoopNr) '_Block' num2str(blockstr)];
+                evFileName=[FileName '_eventlog.csv'];
             else
                 FileName=['Log_' LogFn '_' ...
                     Stm(STIMNR).Descript '_Run' num2str(StimLoopNr)];
+                evFileName=[FileName '_eventlog.csv'];
             end
         else
             FileName=['Log_NODAS_' LogFn '_' ...
                 Stm(STIMNR).Descript '_Run' num2str(StimLoopNr)];
+            evFileName=[FileName '_eventlog.csv'];
         end
-        warning off; 
+        warning off;
         if TestRunstimWithoutDAS; cd ..;end
         StimObj.Stm=Stm;
         % 1st is PreStim, last is PostStim
@@ -1937,94 +2032,113 @@ for STIMNR = Log.StimOrder
             RunParStim_Saved=true;
         end
         
-        % save mat and json files
-        if ~TestRunstimWithoutDAS && ~json_done &&...
-                (StimLoopNr==Stm(1).nRepeatsStimSet || ...
-                (Par.ESC && StimLoopNr~=Stm(1).nRepeatsStimSet))
-            
-            % save json file ===========
-            Par.jf.Project      = 'HRF-checker';
-            if strcmp(Par.SetUp,'NIN')
-                Par.jf.Method   = 'EPHYS';
-            else
-                Par.jf.Method   = 'MRI';
+        % save the events to a csv file
+        if length(Log.Events) > 8
+            EventCell = cell(length(Log.Events)+1,3);
+            %VarNames={'time_s','type','StimName'}; % << old column names
+            VarNames={'time_s','event','info'}; % compatible eith other experiments
+            for ev = 1:length(Log.Events)
+                %EventCell(ev,:)={...
+                %    Log.Events(ev).t,...
+                %    Log.Events(ev).type,...
+                %    Log.Events(ev).StimName };
+                EventCell(ev,:)={...
+                    Log.Events(ev).t,...
+                    Log.Events(ev).event,...
+                    Log.Events(ev).info };
             end
-            Par.jf.Protocol     = '17.25.01'; 
-            Par.jf.Dataset      = Par.LogFolder(...
-                find(Par.LogFolder=='\',1,'last')+1:end);
-            Par.jf.Date         = datestr(now,'yyyymmdd');
-            Par.jf.Subject      = Par.MONKEY;
-            Par.jf.Researcher   = 'ChrisKlink';
-            Par.jf.Setup        = Par.SetUp;
-            Par.jf.Group        = 'awake';
-            Par.jf.Stimulus     = Stm(STIMNR).Descript;
-            Par.jf.LogFolder    = [Par.MONKEY '_' DateString];
-            Par.jf.logfile_name = FileName; %%%%%%%%
-            Par.jf.fixperc      = Log.FixPerc;
-            Par.jf.RunNumber	= 'XXX';
-            Par.jf.QualityAsses = '10';
-            Par.jf.Comment      = '';
-            % give the possibility to change
-            % only when at scanner
-            if strcmp(Par.SetUp, 'Spinoza_3T') || strcmp(Par.SetUp, 'NIN')
-                json_defanswer = {Par.jf.Project,Par.jf.Method,Par.jf.Protocol,...
-                    Par.jf.Dataset,Par.jf.Subject,Par.jf.Researcher,...
-                    Par.jf.Setup,Par.jf.Group,Par.jf.RunNumber,...
-                    Par.jf.QualityAsses,Par.jf.Comment};
-                json_answer = inputdlg(...
-                    {'Project','Method','Protocol',...
-                    'Dataset','Subject','Researcher',...
-                    'Setup','Group','Run','Quality (0-10)',...
-                    'Comment'},'JSON SPECS',1,json_defanswer,'on');
-               if isempty(json_answer);json_answer=json_defanswer;end
-               Par.jf.Project      = json_answer{1};
-               Par.jf.Method       = json_answer{2};
-               Par.jf.Protocol     = json_answer{3};
-               Par.jf.Dataset      = json_answer{4};
-               Par.jf.Subject      = json_answer{5};
-               Par.jf.Researcher   = json_answer{6};
-               Par.jf.Setup        = json_answer{7};
-               Par.jf.Group        = json_answer{8};
-               Par.jf.RunNumber    = json_answer{9};
-               Par.jf.QualityAsses = json_answer{10};
-               Par.jf.Comment      = json_answer{11};
-            end
-            json.project.title      = Par.jf.Project;
-            json.project.method     = Par.jf.Method;
-            json.dataset.protocol   = Par.jf.Protocol; 
-            json.dataset.name       = Par.jf.Dataset;  
-            json.session.date       = Par.jf.Date;
-            json.session.subjectId  = Par.jf.Subject;
-            json.session.investigator = Par.jf.Researcher;
-            json.session.setup      = Par.jf.Setup;
-            json.session.group      = Par.jf.Group;  
-            json.session.stimulus   = Par.jf.Stimulus;
-            json.session.logfile    = Par.jf.logfile_name;
-            json.session.logfolder  = Par.jf.LogFolder;
-            json.session.fixperc    = Par.jf.fixperc;
-            json.session.run        = Par.jf.RunNumber;
-            json.session.quality    = Par.jf.QualityAsses;
-            json.session.comment    = Par.jf.Comment;
+            EvTable = cell2table(EventCell,'variablenames',VarNames');
+            writetable(EvTable,evFileName)
             
-            % retrospectively create jsons for all runs
-            for jj = 1:StimLoopNr % save json files for all runs
+            % save mat and json files
+            if ~TestRunstimWithoutDAS && ~json_done &&...
+                    (StimLoopNr==Stm(1).nRepeatsStimSet || ...
+                    (Par.ESC && StimLoopNr~=Stm(1).nRepeatsStimSet))
+                
+                % save json file ===========
+                Par.jf.Project      = 'Retinotopy';
                 if strcmp(Par.SetUp,'NIN')
-                    json.session.logfile=['Log_' LogFn '_' ...
-                        Stm(STIMNR).Descript '_Run' num2str(jj) '_Block' num2str(blockstr)];
+                    Par.jf.Method   = 'EPHYS';
                 else
-                    json.session.logfile=['Log_' LogFn '_' ...
-                        Stm(STIMNR).Descript '_Run' num2str(jj)];
+                    Par.jf.Method   = 'MRI';
                 end
-                if jj<StimLoopNr
-                    json.session.fixperc = CollectPerformance{jj,2};
-                else
-                    json.session.fixperc    = Par.jf.fixperc;
+                Par.jf.Protocol     = '17.25.01';
+                Par.jf.Dataset      = Par.LogFolder(...
+                    find(Par.LogFolder=='\',1,'last')+1:end);
+                Par.jf.Date         = datestr(now,'yyyymmdd');
+                Par.jf.Subject      = Par.MONKEY;
+                Par.jf.Researcher   = 'ChrisKlink';
+                Par.jf.Setup        = Par.SetUp;
+                Par.jf.Group        = 'awake';
+                Par.jf.Stimulus     = Stm(STIMNR).Descript;
+                Par.jf.LogFolder    = [Par.MONKEY '_' DateString];
+                Par.jf.logfile_name = FileName; %%%%%%%%
+                Par.jf.fixperc      = Log.FixPerc;
+                Par.jf.RunNumber	= 'XXX';
+                Par.jf.QualityAsses = '10';
+                Par.jf.Comment      = '';
+                % give the possibility to change
+                % only when at scanner
+                if strcmp(Par.SetUp, 'Spinoza_3T') || strcmp(Par.SetUp, 'NIN')
+                    json_defanswer = {Par.jf.Project,Par.jf.Method,Par.jf.Protocol,...
+                        Par.jf.Dataset,Par.jf.Subject,Par.jf.Researcher,...
+                        Par.jf.Setup,Par.jf.Group,Par.jf.RunNumber,...
+                        Par.jf.QualityAsses,Par.jf.Comment};
+                    json_answer = inputdlg(...
+                        {'Project','Method','Protocol',...
+                        'Dataset','Subject','Researcher',...
+                        'Setup','Group','Run','Quality (0-10)',...
+                        'Comment'},'JSON SPECS',1,json_defanswer,'on');
+                    if isempty(json_answer);json_answer=json_defanswer;end
+                    Par.jf.Project      = json_answer{1};
+                    Par.jf.Method       = json_answer{2};
+                    Par.jf.Protocol     = json_answer{3};
+                    Par.jf.Dataset      = json_answer{4};
+                    Par.jf.Subject      = json_answer{5};
+                    Par.jf.Researcher   = json_answer{6};
+                    Par.jf.Setup        = json_answer{7};
+                    Par.jf.Group        = json_answer{8};
+                    Par.jf.RunNumber    = json_answer{9};
+                    Par.jf.QualityAsses = json_answer{10};
+                    Par.jf.Comment      = json_answer{11};
                 end
-                savejson('', json, ['Log_' DateString ...
+                json.project.title      = Par.jf.Project;
+                json.project.method     = Par.jf.Method;
+                json.dataset.protocol   = Par.jf.Protocol;
+                json.dataset.name       = Par.jf.Dataset;
+                json.session.date       = Par.jf.Date;
+                json.session.subjectId  = Par.jf.Subject;
+                json.session.investigator = Par.jf.Researcher;
+                json.session.setup      = Par.jf.Setup;
+                json.session.group      = Par.jf.Group;
+                json.session.stimulus   = Par.jf.Stimulus;
+                json.session.logfile    = Par.jf.logfile_name;
+                json.session.logfolder  = Par.jf.LogFolder;
+                json.session.fixperc    = Par.jf.fixperc;
+                json.session.run        = Par.jf.RunNumber;
+                json.session.quality    = Par.jf.QualityAsses;
+                json.session.comment    = Par.jf.Comment;
+                
+                % retrospectively create jsons for all runs
+                for jj = 1:StimLoopNr % save json files for all runs
+                    if strcmp(Par.SetUp,'NIN')
+                        json.session.logfile=['Log_' LogFn '_' ...
+                            Stm(STIMNR).Descript '_Run' num2str(jj) '_Block' num2str(blockstr)];
+                    else
+                        json.session.logfile=['Log_' LogFn '_' ...
+                            Stm(STIMNR).Descript '_Run' num2str(jj)];
+                    end
+                    if jj<StimLoopNr
+                        json.session.fixperc = CollectPerformance{jj,2};
+                    else
+                        json.session.fixperc    = Par.jf.fixperc;
+                    end
+                    savejson('', json, ['Log_' DateString_sec ...
                         '_Run' num2str(jj,'%03.f') '_session.json']);
-                %savejson('', json, ['Log_' DateString '_session.json']);
+                    %savejson('', json, ['Log_' DateString '_session.json']);
+                end
+                json_done=true;
             end
-            json_done=true;
         end
         
         if ~TestRunstimWithoutDAS
@@ -2061,10 +2175,10 @@ for STIMNR = Log.StimOrder
             fprintf(fid,['\nTotal reward: ' num2str(Log.TotalReward) '\n']);
             fclose(fid);
         end
-        cd(Par.ExpFolder)        
-
+        cd(Par.ExpFolder)
+        
         if TestRunstimWithoutDAS; cd Experiment;end
-        warning on; 
+        warning on;
         
         % if running without DAS close ptb windows
         if TestRunstimWithoutDAS
@@ -2093,7 +2207,7 @@ for STIMNR = Log.StimOrder
         fprintf(['Total time-out this run: ' num2str(Log.TimeOutThisRun) '\n']);
         fprintf(['Total time-out thusfar: ' num2str(Log.TotalTimeOut) '\n']);
         fprintf(['Fixation percentage: ' num2str(nanmean(Log.FixPerc)) '\n']);
-
+        
         CollectPerformance{StimLoopNr,1} = Stm(STIMNR).Descript;
         CollectPerformance{StimLoopNr,2} = nanmean(Log.FixPerc);
         CollectPerformance{StimLoopNr,3} = nanstd(Log.FixPerc);
@@ -2138,7 +2252,7 @@ end
 %% Process performance ====================================================
 if ~isempty(CollectPerformance) && ~TestRunstimWithoutDAS
     ColPerf=[];
-
+    
     cd(LogPath);
     fid2=fopen(['SUMMARY_' LogFn '.txt'],'w');
     fprintf(fid2,['Runstim: ' Par.RUNFUNC '\n']);
@@ -2229,9 +2343,9 @@ if ~isempty(CollectPerformance) && ~TestRunstimWithoutDAS
             CP,'FontSize',10,'interpreter','none')
         set(figperf,'Color','w');
         
-%         saveas(figperf,['PERFORM_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString],'fig');
-%         export_fig(['PERFORM_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString],...
-%             '-pdf','-nocrop',figperf);
+        %         saveas(figperf,['PERFORM_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString],'fig');
+        %         export_fig(['PERFORM_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString],...
+        %             '-pdf','-nocrop',figperf);
         saveas(figperf,['PERFORM_' LogFn],'fig');
         export_fig(['PERFORM_' LogFn],'-pdf','-nocrop',figperf);
         close(figperf);
@@ -2331,7 +2445,7 @@ Par=Par_BU;
                             [cen2;cen2;cen2;cen2] + Par.RespIndSizePix*right_diamond)
                     end
                 end
-                if Par.RespIndLeds; dasbit(Par.LED_B(Par.ResponseSide),1); end % LED on    
+                if Par.RespIndLeds; dasbit(Par.LED_B(Par.ResponseSide),1); end % LED on
             elseif Par.ResponseState == Par.RESP_STATE_GO && ...
                     Par.ResponseSide == 1
                 Screen('FillPoly',Par.window, Par.RespIndColor(1,:).*Par.ScrWhite, ...
@@ -2437,7 +2551,7 @@ Par=Par_BU;
                     %                     end
             end
             Log.nEvents=Log.nEvents+1;
-            Log.Events(Log.nEvents).type=['Pos' num2str(Par.PosNr)];
+            Log.Events(Log.nEvents).event=['Pos' num2str(Par.PosNr)];
             Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
             DefineEyeWin(STIMNR);
         end
@@ -2469,9 +2583,9 @@ Par=Par_BU;
                         Log.MRI.TriggerTime = ...
                             [Log.MRI.TriggerTime; Par.KeyTime];
                         Log.nEvents=Log.nEvents+1;
-                        Log.Events(Log.nEvents).type='MRITrigger';
+                        Log.Events(Log.nEvents).event='MRI_Trigger';
                         Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                        Log.Events(Log.nEvents).StimName = [];
+                        Log.Events(Log.nEvents).info = 'Received';
                         if strcmp(Par.SetUp,'NIN') % send start bit to sync ephys system
                             %dasword(00000);
                             send_serial_data(0);
@@ -2489,15 +2603,15 @@ Par=Par_BU;
                             if ~Par.ToggleHideStim
                                 Par.ToggleHideStim = true;
                                 Log.nEvents=Log.nEvents+1;
-                                Log.Events(Log.nEvents).type='StimOff';
+                                Log.Events(Log.nEvents).event='StimOff';
                                 Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                                Log.Events(Log.nEvents).StimName = [];
+                                Log.Events(Log.nEvents).info = 'Off';
                             else
                                 Par.ToggleHideStim = false;
                                 Log.nEvents=Log.nEvents+1;
-                                Log.Events(Log.nEvents).type='StimOn';
+                                Log.Events(Log.nEvents).event='StimOn';
                                 Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                                Log.Events(Log.nEvents).StimName = [];
+                                Log.Events(Log.nEvents).info = 'On';
                             end
                         end
                     case Par.KeyFix
@@ -2505,26 +2619,26 @@ Par=Par_BU;
                             if ~Par.ToggleHideFix
                                 Par.ToggleHideFix = true;
                                 Log.nEvents=Log.nEvents+1;
-                                Log.Events(Log.nEvents).type='FixOff';
+                                Log.Events(Log.nEvents).event='FixOff';
                                 Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                                Log.Events(Log.nEvents).StimName = [];
+                                Log.Events(Log.nEvents).info = 'Off';
                             else
                                 Par.ToggleHideFix = false;
                                 Log.nEvents=Log.nEvents+1;
-                                Log.Events(Log.nEvents).type='FixOn';
+                                Log.Events(Log.nEvents).event='FixOn';
                                 Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                                Log.Events(Log.nEvents).StimName = [];
+                                Log.Events(Log.nEvents).info = 'On';
                             end
                         end
                     case Par.KeyPause
-                        if Par.KeyDetectedInTrackerWindow % only in Tracker
+                        if Par.KeyDetectedInTrackerWindow && Par.Allow_Calls_To_PTB_win % only in Tracker
                             if ~Par.Pause
                                 Par.Pause=true;
                                 fprintf('Time-out ON\n');
                                 Log.nEvents=Log.nEvents+1;
-                                Log.Events(Log.nEvents).type='PauseOn';
+                                Log.Events(Log.nEvents).event='PauseOn';
                                 Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                                Log.Events(Log.nEvents).StimName = [];
+                                Log.Events(Log.nEvents).info = 'On';
                                 Par.PauseStartTime=Par.KeyTime;
                             else
                                 Par.Pause=false;
@@ -2533,10 +2647,12 @@ Par=Par_BU;
                                 Log.TotalTimeOut = Log.TotalTimeOut+Par.PauseStopTime;
                                 Log.TimeOutThisRun=Log.TimeOutThisRun+Par.PauseStopTime;
                                 Log.nEvents=Log.nEvents+1;
-                                Log.Events(Log.nEvents).type='PauseOff';
+                                Log.Events(Log.nEvents).event='PauseOff';
                                 Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                                Log.Events(Log.nEvents).StimName = [];
+                                Log.Events(Log.nEvents).info = 'Off';
                             end
+                        elseif ~Par.Allow_Calls_To_PTB_win
+                            fprintf('You cannot give a time-out during a vlc-movie...\n');
                         end
                     case Par.KeyRewTimeSet
                         if Par.KeyDetectedInTrackerWindow % only in Tracker
@@ -2622,9 +2738,9 @@ Par=Par_BU;
                         if Par.KeyDetectedInTrackerWindow % only in Tracker
                             fprintf('LEFT response indicators only\n');
                             Log.nEvents=Log.nEvents+1;
-                            Log.Events(Log.nEvents).type='LeftRespOnly';
+                            Log.Events(Log.nEvents).event='LeftRespOnly';
                             Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                            Log.Events(Log.nEvents).StimName = [];
+                            Log.Events(Log.nEvents).info = 'None';
                             Par.RespProbSetting=1;
                             Par.ForceRespSide = true;
                         end
@@ -2632,9 +2748,9 @@ Par=Par_BU;
                         if Par.KeyDetectedInTrackerWindow % only in Tracker
                             fprintf('RIGHT response indicators only\n');
                             Log.nEvents=Log.nEvents+1;
-                            Log.Events(Log.nEvents).type='RightRespOnly';
+                            Log.Events(Log.nEvents).event='RightRespOnly';
                             Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                            Log.Events(Log.nEvents).StimName = [];
+                            Log.Events(Log.nEvents).info = 'None';
                             Par.RespProbSetting=2;
                             Par.ForceRespSide = true;
                         end
@@ -2642,9 +2758,9 @@ Par=Par_BU;
                         if Par.KeyDetectedInTrackerWindow % only in Tracker
                             fprintf('PROBABLISTIC response indicators\n');
                             Log.nEvents=Log.nEvents+1;
-                            Log.Events(Log.nEvents).type='RandRespInd';
+                            Log.Events(Log.nEvents).event='RandRespInd';
                             Log.Events(Log.nEvents).t=Par.KeyTime-Par.ExpStart;
-                            Log.Events(Log.nEvents).StimName = [];
+                            Log.Events(Log.nEvents).info = 'None';
                             Par.RespProbSetting=0;
                             Par.ForceRespSide = true;
                         end
@@ -2697,7 +2813,7 @@ Par=Par_BU;
                             else
                                 Par.HideFix_BasedOnHandIn = @(Par) false;
                             end
-
+                            
                             % functions for lever task
                             if Par.TrialNeeds.HandIsIn && Par.TrialNeeds.LeversAreDown % hands in / levers down
                                 Par.CanStartTrial = @(Par) (all(Par.HandIsIn) && ~any(Par.LeverIsUp));
@@ -2751,7 +2867,7 @@ Par=Par_BU;
         % Log any changes
         if any(Par.BeamWasBlocked(:) ~= Par.BeamIsBlocked(:))
             Log.nEvents=Log.nEvents+1;
-            Log.Events(Log.nEvents).type=...
+            Log.Events(Log.nEvents).event=...
                 strcat('BeamStateChange ', mat2str(Par.BeamIsBlocked));
             Log.Events(Log.nEvents).t=lft-Par.ExpStart;
             Par.HandIsIn =Par.BeamIsBlocked(Par.ConnectBox.PhotoAmp_HandIn);
@@ -2765,12 +2881,12 @@ Par=Par_BU;
                 Par.BothLeversUp_time = Inf;
                 Par.LeverWasUp = Par.LeverIsUp;
             end
-        end        
+        end
         
         if ~strcmp(Par.ResponseBox.Task, 'DetectGoSignal')
             % interpret depending on response box type
             switch Par.ResponseBox.Type
-%                 case 'Beam'
+                %                 case 'Beam'
                 case 'Lift'
                     if ~any(Par.HandWasIn) && any(Par.HandIsIn) % from none to any
                         %fprintf('going from none to one\n')
@@ -2790,7 +2906,7 @@ Par=Par_BU;
                         if ~any(Par.HandWasIn)
                             % only do this if 1 channel is used
                             Log.nEvents=Log.nEvents+1;
-                            Log.Events(Log.nEvents).type='BothHandsIn';
+                            Log.Events(Log.nEvents).event='BothHandsIn';
                             Log.Events(Log.nEvents).t=lft-Par.ExpStart;
                             Par.HandWasIn=Par.HandIsIn;
                         end
@@ -2800,9 +2916,9 @@ Par=Par_BU;
                             % only do this if 1 channel is used
                             Log.nEvents=Log.nEvents+1;
                             if Par.HandIsIn(1)
-                                Log.Events(Log.nEvents).type='LeftHandIn';
+                                Log.Events(Log.nEvents).event='LeftHandIn';
                             else
-                                Log.Events(Log.nEvents).type='RightHandIn';
+                                Log.Events(Log.nEvents).event='RightHandIn';
                             end
                             Log.Events(Log.nEvents).t=lft-Par.ExpStart;
                             Par.HandWasIn=Par.HandIsIn;
@@ -2810,7 +2926,7 @@ Par=Par_BU;
                     elseif ~all(Par.HandIsIn)
                         if any(Par.HandWasIn)
                             Log.nEvents=Log.nEvents+1;
-                            Log.Events(Log.nEvents).type='HandsOut';
+                            Log.Events(Log.nEvents).event='HandsOut';
                             Log.Events(Log.nEvents).t=lft-Par.ExpStart;
                             Par.HandWasIn=Par.HandIsIn;
                         end
@@ -2875,9 +2991,9 @@ Par=Par_BU;
             end
             
             Log.nEvents=Log.nEvents+1;
-            Log.Events(Log.nEvents).type='RewardFix';
+            Log.Events(Log.nEvents).event='RewardFix';
             Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-            Log.Events(Log.nEvents).StimName = [];
+            Log.Events(Log.nEvents).info = 'None';
         end
     end
 % stop reward delivery
@@ -2889,9 +3005,9 @@ Par=Par_BU;
             Log.TotalReward = Log.TotalReward+Par.RewardTimeCurrent;
             %Par.ResponseSide = 0;
             Log.nEvents=Log.nEvents+1;
-            Log.Events(Log.nEvents).type='RewardStopped';
+            Log.Events(Log.nEvents).event='RewardStopped';
             Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-            Log.Events(Log.nEvents).StimName = [];
+            Log.Events(Log.nEvents).info = 'None';
         end
     end
 % give automated reward for task
@@ -2913,7 +3029,7 @@ Par=Par_BU;
             if isfield(Par,'TaskReward_HandInGain')
                 if any(Par.HandIsIn) && ~all(Par.HandIsIn) % only hand in
                     Par.RewardTimeCurrent  = Par.TaskReward_HandInGain(1)*Par.RewardTimeCurrent;
-                elseif all(Par.HandIsIn) % both hands in 
+                elseif all(Par.HandIsIn) % both hands in
                     Par.RewardTimeCurrent  = Par.TaskReward_HandInGain(2)*Par.RewardTimeCurrent;
                 end
             end
@@ -2935,9 +3051,9 @@ Par=Par_BU;
                 end
                 
                 Log.nEvents=Log.nEvents+1;
-                Log.Events(Log.nEvents).type='RewardAutoTask';
+                Log.Events(Log.nEvents).event='RewardAutoTask';
                 Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-                Log.Events(Log.nEvents).StimName = [];
+                Log.Events(Log.nEvents).info = 'None';
             end
         end
     end
@@ -2947,7 +3063,7 @@ Par=Par_BU;
         if ~all(Par.HandIsIn) && any(Par.HandIsIn) % only one hand in
             Par.RewardTimeCurrent = ...
                 Par.RewardForHandsIn_MultiplierPerHand(Par.HandIsIn)*Par.RewardTimeCurrent;
-        end    
+        end
         % Give the reward
         if Par.RewardTimeCurrent>0
             Par.RewardStartTime=GetSecs;
@@ -2967,9 +3083,9 @@ Par=Par_BU;
             end
             
             Log.nEvents=Log.nEvents+1;
-            Log.Events(Log.nEvents).type='RewardAutoHand';
+            Log.Events(Log.nEvents).event='RewardAutoHand';
             Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-            Log.Events(Log.nEvents).StimName = [];
+            Log.Events(Log.nEvents).info = 'None';
         end
     end
 % give manual reward
@@ -2992,9 +3108,9 @@ Par=Par_BU;
         end
         
         Log.nEvents=Log.nEvents+1;
-        Log.Events(Log.nEvents).type='RewardMan';
+        Log.Events(Log.nEvents).event='RewardMan';
         Log.Events(Log.nEvents).t=GetSecs-Par.ExpStart;
-        Log.Events(Log.nEvents).StimName = [];
+        Log.Events(Log.nEvents).info = 'None';
     end
 % check eye-tracker recording status
     function CheckEyeRecStatus
@@ -3023,12 +3139,12 @@ Par=Par_BU;
         dasbit(0,Par.EyeRecTriggerLevel);
         Log.nEvents=Log.nEvents+1;
         if Par.EyeRecTriggerLevel
-            Log.Events(Log.nEvents).type='EyeRecOff';
+            Log.Events(Log.nEvents).event='EyeRecOff';
         else
-            Log.Events(Log.nEvents).type='EyeRecOn';
+            Log.Events(Log.nEvents).event='EyeRecOn';
         end
         Log.Events(Log.nEvents).t=tEyeRecSet-Par.ExpStart;
-        Log.Events(Log.nEvents).StimName = [];
+        Log.Events(Log.nEvents).info = 'None';
     end
 % create radial checkerboard
     function chkimg = RadialCheckerBoard(radius, sector, chsz)
@@ -3106,19 +3222,34 @@ Par=Par_BU;
         Log.nEvents=Log.nEvents+1;
         switch NewState
             case Par.RESP_STATE_WAIT
-                Log.Events(Log.nEvents).type=...
+                Log.Events(Log.nEvents).event=...
                     'HandTaskState-Wait';
                 Par.PickRandomIndicatorPosition = true;
             case Par.RESP_STATE_GO
-                Log.Events(Log.nEvents).type=...
+                Log.Events(Log.nEvents).event=...
                     'HandTaskState-Go';
             case Par.RESP_STATE_DONE
-                Log.Events(Log.nEvents).type=...
+                Log.Events(Log.nEvents).event=...
                     'HandTaskState-Done';
             otherwise
-                Log.Events(Log.nEvents).type=...
+                Log.Events(Log.nEvents).event=...
                     strcat('HandTaskState-Unknown-',NewState);
         end
         Log.Events(Log.nEvents).t=Par.ResponseStateChangeTime;
+    end
+% Close the current PTB window
+    function Close_PTB_win
+        Screen('Close', Par.window);
+        Par.Allow_Calls_To_PTB_win = false;
+    end
+% Re-open the default PTB window
+    function Reopen_PTB_win
+        [Par.window, Par.wrect] = PsychImaging('OpenWindow',...
+            Par.ScrNr,0,[],[],2,[],[],1);
+        [sourceFactorOld,destinationFactorOld,colorMaskOld] = ...
+            Screen('BlendFunction',Par.window,...
+            GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        MaxPriority(Par.window);
+        Par.Allow_Calls_To_PTB_win = true;
     end
 end

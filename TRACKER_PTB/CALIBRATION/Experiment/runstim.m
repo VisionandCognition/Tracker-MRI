@@ -11,90 +11,89 @@ clc;
 %ParSettings; % this is the old way of hardcoding a ParSettings file
 eval(Par.PARSETFILE); % this takes the ParSettings file chosen via the context menu
 Stm = StimObj.Stm;
+DateString_sec = datestr(clock,30);
+DateString = DateString_sec(1:end-2);
+Par.ExpFolder = pwd;
 
 %% Stimulus preparation ===================================================
-for PrepareStim=1
-    % Fixation
-    Stm(1).FixWinSizePix = round(Stm(1).FixWinSize*Par.PixPerDeg);
-    
-    % Bar
-    Stm(1).SizePix = round(Stm(1).Size.*Par.PixPerDeg);
-    Stm(1).Center =[];
-    for i=1:size(Stm(1).Position,2);
-        Stm(1).Center =[Stm(1).Center; ...
-            round(Stm(1).Position{i}.*Par.PixPerDeg)];
-    end
-    Par.CurrOrient=1; % 1=default, 2=switched
-    
-    % Noise patch
-    Stm(1).NoiseSizePix = round(Stm(1).NoiseSize.*Par.PixPerDeg);
-    % Square noise patch of window-height
-    NoiPatch = (.5-Stm(1).NoiseContrast/2) + ...
-        (Stm(1).NoiseContrast.*rand(Par.HH*2));
-    NoiPatch_RGB = ones(Par.HH*2,Par.HH*2,4);
-    NoiPatch_RGB(:,:,1)=NoiPatch;
-    NoiPatch_RGB(:,:,2)=NoiPatch;
-    NoiPatch_RGB(:,:,3)=NoiPatch;
-    % alpha mask circular
-    c=Par.HH;
-    s=Par.HH*2;
-    r=Stm(1).NoiseSizePix/2;
-    [x,y]=meshgrid(-(c-1):(s-c),-(c-1):(s-c));
-    alphamask=((x.^2+y.^2)<=r^2);
-    NoiPatch_RGB(:,:,4)=alphamask;
-    % Make a texture of the noise patch
-    NoiTex=Screen('MakeTexture',Par.window,NoiPatch_RGB.*Par.ScrWhite);
-end % allow code-folding
+% Fixation
+Stm(1).FixWinSizePix = round(Stm(1).FixWinSize*Par.PixPerDeg);
+
+% Bar
+Stm(1).SizePix = round(Stm(1).Size.*Par.PixPerDeg);
+Stm(1).Center =[];
+for i=1:size(Stm(1).Position,2);
+    Stm(1).Center =[Stm(1).Center; ...
+        round(Stm(1).Position{i}.*Par.PixPerDeg)];
+end
+Par.CurrOrient=1; % 1=default, 2=switched
+
+% Noise patch
+Stm(1).NoiseSizePix = round(Stm(1).NoiseSize.*Par.PixPerDeg);
+% Square noise patch of window-height
+NoiPatch = (.5-Stm(1).NoiseContrast/2) + ...
+    (Stm(1).NoiseContrast.*rand(Par.HH*2));
+NoiPatch_RGB = ones(Par.HH*2,Par.HH*2,4);
+NoiPatch_RGB(:,:,1)=NoiPatch;
+NoiPatch_RGB(:,:,2)=NoiPatch;
+NoiPatch_RGB(:,:,3)=NoiPatch;
+% alpha mask circular
+c=Par.HH;
+s=Par.HH*2;
+r=Stm(1).NoiseSizePix/2;
+[x,y]=meshgrid(-(c-1):(s-c),-(c-1):(s-c));
+alphamask=((x.^2+y.^2)<=r^2);
+NoiPatch_RGB(:,:,4)=alphamask;
+% Make a texture of the noise patch
+NoiTex=Screen('MakeTexture',Par.window,NoiPatch_RGB.*Par.ScrWhite);
 
 %% Code Control Preparation ===============================================
-for CodeControl=1 %allow code folding
-    % Some intitialization of control parameters
-    Par.ESC = false; %escape has not been pressed
-    Log.MRI.TriggerReceived = false;
-    Log.MRI.TriggerTime = [];
-    Log.ManualReward = false;
-    Log.ManualRewardTime = [];
-    Log.TotalReward=0;
-    Log.TCMFR = [];
-    
-    % Flip the proper background on screen
-    Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
-    lft=Screen('Flip', Par.window);
-    lft=Screen('Flip', Par.window, lft+1);
-    Par.ExpStart = lft;
-    
-    % Initial stimulus position is 1
-    Par.PosNr=1;
-    Par.PrevPosNr=1;
-    
-    % Initial draw-background-status
-    Par.DrawNoise = Stm(1).NoiseDefaultOn;
-    
-    % Initialize KeyLogging
-    Par.KeyIsDown=false;
-    Par.KeyWasDown=false;
-    
-    % Initialize photosensor manual response
-    Par.BeamIsBlocked=false;
-    Par.BeamWasBlocked=false;
-    Par.NewResponse = false;
-    Par.GoNewTrial = false;
-    
-    % Initialize control parameters
-    Par.SwitchPos = false;
-    Par.ToggleNoisePatch = false;
-    Par.ToggleDistract = false;
-    Par.ToggleCyclePos = true; % overrules the Stim(1)setting; toggles with 'p'
-    Par.ManualReward = false;
-    Par.PosReset=false;
-    Par.BreakTrial=false;
-    
-    % Trial Logging
-    Par.Response = [0 0 0]; %[correct false-hit missed]
-    Par.ResponsePos = [0 0 0]; %[correct false-hit missed]
-    Par.RespTimes = [];
-    Par.ManRewThisTrial=[];
-end
+% Some intitialization of control parameters
+Par.ESC = false; %escape has not been pressed
+Log.MRI.TriggerReceived = false;
+Log.MRI.TriggerTime = [];
+Log.ManualReward = false;
+Log.ManualRewardTime = [];
+Log.TotalReward=0;
+Log.TCMFR = [];
+
+% Flip the proper background on screen
+Screen('FillRect',Par.window,Par.BG.*Par.ScrWhite);
+lft=Screen('Flip', Par.window);
+lft=Screen('Flip', Par.window, lft+1);
+Par.ExpStart = lft;
+
+% Initial stimulus position is 1
+Par.PosNr=1;
+Par.PrevPosNr=1;
+
+% Initial draw-background-status
+Par.DrawNoise = Stm(1).NoiseDefaultOn;
+
+% Initialize KeyLogging
+Par.KeyIsDown=false;
+Par.KeyWasDown=false;
+
+% Initialize photosensor manual response
+Par.BeamIsBlocked=false;
+Par.BeamWasBlocked=false;
+Par.NewResponse = false;
+Par.GoNewTrial = false;
+
+% Initialize control parameters
+Par.SwitchPos = false;
+Par.ToggleNoisePatch = false;
+Par.ToggleDistract = false;
+Par.ToggleCyclePos = true; % overrules the Stim(1)setting; toggles with 'p'
+Par.ManualReward = false;
+Par.PosReset=false;
+Par.BreakTrial=false;
+
+% Trial Logging
+Par.Response = [0 0 0]; %[correct false-hit missed]
+Par.ResponsePos = [0 0 0]; %[correct false-hit missed]
+Par.RespTimes = [];
+Par.ManRewThisTrial=[];
 
 %% Stimulus presentation loop =============================================
 % keep doing this until escape is pressed or stop is clicked
@@ -396,12 +395,19 @@ for CleanUp=1 % code folding
     lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
     
     % save stuff
-    FileName=['Log' datestr(clock,30)];
-    warning off; %#ok<WNOFF>
-    mkdir('Log');cd('Log');
+    LogPath = fullfile(getenv('TRACKER_LOGS'),... % base log folder
+        Par.SetUp,... % setup
+        Par.LogFolder,... % task (/subtask)
+        Par.MONKEY,... % subject
+        [Par.MONKEY '_' DateString(1:8)],... % session
+        [Par.MONKEY '_' DateString_sec]... % run
+        );
+    [~,~,~] = mkdir(LogPath);    
+    LogFn = [Par.SetUp '_' Par.MONKEY '_' DateString_sec];
+    cd(LogPath)
+    FileName=['Log_' LogFn];
     save(FileName,'Log','Par','StimObj');
-    cd ..
-    warning on; %#ok<WNON>
+    cd(Par.ExpFolder)
 end
 
 %% Standard functions called throughout the runstim =======================

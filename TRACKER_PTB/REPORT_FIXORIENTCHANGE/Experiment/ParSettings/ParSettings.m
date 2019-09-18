@@ -241,3 +241,6 @@ Par.isRunning = false;  %stimulus presentation off
 Par.ZOOM = 0.6;   %control - cogent window zoom
 Par.P1 = 1;
 Par.P2 = 1;
+
+%% Log ====================================================================
+Par.LogFolder = 'FixOrientChange';

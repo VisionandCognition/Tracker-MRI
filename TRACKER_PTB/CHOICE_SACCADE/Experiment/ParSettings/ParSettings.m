@@ -283,4 +283,4 @@ Par.P1 = 1; Par.P2 = 1;
 
 %% Logging ================================================================
 % log folder should be defined in stimsettings
-Par.LogFolder = Stm(1).LogFolder; 
+Par.LogFolder = Stm.LogFolder; 

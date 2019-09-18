@@ -20,7 +20,8 @@ Log.TotalReward=0;
 
 % re-run parameter-file to update stim-settings without restarting Tracker
 eval(Par.PARSETFILE); % can be chosen in menu
-DateString = datestr(clock,30);
+DateString_sec = datestr(clock,30);
+DateString = DateString_sec(1:end-2);
 
 % output stimsettings filename to cmd
 fprintf(['=== Running ' Par.STIMSETFILE ' for ' Par.MONKEY ' ===\n']);
@@ -771,10 +772,15 @@ dasjuice(0); %stop reward if its running
 Priority(Par.oldPriority);
 
 % save stuff
-LogPath = fullfile(Par.LogFolder,Par.SetUp,Par.MONKEY,...
-    [Par.MONKEY '_' DateString(1:8)],[Par.MONKEY '_' DateString]);
-warning off;mkdir(LogPath);warning on;
-LogFn = [Par.SetUp '_' Par.MONKEY '_' DateString];
+LogPath = fullfile(getenv('TRACKER_LOGS'),... % base log folder
+    Par.SetUp,... % setup
+    Par.LogFolder,... % task (/subtask)
+    Par.MONKEY,... % subject
+    [Par.MONKEY '_' DateString(1:8)],... % session
+    [Par.MONKEY '_' DateString_sec]... % run
+    );
+[~,~,~] = mkdir(LogPath);    
+LogFn = [Par.SetUp '_' Par.MONKEY '_' DateString_sec];
 cd(LogPath)
 
 %FileName=['Log_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString];

@@ -1,4 +1,4 @@
-function ParSettings_EDDY_3T_TEST
+function ParSettings_3T_TEST
 
 % ParSettings gives all parameters for the experiment in global Par
 global Par
@@ -46,4 +46,3 @@ Par.WaitForFixation = false;
 Par.StartTrialDespiteLeverPositions = true;
 
 Par.RequireHandsIn = false;
-%Par.RequireHandsIn = false;  % <--- TEMPORARY!!!

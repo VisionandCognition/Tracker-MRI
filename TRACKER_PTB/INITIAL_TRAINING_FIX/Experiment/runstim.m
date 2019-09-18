@@ -51,6 +51,9 @@ clc;
 %ParSettings; % this is the old way of hardcoding a ParSettings file
 eval(Par.PARSETFILE); % takes ParSettings file chosen via the context menu
 Stm = StimObj.Stm;
+Par.ExpFolder = pwd;
+DateString_sec = datestr(clock,30);
+DateString = DateString_sec(1:end-2);
 
 %% Stimulus preparation ===================================================
 % Fixation ----------------------------------------------------------------
@@ -1044,18 +1047,23 @@ if ~TestRunstimWithoutDAS
 end
 
 % save stuff
+LogPath = fullfile(getenv('TRACKER_LOGS'),... % base log folder
+    Par.SetUp,... % setup
+    Par.LogFolder,... % task (/subtask)
+    Par.MONKEY,... % subject
+    [Par.MONKEY '_' DateString(1:8)],... % session
+    [Par.MONKEY '_' DateString_sec]... % run
+    );
+LogFn = [Par.SetUp '_' Par.MONKEY '_' DateString_sec];
 if ~TestRunstimWithoutDAS
-    FileName=['Log_' Par.STIMSETFILE '_' datestr(clock,30)];
+    FileName=['Log_' Par.STIMSETFILE '_' LogFn];
 else
-    FileName=['Log_NODAS_' Par.STIMSETFILE '_' datestr(clock,30)];
+    FileName=['Log_NODAS_' Par.STIMSETFILE '_' LogFn];
 end
-warning off; %#ok<WNOFF>
-if TestRunstimWithoutDAS; cd ..;end
-mkdir('Log');cd('Log');
+[~,~,~] = mkdir(LogPath);
+cd(LogPath)
 save(FileName,'Log','Par','StimObj');
-cd ..
-if TestRunstimWithoutDAS; cd Experiment;end
-warning on; %#ok<WNON>
+cd(Par.ExpFolder)
 
 % if running without DAS close ptb windows
 if TestRunstimWithoutDAS

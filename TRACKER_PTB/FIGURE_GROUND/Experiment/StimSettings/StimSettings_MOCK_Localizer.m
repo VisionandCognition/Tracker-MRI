@@ -54,7 +54,7 @@ Stm.FileName = '3T_FigGnd_Triangles_lines.mat';
 %Stm.FileName = 'FigGnd_Triangles_dots.mat';
 
 % Logfolder
-Stm.LogFolder = 'C:\Users\NINuser\Documents\Log_CK\FigGnd';
+Stm.LogFolder = 'FigGnd_Loc';
 
 %% This only applies to newly created stim ================================
 % Background definitions --
