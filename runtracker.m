@@ -1,5 +1,11 @@
-function runtracker
+function runtracker(tracker_version)
 global Par
+
+if nargin < 1
+    Par.tracker_version = 'default';
+else
+    Par.tracker_version = tracker_version;
+end
 
 %clear and welcome message
 clc; fprintf('Starting Tracker. Please have some patience...\n');
@@ -44,7 +50,13 @@ if Par.ExpFolder
     % Go to folder
     cd(Par.ExpFolder);
     % Run tracker
-    Par.hTracker = tracker_CK;
+    Par.hTracker = tracker_CK; % standard light version of tracker
+    Par.hTracker_ax=findobj(Par.hTracker,'Tag','axes1'); 
+    if strcmp(Par.tracker_version, 'tracker_dark')
+        set(Par.hTracker_ax,'Color','k');
+    else
+        Par.hTracker = tracker_CK; 
+    end
 else
     fprintf('You did not choose a valid Experiment folder. Exiting...\n')
 end

@@ -428,7 +428,7 @@ Par.DrumType = 1; %1=immediately repeat, 2=append to end, 3=insert randomly
 Par.isRunning = false;  %stimulus presentation off
 
 %% Tracker window control =================================================
-Par.ZOOM = 0.6;   %control - cogent window zoom
+Par.ZOOM = 0.52;   %control - cogent window zoom
 Par.P1 = 1; Par.P2 = 1;
 
 %% Logging ================================================================

@@ -149,6 +149,13 @@ Par.HandOutDimsScreen_perc = 0.9; %(0-1, fraction dimming)
 
 Par.HandIsIn=false;
 
+%% Make the default tracker gui work --------------------------------------
+Par.RewNeeds.HandIsIn = Par.RewNeedsHandInBox;
+Par.StimNeeds.HandIsIn = Par.StimNeedsHandInBox;
+Par.FixNeeds.HandIsIn = Par.FixNeedsHandInBox;
+Par.RewardFixFeedBack = Par.RewNeedsHandInBox;
+%% ------------------------------------------------------------------------
+
 % duration matches 'open duration'
 Par.RewardType = 2; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
@@ -278,7 +285,7 @@ for TimingSettings=1
 end
 
 %% Tracker window control =================================================
-Par.ZOOM = 0.6;   %control - cogent window zoom
+Par.ZOOM = 0.52;   %control - cogent window zoom
 Par.P1 = 1; Par.P2 = 1;
 
 %% Logging ================================================================

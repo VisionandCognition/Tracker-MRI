@@ -13,6 +13,7 @@ elseif strcmp(Par.ScreenChoice,'Mock')
 end
 
 Par.IsTestBeforeScanning = false; % overwrite in test-parsettings
+
 %% Triggering =============================================================
 % Par.TR * Par.NumVols Determines length of MRI scan
 % (first MRI trigger to last scanned volume)
@@ -221,6 +222,13 @@ Par.FixNeedsHandInBox=false;
 Par.HandOutDimsScreen = false;
 Par.HandOutDimsScreen_perc = 0.9; %(0-1, fraction dimming)
 
+%% Make the default tracker gui work --------------------------------------
+Par.RewNeeds.HandIsIn = Par.RewNeedsHandInBox;
+Par.StimNeeds.HandIsIn = Par.StimNeedsHandInBox;
+Par.FixNeeds.HandIsIn = Par.FixNeedsHandInBox;
+Par.RewardFixFeedBack = Par.RewNeedsHandInBox;
+%% ------------------------------------------------------------------------
+
 Par.StartTrialDespiteLeverPositions = false;
 
 Par.HandResponse=[false false];
@@ -357,6 +365,6 @@ Par.DrumType = 1; %1=immediately repeat, 2=append to end, 3=insert randomly
 Par.isRunning = false;  %stimulus presentation off
 
 %% Tracker window control =================================================
-Par.ZOOM = 0.6;   %control - cogent window zoom
+Par.ZOOM = 0.52; %control - cogent window zoom
 Par.P1 = 1;
 Par.P2 = 1;

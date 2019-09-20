@@ -21,8 +21,7 @@ function varargout = tracker_CK(varargin)
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
 % Edit the above text to modify the response to help tracker_CK
-
-% Last Modified by GUIDE v2.5 11-Jan-2016 18:10:00
+% Last Modified by GUIDE v2.5 20-Sep-2019 13:11:53
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -144,9 +143,9 @@ set(handles.ScrWid, 'String', num2str(Par.ScreenWidthD2 * 2));
 set(handles.PixDeg, 'String', num2str(Par.PixPerDeg, 4));
 
 % some hand control and fix parameters
-set(handles.RewHIB,'Value',Par.RewNeedsHandInBox);
-set(handles.StimHIB,'Value',Par.StimNeedsHandInBox);
-set(handles.FixHIB,'Value',Par.FixNeedsHandInBox);
+set(handles.RewHIB,'Value',Par.RewNeeds.HandIsIn);
+set(handles.StimHIB,'Value',Par.StimNeeds.HandIsIn);
+set(handles.FixHIB,'Value',Par.FixNeeds.HandIsIn);
 set(handles.SecFixCol,'Value',Par.RewardFixFeedBack);
 set(handles.AutoDim,'Value',Par.HandOutDimsScreen);
 set(handles.AutoDimPerc,'Value',Par.HandOutDimsScreen_perc);
@@ -415,9 +414,9 @@ if exist(Pf)
     set(handles.PixDeg, 'String', num2str(Par.PixPerDeg, 4));
     
     % some hand control and fix parameters
-    set(handles.RewHIB,'Value',Par.RewNeedsHandInBox);
-    set(handles.StimHIB,'Value',Par.StimNeedsHandInBox);
-    set(handles.FixHIB,'Value',Par.FixNeedsHandInBox);
+    set(handles.RewHIB,'Value',Par.RewNeeds.HandIsIn);
+    set(handles.StimHIB,'Value',Par.StimNeeds.HandIsIn);
+    set(handles.FixHIB,'Value',Par.FixNeeds.HandIsIn);
     set(handles.SecFixCol,'Value',Par.RewardFixFeedBack);
     set(handles.AutoDim,'Value',Par.HandOutDimsScreen);
     set(handles.AutoDimPerc,'Value',Par.HandOutDimsScreen_perc);
@@ -1617,7 +1616,6 @@ else
     end
 end
 
-
 % --------------------------------------------------------------------
 function UPDATE_Callback(hObject, eventdata, handles)
 % hObject    handle to UPDATE (see GCBO)
@@ -1626,7 +1624,6 @@ function UPDATE_Callback(hObject, eventdata, handles)
 
 pad = which( 'Trackerupdates.html');
 web(pad)
-
 
 % --- Executes on button press in Mouse.
 function Mouse_Callback(hObject, eventdata, handles)
@@ -1647,8 +1644,6 @@ else
     %  set(hObject, 'Value', 1);
 end
 
-
-
 % --- Executes when user attempts to close figure1.
 function figure1_CloseRequestFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
@@ -1666,7 +1661,6 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
 %     poststim
 %     delete(hObject);
 
-
 % --- Executes during object deletion, before destroying properties.
 function figure1_DeleteFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
@@ -1680,8 +1674,6 @@ function figure1_DeleteFcn(hObject, eventdata, handles)
 %     end
 %     poststim
 %     delete(hObject);
-
-
 
 % --- Executes on button press in OnOFF_noise.
 function OnOFF_noise_Callback(hObject, eventdata, handles)
@@ -1700,9 +1692,6 @@ else
     dassetnoise(1)
     set(hObject, 'BackgroundColor', [1.0 0.95 0.87])
 end
-
-
-
 
 % --- Executes on button press in RewHIB.
 function RewHIB_Callback(hObject, eventdata, handles)
@@ -1756,7 +1745,6 @@ else
     Par.RewardFixFeedBack = false;
 end
 
-
 % --- Executes on button press in AutoDim.
 function AutoDim_Callback(hObject, eventdata, handles)
 % hObject    handle to AutoDim (see GCBO)
@@ -1769,8 +1757,6 @@ if get(hObject,'Value') == true
 else
     Par.HandOutDimsScreen = false;
 end
-
-
 
 function AutoDimPerc_Callback(hObject, eventdata, handles)
 % hObject    handle to AutoDimPerc (see GCBO)
@@ -1794,3 +1780,30 @@ function AutoDimPerc_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+% --------------------------------------------------------------------
+function view_Callback(hObject, eventdata, handles)
+% hObject    handle to view (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --------------------------------------------------------------------
+function darkmode_Callback(hObject, eventdata, handles)
+% hObject    handle to darkmode (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global Par
+set(Par.hTracker_ax,'Color','k');
+Par.tracker_version = 'tracker_dark';
+recolortracker;
+
+% --------------------------------------------------------------------
+function lightmode_Callback(hObject, eventdata, handles)
+% hObject    handle to lightmode (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global Par
+set(Par.hTracker_ax,'Color','w');
+Par.tracker_version = 'default';
+recolortracker;
