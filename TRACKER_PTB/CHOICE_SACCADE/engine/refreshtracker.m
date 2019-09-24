@@ -33,7 +33,7 @@ if nargin > 0 && varargin{1} == 1
     
     % Fix dot
     HArray(2) = line('XData', WIN(1,1)*ZM, 'YData', WIN(2,1)*ZM);
-    set(HArray(2), 'Marker', 'o', 'MarkerSize', 5*ZM, 'MarkerFaceColor', 'r')
+    set(HArray(2), 'Marker', 'o', 'MarkerSize', 10*ZM, 'MarkerFaceColor', 'r')
     
     for i = 1:nmW
         if (WIN(5,i) == 0) %fix window
@@ -61,7 +61,6 @@ if nargin > 0 && varargin{1} == 1
     
 elseif varargin{1} == 2
     set(HArray(4), 'Color', 'g')
-    
 elseif varargin{1} == 3
     set(HArray(2), 'MarkerFaceColor', 'g')
 else

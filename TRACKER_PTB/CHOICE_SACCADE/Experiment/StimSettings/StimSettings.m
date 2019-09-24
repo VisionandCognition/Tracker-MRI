@@ -23,6 +23,7 @@ Stm.ErrT = 500; % punishment extra ISI after error trial (there are no error tri
 Stm.ErrT_onEarly = true; % consider early saccades to be errors
 Stm.ISI = 500; % base inter-stimulus interval
 Stm.ISI_RAND = 100; % maximum extra (random) ISI to break any possible rythm
+Stm.RewardDelay = [1000 2500]; % delay before reward is given [min max]
 
 %% Fixation ---------------------------------------------------------------
 %NB! may be overruled in the parsettings file
@@ -65,6 +66,8 @@ if TarCreateAlgorithm == 1
     Stm.Cond(c).Targ(1).Color = [1 0 0]; % RGB 0-1
     Stm.Cond(c).Targ(1).PreTargCol = [0.2 0.2 0.2];
     Stm.Cond(c).Targ(1).Reward = 0.04;
+    Stm.Cond(c).Targ(1).RewardGain = 1;
+    Stm.Cond(c).Targ(1).RewDelayOutlineWidth = 0.05;
     
     % Stm.Cond(c).Targ(2).Shape = 'circle';
     % Stm.Cond(c).Targ(2).Size = 3; % diameter in deg
@@ -73,6 +76,8 @@ if TarCreateAlgorithm == 1
     % Stm.Cond(c).Targ(2).Color = [1 0 0]; % RGB 0-1
     % Stm.Cond(c).Targ(2).PreTargCol = [0.2 0.2 0.2];
     % Stm.Cond(c).Targ(2).Reward = 0.1;
+    % Stm.Cond(c).Targ(2).RewardGain = 1;
+    % Stm.Cond(c).Targ(2).RewDelayOutlineWidth = 0.05;
     
     %--- Condition 2 -----
     % c=2;
@@ -84,6 +89,8 @@ if TarCreateAlgorithm == 1
     % Stm.Cond(c).Targ(1).PreTargCol = [0.2 0.2 0.2];
     % Stm.Cond(c).Targ(1).PreTargFlashDur = 0.050;
     % Stm.Cond(c).Targ(1).Reward = 0.04;
+    % Stm.Cond(c).Targ(1).RewardGain = 1;
+    % Stm.Cond(c).Targ(1).RewDelayOutlineWidth = 0.05;
     %
     % Stm.Cond(c).Targ(2).Shape = 'square';
     % Stm.Cond(c).Targ(2).Size = 2; % diameter in deg
@@ -92,6 +99,8 @@ if TarCreateAlgorithm == 1
     % Stm.Cond(c).Targ(2).Color = [0 1 1]; % RGB 0-1
     % Stm.Cond(c).Targ(2).PreTargCol = [0.2 0.2 0.2];
     % Stm.Cond(c).Targ(2).Reward = 0.1;
+    % Stm.Cond(c).Targ(2).RewardGain = 1;
+    % Stm.Cond(c).Targ(2).RewDelayOutlineWidth = 0.05;
 elseif TarCreateAlgorithm == 2
     % Algorithm to create many conditions (single stim) ///////////////
     Stm.RandomizeCond=true;
@@ -115,6 +124,12 @@ elseif TarCreateAlgorithm == 2
         %Stm.Cond(c).Targ(1).PreTargCol = 3*Stm.Cond(c).Targ(1).Color;
         Stm.Cond(c).Targ(1).PreTargCol = [0.65 0.65 0.65];
         Stm.Cond(c).Targ(1).Reward = 0.120;
+        Stm.Cond(c).Targ(1).RewardGain = 1;
+        Stm.Cond(c).Targ(1).RewDelayOutlineWidth = 0.05;
+        
+        % second distant window to make runstim work
+        Stm.Cond(c).Targ(2) = Stm.Cond(c).Targ(1);
+        Stm.Cond(c).Targ(2).Position = [10000 10000];
     end
 end
 

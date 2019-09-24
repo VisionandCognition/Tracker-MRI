@@ -54,8 +54,6 @@ if Par.ExpFolder
     Par.hTracker_ax=findobj(Par.hTracker,'Tag','axes1'); 
     if strcmp(Par.tracker_version, 'tracker_dark')
         set(Par.hTracker_ax,'Color','k');
-    else
-        Par.hTracker = tracker_CK; 
     end
 else
     fprintf('You did not choose a valid Experiment folder. Exiting...\n')

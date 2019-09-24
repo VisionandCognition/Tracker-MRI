@@ -463,10 +463,6 @@ else
     errormsg('No filename supplied')
 end
 
-
-
-
-
 % --------------------------------------------------------------------
 function CHANGE_Callback(hObject, eventdata, handles)
 % hObject    handle to CHANGE (see GCBO)
@@ -1539,9 +1535,12 @@ addpath(genpath(Par.ExpFolder));
 % Go to folder
 cd(Par.ExpFolder);
 % Run tracker
-Par.hTracker=tracker_CK;
-Par.MONKEY=CurrMonkey;
-
+Par.hTracker = tracker_CK;
+Par.hTracker_ax = findobj(Par.hTracker,'Tag','axes1');
+if strcmp(Par.tracker_version, 'tracker_dark')
+    set(Par.hTracker_ax,'Color','k');
+end
+Par.MONKEY = CurrMonkey;
 
 % --------------------------------------------------------------------
 function MI_StimSettings_Callback(hObject, eventdata, handles)

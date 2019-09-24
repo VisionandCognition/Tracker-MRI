@@ -154,8 +154,8 @@ Par.RewNeeds.HandIsIn = Par.RewNeedsHandInBox;
 Par.StimNeeds.HandIsIn = Par.StimNeedsHandInBox;
 Par.FixNeeds.HandIsIn = Par.FixNeedsHandInBox;
 Par.RewardFixFeedBack = Par.RewNeedsHandInBox;
-%% ------------------------------------------------------------------------
 
+%% ------------------------------------------------------------------------
 % duration matches 'open duration'
 Par.RewardType = 2; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
@@ -209,8 +209,8 @@ for SetInitialWINs=1
     %Par.WIN = [xpos, ypos, pix width, pix height, window type]
     Par.WIN = [...
         0,  0, Par.PixPerDeg*Par.FixWdDeg, Par.PixPerDeg*Par.FixHtDeg, FIX; ...
-        100, 100, Par.PixPerDeg*Par.TargWdDeg, Par.PixPerDeg*Par.TargHtDeg, TAR1; ...
-        -300, 300, Par.PixPerDeg*Par.TargWdDeg, Par.PixPerDeg*Par.TargHtDeg, TAR2].';
+        300, 0, Par.PixPerDeg*Par.TargWdDeg, Par.PixPerDeg*Par.TargHtDeg, TAR1; ...
+        -300, 0, Par.PixPerDeg*Par.TargWdDeg, Par.PixPerDeg*Par.TargHtDeg, TAR2].';
     
     %when target and fixation windows change in position and dimension you will
     %have to call two functions. The first is to show their position on the tracker screen.

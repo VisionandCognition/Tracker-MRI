@@ -196,7 +196,6 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
         REWDELAY = Par.Times.RewDelay;
         
         %% Prepare stimuli ------------------------------------------------
-        %% PrepStim
         CurCond=StimDynamic(1);
         for TargNum=1:length(Stm.Cond(CurCond).Targ)
             Tar(TargNum).Shape = Stm.Cond(CurCond).Targ(TargNum).Shape; %#ok<*AGROW>
@@ -259,7 +258,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
         Log.MRI.TriggerTime = [];
         % Some intitialization of control parameters
         if Par.MRITriggeredStart && ~Log.MRI.TriggerReceived
-            if Par.MRITrigger_OnlyOnce && nR==1 
+            if Par.MRITrigger_OnlyOnce && nR==1
                 Log.MRI.TriggerReceived = false;
             elseif Par.MRITrigger_OnlyOnce && nR > 1
                 Log.MRI.TriggerReceived = true;
@@ -292,19 +291,19 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
         TrialStarted=false;
         TrialEnded=false;
         while ~Par.ESC && ~TrialEnded
-            
             % pick a hold-fix time from the specified range
             TARGT=round(normrnd(Par.Times.TargRange(1),Par.Times.TargRange(2)));
             while TARGT <= Par.Times.TargRange(1)-Par.Times.TargRange(2) || ...
                     TARGT >= Par.Times.TargRange(1)+Par.Times.TargRange(2)
                 TARGT = round(normrnd(Par.Times.TargRange(1),Par.Times.TargRange(2)));
             end
-            STIMT = RACT + TARGT;
+            STIMT = RACT + TARGT + HTART;
             ERR_ISI = 0;
-            %/////////// START THE TRIAL //////////////////////////////////
+            
+            %% /////////// START THE TRIAL ////////////////////////////////
             Abort = false;    %whether subject has aborted before end of trial
             
-            %///////// EVENT 0 START FIXATING//////////////////////////////
+            %% //////// EVENT 0 START FIXATING/////////////////////////////
             Par.CurrFixCol = Stm.FixDotCol(1,1:3).*Par.ScrWhite;
             DrawBackground;
             DrawFix;
@@ -319,8 +318,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
             Par.SetZero = false; %set key to false to remove previous presses
             %Par.Updatxy = 1; %centering key is enabled
             Time = 1; Hit = 0;
-            %tic;
-            %while toc*1000 < PREFIXT && Hit == 0
+            
             while Time < PREFIXT && Hit == 0
                 dasrun(5);
                 [Hit Time] = DasCheck; %#ok<*NCOMMA> %retrieve position values and plot on Control display
@@ -333,14 +331,11 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                     Hit=0;
                 end
             end
-                        
-            %///////// EVENT 1 KEEP FIXATING or REDO  /////////////////////
+            
+            %% ///////// EVENT 1 KEEP FIXATING or REDO  ///////////////////
             if Hit ~= 0  %subjects eyes are in fixation window keep fixating for FIX time
-                %fprintf('fixation detected\n');
                 dasreset(1);     %set test parameters for exiting fix window
                 Time = 1; Hit = 0;
-                %tic;
-                %while toc*1000 < FIXT && Hit== 0
                 while Time < FIXT && Hit== 0
                     dasrun(5);
                     [Hit Time] = DasCheck; %retrieve eyechannel buffer and events, plot eye motion,
@@ -359,9 +354,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                     %possibly due to eye overshoot, give another chance
                     dasreset(0);
                     Time = 1; Hit = 0;
-                    %while toc*1000 < PREFIXT && Hit == 0
                     while Time < PREFIXT && Hit == 0
-                        %fprintf('fixation broken\n');
                         dasrun(5)
                         [Hit Time] = DasCheck; %retrieve position values and plot on Control display
                         CheckKeys; %check key presses
@@ -374,7 +367,6 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                         end
                     end
                     if Hit ~= 0  %subjects eyes are in fixation window keep fixating for FIX time
-                        %fprintf('fixation regained\n');
                         dasreset( 1); %test for exiting fix window
                         Time = 1; Hit = 0;
                         while Time < FIXT && Hit == 0
@@ -400,30 +392,27 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
             % in case of no fixation: stick with this trial
             % requires no action
             
-            
-            %///////// EVENT 2 DISPLAY STIMULUS ///////////////////////////
-            %fprintf(['TARGT is ' num2str(TARGT) '\n']);
+            %% ///////// EVENT 2 DISPLAY STIMULUS /////////////////////////
             if Hit == 0
                 Par.Trlcount = Par.Trlcount + 1; %counts total number of trials for this session
-                %                 if mod(Par.Trlcount,25)==0 || Par.Trlcount==1
-                %                     fprintf(['Started trial ' num2str(Par.Trlcount) '\n']);
-                %                 end
+                % if mod(Par.Trlcount,25)==0 || Par.Trlcount==1
+                %   fprintf(['Started trial ' num2str(Par.Trlcount) '\n']);
+                % end
                 TrialStarted = true;
-                TrialsStartedThisRep=TrialsStartedThisRep+1;
-                        
+                TrialsStartedThisRep = TrialsStartedThisRep+1;
+                
                 if TARGT > 0
                     PreTarLogDone = false;
-
+                    
                     % check for breaking fixation
                     dasreset(1); %test for exiting fix window
                     refreshtracker(2)
                     Time = 0;
-
+                    
                     while Time < TARGT  && Hit == 0
-                        %fprintf(['stuck here...' num2str(Time) '\n'])
                         DrawBackground;
                         if TARGFLASHDUR > 0 && Time < TARGFLASHDUR
-                            DrawTargets(Tar);
+                            DrawTargets(Tar,[]);
                         else
                             DrawPreTargets(Tar);
                         end
@@ -457,23 +446,20 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                             Hit=-1;
                             Abort=true;
                         end
-                        
                     end
                     
                 end
                 
-                %///////// EVENT 3 TARGET ONSET, REACTION TIME%%///////////
+                %% ///////// EVENT 3 TARGET ONSET, REACTION TIME //////////
                 if Hit == 0 %subject kept fixation, subject may make an eye movement
-                    %fprintf('Target status on\n')
                     DrawBackground;
-                    DrawTargets(Tar);
+                    DrawTargets(Tar,[]);
                     if ~Stm.FixRemoveOnGo
                         Par.CurrFixCol = Stm.FixDotCol(2,1:3).*Par.ScrWhite;
                         DrawFix;
                     end
                     lft=Screen('Flip', Par.window);
                     TargStart=lft;
-                    %fprintf('Target started\n');
                     
                     % Log trial timing
                     Log.Trial(Par.Trlcount).TargStart = TargStart;
@@ -528,7 +514,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                         end
                     elseif   RACT < STIMT-TARGT % switch targ status off keep sampling for response
                         DrawBackground;
-                        DrawTargets(Tar);
+                        DrawTargets(Tar,[]);
                         if ~Stm.FixRemoveOnGo
                             Par.CurrFixCol = Stm.FixDotCol(2,1:3).*Par.ScrWhite;
                             DrawFix;
@@ -554,75 +540,10 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
             else
                 Abort = true;
             end %END EVENT 2
-                        
-            % ////// hold target fixation  ///////////////////
-            TargChoice = Hit;
-            Par.WIN_prehold = Par.WIN;
-            ChoiIdx = Par.WIN(5,:)==TargChoice;
-            Par.WIN(5,ChoiIdx) = 0; % make chosen target the new fixation
-            Par.WIN(5,1) = TargChoice; % make fixation the chosen target (not useful but needs assignment)
             
-            DefineEyeWin(Tar)
-            refreshtracker(1) % for your control display: update with windows
-            SetWindowDas      % for the dascard
-            
-            % check whether eye leaves target window
-            dasreset(1);     %set test parameters for exiting fix window
-            Time = 1; Hit = 0;
-            while Time < HTART && Hit== 0
-                dasrun(5);
-                [Hit Time] = DasCheck; %retrieve eyechannel buffer and events, plot eye motion,
-                CheckKeys; %check key presses
-                CheckManual; %check status of the photo amp
-                ControlReward; % switch reward on or off;
-                ChangeFixPos;
-                ControlVisibility(Tar,[1 0]);
-                if Par.StimNeedsHandInBox && ~Par.BeamIsBlocked
-                    Hit=-1;
-                end
-            end
-            
-            if Hit ~= 0
-                %eye has left fixation too early or hand is out box
-                %possibly due to eye overshoot, give another chance
-                dasreset(0);
-                Time = 1; Hit = 0;
-                while Time < SACC_CORR_T && Hit == 0
-                    dasrun(5)
-                    [Hit Time] = DasCheck; %retrieve position values and plot on Control display
-                    CheckKeys; %check key presses
-                    CheckManual; %check status of the photo amp
-                    ControlReward; % switch reward on or off;
-                    ChangeFixPos;
-                    ControlVisibility(Tar,[1 0]);
-                    if Par.StimNeedsHandInBox && ~Par.BeamIsBlocked
-                        Hit=0;
-                    end
-                end
-                if Hit ~= 0  % subjects eyes are back in fixation window 
-                    dasreset( 1); %test for exiting fix window
-                    Time = 1; Hit = 0;
-                    while Time < HTART && Hit == 0
-                        dasrun(5)
-                        [Hit Time] = DasCheck;
-                        CheckKeys; %check key presses
-                        CheckManual; %check status of the photo amp
-                        ControlReward; % switch reward on or off;
-                        ChangeFixPos;
-                        ControlVisibility(Tar,[1 0]);
-                        if Par.StimNeedsHandInBox && ~Par.BeamIsBlocked
-                            Hit=-1;
-                        end
-                    end
-                else
-                    Hit = -1; %the subject did not fixate target
-                end
-            end
-            % reset eye windows
-            Par.WIN = Par.WIN_prehold;
-            
-            %///////// POSTTRIAL AND REWARD ///////////////////////////////
+            %% ///////// POSTTRIAL AND REWARD /////////////////////////////
             if Hit ~= 0 && ~Abort %has entered a target window
+                %printf(['HIT is ' num2str(Hit) '\n']);
                 if Par.Mouserun
                     HP = line('XData', Par.ZOOM * (LPStat(2) + Par.MOff(1)),...
                         'YData', Par.ZOOM * (LPStat(3) + Par.MOff(2)));
@@ -630,14 +551,92 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                     HP = line('XData', Par.ZOOM * LPStat(2), 'YData', Par.ZOOM * LPStat(3));
                 end
                 set(HP, 'Marker', '+', 'MarkerSize', 20, 'MarkerEdgeColor', 'm');
+                              
+                %% ////// hold target fixation  ///////////////////////////
+                ValidResponse = true;
+                TargChoice = Hit;
+                Par.WIN_prehold = Par.WIN;
+                ChoiIdx = Par.WIN(5,:)==TargChoice;
+                Par.WIN(5,ChoiIdx) = 0; % make chosen target the new fixation
+                Par.WIN(5,1) = TargChoice; % make fixation the chosen target (not useful but needs assignment)
+                refreshtracker(1) % for your control display: update with windows
+                SetWindowDas      % for the dascard
                 
+                % only draw the selected target (remove non-selected)
+                DrawBackground;
+                DrawTargets(Tar,TargChoice);
+                if ~Stm.FixRemoveOnGo
+                    Par.CurrFixCol = Stm.FixDotCol(2,1:3).*Par.ScrWhite;
+                    DrawFix;
+                end
+                lft=Screen('Flip', Par.window);
+                                
+                % check whether eye leaves target window
+                dasreset(1);     %set test parameters for exiting fix window
+                Time = 1; Hit = 0;
+                while Time < HTART && Hit == 0
+                    dasrun(5);
+                    [Hit Time] = DasCheck; %retrieve eyechannel buffer and events, plot eye motion,
+                    CheckKeys; %check key presses
+                    CheckManual; %check status of the photo amp
+                    ControlReward; % switch reward on or off;
+                    ChangeFixPos;
+                    ControlVisibility(Tar,[1 0]);
+                    if Par.StimNeedsHandInBox && ~Par.BeamIsBlocked
+                        Hit=-1;
+                    end
+                end
+                if Hit ~= 0
+                    ValidResponse = false;
+                    %eye has left fixation too early or hand is out box
+                    %possibly due to eye overshoot, give another chance
+                    dasreset(0);
+                    Time = 1; Hit = 0;
+                    while Time < SACC_CORR_T && Hit == 0
+                        dasrun(5)
+                        [Hit Time] = DasCheck; %retrieve position values and plot on Control display
+                        CheckKeys; %check key presses
+                        CheckManual; %check status of the photo amp
+                        ControlReward; % switch reward on or off;
+                        ChangeFixPos;
+                        ControlVisibility(Tar,[1 0]);
+                        if Par.StimNeedsHandInBox && ~Par.BeamIsBlocked
+                            Hit=0;
+                        end
+                    end
+                    if Hit ~= 0  % subjects eyes are back in fixation window
+                        dasreset( 1); %test for exiting fix window
+                        Time = 1; Hit = 0;
+                        while Time < HTART && Hit == 0
+                            dasrun(5)
+                            [Hit Time] = DasCheck;
+                            CheckKeys; %check key presses
+                            CheckManual; %check status of the photo amp
+                            ControlReward; % switch reward on or off;
+                            ChangeFixPos;
+                            ControlVisibility(Tar,[1 0]);
+                            if Par.StimNeedsHandInBox && ~Par.BeamIsBlocked
+                                Hit=-1;
+                            end
+                        end
+                        if Hit == 0
+                            ValidResponse = true;
+                        end
+                    else
+                        Hit = -1; %the subject did not fixate target
+                    end
+                end
+                % reset eye windows
+                Par.WIN = Par.WIN_prehold;
+                Hit = TargChoice;
+         
                 % Check the response
-                if Hit == 2 && LPStat(5) < SACCT % target 1 within max allowed saccade time
-                    TrialStatus='Target_1';
+                if Hit > 0 && LPStat(5) < SACCT && ValidResponse % target 1 within max allowed saccade time
+                    TrialStatus=['Target_' num2str(Hit)];
                     TrialsTargThisRep=TrialsTargThisRep+1;
                     Par.Corrcount = Par.Corrcount + 1; %log correct trials
-                    Par.RewardTimeTarg = Tar(1).RewardGain*Par.RewardTime;
-                    Par.TarChosen = 1;
+                    Par.RewardTimeTarg = Tar(Hit).RewardGain*Par.RewardTime;
+                    Par.TarChosen = Hit;
                     Par.EnterRewDelay = true;
                     %Par.AutoReward=true;
                     
@@ -647,22 +646,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                     Log.TotalReward=Log.TotalReward+Par.RewardTimeTarg;
                     
                     StimDynamic(1)=[];
-                    
-                elseif Hit == 1 && LPStat(5) < SACCT % target 2 within max allowed saccade time
-                    TrialStatus='Target_2';
-                    TrialsTargThisRep=TrialsTargThisRep+1;
-                    Par.Corrcount = Par.Corrcount + 1; %log correct trials
-                    Par.RewardTimeTarg = Tar(2).RewardGain*Par.RewardTime;
-                    Par.TarChosen = 2;
-                    Par.EnterRewDelay=true;
-                    %Par.AutoReward=true;
-                    
-                    Log.Trial(Par.Trlcount).Aborted = false;
-                    Log.Trial(Par.Trlcount).TargChosen = Par.TarChosen;
-                    Log.TotalReward=Log.TotalReward+Par.RewardTimeTarg;
-                    
-                    StimDynamic(1)=[];
-                    
+
                 elseif Hit ~= 0 && LPStat(5) >= SACCT % too slow
                     TrialStatus='SaccadeTooSlow';
                     Par.Slowcount=Par.Slowcount+1;
@@ -674,6 +658,8 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                     else
                         Log.Trial(Par.Trlcount).TargChosen = 1;
                     end
+                elseif ~ValidResponse 
+                    TrialStatus='NoTargetFixation';
                 end
                 
                 %keep following eye motion to plot complete saccade
@@ -688,7 +674,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                 Log.Trial(Par.Trlcount).HitPos = [LPStat(2) LPStat(3)];
                 Log.Trial(Par.Trlcount).Status = TrialStatus;
                 Log.Trial(Par.Trlcount).TotRew = Log.TotalReward;
-                
+            
             elseif Par.Trlcount>0 && ~Abort
                 % trial was not aborted but no target was selected in time
                 TrialStatus='NoHit';
@@ -740,7 +726,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
             dasrun(5);
             [Hit Lasttime] = DasCheck;
             
-            %///////// REWARD DELAY /////////////////////////////
+            %% ///////// REWARD DELAY /////////////////////////////
             if Par.EnterRewDelay
                 DrawBackground;
                 DrawRewDelayIndicator(Tar,Par.TarChosen);
@@ -761,7 +747,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
                 
             end
             
-            %///////// INTERTRIAL AND CLEANUP /////////////////////////////
+            %% //////// INTERTRIAL AND CLEANUP ////////////////////////////
             SCNT = {'TRIALS'};
             SCNT(2) = { ['N: ' num2str(Par.Trlcount) ]}; % n trials
             SCNT(3) = { ['C: ' num2str(Par.Corrcount) ] }; % n correct
@@ -798,6 +784,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
             while Par.RewardRunning
                 ControlReward;
             end
+            
         end %WHILE_NOT_ESCAPED : END OF TRIAL LOOP %%%%%%%%%%%%%%%%%%%%%%%%
         
     end % multiple trials or stopped
@@ -831,6 +818,7 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
         EyeRecMsgShown=true;
     end
     fprintf('Repetition finished \n');
+    
 end % repeat conditions
 
 %% Clean up and Save Log ==================================================
@@ -849,13 +837,13 @@ LogPath = fullfile(getenv('TRACKER_LOGS'),... % base log folder
     [Par.MONKEY '_' DateString(1:8)],... % session
     [Par.MONKEY '_' DateString_sec]... % run
     );
-[~,~,~] = mkdir(LogPath);    
+[~,~,~] = mkdir(LogPath);
 LogFn = [Par.SetUp '_' Par.MONKEY '_' DateString_sec];
 cd(LogPath)
 
 %FileName=['Log_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString];
 FileName=['Log_' LogFn];
-warning off; 
+warning off;
 
 %mkdir('Log');cd('Log');
 StimObj.Stm=Stm;
@@ -878,8 +866,8 @@ if isempty(ls(Par.STIMSETFILE)) % doesn't exist yet
 end
 
 save(FileName,'Log','Par','StimObj');
-cd(Par.ExpFolder) 
-warning on; 
+cd(Par.ExpFolder)
+warning on;
 
 % print overview to cmd
 fprintf(['\n\nTOTAL ============\nSTARTED: ' num2str(Par.Trlcount) ...
@@ -904,7 +892,7 @@ fprintf('------------------------------\n');
 % create fixation window around target
     function DefineEyeWin(Tar)
         FIX = 0;  %this is the fixation window
-        TAR = [2 1]; %target window 1 & 2
+        TAR = [1 2]; %target window 1 & 2
         WIN = [Stm.Center(Par.PosNr,1), -Stm.Center(Par.PosNr,2), ...
             Stm.FixWinSizePix(1), Stm.FixWinSizePix(2), FIX];
         for tn=1:length(Tar)
@@ -945,8 +933,11 @@ fprintf('------------------------------\n');
         end
     end
 % draw target stimuli
-    function DrawTargets(Tar)
-        for tn=1:length(Tar)
+    function DrawTargets(Tar,WhichTar)
+        if isempty(WhichTar)
+            WhichTar=1:length(Tar);
+        end
+        for tn=WhichTar
             if strcmp(Tar(tn).Shape,'circle')
                 Screen('FillOval',Par.window,Tar(tn).Color,Tar(tn).Rect);
             elseif strcmp(Tar(tn).Shape,'square')
@@ -986,7 +977,7 @@ fprintf('------------------------------\n');
             %                 DrawFix;
             %             end
             %             if ~Par.ToggleHideStim && ~Par.ToggleHideStim2 && FixStim(2)
-            %                 DrawTargets(Tar);
+            %                 DrawTargets(Tar,[]);
             %             end
             %             Screen('Flip', Par.window);
         end

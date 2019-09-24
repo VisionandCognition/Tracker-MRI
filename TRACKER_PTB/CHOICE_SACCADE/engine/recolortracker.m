@@ -28,7 +28,7 @@ end
 
 % Fix dot
 HArray(2) = line('XData', WIN(1,1)*ZM, 'YData', WIN(2,1)*ZM);
-set(HArray(2), 'Marker', 'o', 'MarkerSize', 5*ZM, 'MarkerFaceColor', 'r')
+set(HArray(2), 'Marker', 'o', 'MarkerSize', 10*ZM, 'MarkerFaceColor', 'r')
 
 for i = 1:nmW
     if (WIN(5,i) == 0) %fix window
