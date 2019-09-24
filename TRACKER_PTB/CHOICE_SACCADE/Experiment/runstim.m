@@ -156,6 +156,8 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
             Par.Times.Stim=Stm.StimT;
             Par.Times.Rt=Stm.ReacT; % max allowed reaction time (leave fixwin after target onset)
             Par.Times.Sacc=Stm.SaccT; % max allowed saccade time (from leave fixwin to enter target win)
+            Par.Times.HoldTarg=Stm.HoldTarT; % fixate the target this long
+            Par.Times.SaccCorrT = Stm.SaccCorrT;
             Par.Times.Err=Stm.ErrT; % punishment extra ISI after error trial (there are no error trials here)
             Par.Times.ErrT_onEarly = Stm.ErrT_onEarly;
             Par.Times.InterTrial=Stm.ISI; % base inter-stimulus interval
@@ -186,6 +188,8 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
         SACCT= Par.Times.Sacc; % Allowed saccade time between leaving fixwin and entering targwin
         ISI = Par.Times.InterTrial; % interstimulus interval
         ISI_R = Par.Times.RndInterTrial; % max random addition to ISI
+        HTART = Par.Times.HoldTarg; % fixate the target this long
+        SACC_CORR_T = Par.Times.SaccCorrT;
         ERRT = Par.Times.Err; % % punishment addition to ISI after error trial
         % there are no error trials here
         ERRT_ONEARLY = Par.Times.ErrT_onEarly;
@@ -550,6 +554,72 @@ while nR<Stm.nRepeatsStimSet && ~Par.ESC
             else
                 Abort = true;
             end %END EVENT 2
+                        
+            % ////// hold target fixation  ///////////////////
+            TargChoice = Hit;
+            Par.WIN_prehold = Par.WIN;
+            ChoiIdx = Par.WIN(5,:)==TargChoice;
+            Par.WIN(5,ChoiIdx) = 0; % make chosen target the new fixation
+            Par.WIN(5,1) = TargChoice; % make fixation the chosen target (not useful but needs assignment)
+            
+            DefineEyeWin(Tar)
+            refreshtracker(1) % for your control display: update with windows
+            SetWindowDas      % for the dascard
+            
+            % check whether eye leaves target window
+            dasreset(1);     %set test parameters for exiting fix window
+            Time = 1; Hit = 0;
+            while Time < HTART && Hit== 0
+                dasrun(5);
+                [Hit Time] = DasCheck; %retrieve eyechannel buffer and events, plot eye motion,
+                CheckKeys; %check key presses
+                CheckManual; %check status of the photo amp
+                ControlReward; % switch reward on or off;
+                ChangeFixPos;
+                ControlVisibility(Tar,[1 0]);
+                if Par.StimNeedsHandInBox && ~Par.BeamIsBlocked
+                    Hit=-1;
+                end
+            end
+            
+            if Hit ~= 0
+                %eye has left fixation too early or hand is out box
+                %possibly due to eye overshoot, give another chance
+                dasreset(0);
+                Time = 1; Hit = 0;
+                while Time < SACC_CORR_T && Hit == 0
+                    dasrun(5)
+                    [Hit Time] = DasCheck; %retrieve position values and plot on Control display
+                    CheckKeys; %check key presses
+                    CheckManual; %check status of the photo amp
+                    ControlReward; % switch reward on or off;
+                    ChangeFixPos;
+                    ControlVisibility(Tar,[1 0]);
+                    if Par.StimNeedsHandInBox && ~Par.BeamIsBlocked
+                        Hit=0;
+                    end
+                end
+                if Hit ~= 0  % subjects eyes are back in fixation window 
+                    dasreset( 1); %test for exiting fix window
+                    Time = 1; Hit = 0;
+                    while Time < HTART && Hit == 0
+                        dasrun(5)
+                        [Hit Time] = DasCheck;
+                        CheckKeys; %check key presses
+                        CheckManual; %check status of the photo amp
+                        ControlReward; % switch reward on or off;
+                        ChangeFixPos;
+                        ControlVisibility(Tar,[1 0]);
+                        if Par.StimNeedsHandInBox && ~Par.BeamIsBlocked
+                            Hit=-1;
+                        end
+                    end
+                else
+                    Hit = -1; %the subject did not fixate target
+                end
+            end
+            % reset eye windows
+            Par.WIN = Par.WIN_prehold;
             
             %///////// POSTTRIAL AND REWARD ///////////////////////////////
             if Hit ~= 0 && ~Abort %has entered a target window
