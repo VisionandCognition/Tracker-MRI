@@ -68,7 +68,7 @@ Stm(1).RetMap.Checker.SaveToFile = false;
 Stm(1).RetMap.Checker.FileName = 'Checkerboard_3T.mat';
 
 % Logfolder
-fullfile('HRF-checker','Checkerboard');
+Stm(1).LogFolder = fullfile('HRF-checker','Checkerboard');
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

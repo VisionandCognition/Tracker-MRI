@@ -16,12 +16,12 @@ Stm.KeepFixT = [1000 300]; % [mean sd] of NORM % time to fix before target onset
 Stm.PreTargFlashDur = 10000;%500;
 Stm.ReacT = 2000; % max allowed reaction time (leave fixwin after target onset)
 Stm.StimT = Stm.KeepFixT(1) + Stm.ReacT; % stimulus display duration
-Stm.SaccT = 400; % max allowed saccade time (from leave fixwin to enter target win)
-Stm.HoldTarT = 2000; % stay in target window for this long
-Stm.SaccCorrT = 2000; % allow this much time to correct for overshoots
-Stm.ErrT = 1000; % punishment extra ISI after error trial
+Stm.SaccT = 200; % max allowed saccade time (from leave fixwin to enter target win)
+Stm.HoldTarT = 300; % stay in target window for this long
+Stm.SaccCorrT = 100; % allow this much time to correct for overshoots
+Stm.ErrT = 500; % punishment extra ISI after error trial
 Stm.ErrT_onEarly = true; % consider early saccades to be errors
-Stm.ISI = 1000; % base inter-stimulus interval
+Stm.ISI = 500; % base inter-stimulus interval
 Stm.ISI_RAND = 1500; % maximum extra (random) ISI to break any possible rythm
 Stm.RewardDelay = [1000 2500]; % delay before reward is given [min max]
 
@@ -144,7 +144,7 @@ elseif TarCreateAlgorithm == 3
     for c=1:length(Stm.PolarAngles)
         Stm.Cond(c).Targ(1).Shape = 'circle';
         Stm.Cond(c).Targ(1).Size = 1.5; % diameter in deg
-        Stm.Cond(c).Targ(1).WinSize = 2; % deg
+        Stm.Cond(c).Targ(1).WinSize = 2.5; % deg
         Stm.Cond(c).Targ(1).Position = Stm.TarPos(c,:); % deg
         Stm.Cond(c).Targ(1).Color = [.1 .1 .1]; % RGB 0-1
         %Stm.Cond(c).Targ(1).PreTargCol = 3*Stm.Cond(c).Targ(1).Color;

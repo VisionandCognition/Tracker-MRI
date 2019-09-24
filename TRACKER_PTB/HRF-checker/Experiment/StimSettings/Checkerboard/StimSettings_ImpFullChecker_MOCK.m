@@ -69,7 +69,7 @@ Stm(1).RetMap.Checker.SaveToFile = false;
 Stm(1).RetMap.Checker.FileName = 'Checkerboard_MOCK.mat';
 
 % Logfolder
-fullfile('HRF-checker','Checkerboard');
+Stm(1).LogFolder = fullfile('HRF-checker','Checkerboard');
 
 %% 
 %% ========================================================================

@@ -63,7 +63,7 @@ Stm(1).RetMap.SaveToFile = false;
 Stm(1).RetMap.FileName = 'pRF_8bars_MOCK.mat';
 
 % Logfolder
-fullfile('HRF-checker','Default');
+Stm(1).LogFolder = fullfile('HRF-checker','Default');
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj
