@@ -88,7 +88,7 @@ Stm.Fig(1).ori_ind = 1;
 Stm.Fig(1).orient = ...
     Stm.Fig_all.orientations(Stm.Fig(1).ori_ind);
 Stm.Fig(1).shape = 'Triangle_up';
-% 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down'
+% 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down', 
 % -
 Stm.Fig(2) = Stm.Fig(1); 
 Stm.Fig(2).position = [5 0]; % DVA
