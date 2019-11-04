@@ -34,6 +34,10 @@ if TestRunstimWithoutDAS
     AssertOpenGL;
     KbName('UnifyKeyNames');
     
+    %Set-up blend function
+    [sourceFactorOld,destinationFactorOld,colorMaskOld] = ...
+        Screen('BlendFunction',Par.window,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    
     %Set ParFile and Stimfile
     Par.PARSETFILE = 'ParSettings_NoDas';
     Par.STIMSETFILE = 'StimSettings_NoDas';

@@ -50,8 +50,8 @@ Stm.RefreshPol = 0.500;
 
 Stm.SaveToFile = true;
 Stm.LoadFromFile = false; %% Overwrites settings
-Stm.FileName = 'FigGnd_test_lines.mat';
-%Stm.FileName = 'FigGnd_Triangles_dots.mat';
+Stm.FileName = 'FigGnd_3T_NU_Localizer_lines.mat';
+%Stm.FileName = 'FigGnd_3T_NU_Localizer_dots.mat';
 
 % Logfolder
 Stm.LogFolder = 'FigGnd';
@@ -87,10 +87,9 @@ Stm.Fig(1).position = [-5 0]; % DVA
 Stm.Fig(1).ori_ind = 1;
 Stm.Fig(1).orient = ...
     Stm.Fig_all.orientations(Stm.Fig(1).ori_ind);
-Stm.Fig(1).shape = 'Triangle_up';
+Stm.Fig(1).shape = 'N';
 % 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down', 'N','U'
-Stm.Fig(1).NU_gapsize = [1 1]; % [width height] >> only applies to NU and U
-
+Stm.Fig(1).NU_gapsize = [1 2]; % [width height] >> only applies to NU and U
 % -
 Stm.Fig(2) = Stm.Fig(1); 
 Stm.Fig(2).position = [5 0]; % DVA
@@ -104,16 +103,16 @@ Stm.Fig(4) = Stm.Fig(3);
 Stm.Fig(4).position = [5 0]; % DVA
 % -
 Stm.Fig(5) = Stm.Fig(1);
-Stm.Fig(5).shape = 'Triangle_down';
+Stm.Fig(5).shape = 'U';
 % -
 Stm.Fig(6) = Stm.Fig(2);
-Stm.Fig(6).shape = 'Triangle_down';
+Stm.Fig(6).shape = 'U';
 % -
 Stm.Fig(7) = Stm.Fig(3);
-Stm.Fig(7).shape = 'Triangle_down';
+Stm.Fig(7).shape = 'U';
 % -
 Stm.Fig(8) = Stm.Fig(4);
-Stm.Fig(8).shape = 'Triangle_down';
+Stm.Fig(8).shape = 'U';
     
 % Intermediate background --
 Stm.IntGnd = Stm.Gnd_all;
@@ -137,6 +136,9 @@ Stm.FigGnd{13} = [7 2];
 Stm.FigGnd{14} = [0 2];
 Stm.FigGnd{15} = [8 2];
 Stm.FigGnd{16} = [0 2];
+
+% Localizers >> REMOVE GROUNDS
+for i=1:length(Stm.FigGnd); Stm.FigGnd{i}(2)=0; end
 
 Stm.InterLeave_FigGnd = false;
 % if true, do fig - gnd - fig - gnd - fig - etc...

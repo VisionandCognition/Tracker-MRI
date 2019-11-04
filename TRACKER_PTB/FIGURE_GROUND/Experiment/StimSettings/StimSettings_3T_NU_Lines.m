@@ -50,8 +50,8 @@ Stm.RefreshPol = 0.500;
 
 Stm.SaveToFile = true;
 Stm.LoadFromFile = false; %% Overwrites settings
-Stm.FileName = 'teststim.mat';
-%Stm.FileName = 'FigGnd_Triangles_dots.mat';
+Stm.FileName = 'FigGnd_3T_NU_lines.mat';
+%Stm.FileName = 'FigGnd_3T_NU_dots.mat';
 
 % Logfolder
 Stm.LogFolder = 'FigGnd';
@@ -82,18 +82,17 @@ Stm.Gnd(2).orient = -45;
 % inherits texture feats from gnd
 Stm.Fig_all.orientations = [-Stm.Gnd(1).orient -Stm.Gnd(2).orient];
 %
-Stm.Fig(1).size = [2.1 2.1]; % DVA in case of triangle only take (1)
-Stm.Fig(1).position = [-2 0]; % DVA
+Stm.Fig(1).size = [3 3]; % DVA in case of triangle only take (1)
+Stm.Fig(1).position = [-5 0]; % DVA
 Stm.Fig(1).ori_ind = 1;
 Stm.Fig(1).orient = ...
     Stm.Fig_all.orientations(Stm.Fig(1).ori_ind);
 Stm.Fig(1).shape = 'N';
 % 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down', 'N','U'
-Stm.Fig(1).NU_gapsize = [0.7 1.4]; % [width height] >> only applies to NU and U
-
+Stm.Fig(1).NU_gapsize = [1 2]; % [width height] >> only applies to NU and U
 % -
 Stm.Fig(2) = Stm.Fig(1); 
-Stm.Fig(2).position = [2 0]; % DVA
+Stm.Fig(2).position = [5 0]; % DVA
 % -
 Stm.Fig(3) = Stm.Fig(1);
 Stm.Fig(3).ori_ind = 2;
@@ -101,19 +100,19 @@ Stm.Fig(3).orient = ...
     Stm.Fig_all.orientations(Stm.Fig(3).ori_ind);
 % -
 Stm.Fig(4) = Stm.Fig(3);
-Stm.Fig(4).position = [2 0]; % DVA
+Stm.Fig(4).position = [5 0]; % DVA
 % -
 Stm.Fig(5) = Stm.Fig(1);
-Stm.Fig(5).shape = 'Triangle_down';
+Stm.Fig(5).shape = 'U';
 % -
 Stm.Fig(6) = Stm.Fig(2);
-Stm.Fig(6).shape = 'Triangle_down';
+Stm.Fig(6).shape = 'U';
 % -
 Stm.Fig(7) = Stm.Fig(3);
-Stm.Fig(7).shape = 'Triangle_down';
+Stm.Fig(7).shape = 'U';
 % -
 Stm.Fig(8) = Stm.Fig(4);
-Stm.Fig(8).shape = 'Triangle_down';
+Stm.Fig(8).shape = 'U';
     
 % Intermediate background --
 Stm.IntGnd = Stm.Gnd_all;
@@ -129,21 +128,21 @@ Stm.FigGnd{5} = [3 2];
 Stm.FigGnd{6} = [0 2];
 Stm.FigGnd{7} = [4 2];
 Stm.FigGnd{8} = [0 2];
-% Stm.FigGnd{9} = [5 1];
-% Stm.FigGnd{10} = [0 1];
-% Stm.FigGnd{11} = [6 1];
-% Stm.FigGnd{12} = [0 1];
-% Stm.FigGnd{13} = [7 2];
-% Stm.FigGnd{14} = [0 2];
-% Stm.FigGnd{15} = [8 2];
-% Stm.FigGnd{16} = [0 2];
+Stm.FigGnd{9} = [5 1];
+Stm.FigGnd{10} = [0 1];
+Stm.FigGnd{11} = [6 1];
+Stm.FigGnd{12} = [0 1];
+Stm.FigGnd{13} = [7 2];
+Stm.FigGnd{14} = [0 2];
+Stm.FigGnd{15} = [8 2];
+Stm.FigGnd{16} = [0 2];
 
 Stm.InterLeave_FigGnd = false;
 % if true, do fig - gnd - fig - gnd - fig - etc...
 % if false, only do figures
 
 % Timing --
-Stm.stim_rep = 2;%16; % BLOCK: n stim + n backgrounds
+Stm.stim_rep = 16; % BLOCK: n stim + n backgrounds
 Stm.stim_TRs = 0.3; % stim duration in TRs
 Stm.int_TRs =  0.2; % interval duration in TRs 
 Stm.firstint_TRs =  1; % interval duration in TRs 
@@ -155,9 +154,9 @@ Stm.RandomizeStimMode = 2;
 %    useful to create random block design
 %    every 2nd configuration should be ground only
 
-Stm.PreDur_TRs = 0.5;%5; % volumes
-Stm.PostDur_TRs = 0.5;%5; % volumes
-Stm.nRepeatsStimSet = 1;%2; % 0=unlimited
+Stm.PreDur_TRs = 5; % volumes
+Stm.PostDur_TRs = 5; % volumes
+Stm.nRepeatsStimSet = 2; % 0=unlimited
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj
