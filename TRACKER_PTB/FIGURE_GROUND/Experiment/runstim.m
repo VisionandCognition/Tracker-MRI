@@ -6,7 +6,7 @@ global StimObj  %stimulus objects
 %global Log      %Logs
 
 %% THIS SWITCH ALLOW TESTING THE RUNSTIM WITHOUT DASCARD & TRACKER ========
-TestRunstimWithoutDAS = true;
+TestRunstimWithoutDAS = false;
 %==========================================================================
 % Do this only for testing without DAS
 if TestRunstimWithoutDAS
