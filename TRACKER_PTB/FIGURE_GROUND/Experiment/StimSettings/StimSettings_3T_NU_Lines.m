@@ -48,10 +48,9 @@ Stm.RefreshSeed = 0; % s set to 0 for no refresh
 Stm.InvertPolarity = false;
 Stm.RefreshPol = 0.500;
 
-Stm.SaveToFile = true;
-Stm.LoadFromFile = false; %% Overwrites settings
+Stm.SaveToFile = false;
+Stm.LoadFromFile = true; %% Overwrites settings
 Stm.FileName = 'FigGnd_3T_NU_lines.mat';
-%Stm.FileName = 'FigGnd_3T_NU_dots.mat';
 
 % Logfolder
 Stm.LogFolder = 'FigGnd';
