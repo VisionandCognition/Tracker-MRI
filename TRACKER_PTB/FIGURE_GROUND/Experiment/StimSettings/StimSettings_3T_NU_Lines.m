@@ -51,7 +51,6 @@ Stm.RefreshPol = 0.500;
 Stm.SaveToFile = false;
 Stm.LoadFromFile = true; %% Overwrites settings
 Stm.FileName = 'FigGnd_3T_NU_lines.mat';
-%Stm.FileName = 'FigGnd_3T_NU_dots.mat';
 
 % Logfolder
 Stm.LogFolder = 'FigGnd';
