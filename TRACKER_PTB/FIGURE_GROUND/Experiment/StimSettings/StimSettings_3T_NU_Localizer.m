@@ -31,7 +31,7 @@ Stm.CyclePosition = 0; % set zero for manual cycling
 
 % Retinotopic mapping stimulus --------------------------------------------
 Stm.RandomizeStim=true;
-Stm.Descript = 'FigureGround';
+Stm.Descript = 'FigureGround_Localizer';
 Stm.StimType{1} = 'FigureGround'; 
 Stm.StimType{2} = 'lines'; % lines / dots
 
@@ -48,9 +48,9 @@ Stm.RefreshSeed = 0; % s set to 0 for no refresh
 Stm.InvertPolarity = false;
 Stm.RefreshPol = 0.500;
 
-Stm.SaveToFile = true;
-Stm.LoadFromFile = false; %% Overwrites settings
-Stm.FileName = 'FigGnd_3T_NU_Localizer_lines.mat';
+Stm.SaveToFile = false;
+Stm.LoadFromFile = true; %% Overwrites settings
+Stm.FileName = 'FigGnd_3T_NU_lines.mat';
 %Stm.FileName = 'FigGnd_3T_NU_Localizer_dots.mat';
 
 % Logfolder

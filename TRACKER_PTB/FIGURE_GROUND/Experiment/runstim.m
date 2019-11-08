@@ -1951,8 +1951,7 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
             Par.jf.Method   = 'MRI';
         end
         Par.jf.Protocol     = '17.25.01';
-        Par.jf.Dataset      = Par.LogFolder(...
-            find(Par.LogFolder=='\',1,'last')+1:end);
+        Par.jf.Dataset      = Stm.Descript;
         Par.jf.Date         = datestr(now,'yyyymmdd');
         Par.jf.Subject      = Par.MONKEY;
         Par.jf.Researcher   = 'ChrisKlink';
