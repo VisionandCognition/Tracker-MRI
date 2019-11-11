@@ -33,7 +33,7 @@ Stm.CyclePosition = 0; % set zero for manual cycling
 Stm.RandomizeStim=true;
 Stm.nRepeatsStimSet=1;
 
-Stm.Descript = 'FigureGround';
+Stm.Descript = 'FigGnd';
 Stm.StimType{1} = 'FigureGround'; 
 Stm.StimType{2} = 'lines'; % lines / dots
 

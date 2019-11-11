@@ -31,7 +31,7 @@ Stm.CyclePosition = 0; % set zero for manual cycling
 
 % Retinotopic mapping stimulus --------------------------------------------
 Stm.RandomizeStim=true;
-Stm.Descript = 'FigureGround_Localizer';
+Stm.Descript = 'FigGnd_Loc';
 Stm.StimType{1} = 'FigureGround'; 
 Stm.StimType{2} = 'lines'; % lines / dots
 
