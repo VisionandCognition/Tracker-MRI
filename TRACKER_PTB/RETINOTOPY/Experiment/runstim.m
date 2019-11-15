@@ -1972,7 +1972,7 @@ for STIMNR = Log.StimOrder
                 Par.LogFolder,... % task (/subtask)
                 Par.MONKEY,... % subject
                 [Par.MONKEY '_' DateString(1:8)],... % session
-                [Par.MONKEY '_' DateString_sec]... % run
+                [Par.MONKEY '_' Stm(STIMNR).Descript '_' DateString_sec]... % run
                 );
         else
             LogPath = fullfile(getenv('TRACKER_LOGS'),... % base log folder
@@ -1980,7 +1980,7 @@ for STIMNR = Log.StimOrder
                 Par.LogFolder,... % task (/subtask)
                 Par.MONKEY,... % subject
                 [Par.MONKEY '_' DateString(1:8)],... % session
-                [Par.MONKEY '_' DateString_sec]... % run
+                [Par.MONKEY '_' Stm.Descript '_' DateString_sec]... % run
                 );
             
         end
@@ -2071,7 +2071,7 @@ for STIMNR = Log.StimOrder
                 Par.jf.Setup        = Par.SetUp;
                 Par.jf.Group        = 'awake';
                 Par.jf.Stimulus     = Stm(STIMNR).Descript;
-                Par.jf.LogFolder    = [Par.MONKEY '_' DateString];
+                Par.jf.LogFolder    = [Par.MONKEY '_' Stm.Descript '_' DateString_sec];
                 Par.jf.logfile_name = FileName; %%%%%%%%
                 Par.jf.fixperc      = Log.FixPerc;
                 Par.jf.RunNumber	= 'XXX';

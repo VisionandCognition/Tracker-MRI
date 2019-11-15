@@ -1972,7 +1972,7 @@ for STIMNR = Log.StimOrder
                 Par.LogFolder,... % task (/subtask)
                 Par.MONKEY,... % subject
                 [Par.MONKEY '_' DateString(1:8)],... % session
-                [Par.MONKEY '_' DateString_sec]... % run
+                [Par.MONKEY '_HRF_' DateString_sec]... % run
                 );
         else
             LogPath = fullfile(getenv('TRACKER_LOGS'),... % base log folder
@@ -1980,7 +1980,7 @@ for STIMNR = Log.StimOrder
                 Par.LogFolder,... % task (/subtask)
                 Par.MONKEY,... % subject
                 [Par.MONKEY '_' DateString(1:8)],... % session
-                [Par.MONKEY '_' DateString_sec]... % run
+                [Par.MONKEY '_HRF_' DateString_sec]... % run
                 );
             
         end
@@ -2063,8 +2063,12 @@ for STIMNR = Log.StimOrder
                     Par.jf.Method   = 'MRI';
                 end
                 Par.jf.Protocol     = '17.25.01';
+                
                 Par.jf.Dataset      = Par.LogFolder(...
                     find(Par.LogFolder=='\',1,'last')+1:end);
+                
+
+
                 Par.jf.Date         = datestr(now,'yyyymmdd');
                 Par.jf.Subject      = Par.MONKEY;
                 Par.jf.Researcher   = 'ChrisKlink';

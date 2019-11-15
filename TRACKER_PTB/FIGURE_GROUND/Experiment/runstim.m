@@ -1879,7 +1879,7 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
         Par.LogFolder,... % task (/subtask)
         Par.MONKEY,... % subject
         [Par.MONKEY '_' DateString(1:8)],... % session
-        [Par.MONKEY '_' DateString_sec]... % run
+        [Par.MONKEY '_' Stm.Descript '_' DateString_sec]... % run
         );
     [~,~,~] = mkdir(LogPath);    
     LogFn = [Par.SetUp '_' Par.MONKEY '_' DateString_sec];
@@ -1958,7 +1958,7 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
         Par.jf.Setup        = Par.SetUp;
         Par.jf.Group        = 'awake';
         Par.jf.Stimulus     = Stm.Descript;
-        Par.jf.LogFolder    = [Par.MONKEY '_' DateString];
+        Par.jf.LogFolder    = [Par.MONKEY '_' Stm.Descript '_' DateString_sec];
         Par.jf.logfile_name = FileName; %%%%%%%%
         Par.jf.fixperc      = Log.FixPerc;
         Par.jf.RunNumber	= 'XXX';
