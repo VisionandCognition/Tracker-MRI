@@ -1,0 +1,20 @@
+Movie 	#vol	#set
+
+1p1		213		215
+1p2		160		162
+2p1		220		222
+2p2		168		170
+3p1		172		174
+3p2		206		208
+4p1		212		214
+4p2		162		164
+
+  
+MOVIE1_CC1_v2_part1.mp4 	8.46 	526
+MOVIE1_CC1_v2_part2.mp4 	6.55 	415
+MOVIE2_HO1_v2_part1.mp4 	9.05 	545
+MOVIE2_HO1_v2_part2.mp4 	6.32 	392
+MOVIE3_CC2_v2_part1.mp4 	7.05 	425
+MOVIE3_CC2_v2_part2.mp4 	8.29 	509
+MOVIE4_HO2_v2_part1.mp4  	6.38 	398
+MOVIE4_HO2_v2_part1.mp4 	8.42 	522

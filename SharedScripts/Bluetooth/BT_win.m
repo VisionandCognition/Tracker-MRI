@@ -7,14 +7,15 @@
 % NB! This will only work on Windows 64bit 
 
 % Find available Bluetooth devices
-btInfo = instrhwinfo('Bluetooth');
+btInfo = instrhwinfo('Bluetooth')
 
 % Display the information about the first device discovered
 btInfo.RemoteNames(1)
 btInfo.RemoteIDs(1)
 
 % Construct a Bluetooth Channel object to the first Bluetooth device
-b = Bluetooth(btInfo.RemoteIDs(1), 3);
+b = Bluetooth('DBSduino', 3)
+b.Terminator = 'CR'
 
 % Connect the Bluetooth Channel object to the specified remote device
 fopen(b)
