@@ -20,6 +20,13 @@ b.Terminator = 'CR'
 % Connect the Bluetooth Channel object to the specified remote device
 fopen(b)
 
+
+%Error using icinterface/fopen (line 83)
+%Unsuccessful open: Cannot connect to the device. Possible reasons are another application is connected
+%or the device is not available. 
+
+instrhwinfo('Bluetooth','DBSduino')
+
 % Write some data and query the device for an ascii string
 fprintf(b, data);
 idn = fscanf(b);
