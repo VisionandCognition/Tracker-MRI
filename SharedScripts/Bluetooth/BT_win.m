@@ -1,20 +1,28 @@
 % Test the connection with the bluetooth brain stimulator
+% PROCEDURE:
+%   - Switch on stimulator
+%   - Connect with BT on PC
 
-
-
+% Show connection info
+ShowInfo = true;
 
 %% Using the instrument toolbox ===========================================
-% NB! This will only work on Windows 64bit 
-
 % Find available Bluetooth devices
-btInfo = instrhwinfo('Bluetooth')
+btInfo = instrhwinfo('Bluetooth');
+% get info of DBSduino
+btDBSduino = instrhwinfo('Bluetooth','DBSduino');
+StimChan = str2double(btDBSduino.Channels{1});
 
 % Display the information about the first device discovered
-btInfo.RemoteNames(1)
-btInfo.RemoteIDs(1)
+if ShowInfo
+    btInfo.RemoteNames{StimChan}
+    btInfo.RemoteIDs{StimChan}
+end
 
 % Construct a Bluetooth Channel object to the first Bluetooth device
-b = Bluetooth('DBSduino', 3)
+%b = Bluetooth(btInfo.RemoteIDs{StimChan}, 10)
+b = Bluetooth(btInfo.RemoteNames{StimChan}, 3)
+% optional: switch the terminator (is thois necessary?)
 b.Terminator = 'CR'
 
 % Connect the Bluetooth Channel object to the specified remote device
@@ -25,7 +33,6 @@ fopen(b)
 %Unsuccessful open: Cannot connect to the device. Possible reasons are another application is connected
 %or the device is not available. 
 
-instrhwinfo('Bluetooth','DBSduino')
 
 % Write some data and query the device for an ascii string
 fprintf(b, data);
