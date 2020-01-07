@@ -230,7 +230,7 @@ void interpretCommand() {
     if (interactive) {
       Serial1.print("repetitions = ");
       Serial1.println(nrep);
-      Serial1.println("NB: No control during stimulus.");
+      // Serial1.println("NB: No control during stimulus");
       // Serial1.println("You loose control after starting the stimulus train until it has ended.");
       // Serial1.println("Interupts are disabled on timing critical stimulus delivery");
     }
@@ -297,6 +297,38 @@ void interpretCommand() {
       interactive = false;
       Serial1.println("Feedback from stimulator is OFF");
     }
+  }
+
+  // ====================================
+  //  Query all current parameters ['p']
+  // ====================================
+  if (inputString.startsWith("p")) {
+    Serial1.println("--- Current stimulation parameters ---");
+    // amplitude
+    Serial1.print("amp = ");
+    Serial1.println(amplitude);
+    // voltage
+    Serial1.print("voltage = ");
+    Serial1.println(volts);
+    // frequency
+    Serial1.print("freq = ");
+    Serial1.print(frequency);
+    Serial1.println(" (Hz)");
+    // ISI
+    Serial1.print("isi = ");
+    Serial1.print(isi);
+    Serial1.println(" (us)");
+    // pulse width
+    Serial1.print("pulse width = ");
+    Serial1.print(width);
+    Serial1.println(" (us)");
+    // total stim duration
+    Serial1.print("total stim duration = ");
+    Serial1.print(isi + width + 5 + width);
+    Serial1.println(" (us)");
+    // repetitions
+    Serial1.print("repetitions = ");
+    Serial1.println(nrep); 
   }
  
 }
