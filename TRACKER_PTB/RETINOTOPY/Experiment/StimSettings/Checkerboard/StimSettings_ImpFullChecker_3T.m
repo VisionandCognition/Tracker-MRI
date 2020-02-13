@@ -11,7 +11,7 @@ global StimObj
 
 %% ========================================================================
 % Refreshrate -------------------------------------------------------------
-Stm(1).UsePreDefFlipTime = false; %else as fast as possible
+Stm(1).UsePreDefFlipTime = false; % else as fast as possible
 Stm(1).FlipTimePredef = 1/75;
 
 % Background --------------------------------------------------------------

@@ -1932,7 +1932,7 @@ for STIMNR = Log.StimOrder
                 CheckEyeRecStatus
             end
             fprintf('\nStopped eye-recording. Save the file or add more runs.\n');
-            fprintf(['Suggested filename: ' Par.MONKEY '_' DateString '.tda\n']);
+            %fprintf(['Suggested filename: ' Par.MONKEY '_' DateString '.tda\n']);
         else % not recording
             fprintf('\n>> Alert! Could not find a running eye-recording!\n');
         end
@@ -2180,6 +2180,9 @@ for STIMNR = Log.StimOrder
             fclose(fid);
         end
         cd(Par.ExpFolder)
+        
+        % now show the suggested filename for the eye file
+        fprintf(['Suggested filename for eye-file: ' Par.MONKEY '_' DateString '.tda\n']);
         
         if TestRunstimWithoutDAS; cd Experiment;end
         warning on;
