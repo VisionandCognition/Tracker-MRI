@@ -1932,7 +1932,7 @@ for STIMNR = Log.StimOrder
                 CheckEyeRecStatus
             end
             fprintf('\nStopped eye-recording. Save the file or add more runs.\n');
-            fprintf(['Suggested filename: ' Par.MONKEY '_' DateString '.tda\n']);
+            %fprintf(['Suggested filename: ' Par.MONKEY '_' DateString '.tda\n']);
         else % not recording
             fprintf('\n>> Alert! Could not find a running eye-recording!\n');
         end
@@ -2038,10 +2038,6 @@ for STIMNR = Log.StimOrder
             %VarNames={'time_s','type','StimName'}; % << old column names
             VarNames={'time_s','event','info'}; % compatible eith other experiments
             for ev = 1:length(Log.Events)
-                %EventCell(ev,:)={...
-                %    Log.Events(ev).t,...
-                %    Log.Events(ev).type,...
-                %    Log.Events(ev).StimName };
                 EventCell(ev,:)={...
                     Log.Events(ev).t,...
                     Log.Events(ev).event,...
@@ -2050,7 +2046,7 @@ for STIMNR = Log.StimOrder
             EvTable = cell2table(EventCell,'variablenames',VarNames');
             writetable(EvTable,evFileName)
             
-            % save mat and json files
+            % save json files
             if ~TestRunstimWithoutDAS && ~json_done &&...
                     (StimLoopNr==Stm(1).nRepeatsStimSet || ...
                     (Par.ESC && StimLoopNr~=Stm(1).nRepeatsStimSet))
@@ -2149,7 +2145,6 @@ for STIMNR = Log.StimOrder
             Par.hTracker = temp_hTracker;
         end
         
-        
         % write some stuff to a text file as well
         if ~TestRunstimWithoutDAS
             fid=fopen([FileName '.txt'],'w');
@@ -2175,6 +2170,11 @@ for STIMNR = Log.StimOrder
             fprintf(fid,['\nTotal reward: ' num2str(Log.TotalReward) '\n']);
             fclose(fid);
         end
+        
+        % now show the suggested filename for the eye file
+        fprintf(['Suggested filename for eye-file: ' Par.MONKEY '_' DateString '.tda\n']);
+    
+        % back to Experiment root folder
         cd(Par.ExpFolder)
         
         if TestRunstimWithoutDAS; cd Experiment;end

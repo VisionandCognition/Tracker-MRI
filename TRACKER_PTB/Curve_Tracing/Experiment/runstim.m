@@ -494,7 +494,7 @@ if Par.EyeRecAutoTrigger && ~EyeRecMsgShown
     end
     EyeRecMsgShown=true;
 end
-fprintf(['Suggested eye filename: ' suggestedTdaFilename '\n']);
+%fprintf(['Suggested eye filename: ' suggestedTdaFilename '\n']);
 if strcmp(Par.SetUp,'Spinoza_3T')
     clipboard('copy', suggestedTdaFilename)
 end

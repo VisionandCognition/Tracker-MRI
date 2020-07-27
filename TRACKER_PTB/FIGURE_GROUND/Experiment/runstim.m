@@ -1851,7 +1851,7 @@ if Par.EyeRecAutoTrigger && ~EyeRecMsgShown
             CheckEyeRecStatus
         end
         fprintf('\nStopped eye-recording. Save the file or add more runs.\n');
-        fprintf(['Suggested filename: ' Par.MONKEY '_' DateString '.tda\n']);
+        % fprintf(['Suggested filename: ' Par.MONKEY '_' DateString '.tda\n']); % hold this back until logs have been saved
     else % not recording
         fprintf('\n>> Alert! Could not find a running eye-recording!\n');
     end
@@ -1941,7 +1941,8 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
     EvTable = cell2table(EventCell,'variablenames',VarNames');
     writetable(EvTable,evFileName)
     
-    % save mat and json files
+    % save mat and json files ----
+    % json with pop-up for manual input 
     if ~TestRunstimWithoutDAS && ~json_done
         % save json file ===========
         Par.jf.Project      = 'FigureGround';
@@ -2013,6 +2014,7 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
         json_done=true;
     end
     
+    % first save the log files just to be sure
     if ~TestRunstimWithoutDAS
         % save log mat-file ============
         temp_hTracker=Par.hTracker;
@@ -2046,6 +2048,11 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
         fprintf(fid,['\nTotal reward: ' num2str(Log.TotalReward) '\n']);
         fclose(fid);
     end
+    
+    % now show the suggested filename for the eye file
+    fprintf(['Suggested filename for eye-file: ' Par.MONKEY '_' DateString '.tda\n']);
+    
+    % back to Experiment root folder
     cd(Par.ExpFolder)
     
     if TestRunstimWithoutDAS; cd Experiment;end
