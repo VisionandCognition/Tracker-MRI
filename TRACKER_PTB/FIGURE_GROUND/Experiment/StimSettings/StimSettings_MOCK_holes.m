@@ -88,7 +88,7 @@ Stm.Fig(1).ishole = false;
 Stm.Fig(1).ori_ind = 1;
 Stm.Fig(1).orient = ...
     Stm.Fig_all.orientations(Stm.Fig(1).ori_ind);
-Stm.Fig(1).shape = 'N';
+Stm.Fig(1).shape = 'Oval';
 % 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down','N','U'
 Stm.Fig(1).NU_gapsize = [1 2]; % [width height] >> only applies to NU and U
 % -
@@ -125,18 +125,18 @@ Stm.FigGnd{1} = [1 1]; % [figure ground]
 Stm.FigGnd{2} = [0 1];
 Stm.FigGnd{3} = [2 1];
 Stm.FigGnd{4} = [0 1];
-Stm.FigGnd{5} = [3 2];
-Stm.FigGnd{6} = [0 2];
-Stm.FigGnd{7} = [4 2];
-Stm.FigGnd{8} = [0 2];
-Stm.FigGnd{9} = [5 1];
-Stm.FigGnd{10} = [0 1];
-Stm.FigGnd{11} = [6 1];
-Stm.FigGnd{12} = [0 1];
-Stm.FigGnd{13} = [7 2];
-Stm.FigGnd{14} = [0 2];
-Stm.FigGnd{15} = [8 2];
-Stm.FigGnd{16} = [0 2];
+% Stm.FigGnd{5} = [3 2];
+% Stm.FigGnd{6} = [0 2];
+% Stm.FigGnd{7} = [4 2];
+% Stm.FigGnd{8} = [0 2];
+% Stm.FigGnd{9} = [5 1];
+% Stm.FigGnd{10} = [0 1];
+% Stm.FigGnd{11} = [6 1];
+% Stm.FigGnd{12} = [0 1];
+% Stm.FigGnd{13} = [7 2];
+% Stm.FigGnd{14} = [0 2];
+% Stm.FigGnd{15} = [8 2];
+% Stm.FigGnd{16} = [0 2];
 
 Stm.InterLeave_FigGnd = false;
 % if true, do fig - gnd - fig - gnd - fig - etc...
