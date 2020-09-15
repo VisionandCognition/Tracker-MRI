@@ -532,6 +532,7 @@ srcrect = round([Par.wrect(1)+offscr.center(1)/2 ...
 %% Stimulus loop ==========================================================
 CurrentlyDrawn='None';
 FlipScreenNow=true; % only flip screen when new phase starts
+fnum=1;
 while ~Par.ESC && ~ExpFinished
     %% First INIT ---------------------------------------------------------
     while ~Par.FirstInitDone
@@ -1385,13 +1386,10 @@ while ~Par.ESC && ~ExpFinished
         UpdateFixLog = true;
         
         if Par.SaveFrames
-            fnum=1;
             FrameFolder = ...
-                fullfile(getenv('HOME'),...
-                [Par.MONKEY '_' DateString(1:8)],...
+                fullfile('FrameCaptures',...
                 [Par.MONKEY '_' Stm.Descript '_' DateString_sec]);
             [~,~,~] = mkdir(FrameFolder);
-            
             
             imgarr = Screen('GetImage', Par.window);
             imwrite(imgarr, fullfile(FrameFolder,...

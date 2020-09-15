@@ -19,7 +19,7 @@ Screen('BlendFunction', offscr.w, ...
 [offscr.center(1), offscr.center(2)] = RectCenter(offscr.rect);
 
 %% Create empty background ------------------------------------------------
-Screen('FillRect',offscr.w,Stm.Gnd_all.backcol*Par.ScrWhite);
+Screen('FillRect',offscr.w,Stm.BackColor*Par.ScrWhite);
 temparray = Screen('GetImage',offscr.w);
 stimulus.BG.array{1} = uint8(temparray);
 BG.tex{1} = Screen('MakeTexture',Par.window,stimulus.BG.array{1});
