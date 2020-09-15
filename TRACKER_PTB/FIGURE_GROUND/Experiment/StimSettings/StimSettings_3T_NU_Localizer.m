@@ -83,6 +83,7 @@ Stm.Fig_all.orientations = [-Stm.Gnd(1).orient -Stm.Gnd(2).orient];
 %
 Stm.Fig(1).size = [3 3]; % DVA in case of triangle only take (1)
 Stm.Fig(1).position = [-5 0]; % DVA
+Stm.Fig(1).ishole = false;
 Stm.Fig(1).ori_ind = 1;
 Stm.Fig(1).orient = ...
     Stm.Fig_all.orientations(Stm.Fig(1).ori_ind);

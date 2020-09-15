@@ -78,12 +78,13 @@ Stm.Gnd(1).orient = 45;
 Stm.Gnd(2) = Stm.Gnd(1);
 Stm.Gnd(2).orient = -45;
     
-% Figure definitions --t
+% Figure definitions --
 % inherits texture feats from gnd
 Stm.Fig_all.orientations = [-Stm.Gnd(1).orient -Stm.Gnd(2).orient];
 %
 Stm.Fig(1).size = [2.1 2.1]; % DVA in case of triangle only take (1)
 Stm.Fig(1).position = [-2 0]; % DVA
+Stm.Fig(1).ishole = false;
 Stm.Fig(1).ori_ind = 1;
 Stm.Fig(1).orient = ...
     Stm.Fig_all.orientations(Stm.Fig(1).ori_ind);

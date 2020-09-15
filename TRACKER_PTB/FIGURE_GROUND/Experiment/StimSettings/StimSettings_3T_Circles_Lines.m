@@ -78,16 +78,17 @@ Stm.Gnd(1).orient = 45;
 Stm.Gnd(2) = Stm.Gnd(1);
 Stm.Gnd(2).orient = -45;
     
-% Figure definitions --t
+% Figure definitions --
 % inherits texture feats from gnd
 Stm.Fig_all.orientations = [-Stm.Gnd(1).orient -Stm.Gnd(2).orient];
 %
 Stm.Fig(1).size = [3 3]; % DVA in case of triangle only take (1)
 Stm.Fig(1).position = [-5 0]; % DVA
+Stm.Fig(1).ishole = false;
 Stm.Fig(1).ori_ind = 1;
 Stm.Fig(1).orient = ...
     Stm.Fig_all.orientations(Stm.Fig(1).ori_ind);
-Stm.Fig(1).shape = 'Triangle_up';
+Stm.Fig(1).shape = 'Oval';
 % 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down', 
 % -
 Stm.Fig(2) = Stm.Fig(1); 
@@ -102,16 +103,13 @@ Stm.Fig(4) = Stm.Fig(3);
 Stm.Fig(4).position = [5 0]; % DVA
 % -
 Stm.Fig(5) = Stm.Fig(1);
-Stm.Fig(5).shape = 'Triangle_down';
+Stm.Fig(5).ishole = 'True';
 % -
 Stm.Fig(6) = Stm.Fig(2);
-Stm.Fig(6).shape = 'Triangle_down';
 % -
 Stm.Fig(7) = Stm.Fig(3);
-Stm.Fig(7).shape = 'Triangle_down';
 % -
 Stm.Fig(8) = Stm.Fig(4);
-Stm.Fig(8).shape = 'Triangle_down';
     
 % Intermediate background --
 Stm.IntGnd = Stm.Gnd_all;

@@ -4,6 +4,11 @@ function ParSettings_SPIKE_MOCK_FIX_TR2500ms
 global Par
 global StimObj
 
+%% Capture and save experiment videoframes ================================
+% ads the possibility to save png files of each new video frame
+% in a 
+Par.SaveFrames = false;
+
 %% Triggering =============================================================
 Par.TR = 2.5; % Not important during training
 Par.MRITriggeredStart = false;

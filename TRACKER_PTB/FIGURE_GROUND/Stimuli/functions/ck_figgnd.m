@@ -8,13 +8,22 @@ open_tex = []; % keep track of open textures and close them at the end
 %% Draw texture in offscreen windows & make texture -----------------------
 % create neutral background texture --
 zoomfactor = 2.5;
+% [offscr.w, offscr.rect] = Screen('OpenOffscreenWindow', ...
+%     screenNumber, Stm.Gnd(1).backcol*Par.ScrWhite, ...
+%     zoomfactor*Par.wrect); %#ok<*SAGROW>
 [offscr.w, offscr.rect] = Screen('OpenOffscreenWindow', ...
-    screenNumber, Stm.Gnd(1).backcol*Par.ScrWhite, ...
+    screenNumber, Stm.BackColor*Par.ScrWhite, ...
     zoomfactor*Par.wrect); %#ok<*SAGROW>
 Screen('BlendFunction', offscr.w, ...
     GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 [offscr.center(1), offscr.center(2)] = RectCenter(offscr.rect);
 
+%% Create empty background ------------------------------------------------
+Screen('FillRect',offscr.w,Stm.Gnd_all.backcol*Par.ScrWhite);
+temparray = Screen('GetImage',offscr.w);
+stimulus.BG.array{1} = uint8(temparray);
+BG.tex{1} = Screen('MakeTexture',Par.window,stimulus.BG.array{1});
+            
 %% Create textured background ---------------------------------------------
 fprintf('Creating Ground-texture seeds...\n');
 ScrSize = Par.wrect(3:4);
@@ -205,7 +214,7 @@ for f = 1:length(Stm.Fig)
             offscr.center(1)-GapSize(1)/2 offscr.center(2)+FigSize(2)/2 ; ...
             offscr.center(1)-FigSize(1)/2 offscr.center(2)+FigSize(2)/2 ; ...
             offscr.center(1)-FigSize(1)/2 offscr.center(2)-FigSize(2)/2 ; ...
-            ]);
+            ]);        
     end
     stimulus.Fig(f).ori_ind = Stm.Fig(f).ori_ind;
     
@@ -251,7 +260,7 @@ switch Stm.StimType{2}
         for ori = 1:length(Stm.Fig_all.orientations)
             for fs=1:Stm.Gnd_all.NumSeeds
                 for p = 1:size(Gnd_all.tex,2)
-                    Screen('FillRect',offscr.w,0)
+                    % textured figure basis
                     Screen('DrawTexture',offscr.w,...
                         Gnd_all.tex{fs,p},[],[],Stm.Fig_all.orientations(ori));
                     array = Screen('GetImage',offscr.w);

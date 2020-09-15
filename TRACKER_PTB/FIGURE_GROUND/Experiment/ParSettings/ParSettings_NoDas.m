@@ -4,6 +4,11 @@ function ParSettings_NoDas
 global Par
 global StimObj
 
+%% Capture and save experiment videoframes ================================
+% ads the possibility to save png files of each new video frame
+% in a 
+Par.SaveFrames = false;
+
 %% Setup ==================================================================
 % Spinoza_Mock / Spinoza_3T / NIN
 if strcmp(Par.ScreenChoice,'3T')
