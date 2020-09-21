@@ -122,12 +122,14 @@ Stm.IntGnd.orient = 90;
     
 % Stimulus combination to include --
 % >> always followed by background only <<
-Stm.FigGnd{1} = [1 1; 2 2]; % [figure ground]
+% [figure ground; figure ground]
+% alternating between the 1st and 2nd pair
+Stm.FigGnd{1} = [1 1; 3 2]; 
 Stm.FigGnd{2} = [0 1; 0 2];
-Stm.FigGnd{3} = [2 1; 2 2];
-Stm.FigGnd{4} = [0 1; 0 2];
-Stm.FigGnd{5} = [3 1; 3 2];
-Stm.FigGnd{6} = [0 1; 0 2];
+% Stm.FigGnd{3} = [2 1; 2 2];
+% Stm.FigGnd{4} = [0 1; 0 2];
+% Stm.FigGnd{5} = [3 1; 3 2];
+% Stm.FigGnd{6} = [0 1; 0 2];
 
 
 Stm.InterLeave_FigGnd = false;
@@ -135,9 +137,9 @@ Stm.InterLeave_FigGnd = false;
 % if false, only do figures
 
 % Timing --
-Stm.stim_rep = 16; % BLOCK: n stim + n backgrounds
-Stm.stim_TRs = 0.3; % stim duration in TRs
-Stm.int_TRs =  0.0; % interval duration in TRs << set to zero for none
+Stm.stim_rep = 5; % BLOCK: n stim + n backgrounds
+Stm.stim_TRs = 0.5; % stim duration in TRs
+Stm.int_TRs =  0.5; % interval duration in TRs << set to zero for none
 Stm.firstint_TRs =  1; % interval duration in TRs 
 
 Stm.RandomizeStimMode = 2; 
@@ -147,9 +149,9 @@ Stm.RandomizeStimMode = 2;
 %    useful to create random block design
 %    every 2nd configuration should be ground only
 
-Stm.PreDur_TRs = 5; % volumes
-Stm.PostDur_TRs = 5; % volumes
-Stm.nRepeatsStimSet = 2; % 0=unlimited
+Stm.PreDur_TRs = 1; % volumes
+Stm.PostDur_TRs = 1; % volumes
+Stm.nRepeatsStimSet = 1; % 0=unlimited
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

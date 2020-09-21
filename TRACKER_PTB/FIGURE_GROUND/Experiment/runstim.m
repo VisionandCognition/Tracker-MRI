@@ -459,6 +459,8 @@ set_Pol_T0 = false;
 set_Seed_T0 = false;
 ExpFinished = false;
 
+StimRepNr=1;
+
 %% Eye-tracker recording --------------------------------------------------
 if Par.EyeRecAutoTrigger
     if ~FirstEyeRecSet
@@ -731,12 +733,20 @@ while ~Par.ESC && ~ExpFinished
                                 %fprintf(['StimType is ' StimType '\n']);
                                 StartWhat = 'Stim';
                                 % fig shape, orientation and location
+                               
+                                if mod(StimRepNr,2) %odd
+                                    sidx = size(Stm.FigGnd{...
+                                        Log.StimOrder(StimNr)},1);
+                                else % even
+                                    sidx =1;
+                                end
+                                
                                 shape = Stm.Fig(Stm.FigGnd{...
-                                    Log.StimOrder(StimNr)}(1)).shape;
+                                    Log.StimOrder(StimNr)}(sidx,1)).shape;
                                 orient = Stm.Fig(Stm.FigGnd{...
-                                    Log.StimOrder(StimNr)}(1)).orient;
+                                    Log.StimOrder(StimNr)}(sidx,1)).orient;
                                 xpos = Stm.Fig(Stm.FigGnd{...
-                                    Log.StimOrder(StimNr)}(1)).position(1);
+                                    Log.StimOrder(StimNr)}(sidx,1)).position(1);
                                 if xpos<0
                                     pos = 'left';
                                 elseif xpos>0
@@ -754,13 +764,16 @@ while ~Par.ESC && ~ExpFinished
                                 Log.nEvents = Log.nEvents+1;
                                 LogCollect = [LogCollect; ...
                                     {Log.nEvents,[],'FigGnd',...
+                                    'FigLocX',xpos}];
+                                Log.nEvents = Log.nEvents+1;
+                                LogCollect = [LogCollect; ...
+                                    {Log.nEvents,[],'FigGnd',...
                                     'FigOrient',orient}];
                                 
                                 Log.nEvents = Log.nEvents+1;
                                 LogCollect = [LogCollect; ...
                                     {Log.nEvents,[],'FigGnd',...
                                     'Figure','start'}];
-                                
                                 
                                 StimLogDone=true;
                                 ms = 1;
@@ -773,9 +786,17 @@ while ~Par.ESC && ~ExpFinished
                             if ~StimLogDone
                                 %fprintf(['StimType is ' StimType '\n']);
                                 StartWhat = 'Stim';
+
+                                if mod(StimRepNr,2) %odd
+                                    sidx = size(Stm.FigGnd{...
+                                        Log.StimOrder(StimNr)},1);
+                                else % even
+                                    sidx =1;
+                                end
+                                
                                 if Stm.FigGnd{Log.StimOrder(StimNr)}(2)
                                     orient = Stm.Fig(Stm.FigGnd{...
-                                        Log.StimOrder(StimNr)}(2)).orient;
+                                        Log.StimOrder(StimNr)}(sidx,2)).orient;
                                 else
                                     orient = nan;
                                 end
@@ -834,10 +855,10 @@ while ~Par.ESC && ~ExpFinished
             % gnd
             if strcmp(Stm.StimType{2},'lines') && ...
                     (~strcmp(CurrentlyDrawn,'PreDur') && FlipScreenNow)
-                if Stm.FigGnd{Log.StimOrder(1)}(2) ~= 0
+                if Stm.FigGnd{Log.StimOrder(1)}(1,2) ~= 0
                     Screen('DrawTexture', Par.window, ...
                         Gnd_all.tex{GndTexNum,CurrPol},...
-                        srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(1)}(2)).orient,0,[],[],[],...
+                        srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(1)}(1,2)).orient,0,[],[],[],...
                         kPsychUseTextureMatrixForRotation);
                 end
                 CurrentlyDrawn = 'PreDur';
@@ -848,7 +869,7 @@ while ~Par.ESC && ~ExpFinished
                 end
                 Screen('DrawTexture', Par.window, ...
                     Gnd_all.tex{GndTexNum,ms,CurrPol},...
-                    srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(1)}(2)).orient,0,[],[],[],...
+                    srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(1)}(1,2)).orient,0,[],[],[],...
                     kPsychUseTextureMatrixForRotation);
             end
             
@@ -859,7 +880,14 @@ while ~Par.ESC && ~ExpFinished
             if strcmp(Stm.StimType{2},'lines') && ...
                     (~strcmp(CurrentlyDrawn,'Int') && FlipScreenNow)
                 % int gnd
-                if Stm.FigGnd{Log.StimOrder(StimNr)}(2) ~= 0
+                if mod(StimRepNr,2) %odd
+                    sidx = size(Stm.FigGnd{...
+                        Log.StimOrder(StimNr)},1);
+                else % even
+                    sidx =1;
+                end
+                
+                if Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,2) ~= 0
                     Screen('DrawTexture', Par.window, ...
                         Gnd_all.tex{GndTexNum,CurrPol},...
                         srcrect,[],Stm.IntGnd.orient,0,[],[],[],...
@@ -881,20 +909,27 @@ while ~Par.ESC && ~ExpFinished
                 strcmp(WithinBlockStatus,'Stim')
             if strcmp(Stm.StimType{2},'lines') && ...
                     (~strcmp(CurrentlyDrawn,'Stim') && FlipScreenNow)
+                if mod(StimRepNr,2) %odd
+                    sidx = size(Stm.FigGnd{...
+                        Log.StimOrder(StimNr)},1);
+                else % even
+                    sidx =1;
+                end
+                
                 % gnd
-                if Stm.FigGnd{Log.StimOrder(StimNr)}(2) ~= 0
+                if Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,2) ~= 0
                     Screen('DrawTexture', Par.window, ...
                         Gnd_all.tex{GndTexNum,CurrPol},...
-                        srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).orient,...
+                        srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,2)).orient,...
                         0,[],[],[],kPsychUseTextureMatrixForRotation);
                 end
                 % fig
                 if strcmp(StimType,'Figure') && ...
-                        Stm.FigGnd{Log.StimOrder(StimNr)}(1) ~= 0
+                        Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,1) ~= 0
                     Screen('DrawTexture',Par.window, ...
-                        Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).tex{GndTexNum,CurrPol},...
-                        stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).RectSrc, ...
-                        stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).RectDest);
+                        Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,1)).tex{GndTexNum,CurrPol},...
+                        stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,1)).RectSrc, ...
+                        stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,1)).RectDest);
                 end
                 CurrentlyDrawn = 'Stim';
             elseif strcmp(Stm.StimType{2},'dots')
@@ -902,8 +937,15 @@ while ~Par.ESC && ~ExpFinished
                         lft>=Log.StartStim+Stm.MoveStim.SOA && ms<Stm.MoveStim.nFrames+1
                     ms=ms+1;
                 end
+                if mod(StimRepNr,2) %odd
+                    sidx = size(Stm.FigGnd{...
+                        Log.StimOrder(StimNr)},1);
+                else % even
+                    sidx =1;
+                end
+                
                 % gnd
-                if Stm.FigGnd{Log.StimOrder(StimNr)}(2) ~= 0
+                if Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,2) ~= 0
                     Screen('DrawTexture', Par.window, ...
                         Gnd_all.tex{GndTexNum,ms,CurrPol},...
                         srcrect,[],[],...
@@ -911,11 +953,11 @@ while ~Par.ESC && ~ExpFinished
                 end
                 % fig
                 if strcmp(StimType,'Figure') && ...
-                        Stm.FigGnd{Log.StimOrder(StimNr)}(1) ~= 0
+                        Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,1) ~= 0
                     Screen('DrawTexture',Par.window, ...
-                        Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).tex{GndTexNum,ms,CurrPol},...
-                        stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).RectSrc, ...
-                        stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(1)).RectDest);
+                        Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,1)).tex{GndTexNum,ms,CurrPol},...
+                        stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,1)).RectSrc, ...
+                        stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,1)).RectDest);
                 end
             end
         end
@@ -1561,12 +1603,20 @@ while ~Par.ESC && ~ExpFinished
                     'PreDur','stop'}];
                 FlipScreenNow = true;
             end
+            
         case 'StimBlock'
             switch WithinBlockStatus
                 case 'FirstInt'
+                    if mod(StimRepNr,2) %odd
+                        sidx = size(Stm.FigGnd{...
+                            Log.StimOrder(StimNr)},1);
+                    else % even
+                        sidx =1;
+                    end
+                    
                     % check for refresh seed ---
-                    if Stm.FigGnd{Log.StimOrder(StimNr)}(2)>0 && ...
-                            Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).NumSeeds>1 && ...
+                    if Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,2)>0 && ...
+                            Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,2)).NumSeeds>1 && ...
                             Stm.RefreshSeed > 0 && ...
                             lft-Seed_T0 >= Stm.RefreshSeed
                         [GndTexNum,LogCollect]=ChangeSeed(GndTexNum,LogCollect);
@@ -1616,21 +1666,29 @@ while ~Par.ESC && ~ExpFinished
                                     StimType = 'Ground';
                                     StimLogDone = false;
                                 elseif Stm.int_TRs == 0 && ~Stm.InterLeave_FigGnd
-                                    WithinBlockStatus = 'Stim';
-                                    StimType = 'Figure';
-                                    StimLogDone = false;
-                                    
-                                    if StimRepNr == Stm.stim_rep
-                                        StimRepNr = 1;
-                                        if StimNr == length(Log.StimOrder)
-                                            % all stimuli done
-                                            ExpStatus = 'PostDur';
-                                            PostDurLogDone = false;
-                                        else
-                                            StimNr = StimNr+1;
-                                        end
+                                    if StimNr == length(Log.StimOrder) && StimRepNr == Stm.stim_rep
+                                        % all stimuli done
+                                        ExpStatus = 'PostDur';
+                                        PostDurLogDone = false;
                                     else
-                                        StimRepNr = StimRepNr+1;
+                                        if StimRepNr == Stm.stim_rep
+                                            StimNr = StimNr+1;
+                                            StimRepNr = 1;
+                                            if Stm.FigGnd{Log.StimOrder(StimNr)}(1) > 0
+                                                WithinBlockStatus = 'Stim';
+                                                StimType = 'Figure';
+                                                StimLogDone = false;
+                                            else
+                                                WithinBlockStatus = 'Stim';
+                                                StimType = 'Ground';
+                                                StimLogDone = false;
+                                            end
+                                        else
+                                            StimRepNr =  StimRepNr+1;
+                                            WithinBlockStatus = 'Stim';
+                                            StimType = 'Figure';
+                                            StimLogDone = false;
+                                        end
                                     end
                                 end
                                 NumGndMoves=0;
@@ -1662,6 +1720,31 @@ while ~Par.ESC && ~ExpFinished
                                     else
                                         StimRepNr = StimRepNr+1;
                                     end
+                                elseif Stm.int_TRs == 0 && ~Stm.InterLeave_FigGnd
+                                    if StimNr == length(Log.StimOrder) && StimRepNr == Stm.stim_rep
+                                        % all stimuli done
+                                        ExpStatus = 'PostDur';
+                                        PostDurLogDone = false;
+                                    else
+                                        if StimRepNr == Stm.stim_rep
+                                            StimNr = StimNr+1;
+                                            StimRepNr = 1;
+                                            if Stm.FigGnd{Log.StimOrder(StimNr)}(1) > 0
+                                                WithinBlockStatus = 'Stim';
+                                                StimType = 'Figure';
+                                                StimLogDone = false;
+                                            else
+                                                WithinBlockStatus = 'Stim';
+                                                StimType = 'Ground';
+                                                StimLogDone = false;
+                                            end
+                                        else
+                                            StimRepNr =  StimRepNr+1;
+                                            WithinBlockStatus = 'Stim';
+                                            StimType = 'Ground';
+                                            StimLogDone = false;
+                                        end
+                                    end
                                 end
                                 NumGndMoves=0;
                                 FlipScreenNow = true;
@@ -1669,8 +1752,14 @@ while ~Par.ESC && ~ExpFinished
                     end
                     
                     % check for refresh seed ---
-                    if Stm.FigGnd{Log.StimOrder(StimNr)}(2) > 0 && ...
-                            Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).NumSeeds>1 && ...
+                    if mod(StimRepNr,2) %odd
+                        sidx = size(Stm.FigGnd{...
+                            Log.StimOrder(StimNr)},1);
+                    else % even
+                        sidx =1;
+                    end
+                    if Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,2) > 0 && ...
+                            Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,2)).NumSeeds>1 && ...
                             Stm.RefreshSeed > 0 && ...
                             lft-Seed_T0 >= Stm.RefreshSeed
                         [GndTexNum,LogCollect]=ChangeSeed(GndTexNum,LogCollect);
@@ -1719,6 +1808,7 @@ while ~Par.ESC && ~ExpFinished
                         Log.nEvents = Log.nEvents+1;
                         LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
                             'Intermediate','stop'}];
+                        
                         if strcmp(LastStim,'Figure') && Stm.InterLeave_FigGnd
                             WithinBlockStatus = 'Stim';
                             StimType = 'Ground';
@@ -1784,8 +1874,14 @@ while ~Par.ESC && ~ExpFinished
                     end
                     
                     % check for refresh seed ---
-                    if Stm.FigGnd{Log.StimOrder(StimNr)}(2) > 0 && ...
-                            Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(2)).NumSeeds>1 && ...
+                    if mod(StimRepNr,2) %odd
+                        sidx = size(Stm.FigGnd{...
+                            Log.StimOrder(StimNr)},1);
+                    else % even
+                        sidx =1;
+                    end
+                    if Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,2) > 0 && ...
+                            Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,2)).NumSeeds>1 && ...
                             Stm.RefreshSeed > 0 && ...
                             lft-Seed_T0 >= Stm.RefreshSeed
                         [GndTexNum,LogCollect]=ChangeSeed(GndTexNum,LogCollect);
@@ -1800,6 +1896,7 @@ while ~Par.ESC && ~ExpFinished
                         FlipScreenNow = true;
                     end
             end
+            
         case 'PostDur'
             % check for refresh seed ---
             if Stm.Gnd(1).NumSeeds>1 && Stm.RefreshSeed > 0 && ...
