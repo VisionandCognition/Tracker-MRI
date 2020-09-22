@@ -6,7 +6,7 @@ global StimObj  %stimulus objects
 %global Log      %Logs
 
 %% THIS SWITCH ALLOW TESTING THE RUNSTIM WITHOUT DASCARD & TRACKER ========
-TestRunstimWithoutDAS = true;
+TestRunstimWithoutDAS = false;
 %==========================================================================
 % Do this only for testing without DAS
 if TestRunstimWithoutDAS
@@ -752,6 +752,8 @@ while ~Par.ESC && ~ExpFinished
                                     pos = 'left';
                                 elseif xpos>0
                                     pos = 'right';
+                                else
+                                    pos = 'center';    
                                 end
                                 
                                 Log.nEvents = Log.nEvents+1;
