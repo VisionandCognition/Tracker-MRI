@@ -6,7 +6,7 @@ global StimObj  %stimulus objects
 %global Log      %Logs
 
 %% THIS SWITCH ALLOW TESTING THE RUNSTIM WITHOUT DASCARD & TRACKER ========
-TestRunstimWithoutDAS = false;
+TestRunstimWithoutDAS = true;
 %==========================================================================
 % Do this only for testing without DAS
 if TestRunstimWithoutDAS
@@ -19,7 +19,7 @@ if TestRunstimWithoutDAS
     if Par.ScrNr==0
         % part of the screen
         [Par.window, Par.wrect] = ...
-            Screen('OpenWindow',Par.ScrNr,0,[0 0 1000 800],[],2);
+            Screen('OpenWindow',Par.ScrNr,0,[0 0 1600 1000],[],2);
     else
         [Par.window, Par.wrect] = Screen('OpenWindow',Par.ScrNr,0,[],[],2);
     end
@@ -460,6 +460,7 @@ set_Seed_T0 = false;
 ExpFinished = false;
 
 StimRepNr=1;
+NewStim=false;
 
 %% Eye-tracker recording --------------------------------------------------
 if Par.EyeRecAutoTrigger
@@ -850,6 +851,7 @@ while ~Par.ESC && ~ExpFinished
     %% Draw Stimulus ------------------------------------------------------
     DrawUniformBackground;
     if ~Par.ToggleHideStim && ~Par.HideStim_BasedOnHandIn(Par) && ~Par.Pause
+       
         % Fig &| Gnd
         if strcmp(ExpStatus,'PreDur') || strcmp(ExpStatus,'PostDur')
             % gnd
@@ -862,6 +864,7 @@ while ~Par.ESC && ~ExpFinished
                         kPsychUseTextureMatrixForRotation);
                 end
                 CurrentlyDrawn = 'PreDur';
+                
             elseif strcmp(Stm.StimType{2},'dots')
                 if Stm.MoveStim.Do && ...
                         lft>=Log.StartPre+Stm.MoveStim.SOA && ms<Stm.MoveStim.nFrames+1
@@ -871,14 +874,15 @@ while ~Par.ESC && ~ExpFinished
                     Gnd_all.tex{GndTexNum,ms,CurrPol},...
                     srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(1)}(1,2)).orient,0,[],[],[],...
                     kPsychUseTextureMatrixForRotation);
+                
             end
             
         elseif strcmp(ExpStatus,'StimBlock') && ...
-                (strcmp(WithinBlockStatus,'FirstInt') || ...
-                strcmp(WithinBlockStatus,'Int'))
+                (strcmp(WithinBlockStatus,'FirstInt') || strcmp(WithinBlockStatus,'Int'))
             
             if strcmp(Stm.StimType{2},'lines') && ...
                     (~strcmp(CurrentlyDrawn,'Int') && FlipScreenNow)
+                
                 % int gnd
                 if mod(StimRepNr,2) %odd
                     sidx = size(Stm.FigGnd{...
@@ -894,6 +898,7 @@ while ~Par.ESC && ~ExpFinished
                         kPsychUseTextureMatrixForRotation);
                 end
                 CurrentlyDrawn = 'Int';
+                
             elseif strcmp(Stm.StimType{2},'dots')
                 if Stm.MoveStim.Do && ...
                         lft>=Log.StartInt+Stm.MoveStim.SOA && ms<Stm.MoveStim.nFrames+1
@@ -905,10 +910,12 @@ while ~Par.ESC && ~ExpFinished
                     srcrect,[],Stm.IntGnd.orient,0,[],[],[],...
                     kPsychUseTextureMatrixForRotation);
             end
-        elseif strcmp(ExpStatus,'StimBlock') && ...
-                strcmp(WithinBlockStatus,'Stim')
+            
+        elseif strcmp(ExpStatus,'StimBlock') && strcmp(WithinBlockStatus,'Stim')          
+            
             if strcmp(Stm.StimType{2},'lines') && ...
-                    (~strcmp(CurrentlyDrawn,'Stim') && FlipScreenNow)
+                    (~strcmp(CurrentlyDrawn,'Stim') || NewStim) ...
+                    && FlipScreenNow
                 if mod(StimRepNr,2) %odd
                     sidx = size(Stm.FigGnd{...
                         Log.StimOrder(StimNr)},1);
@@ -923,6 +930,7 @@ while ~Par.ESC && ~ExpFinished
                         srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,2)).orient,...
                         0,[],[],[],kPsychUseTextureMatrixForRotation);
                 end
+                
                 % fig
                 if strcmp(StimType,'Figure') && ...
                         Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,1) ~= 0
@@ -931,12 +939,16 @@ while ~Par.ESC && ~ExpFinished
                         stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,1)).RectSrc, ...
                         stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,1)).RectDest);
                 end
+                
                 CurrentlyDrawn = 'Stim';
+             
+                           
             elseif strcmp(Stm.StimType{2},'dots')
                 if Stm.MoveStim.Do && ...
                         lft>=Log.StartStim+Stm.MoveStim.SOA && ms<Stm.MoveStim.nFrames+1
                     ms=ms+1;
                 end
+                
                 if mod(StimRepNr,2) %odd
                     sidx = size(Stm.FigGnd{...
                         Log.StimOrder(StimNr)},1);
@@ -951,6 +963,7 @@ while ~Par.ESC && ~ExpFinished
                         srcrect,[],[],...
                         [],[],[],[],kPsychUseTextureMatrixForRotation);
                 end
+                
                 % fig
                 if strcmp(StimType,'Figure') && ...
                         Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,1) ~= 0
@@ -960,6 +973,7 @@ while ~Par.ESC && ~ExpFinished
                         stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,1)).RectDest);
                 end
             end
+            
         end
     end
     
@@ -1420,7 +1434,6 @@ while ~Par.ESC && ~ExpFinished
     LogCollect=AutoDim(LogCollect); % checks by itself if it's required
     
     %% refresh the screen -------------------------------------------------
-    %lft=Screen('Flip', Par.window, prevlft+0.9*Par.fliptimeSec);
     if FlipScreenNow
         %fprintf('Flipping screen...\n')
         lft=Screen('Flip', Par.window); % as fast as possible
@@ -1597,6 +1610,7 @@ while ~Par.ESC && ~ExpFinished
                     StimNr = 1;
                     StimRepNr = 1;
                     StimType = 'Figure'; % start with figure
+                    NewStim = true;
                 end
                 Log.nEvents = Log.nEvents+1;
                 LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
@@ -1674,7 +1688,8 @@ while ~Par.ESC && ~ExpFinished
                                         if StimRepNr == Stm.stim_rep
                                             StimNr = StimNr+1;
                                             StimRepNr = 1;
-                                            if Stm.FigGnd{Log.StimOrder(StimNr)}(1) > 0
+                                            NewStim = true;
+                                            if Stm.FigGnd{Log.StimOrder(StimNr)}(1,1) > 0
                                                 WithinBlockStatus = 'Stim';
                                                 StimType = 'Figure';
                                                 StimLogDone = false;
@@ -1688,6 +1703,7 @@ while ~Par.ESC && ~ExpFinished
                                             WithinBlockStatus = 'Stim';
                                             StimType = 'Figure';
                                             StimLogDone = false;
+                                            NewStim = true;
                                         end
                                     end
                                 end
@@ -1729,6 +1745,7 @@ while ~Par.ESC && ~ExpFinished
                                         if StimRepNr == Stm.stim_rep
                                             StimNr = StimNr+1;
                                             StimRepNr = 1;
+                                            NewStim = true;
                                             if Stm.FigGnd{Log.StimOrder(StimNr)}(1) > 0
                                                 WithinBlockStatus = 'Stim';
                                                 StimType = 'Figure';
@@ -1743,6 +1760,7 @@ while ~Par.ESC && ~ExpFinished
                                             WithinBlockStatus = 'Stim';
                                             StimType = 'Ground';
                                             StimLogDone = false;
+                                            NewStim = true;
                                         end
                                     end
                                 end
