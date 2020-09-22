@@ -172,7 +172,7 @@ Stm.InterLeave_FigGnd = false;
 % if false, only do figures
 
 % Timing --
-Stm.stimblockdur = 30;
+Stm.stimblockdur = 10;
 
 Stm.stim_TRs = 0.1; % stim duration in TRs
 Stm.int_TRs =  0.0; % interval duration in TRs << set to zero for none
@@ -190,7 +190,7 @@ Stm.RandomizeStimMode = 2;
 
 Stm.PreDur_TRs = 5; % volumes
 Stm.PostDur_TRs = 5; % volumes
-Stm.nRepeatsStimSet = 1; % 0=unlimited
+Stm.nRepeatsStimSet = 3; % 0=unlimited
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

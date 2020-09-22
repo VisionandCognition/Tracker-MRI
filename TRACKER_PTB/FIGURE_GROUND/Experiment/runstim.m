@@ -195,6 +195,7 @@ if Stm.LoadFromFile
     stimulus=D.stimulus;
     offscr=D.offscr;
     cd ..; cd ..;
+    clear D;
 else
     fprintf('Creating figure-ground stimulus\n');
     [stimulus, offscr] = ck_figgnd(Stm, Par.ScrNr);
@@ -744,6 +745,12 @@ while ~Par.ESC && ~ExpFinished
                                 
                                 shape = Stm.Fig(Stm.FigGnd{...
                                     Log.StimOrder(StimNr)}(sidx,1)).shape;
+                                if Stm.Fig(Stm.FigGnd{...
+                                    Log.StimOrder(StimNr)}(sidx,1)).ishole
+                                    ishole = 'hole';
+                                else
+                                    ishole = 'nohole';
+                                end
                                 orient = Stm.Fig(Stm.FigGnd{...
                                     Log.StimOrder(StimNr)}(sidx,1)).orient;
                                 xpos = Stm.Fig(Stm.FigGnd{...
@@ -760,6 +767,10 @@ while ~Par.ESC && ~ExpFinished
                                 LogCollect = [LogCollect; ...
                                     {Log.nEvents,[],'FigGnd',...
                                     'FigShape',shape}];
+                                Log.nEvents = Log.nEvents+1;
+                                LogCollect = [LogCollect; ...
+                                    {Log.nEvents,[],'FigGnd',...
+                                    'FigHole',ishole}];
                                 Log.nEvents = Log.nEvents+1;
                                 LogCollect = [LogCollect; ...
                                     {Log.nEvents,[],'FigGnd',...
@@ -1513,7 +1524,7 @@ while ~Par.ESC && ~ExpFinished
         Par.SwitchPos = false;
     end
     
-    %% update fixation times ----------------------------------------------
+    %% Update fixation times ----------------------------------------------
     if UpdateFixLog
         dt=lft-prevlft;
         % log the screen flip timing

@@ -16,7 +16,7 @@ Stm.BackColor = [.667 .667 .667]; % [R G B] 0-1, from Retinotopy
 
 % Fixation ----------------------------------------------------------------
 Stm.FixDotSize = 0.15;
-Stm.FixDotSurrSize = 0.6;
+Stm.FixDotSurrSize = 0.3;
 Stm.FixDotCol = [.5 0 0;1 0 0]; %[RGB if not fixating; RGB fixating]
 
 % Fixation position can be toggled with 1-5 keys --------------------------
@@ -31,7 +31,7 @@ Stm.CyclePosition = 0; % set zero for manual cycling
 
 % Retinotopic mapping stimulus --------------------------------------------
 Stm.RandomizeStim=true;
-Stm.Descript = 'FigGnd';
+Stm.Descript = 'FigGnd_holes';
 Stm.StimType{1} = 'FigureGround'; 
 Stm.StimType{2} = 'lines'; % lines / dots
 
@@ -50,7 +50,7 @@ Stm.RefreshPol = 0.500;
 
 Stm.SaveToFile = true;
 Stm.LoadFromFile = false; %% Overwrites settings
-Stm.FileName = 'MOCK_FigGnd_NU_lines.mat';
+Stm.FileName = 'MOCK_FigGnd_holes.mat';
 %Stm.FileName = 'FigGnd_Triangles_dots.mat';
 
 % Logfolder
@@ -83,7 +83,7 @@ Stm.Gnd(2).orient = -45;
 Stm.Fig_all.orientations = [-Stm.Gnd(1).orient -Stm.Gnd(2).orient];
 %
 Stm.Fig(1).size = [3 3]; % DVA in case of triangle only take (1)
-Stm.Fig(1).position = [-5 0]; % DVA
+Stm.Fig(1).position = [0 0]; % DVA
 Stm.Fig(1).ishole = false;
 Stm.Fig(1).ori_ind = 1;
 Stm.Fig(1).orient = ...
@@ -91,62 +91,71 @@ Stm.Fig(1).orient = ...
 Stm.Fig(1).shape = 'Oval';
 % 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down','N','U'
 Stm.Fig(1).NU_gapsize = [1 2]; % [width height] >> only applies to NU and U
+
 % -
 Stm.Fig(2) = Stm.Fig(1); 
-Stm.Fig(2).position = [5 0]; % DVA
+Stm.Fig(2).position = [-3 0]; % DVA
+
 % -
-Stm.Fig(3) = Stm.Fig(1);
-Stm.Fig(3).ori_ind = 2;
-Stm.Fig(3).orient = ...
-    Stm.Fig_all.orientations(Stm.Fig(3).ori_ind);
+Stm.Fig(3) = Stm.Fig(1); 
+Stm.Fig(3).position = [3 0]; % DVA
+
 % -
-Stm.Fig(4) = Stm.Fig(3);
-Stm.Fig(4).position = [5 0]; % DVA
+Stm.Fig(4) = Stm.Fig(1);
+Stm.Fig(4).ori_ind = 2;
+Stm.Fig(4).orient = ...
+    Stm.Fig_all.orientations(Stm.Fig(4).ori_ind);
 % -
-Stm.Fig(5) = Stm.Fig(1);
-Stm.Fig(5).shape = 'U';
+Stm.Fig(5) = Stm.Fig(2);
+Stm.Fig(5).ori_ind = 2;
+Stm.Fig(5).orient = ...
+    Stm.Fig_all.orientations(Stm.Fig(5).ori_ind);
 % -
-Stm.Fig(6) = Stm.Fig(2);
-Stm.Fig(6).shape = 'U';
+Stm.Fig(6) = Stm.Fig(3);
+Stm.Fig(6).ori_ind = 2;
+Stm.Fig(6).orient = ...
+    Stm.Fig_all.orientations(Stm.Fig(6).ori_ind);
+
 % -
-Stm.Fig(7) = Stm.Fig(3);
-Stm.Fig(7).shape = 'U';
-% -
-Stm.Fig(8) = Stm.Fig(4);
-Stm.Fig(8).shape = 'U';
-    
+Stm.Fig(7) = Stm.Fig(1);
+Stm.Fig(7).ishole = true;
+Stm.Fig(8) = Stm.Fig(2);
+Stm.Fig(8).ishole = true;
+Stm.Fig(9) = Stm.Fig(3);
+Stm.Fig(9).ishole = true;
+
 % Intermediate background --
 Stm.IntGnd = Stm.Gnd_all;
 Stm.IntGnd.orient = 90;
     
 % Stimulus combination to include --
 % >> always followed by background only <<
-Stm.FigGnd{1} = [1 1]; % [figure ground]
-Stm.FigGnd{2} = [0 1];
-Stm.FigGnd{3} = [2 1];
-Stm.FigGnd{4} = [0 1];
-% Stm.FigGnd{5} = [3 2];
-% Stm.FigGnd{6} = [0 2];
-% Stm.FigGnd{7} = [4 2];
-% Stm.FigGnd{8} = [0 2];
-% Stm.FigGnd{9} = [5 1];
-% Stm.FigGnd{10} = [0 1];
-% Stm.FigGnd{11} = [6 1];
-% Stm.FigGnd{12} = [0 1];
-% Stm.FigGnd{13} = [7 2];
-% Stm.FigGnd{14} = [0 2];
-% Stm.FigGnd{15} = [8 2];
-% Stm.FigGnd{16} = [0 2];
+Stm.FigGnd{1} = [1 1; 4 2]; % [figure ground]
+Stm.FigGnd{2} = [0 1; 0 2];
+Stm.FigGnd{3} = [2 1; 5 2];
+Stm.FigGnd{4} = [0 1; 0 2];
+Stm.FigGnd{5} = [3 1; 6 2];
+Stm.FigGnd{6} = [0 1; 0 2];
+Stm.FigGnd{7} = [7 1; 7 2];
+Stm.FigGnd{8} = [0 1; 0 2];
+Stm.FigGnd{9} = [8 1; 8 2];
+Stm.FigGnd{10} = [0 1; 0 2];
+Stm.FigGnd{11} = [9 1; 9 2];
+Stm.FigGnd{12} = [0 1; 0 2];
 
 Stm.InterLeave_FigGnd = false;
 % if true, do fig - gnd - fig - gnd - fig - etc...
 % if false, only do figures
 
 % Timing --
-Stm.stim_rep = 4; %16; % BLOCK: n stim + n backgrounds
-Stm.stim_TRs = 0.3; % stim duration in TRs
-Stm.int_TRs =  0.2; % interval duration in TRs 
-Stm.firstint_TRs =  1; % interval duration in TRs 
+Stm.stimblockdur = 10;
+
+Stm.stim_TRs = 0.1; % stim duration in TRs
+Stm.int_TRs =  0.0; % interval duration in TRs << set to zero for none
+Stm.firstint_TRs =  0; % interval duration in TRs 
+
+nrep = ceil(Stm.stimblockdur./((Stm.stim_TRs+Stm.int_TRs)*2.5));
+Stm.stim_rep = nrep; %16; % BLOCK: 
 
 Stm.RandomizeStimMode = 2; 
 % 0: no randomnisation
@@ -155,9 +164,9 @@ Stm.RandomizeStimMode = 2;
 %    useful to create random block design
 %    every 2nd configuration should be ground only
 
-Stm.PreDur_TRs = 2;% 5; % volumes
-Stm.PostDur_TRs = 2;%5; % volumes
-Stm.nRepeatsStimSet = 1;%2; % 0=unlimited
+Stm.PreDur_TRs = 5; % volumes
+Stm.PostDur_TRs = 5; % volumes
+Stm.nRepeatsStimSet = 6; % 0=unlimited
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj
