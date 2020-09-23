@@ -48,8 +48,8 @@ Stm.RefreshSeed = 0; % s set to 0 for no refresh
 Stm.InvertPolarity = false;
 Stm.RefreshPol = 0.500;
 
-Stm.SaveToFile = true;
-Stm.LoadFromFile = false; %% Overwrites settings
+Stm.SaveToFile = false;
+Stm.LoadFromFile = true; %% Overwrites settings
 Stm.FileName = 'MOCK_FigGnd_holes.mat';
 %Stm.FileName = 'FigGnd_Triangles_dots.mat';
 
@@ -82,8 +82,8 @@ Stm.Gnd(2).orient = -45;
 % inherits texture feats from gnd
 Stm.Fig_all.orientations = [-Stm.Gnd(1).orient -Stm.Gnd(2).orient];
 %
-Stm.Fig(1).size = [3 3]; % DVA in case of triangle only take (1)
-Stm.Fig(1).position = [0 0]; % DVA
+Stm.Fig(1).size = [4 4]; % DVA in case of triangle only take (1)
+Stm.Fig(1).position = [3 0]; % DVA
 Stm.Fig(1).ishole = false;
 Stm.Fig(1).ori_ind = 1;
 Stm.Fig(1).orient = ...
@@ -97,32 +97,21 @@ Stm.Fig(2) = Stm.Fig(1);
 Stm.Fig(2).position = [-3 0]; % DVA
 
 % -
-Stm.Fig(3) = Stm.Fig(1); 
-Stm.Fig(3).position = [3 0]; % DVA
-
+Stm.Fig(3) = Stm.Fig(1);
+Stm.Fig(3).ori_ind = 2;
+Stm.Fig(3).orient = ...
+    Stm.Fig_all.orientations(Stm.Fig(3).ori_ind);
 % -
-Stm.Fig(4) = Stm.Fig(1);
+Stm.Fig(4) = Stm.Fig(2);
 Stm.Fig(4).ori_ind = 2;
 Stm.Fig(4).orient = ...
     Stm.Fig_all.orientations(Stm.Fig(4).ori_ind);
-% -
-Stm.Fig(5) = Stm.Fig(2);
-Stm.Fig(5).ori_ind = 2;
-Stm.Fig(5).orient = ...
-    Stm.Fig_all.orientations(Stm.Fig(5).ori_ind);
-% -
-Stm.Fig(6) = Stm.Fig(3);
-Stm.Fig(6).ori_ind = 2;
-Stm.Fig(6).orient = ...
-    Stm.Fig_all.orientations(Stm.Fig(6).ori_ind);
 
 % -
-Stm.Fig(7) = Stm.Fig(1);
-Stm.Fig(7).ishole = true;
-Stm.Fig(8) = Stm.Fig(2);
-Stm.Fig(8).ishole = true;
-Stm.Fig(9) = Stm.Fig(3);
-Stm.Fig(9).ishole = true;
+Stm.Fig(5) = Stm.Fig(1);
+Stm.Fig(5).ishole = true;
+Stm.Fig(6) = Stm.Fig(2);
+Stm.Fig(6).ishole = true;
 
 % Intermediate background --
 Stm.IntGnd = Stm.Gnd_all;
@@ -130,18 +119,14 @@ Stm.IntGnd.orient = 90;
     
 % Stimulus combination to include --
 % >> always followed by background only <<
-Stm.FigGnd{1} = [1 1; 4 2]; % [figure ground]
+Stm.FigGnd{1} = [1 1; 3 2]; % [figure ground]
 Stm.FigGnd{2} = [0 1; 0 2];
-Stm.FigGnd{3} = [2 1; 5 2];
+Stm.FigGnd{3} = [2 1; 4 2];
 Stm.FigGnd{4} = [0 1; 0 2];
-Stm.FigGnd{5} = [3 1; 6 2];
+Stm.FigGnd{5} = [5 1; 5 2];
 Stm.FigGnd{6} = [0 1; 0 2];
-Stm.FigGnd{7} = [7 1; 7 2];
+Stm.FigGnd{7} = [6 1; 6 2];
 Stm.FigGnd{8} = [0 1; 0 2];
-Stm.FigGnd{9} = [8 1; 8 2];
-Stm.FigGnd{10} = [0 1; 0 2];
-Stm.FigGnd{11} = [9 1; 9 2];
-Stm.FigGnd{12} = [0 1; 0 2];
 
 Stm.InterLeave_FigGnd = false;
 % if true, do fig - gnd - fig - gnd - fig - etc...

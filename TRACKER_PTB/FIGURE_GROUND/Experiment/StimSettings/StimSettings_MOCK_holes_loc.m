@@ -48,9 +48,9 @@ Stm.RefreshSeed = 0; % s set to 0 for no refresh
 Stm.InvertPolarity = false;
 Stm.RefreshPol = 0.500;
 
-Stm.SaveToFile = true;
-Stm.LoadFromFile = false; %% Overwrites settings
-Stm.FileName = 'MOCK_FigGnd_holes.mat';
+Stm.SaveToFile = false;
+Stm.LoadFromFile = true; %% Overwrites settings
+Stm.FileName = 'MOCK_FigGnd_holes_loc.mat';
 %Stm.FileName = 'FigGnd_Triangles_dots.mat';
 
 % Logfolder
@@ -82,8 +82,8 @@ Stm.Gnd(2).orient = -45;
 % inherits texture feats from gnd
 Stm.Fig_all.orientations = [-Stm.Gnd(1).orient -Stm.Gnd(2).orient];
 %
-Stm.Fig(1).size = [3 3]; % DVA in case of triangle only take (1)
-Stm.Fig(1).position = [0 0]; % DVA
+Stm.Fig(1).size = [4 4]; % DVA in case of triangle only take (1)
+Stm.Fig(1).position = [3 0]; % DVA
 Stm.Fig(1).ishole = false;
 Stm.Fig(1).ori_ind = 1;
 Stm.Fig(1).orient = ...
@@ -97,32 +97,15 @@ Stm.Fig(2) = Stm.Fig(1);
 Stm.Fig(2).position = [-3 0]; % DVA
 
 % -
-Stm.Fig(3) = Stm.Fig(1); 
-Stm.Fig(3).position = [3 0]; % DVA
-
+Stm.Fig(3) = Stm.Fig(1);
+Stm.Fig(3).ori_ind = 2;
+Stm.Fig(3).orient = ...
+    Stm.Fig_all.orientations(Stm.Fig(3).ori_ind);
 % -
-Stm.Fig(4) = Stm.Fig(1);
+Stm.Fig(4) = Stm.Fig(2);
 Stm.Fig(4).ori_ind = 2;
 Stm.Fig(4).orient = ...
     Stm.Fig_all.orientations(Stm.Fig(4).ori_ind);
-% -
-Stm.Fig(5) = Stm.Fig(2);
-Stm.Fig(5).ori_ind = 2;
-Stm.Fig(5).orient = ...
-    Stm.Fig_all.orientations(Stm.Fig(5).ori_ind);
-% -
-Stm.Fig(6) = Stm.Fig(3);
-Stm.Fig(6).ori_ind = 2;
-Stm.Fig(6).orient = ...
-    Stm.Fig_all.orientations(Stm.Fig(6).ori_ind);
-
-% -
-Stm.Fig(7) = Stm.Fig(1);
-Stm.Fig(7).ishole = true;
-Stm.Fig(8) = Stm.Fig(2);
-Stm.Fig(8).ishole = true;
-Stm.Fig(9) = Stm.Fig(3);
-Stm.Fig(9).ishole = true;
 
 % Intermediate background --
 Stm.IntGnd = Stm.Gnd_all;
@@ -130,12 +113,11 @@ Stm.IntGnd.orient = 90;
     
 % Stimulus combination to include --
 % >> always followed by background only <<
-Stm.FigGnd{1} = [1 0; 4 0]; % [figure ground]
+Stm.FigGnd{1} = [1 0; 3 0]; % [figure ground]
 Stm.FigGnd{2} = [0 0; 0 0];
-Stm.FigGnd{3} = [2 0; 5 0];
+Stm.FigGnd{3} = [2 0; 4 0];
 Stm.FigGnd{4} = [0 0; 0 0];
-Stm.FigGnd{5} = [3 0; 6 0];
-Stm.FigGnd{6} = [0 0; 0 0];
+
 
 Stm.InterLeave_FigGnd = false;
 % if true, do fig - gnd - fig - gnd - fig - etc...
@@ -160,7 +142,7 @@ Stm.RandomizeStimMode = 2;
 
 Stm.PreDur_TRs = 5; % volumes
 Stm.PostDur_TRs = 5; % volumes
-Stm.nRepeatsStimSet = 10; % 0=unlimited
+Stm.nRepeatsStimSet = 12; % 0=unlimited
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj
