@@ -7,7 +7,7 @@ global StimObj
 %% Capture and save experiment videoframes ================================
 % ads the possibility to save png files of each new video frame
 % in a 
-Par.SaveFrames = false;
+Par.SaveFrames = true;
 
 %% Setup ==================================================================
 % Spinoza_Mock / Spinoza_3T / NIN

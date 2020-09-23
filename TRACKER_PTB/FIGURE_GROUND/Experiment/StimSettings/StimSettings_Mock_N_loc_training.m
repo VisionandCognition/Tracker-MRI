@@ -174,7 +174,7 @@ Stm.InterLeave_FigGnd = false;
 % Timing --
 Stm.stimblockdur = 10;
 
-Stm.stim_TRs = 0.1; % stim duration in TRs
+Stm.stim_TRs = 0.2; % stim duration in TRs
 Stm.int_TRs =  0.0; % interval duration in TRs << set to zero for none
 Stm.firstint_TRs =  0; % interval duration in TRs 
 
