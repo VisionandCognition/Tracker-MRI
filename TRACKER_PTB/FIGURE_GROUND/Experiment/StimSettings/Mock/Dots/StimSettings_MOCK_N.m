@@ -50,7 +50,7 @@ Stm.RefreshPol = 0.500;
 
 Stm.SaveToFile = true;
 Stm.LoadFromFile = false; %% Overwrites settings
-Stm.FileName = 'MOCK_FigGnd_LineTexture_N.mat';
+Stm.FileName = 'MOCK_FigGnd_DotsTexture_N.mat';
 
 % Logfolder
 Stm.LogFolder = 'FigGnd';
@@ -161,7 +161,7 @@ Stm.RandomizeStimMode = 2;
 
 Stm.PreDur_TRs = 5; % volumes
 Stm.PostDur_TRs = 5; % volumes
-Stm.nRepeatsStimSet = 3; % 0=unlimited
+Stm.nRepeatsStimSet = 1; % 0=unlimited
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

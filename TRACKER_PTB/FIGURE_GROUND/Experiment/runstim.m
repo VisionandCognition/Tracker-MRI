@@ -6,7 +6,7 @@ global StimObj  %stimulus objects
 %global Log      %Logs
 
 %% THIS SWITCH ALLOW TESTING THE RUNSTIM WITHOUT DASCARD & TRACKER ========
-TestRunstimWithoutDAS = true;
+TestRunstimWithoutDAS = false;
 %==========================================================================
 % Do this only for testing without DAS
 if TestRunstimWithoutDAS
@@ -40,7 +40,7 @@ if TestRunstimWithoutDAS
     
     %Set ParFile and Stimfile
     Par.PARSETFILE = 'ParSettings_NoDas';
-    Par.STIMSETFILE = 'StimSettings_NoDas_lines';
+    Par.STIMSETFILE = 'StimSettings_NoDas_dots';
     Par.MONKEY = 'TestWithoutDAS';
 end
 clc;
