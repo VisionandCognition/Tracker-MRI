@@ -6,7 +6,7 @@ global StimObj  %stimulus objects
 %global Log      %Logs
 
 %% THIS SWITCH ALLOW TESTING THE RUNSTIM WITHOUT DASCARD & TRACKER ========
-TestRunstimWithoutDAS = false;
+TestRunstimWithoutDAS = true;
 %==========================================================================
 % Do this only for testing without DAS
 if TestRunstimWithoutDAS
@@ -40,7 +40,7 @@ if TestRunstimWithoutDAS
     
     %Set ParFile and Stimfile
     Par.PARSETFILE = 'ParSettings_NoDas';
-    Par.STIMSETFILE = 'StimSettings_NoDas';
+    Par.STIMSETFILE = 'StimSettings_NoDas_lines';
     Par.MONKEY = 'TestWithoutDAS';
 end
 clc;
@@ -537,6 +537,7 @@ srcrect = round([Par.wrect(1)+offscr.center(1)/2 ...
 CurrentlyDrawn='None';
 FlipScreenNow=true; % only flip screen when new phase starts
 fnum=1;
+
 while ~Par.ESC && ~ExpFinished
     %% First INIT ---------------------------------------------------------
     while ~Par.FirstInitDone
@@ -732,6 +733,11 @@ while ~Par.ESC && ~ExpFinished
                     switch StimType
                         case 'Figure'
                             if ~StimLogDone
+                                if strcmp(CurrentlyDrawn, 'PreDur')
+                                    fprintf('>> Starting Stimulus Block <<\n')
+                                end
+                                
+                                
                                 %fprintf(['StimType is ' StimType '\n']);
                                 StartWhat = 'Stim';
                                 % fig shape, orientation and location
@@ -798,6 +804,10 @@ while ~Par.ESC && ~ExpFinished
                             
                         case 'Ground'
                             if ~StimLogDone
+                                if strcmp(CurrentlyDrawn, 'PreDur')
+                                    fprintf('>> Starting Stimulus Block <<\n')
+                                end
+                                                                
                                 %fprintf(['StimType is ' StimType '\n']);
                                 StartWhat = 'Stim';
 
@@ -853,6 +863,18 @@ while ~Par.ESC && ~ExpFinished
                 LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
                     'PostDur','start'}];
                 
+                %Pol_T0 = Log.StartPost;
+                CurrPol = 1;
+                Log.nEvents = Log.nEvents+1;
+                LogCollect = [LogCollect; ...
+                    {Log.nEvents,[],'FigGnd','StimPol',CurrPol}];
+                
+                %Seed_T0 = Log.StartPost;
+                GndTexNum=Ranint(Stm.Gnd(1).NumSeeds);
+                Log.nEvents = Log.nEvents+1;
+                LogCollect = [LogCollect; ...
+                    {Log.nEvents,[],'FigGnd','GndSeed',GndTexNum}];
+                
                 PostDurLogDone=true;
                 ms = 1;
             end
@@ -867,6 +889,7 @@ while ~Par.ESC && ~ExpFinished
        
         % Fig &| Gnd
         if strcmp(ExpStatus,'PreDur') || strcmp(ExpStatus,'PostDur')
+
             % gnd
             if strcmp(Stm.StimType{2},'lines') && ...
                     (~strcmp(CurrentlyDrawn,'PreDur') && FlipScreenNow)
@@ -875,18 +898,18 @@ while ~Par.ESC && ~ExpFinished
                         Gnd_all.tex{GndTexNum,CurrPol},...
                         srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(1)}(1,2)).orient,0,[],[],[],...
                         kPsychUseTextureMatrixForRotation);
+                    CurrentlyDrawn = 'PreDur';
                 end
-                CurrentlyDrawn = 'PreDur';
                 
-            elseif strcmp(Stm.StimType{2},'dots')
-                if Stm.MoveStim.Do && ...
-                        lft>=Log.StartPre+Stm.MoveStim.SOA && ms<Stm.MoveStim.nFrames+1
-                    ms=ms+1;
+            elseif strcmp(Stm.StimType{2},'dots') && ...
+                    (~strcmp(CurrentlyDrawn,'PreDur') && FlipScreenNow)
+                if Stm.FigGnd{Log.StimOrder(1)}(1,2) ~= 0
+                    Screen('DrawTexture', Par.window, ...
+                        Gnd_all.tex{GndTexNum,ms,CurrPol},...
+                        srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(1)}(1,2)).orient,0,[],[],[],...
+                        kPsychUseTextureMatrixForRotation);
+                    CurrentlyDrawn = 'PreDur';
                 end
-                Screen('DrawTexture', Par.window, ...
-                    Gnd_all.tex{GndTexNum,ms,CurrPol},...
-                    srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(1)}(1,2)).orient,0,[],[],[],...
-                    kPsychUseTextureMatrixForRotation);
                 
             end
             
@@ -912,17 +935,18 @@ while ~Par.ESC && ~ExpFinished
                 end
                 CurrentlyDrawn = 'Int';
                 
-            elseif strcmp(Stm.StimType{2},'dots')
-                if Stm.MoveStim.Do && ...
-                        lft>=Log.StartInt+Stm.MoveStim.SOA && ms<Stm.MoveStim.nFrames+1
-                    ms=ms+1;
-                end
-                % gnd
-                Screen('DrawTexture', Par.window, ...
-                    Gnd_all.tex{GndTexNum,ms,CurrPol},...
-                    srcrect,[],Stm.IntGnd.orient,0,[],[],[],...
-                    kPsychUseTextureMatrixForRotation);
+            elseif strcmp(Stm.StimType{2},'dots') && FlipScreenNow
+                % Don't draw anything for dots version --
+%                 % int gnd
+%                 if Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,2) ~= 0
+%                     Screen('DrawTexture', Par.window, ...
+%                         Gnd_all.tex{GndTexNum,ms,CurrPol},...
+%                         srcrect,[],Stm.IntGnd.orient,0,[],[],[],...
+%                         kPsychUseTextureMatrixForRotation);
+%                 end
+                CurrentlyDrawn = 'Int';
             end
+            
             
         elseif strcmp(ExpStatus,'StimBlock') && strcmp(WithinBlockStatus,'Stim')          
             
@@ -942,6 +966,7 @@ while ~Par.ESC && ~ExpFinished
                         Gnd_all.tex{GndTexNum,CurrPol},...
                         srcrect,[],Stm.Gnd(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,2)).orient,...
                         0,[],[],[],kPsychUseTextureMatrixForRotation);
+                    CurrentlyDrawn = 'Stim';
                 end
                 
                 % fig
@@ -951,13 +976,13 @@ while ~Par.ESC && ~ExpFinished
                         Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,1)).tex{GndTexNum,CurrPol},...
                         stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,1)).RectSrc, ...
                         stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,1)).RectDest);
+                    CurrentlyDrawn = 'Stim';
                 end
-                
-                CurrentlyDrawn = 'Stim';
-             
+
                            
-            elseif strcmp(Stm.StimType{2},'dots')
-                if Stm.MoveStim.Do && ...
+            elseif strcmp(Stm.StimType{2},'dots') && FlipScreenNow
+                
+                if Stm.MoveStim.Do && StimStarted && ...
                         lft>=Log.StartStim+Stm.MoveStim.SOA && ms<Stm.MoveStim.nFrames+1
                     ms=ms+1;
                 end
@@ -975,6 +1000,7 @@ while ~Par.ESC && ~ExpFinished
                         Gnd_all.tex{GndTexNum,ms,CurrPol},...
                         srcrect,[],[],...
                         [],[],[],[],kPsychUseTextureMatrixForRotation);
+                    CurrentlyDrawn = 'Stim';
                 end
                 
                 % fig
@@ -984,9 +1010,9 @@ while ~Par.ESC && ~ExpFinished
                         Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,1)).tex{GndTexNum,ms,CurrPol},...
                         stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,1)).RectSrc, ...
                         stimulus.Fig(Stm.FigGnd{Log.StimOrder(StimNr)}(sidx,1)).RectDest);
+                    CurrentlyDrawn = 'Stim';
                 end
             end
-            
         end
     end
     
@@ -1483,15 +1509,19 @@ while ~Par.ESC && ~ExpFinished
             case 'Pre'
                 Log.StartPre=lft;
                 StartWhat='nothing';
+                StimStarted=false;
             case 'Int'
                 Log.StartInt=lft;
                 StartWhat='nothing';
+                StimStarted=false;
             case 'Stim'
                 Log.StartStim=lft;
                 StartWhat='nothing';
+                StimStarted=true;
             case 'Post'
                 Log.StartPostDur=lft;
                 StartWhat='nothing';
+                StimStarted=false;
         end
         
         if set_Pol_T0
@@ -1806,18 +1836,18 @@ while ~Par.ESC && ~ExpFinished
                     end
                     
                     % move if required
-                    if Stm.MoveStim.Do && strcmp(Stm.StimType{2},'lines')
+                    if Stm.MoveStim.Do && strcmp(Stm.StimType{2},'dots')
                         if lft-Log.StartStim >= Stm.MoveStim.SOA && ...
                                 NumGndMoves < Stm.MoveStim.nFrames
-                            srcrect = round([...
-                                srcrect(1) + Stm.MoveStim.XY(1)*Par.PixPerDeg ...
-                                srcrect(2) + Stm.MoveStim.XY(2)*Par.PixPerDeg ...
-                                srcrect(3) + Stm.MoveStim.XY(1)*Par.PixPerDeg ...
-                                srcrect(4) + Stm.MoveStim.XY(2)*Par.PixPerDeg ]);
+%                             srcrect = round([...
+%                                 srcrect(1) + Stm.MoveStim.XY(1)*Par.PixPerDeg ...
+%                                 srcrect(2) + Stm.MoveStim.XY(2)*Par.PixPerDeg ...
+%                                 srcrect(3) + Stm.MoveStim.XY(1)*Par.PixPerDeg ...
+%                                 srcrect(4) + Stm.MoveStim.XY(2)*Par.PixPerDeg ]);
                             NumGndMoves=NumGndMoves+1;
                             Log.nEvents = Log.nEvents+1;
                             LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
-                                'Ground','move'}];
+                                'dots','move'}];
                             FlipScreenNow = true;
                         elseif lft < Log.StartStim + Stm.MoveStim.SOA
                             srcrect = round([Par.wrect(1)+offscr.center(1)/2 ...
