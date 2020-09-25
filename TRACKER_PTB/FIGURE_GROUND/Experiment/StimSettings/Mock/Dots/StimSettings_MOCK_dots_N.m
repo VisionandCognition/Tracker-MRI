@@ -38,7 +38,7 @@ Stm.StimType{2} = 'dots'; % lines / dots
 % Figure/Ground stimuli
 Stm.MoveStim.Do = true;
 Stm.MoveStim.SOA = 0.200; % secs
-Stm.MoveStim.nFrames = 10; % frames
+Stm.MoveStim.nFrames = 5; % frames
 Stm.MoveStim.XY = [0.1 0.1]; % deg
 % texture: [X Y]
 % dots: [parallel orthogonal]
@@ -161,7 +161,7 @@ Stm.RandomizeStimMode = 2;
 
 Stm.PreDur_TRs = 5; % volumes
 Stm.PostDur_TRs = 5; % volumes
-Stm.nRepeatsStimSet = 1; % 0=unlimited
+Stm.nRepeatsStimSet = 3; % 0=unlimited
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

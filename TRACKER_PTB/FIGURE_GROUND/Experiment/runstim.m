@@ -704,7 +704,6 @@ while ~Par.ESC && ~ExpFinished
             switch WithinBlockStatus
                 case 'FirstInt'
                     if ~FirstIntLogDone
-                        %fprintf(['StimType is ' WithinBlockStatus '\n']);
                         fprintf('>> Starting Stimulus Block <<\n')
                         StartWhat = 'Int';
                         
@@ -733,10 +732,11 @@ while ~Par.ESC && ~ExpFinished
                     switch StimType
                         case 'Figure'
                             if ~StimLogDone
-                                if strcmp(CurrentlyDrawn, 'PreDur')
+                                if strcmp(CurrentlyDrawn, 'PreDur') || ...
+                                        strcmp(CurrentlyDrawn, 'None')
                                     fprintf('>> Starting Stimulus Block <<\n')
+                                    %fprintf(['StimType is ' StimType '\n']);
                                 end
-                                
                                 
                                 %fprintf(['StimType is ' StimType '\n']);
                                 StartWhat = 'Stim';
@@ -806,8 +806,8 @@ while ~Par.ESC && ~ExpFinished
                             if ~StimLogDone
                                 if strcmp(CurrentlyDrawn, 'PreDur')
                                     fprintf('>> Starting Stimulus Block <<\n')
+                                    fprintf(['StimType is ' StimType '\n']);
                                 end
-                                                                
                                 %fprintf(['StimType is ' StimType '\n']);
                                 StartWhat = 'Stim';
 
@@ -849,7 +849,6 @@ while ~Par.ESC && ~ExpFinished
                         Log.nEvents = Log.nEvents+1;
                         LogCollect = [LogCollect; {Log.nEvents,[],'FigGnd',...
                             'Intermediate','start'}];
-                        
                         IntLogDone=true;
                         ms = 1;
                     end
@@ -1696,8 +1695,10 @@ while ~Par.ESC && ~ExpFinished
                         StimRepNr = 1;
                         if Stm.FigGnd{Log.StimOrder(StimNr)}(1) > 0
                             StimType = 'Figure'; % start with figure if defined
+                            fprintf(['StimType is ' StimType '\n']);
                         else
                             StimType = 'Ground';
+                            fprintf(['StimType is ' StimType '\n']);
                         end
                         
                         Log.nEvents = Log.nEvents+1;
@@ -1736,10 +1737,12 @@ while ~Par.ESC && ~ExpFinished
                                                 WithinBlockStatus = 'Stim';
                                                 StimType = 'Figure';
                                                 StimLogDone = false;
+                                                fprintf(['StimType is ' StimType '\n']);
                                             else
                                                 WithinBlockStatus = 'Stim';
                                                 StimType = 'Ground';
                                                 StimLogDone = false;
+                                                fprintf(['StimType is ' StimType '\n']);
                                             end
                                         else
                                             StimRepNr =  StimRepNr+1;
@@ -1793,10 +1796,12 @@ while ~Par.ESC && ~ExpFinished
                                                 WithinBlockStatus = 'Stim';
                                                 StimType = 'Figure';
                                                 StimLogDone = false;
+                                                fprintf(['StimType is ' StimType '\n']);
                                             else
                                                 WithinBlockStatus = 'Stim';
                                                 StimType = 'Ground';
                                                 StimLogDone = false;
+                                                fprintf(['StimType is ' StimType '\n']);
                                             end
                                         else
                                             StimRepNr =  StimRepNr+1;
@@ -1892,6 +1897,7 @@ while ~Par.ESC && ~ExpFinished
                                         StimType = 'Ground';
                                         StimLogDone = false;
                                     end
+                                    fprintf(['StimType is ' StimType '\n']);
                                 else
                                     StimRepNr =  StimRepNr+1; 
                                     WithinBlockStatus = 'Stim';
@@ -1922,6 +1928,7 @@ while ~Par.ESC && ~ExpFinished
                                         StimType = 'Ground';
                                         StimLogDone = false;
                                     end
+                                    fprintf(['StimType is ' StimType '\n']);
                                 else
                                     StimRepNr =  StimRepNr+1; 
                                     WithinBlockStatus = 'Stim';
@@ -1974,7 +1981,7 @@ while ~Par.ESC && ~ExpFinished
                 FlipScreenNow = true;
             end
             
-            % check for end of period ---
+            % check for end of period lo
             if lft-Log.StartPostDur >= (Stm.PostDur_TRs*Par.TR) - DrawDur
                 ExpStatus = 'Finish';
                 Log.nEvents = Log.nEvents+1;
@@ -2303,6 +2310,25 @@ fprintf('\n\n------------------------------\n');
 fprintf('Experiment ended as planned\n');
 fprintf('------------------------------\n');
 
+% close all textures or there will be memory issues
+fprintf('Closing textures...\n');
+for d1=1:size(Gnd_all.tex,1)
+    for d2=1:size(Gnd_all.tex,2)
+        for d3=1:size(Gnd_all.tex,3)
+             Screen('Close',Gnd_all.tex{d1,d2,d3})
+        end
+    end
+end
+for f=1:length(Fig)
+    for d1=1:size(Fig(f).tex,1)
+        for d2=1:size(Fig(f).tex,2)
+            for d3=1:size(Fig(f).tex,3)
+                Screen('Close',Fig(f).tex{d1,d2,d3})
+            end
+        end
+    end
+end
+  
 % close audio devices
 for i=1:length(Par.FeedbackSoundSnd)
     if ~isnan(Par.FeedbackSoundSnd(i).h)

@@ -33,7 +33,7 @@ StimObj.Stm.FixDotCol = [.7 0 0;1 0 0];
 %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
-Par.FixWinSize = [2 2]; % [W H] in deg
+Par.FixWinSize = [1.5 1.5]; % [W H] in deg
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
@@ -68,7 +68,7 @@ if ~exist('Par','var') || ~isfield(Par,'Mouserun')
 end
 
 % parameters for interfacing with ISCAN
-Par.EyeRecAutoTrigger = true;
+Par.EyeRecAutoTrigger = false;
 Par.EyeRecStatus = 0; % recording status initially to 'not recording'
 Par.EyeRecTriggerLevel = 1; % 1 = stop recording, 0 = start recording
 

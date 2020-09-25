@@ -50,7 +50,7 @@ Stm.RefreshPol = 0.500;
 
 Stm.SaveToFile = true;
 Stm.LoadFromFile = false; %% Overwrites settings
-Stm.FileName = 'MOCK_FigGnd_LineTexture_holes_loc.mat';
+Stm.FileName = 'MOCK_FigGnd_DotsTexture_holes_loc.mat';
 
 % Logfolder
 Stm.LogFolder = 'FigGnd';

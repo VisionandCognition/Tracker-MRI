@@ -31,14 +31,14 @@ Stm.CyclePosition = 0; % set zero for manual cycling
 
 % Retinotopic mapping stimulus --------------------------------------------
 Stm.RandomizeStim=true;
-Stm.Descript = 'FigGnd';
+Stm.Descript = 'FigGnd_Loc';
 Stm.StimType{1} = 'FigureGround'; 
 Stm.StimType{2} = 'dots'; % lines / dots
 
 % Figure/Ground stimuli
 Stm.MoveStim.Do = true;
 Stm.MoveStim.SOA = 0.500; % secs
-Stm.MoveStim.nFrames = 10; % frames
+Stm.MoveStim.nFrames = 5; % frames
 Stm.MoveStim.XY = [0.1 0.1]; % deg
 % texture: [X Y]
 % dots: [parallel orthogonal]
@@ -48,9 +48,9 @@ Stm.RefreshSeed = 0; % s set to 0 for no refresh
 Stm.InvertPolarity = false;
 Stm.RefreshPol = 0.500;
 
-Stm.SaveToFile = true;
-Stm.LoadFromFile = false; %% Overwrites settings
-Stm.FileName = 'MOCK_FigGnd_LineTexture_N_loc.mat';
+Stm.SaveToFile = false;
+Stm.LoadFromFile = true; %% Overwrites settings
+Stm.FileName = 'MOCK_FigGnd_DotsTexture_N_loc.mat';
 
 % Logfolder
 Stm.LogFolder = 'FigGnd';
@@ -63,9 +63,9 @@ Stm.Gnd_all.lines.width = 4; % pix
 Stm.Gnd_all.lines.density = 0.7; % 0-1
 Stm.Gnd_all.lines.color = [0 0 0];
 %
-Stm.Gnd_all.dots.size = 8; % 5; 
+Stm.Gnd_all.dots.size = 5; % 5; 
 % maxes at 10 if we want larger we need to draw rects
-Stm.Gnd_all.dots.density = 0.4; % 0.7; % 0-1
+Stm.Gnd_all.dots.density = 0.5; % 0.7; % 0-1
 Stm.Gnd_all.dots.color = [0 0 0]; % [0 0 0];
 Stm.Gnd_all.dots.type = 0; % 0; % fast square dots
 %
@@ -113,34 +113,6 @@ Stm.Fig(7) = Stm.Fig(1);
 Stm.Fig(7).position = [-4 0]; % DVA
 
 % -
-Stm.Fig(8) = Stm.Fig(1); 
-Stm.Fig(8).ori_ind = 2;
-Stm.Fig(8).orient = ...
-    Stm.Fig_all.orientations(Stm.Fig(8).ori_ind);
-Stm.Fig(9) = Stm.Fig(2); 
-Stm.Fig(9).ori_ind = 2;
-Stm.Fig(9).orient = ...
-    Stm.Fig_all.orientations(Stm.Fig(9).ori_ind);
-Stm.Fig(10) = Stm.Fig(3); 
-Stm.Fig(10).ori_ind = 2;
-Stm.Fig(10).orient = ...
-    Stm.Fig_all.orientations(Stm.Fig(10).ori_ind);
-Stm.Fig(11) = Stm.Fig(4); 
-Stm.Fig(11).ori_ind = 2;
-Stm.Fig(11).orient = ...
-    Stm.Fig_all.orientations(Stm.Fig(11).ori_ind);
-Stm.Fig(12) = Stm.Fig(5);
-Stm.Fig(12).ori_ind = 2;
-Stm.Fig(12).orient = ...
-    Stm.Fig_all.orientations(Stm.Fig(12).ori_ind);
-Stm.Fig(13) = Stm.Fig(6); 
-Stm.Fig(13).ori_ind = 2;
-Stm.Fig(13).orient = ...
-    Stm.Fig_all.orientations(Stm.Fig(13).ori_ind);
-Stm.Fig(14) = Stm.Fig(7); 
-Stm.Fig(14).ori_ind = 2;
-Stm.Fig(14).orient = ...
-    Stm.Fig_all.orientations(Stm.Fig(14).ori_ind);
   
 % Intermediate background --
 Stm.IntGnd = Stm.Gnd_all;
@@ -150,22 +122,20 @@ Stm.IntGnd.orient = 90;
 % >> always followed by background only <<
 % [figure ground; figure ground]
 % alternating between the 1st and 2nd pair
-Stm.FigGnd{1} = [1 0; 8 0]; 
-Stm.FigGnd{2} = [0 0; 0 0];
-Stm.FigGnd{3} = [2 0; 9 0];
-Stm.FigGnd{4} = [0 0; 0 0];
-Stm.FigGnd{5} = [3 0; 10 0];
-Stm.FigGnd{6} = [0 0; 0 0];
-Stm.FigGnd{7} = [4 0; 11 0];
-Stm.FigGnd{8} = [0 0; 0 0];
-Stm.FigGnd{9} = [5 0; 12 0];
-Stm.FigGnd{10} = [0 0; 0 0];
-Stm.FigGnd{11} = [6 0; 13 0];
-Stm.FigGnd{12} = [0 0; 0 0];
-Stm.FigGnd{13} = [7 0; 14 0];
-Stm.FigGnd{14} = [0 0; 0 0];
-Stm.FigGnd{15} = [1 0; 8 0];
-Stm.FigGnd{16} = [0 0; 0 0];
+Stm.FigGnd{1} = [1 1]; 
+Stm.FigGnd{2} = [0 1];
+Stm.FigGnd{3} = [2 1];
+Stm.FigGnd{4} = [0 1];
+Stm.FigGnd{5} = [3 1];
+Stm.FigGnd{6} = [0 1];
+Stm.FigGnd{7} = [4 1];
+Stm.FigGnd{8} = [0 1];
+Stm.FigGnd{9} = [5 1];
+Stm.FigGnd{10} = [0 1];
+Stm.FigGnd{11} = [6 1];
+Stm.FigGnd{12} = [0 1];
+Stm.FigGnd{13} = [7 1];
+Stm.FigGnd{14} = [0 1];
 
 Stm.InterLeave_FigGnd = false;
 % if true, do fig - gnd - fig - gnd - fig - etc...
@@ -174,8 +144,8 @@ Stm.InterLeave_FigGnd = false;
 % Timing --
 Stm.stimblockdur = 10;
 
-Stm.stim_TRs = 0.2; % stim duration in TRs
-Stm.int_TRs =  0.0; % interval duration in TRs << set to zero for none
+Stm.stim_TRs = 0.4; % stim duration in TRs
+Stm.int_TRs =  0.1; % interval duration in TRs << set to zero for none
 Stm.firstint_TRs =  0; % interval duration in TRs 
 
 nrep = ceil(Stm.stimblockdur./((Stm.stim_TRs+Stm.int_TRs)*2.5));
