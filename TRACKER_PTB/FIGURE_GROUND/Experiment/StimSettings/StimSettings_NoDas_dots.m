@@ -16,7 +16,7 @@ Stm.BackColor = [.667 .667 .667]; % [R G B] 0-1, from Retinotopy
 
 % Fixation ----------------------------------------------------------------
 Stm.FixDotSize = 0.1;
-Stm.FixDotSurrSize = 0.3;
+Stm.FixDotSurrSize = 0.2;
 Stm.FixDotCol = [.5 0 0;1 0 0]; %[RGB if not fixating; RGB fixating]
 
 % Fixation position can be toggled with 1-5 keys --------------------------
@@ -37,18 +37,22 @@ Stm.StimType{2} = 'dots'; % lines / dots
 
 % Figure/Ground stimuli
 Stm.MoveStim.Do = true;
-Stm.MoveStim.SOA = 0.250; % secs
-Stm.MoveStim.nFrames = 10; % frames
-Stm.MoveStim.XY = 1*[0.1 0.1]; % deg
-% texture: [X Y]
-% dots: [parallel orthogonal]
+Stm.MoveStim.SOA = 0.0; % secs
+
+% old version >> use for textures <<
+Stm.MoveStim.nFrames = 10; % frames << overwritten by duration-based
+Stm.MoveStim.XY = 0*[0.1 0.1]; % deg
+
+% new version >> use for dots <<
+Stm.MoveStim.Speed = [0.5 0.5]; %deg/sec [X Y] direction
+Stm.MoveStim.Duration = 2; % secs
 
 Stm.RefreshSeed = 0; % s set to 0 for no refresh
 
 Stm.InvertPolarity = false;
 Stm.RefreshPol = 0.500;
 
-Stm.SaveToFile = true;
+Stm.SaveToFile = false;
 Stm.LoadFromFile = false; %% Overwrites settings
 Stm.FileName = 'teststim_dots.mat';
 
@@ -75,9 +79,11 @@ Stm.Gnd = Stm.Gnd_all;
 
 % Individual stimulus definitions -----
 Stm.Gnd(1).orient = 45;
+Stm.Gnd(1).movegain = -1;
 % -
 Stm.Gnd(2) = Stm.Gnd(1);
 Stm.Gnd(2).orient = -45;
+Stm.Gnd(2).movegain = 1;
     
 % Figure definitions ------------------------------------------------------
 % inherits texture feats from gnd
@@ -89,12 +95,13 @@ Stm.Fig(1).ishole = false;
 Stm.Fig(1).ori_ind = 1;
 Stm.Fig(1).orient = ...
     Stm.Fig_all.orientations(Stm.Fig(1).ori_ind);
-Stm.Fig(1).shape = 'N';
-% 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down', 'N','U'
+Stm.Fig(1).shape = 'N'; % 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down', 'N','U'
 Stm.Fig(1).NU_gapsize = [2 3]; % [width height] >> only applies to NU and U
+Stm.Fig(1).movegain = 1;
+
 % -
 Stm.Fig(2) = Stm.Fig(1); 
-Stm.Fig(2).position = [-2 -0.5]; % DVA
+Stm.Fig(2).movegain = -1;
 % -
 Stm.Fig(3) = Stm.Fig(1);
 Stm.Fig(3).position = [2 -0.5]; % DVA
@@ -115,16 +122,16 @@ Stm.IntGnd.orient = 90;
 % >> always followed by background only <<
 % [figure ground; figure ground]
 % alternating between the 1st and 2nd pair
-Stm.FigGnd{1} = [1 1]; 
-Stm.FigGnd{2} = [0 1];
-Stm.FigGnd{3} = [2 1];
-Stm.FigGnd{4} = [0 1];
-Stm.FigGnd{5} = [3 1];
-Stm.FigGnd{6} = [0 1];
-Stm.FigGnd{7} = [4 1];
-Stm.FigGnd{8} = [0 1];
-Stm.FigGnd{9} = [5 1];
-Stm.FigGnd{10} = [0 1];
+Stm.FigGnd{1} = [1 1; 2 2]; 
+Stm.FigGnd{2} = [0 1; 0 2];  
+% Stm.FigGnd{3} = [2 1];
+% Stm.FigGnd{4} = [0 1];
+% Stm.FigGnd{5} = [3 1];
+% Stm.FigGnd{6} = [0 1];
+% Stm.FigGnd{7} = [4 1];
+% Stm.FigGnd{8} = [0 1];
+% Stm.FigGnd{9} = [5 1];
+% Stm.FigGnd{10} = [0 1];
 
 Stm.InterLeave_FigGnd = false;
 % if true, do fig - gnd - fig - gnd - fig - etc...
@@ -132,8 +139,8 @@ Stm.InterLeave_FigGnd = false;
 
 % Timing --
 Stm.stimblockdur = 10;
-Stm.stim_TRs = 0.9; % stim duration in TRs (2.5s)
-Stm.int_TRs =  0.1; % interval duration in TRs 
+Stm.stim_TRs = 0.5; % stim duration in TRs (2.5s)
+Stm.int_TRs =  0.0; % interval duration in TRs 
 
 nrep = ceil(Stm.stimblockdur./((Stm.stim_TRs+Stm.int_TRs)*2.5));
 Stm.stim_rep = nrep; %16; % BLOCK: 
