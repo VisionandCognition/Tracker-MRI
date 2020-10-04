@@ -37,15 +37,15 @@ Stm.StimType{2} = 'dots'; % lines / dots
 
 % Figure/Ground stimuli
 Stm.MoveStim.Do = true;
-Stm.MoveStim.SOA = 0.200; % secs
+Stm.MoveStim.SOA = 0.000; % secs
 
 % old version >> use for textures <<
 Stm.MoveStim.nFrames = 5; % frames
 Stm.MoveStim.XY = [0.1 0.1]; % deg
 
 % new version >> use for dots <<
-Stm.MoveStim.Speed = [1 1]; %deg/sec [X Y] direction
-Stm.MoveStim.Duration = 500; % ms
+Stm.MoveStim.Speed = [0.5 0.5]; %deg/sec [X Y] direction
+Stm.MoveStim.Duration = 2; % secs
 
 Stm.RefreshSeed = 0; % s set to 0 for no refresh
 
@@ -53,8 +53,8 @@ Stm.InvertPolarity = false;
 Stm.RefreshPol = 0.500;
 
 Stm.SaveToFile = false;
-Stm.LoadFromFile = true; %% Overwrites settings
-Stm.FileName = 'MOCK_FigGnd_DotsTexture_N.mat';
+Stm.LoadFromFile = false; %% Overwrites settings
+Stm.FileName = 'xxxxx.mat';
 
 % Logfolder
 Stm.LogFolder = 'FigGnd';
@@ -84,11 +84,13 @@ Stm.Gnd = Stm.Gnd_all;
 
 % Individual stimulus definitions -----
 Stm.Gnd(1).orient = 45;
+Stm.Gnd(1).movegain = -1;
 % -
 Stm.Gnd(2) = Stm.Gnd(1);
 Stm.Gnd(2).orient = -45;
+Stm.Gnd(2).movegain = 1;
 
-% Figure definitions --t
+% Figure definitions ------------------------------------------------------
 % inherits texture feats from gnd
 Stm.Fig_all.orientations = [-Stm.Gnd(1).orient -Stm.Gnd(2).orient];
 %
@@ -98,9 +100,9 @@ Stm.Fig(1).ishole = false;
 Stm.Fig(1).ori_ind = 1;
 Stm.Fig(1).orient = ...
     Stm.Fig_all.orientations(Stm.Fig(1).ori_ind);
-Stm.Fig(1).shape = 'N';
-% 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down', 'N','U'
+Stm.Fig(1).shape = 'N'; % 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down', 'N','U'
 Stm.Fig(1).NU_gapsize = [2 3]; % [width height] >> only applies to NU and U
+Stm.Fig(1).movegain = 1;
 
 % -
 Stm.Fig(2) = Stm.Fig(1); 
@@ -121,7 +123,11 @@ Stm.Fig(6).position = [-3 -0.5]; % DVA
 Stm.Fig(7) = Stm.Fig(1); 
 Stm.Fig(7).position = [-4 -0.5]; % DVA
 
- 
+for i=1:7
+	Stm.Fig(7+i) = Stm.Fig(i);
+	Stm.Fig(7+i).movegain = -1;
+ end
+
 % Intermediate background --
 Stm.IntGnd = Stm.Gnd_all;
 Stm.IntGnd.orient = 90;
@@ -130,22 +136,22 @@ Stm.IntGnd.orient = 90;
 % >> always followed by background only <<
 % [figure ground; figure ground]
 % alternating between the 1st and 2nd pair
-Stm.FigGnd{1} = [1 1]; 
-Stm.FigGnd{2} = [0 1];
-Stm.FigGnd{3} = [2 1];
-Stm.FigGnd{4} = [0 1];
-Stm.FigGnd{5} = [3 1];
-Stm.FigGnd{6} = [0 1];
-Stm.FigGnd{7} = [4 1];
-Stm.FigGnd{8} = [0 1];
-Stm.FigGnd{9} = [5 1];
-Stm.FigGnd{10} = [0 1];
-Stm.FigGnd{11} = [6 1];
-Stm.FigGnd{12} = [0 1];
-Stm.FigGnd{13} = [7 1];
-Stm.FigGnd{14} = [0 1];
-Stm.FigGnd{15} = [1 1]; 
-Stm.FigGnd{16} = [0 1];
+Stm.FigGnd{1} = [1 1 ; 8 2]; 
+Stm.FigGnd{2} = [0 1 ; 0 2];
+Stm.FigGnd{3} = [2 1 ; 9 2];
+Stm.FigGnd{4} = [0 1 ; 0 2];
+Stm.FigGnd{5} = [3 1 ; 10 2];
+Stm.FigGnd{6} = [0 1 ; 0 2];
+Stm.FigGnd{7} = [4 1 ; 11 2];
+Stm.FigGnd{8} = [0 1 ; 0 2];
+Stm.FigGnd{9} = [5 1 ; 12 2];
+Stm.FigGnd{10} = [0 1 ; 0 2];
+Stm.FigGnd{11} = [6 1 ; 13 2];
+Stm.FigGnd{12} = [0 1 ; 0 2];
+Stm.FigGnd{13} = [7 1 ; 14 2];
+Stm.FigGnd{14} = [0 1 ; 0 2];
+Stm.FigGnd{15} = [1 1 ; 8 2]; 
+Stm.FigGnd{16} = [0 1 ; 0 2];
 
 Stm.InterLeave_FigGnd = false;
 % if true, do fig - gnd - fig - gnd - fig - etc...

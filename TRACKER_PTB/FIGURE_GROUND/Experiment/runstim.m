@@ -6,7 +6,7 @@ global StimObj  %stimulus objects
 %global Log      %Logs
 
 %% THIS SWITCH ALLOW TESTING THE RUNSTIM WITHOUT DASCARD & TRACKER ========
-TestRunstimWithoutDAS = true;
+TestRunstimWithoutDAS = false;
 %==========================================================================
 % Do this only for testing without DAS
 if TestRunstimWithoutDAS
@@ -2102,8 +2102,9 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
             copyfile(stimsetpath,[Par.STIMSETFILE '.m']);
         end
         % stimulus
-        copyfile(FullStimFilePath,Stm.FileName);
-        
+        if Stm.SaveToFile || Stm.LoadFromFile
+            copyfile(FullStimFilePath,Stm.FileName);
+        end
         RunParStim_Saved=true;
     end
     
