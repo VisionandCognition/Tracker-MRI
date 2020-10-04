@@ -38,10 +38,13 @@ Stm.StimType{2} = 'dots'; % lines / dots
 % Figure/Ground stimuli
 Stm.MoveStim.Do = true;
 Stm.MoveStim.SOA = 0.200; % secs
+
+% old version >> use for textures <<
 Stm.MoveStim.nFrames = 5; % frames
 Stm.MoveStim.XY = [0.1 0.1]; % deg
-% texture: [X Y]
-% dots: [parallel orthogonal]
+
+% new version
+Stm.MoveStim.Speed = [1 1]; %deg/sec [X Y] direction
 
 Stm.RefreshSeed = 0; % s set to 0 for no refresh
 
@@ -58,18 +61,23 @@ Stm.LogFolder = 'FigGnd';
 %% This only applies to newly created stim ================================
 % Background definitions --
 Stm.Gnd_all.backcol = [1 1 1]; % [R G B] 0-1
+
+% lines
 Stm.Gnd_all.lines.length = 50; % pix
 Stm.Gnd_all.lines.width = 4; % pix
 Stm.Gnd_all.lines.density = 0.7; % 0-1
 Stm.Gnd_all.lines.color = [0 0 0];
-%
+
+% dots
 Stm.Gnd_all.dots.size = 5; % 5; 
 % maxes at 10 if we want larger we need to draw rects
 Stm.Gnd_all.dots.density = 0.5; % 0.7; % 0-1
 Stm.Gnd_all.dots.color = [0 0 0]; % [0 0 0];
 Stm.Gnd_all.dots.type = 0; % 0; % fast square dots
+
 %
 Stm.Gnd_all.NumSeeds = 1;
+
 %
 Stm.Gnd = Stm.Gnd_all;
 

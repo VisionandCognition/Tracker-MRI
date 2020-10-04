@@ -210,6 +210,10 @@ if Stm.SaveToFile
     cd ..; cd ..;
 end
 
+% calculate how fast things should move
+Stm.MoveStim.PixPerFlip = ...
+    (Stm.MoveStim.Speed.*Par.PixPerDeg).*Par.fliptimeSec;
+
 % Create textures
 switch Stm.StimType{2}
     case 'lines'
@@ -239,27 +243,38 @@ switch Stm.StimType{2}
         end
     case 'dots'
         for gs=1:Stm.Gnd_all.NumSeeds
-            if Stm.MoveStim.nFrames > 0
-                ms_gnd = Stm.MoveStim.nFrames+1:-1:1;
-                for ms = 1:Stm.MoveStim.nFrames+1
-                    % make texture
-                    Gnd_all.tex{gs,ms,1} = Screen('MakeTexture',Par.window,...
-                        stimulus.Gnd_all.array{gs,ms,1});
-                    if Stm.InvertPolarity
-                        Gnd_all.tex{gs,ms,2} = Screen(...
-                            'MakeTexture',Par.window,...
-                            stimulus.Gnd_all.array{gs,ms,2});
-                    end
-                end
-            else
-                Gnd_all.tex{gs,1,1} = Screen('MakeTexture',Par.window,...
-                    stimulus.Gnd_all.array{gs,1,1});
-                if Stm.InvertPolarity
-                    Gnd_all.tex{gs,1,2} = Screen(...
-                        'MakeTexture',Par.window,...
-                        stimulus.Gnd_all.array{gs,1,2});
-                end
+            Gnd_all.dots(gs,1).xy = 
+            Gnd_all.dots(gs,1).color = 
+            
+            if Stm.InvertPolarity
+                Gnd_all.dots(gs,2).xy = Gnd_all.dots(gs,1).xy;
             end
+            %% ----- pre-create textures ----
+%             if Stm.MoveStim.nFrames > 0
+%                 ms_gnd = Stm.MoveStim.nFrames+1:-1:1;
+%                 for ms = 1:Stm.MoveStim.nFrames+1
+%                     % make texture
+%                     Gnd_all.tex{gs,ms,1} = Screen('MakeTexture',Par.window,...
+%                         stimulus.Gnd_all.array{gs,ms,1});
+%                     if Stm.InvertPolarity
+%                         Gnd_all.tex{gs,ms,2} = Screen(...
+%                             'MakeTexture',Par.window,...
+%                             stimulus.Gnd_all.array{gs,ms,2});
+%                     end
+%                 end
+%             else
+%                 Gnd_all.tex{gs,1,1} = Screen('MakeTexture',Par.window,...
+%                     stimulus.Gnd_all.array{gs,1,1});
+%                 if Stm.InvertPolarity
+%                     Gnd_all.tex{gs,1,2} = Screen(...
+%                         'MakeTexture',Par.window,...
+%                         stimulus.Gnd_all.array{gs,1,2});
+%                 end
+%             end
+            % -----------------------------------
+            
+            
+            
         end
         
         for f = 1:length(stimulus.Fig)

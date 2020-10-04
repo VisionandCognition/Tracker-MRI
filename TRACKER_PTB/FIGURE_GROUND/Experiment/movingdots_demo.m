@@ -15,12 +15,12 @@ for i=1:2; dots(i).pos = rand(10000,2); end
 % scatter(dots(1).pos(:,1),dots(1).pos(:,2))
 % scatter(dots(2).pos(:,1),dots(2).pos(:,2))
 % set(gca, 'xlim',[0 1],'ylim',[0 1]);
-% 
+%
 % subplot(1,2,2); hold on
 % scatter(dots(1).pos(:,1),dots(1).pos(:,2),'x')
 % mbool = getmbool(dots(1).pos,mask);
 % scatter(dots(1).pos(~mbool,1),dots(1).pos(~mbool,2))
-% 
+%
 % scatter(dots(2).pos(:,1),dots(2).pos(:,2),'x')
 % mbool = getmbool(dots(2).pos,mask);
 % scatter(dots(2).pos(mbool,1),dots(2).pos(mbool,2))
@@ -58,13 +58,18 @@ for i=1:100
     pause(0.01);
 end
 
-    function mbool = getmbool(pos,mask)
-        mbool = ...
-            (pos(:,1) > mask.lx(1) & pos(:,1) < mask.lx(2) & ...
-            pos(:,2) > mask.vert(1) & pos(:,2) < mask.vert(2)) | ...
-            (pos(:,1) > mask.rx(1) & pos(:,1) < mask.rx(2) & ...
-            pos(:,2) > mask.vert(1) & pos(:,2) < mask.vert(2)) | ...
-            (pos(:,1) > mask.hor(1) & pos(:,1) < mask.hor(2) & ...
-            pos(:,2) > mask.bridge(1) & pos(:,2) < mask.bridge(2));
+    function mbool = getmbool(pos,mask,masktype)
+        switch masktype
+            case 'N'
+                mbool = ...
+                    (pos(:,1) > mask.lx(1) & pos(:,1) < mask.lx(2) & ...
+                    pos(:,2) > mask.vert(1) & pos(:,2) < mask.vert(2)) | ...
+                    (pos(:,1) > mask.rx(1) & pos(:,1) < mask.rx(2) & ...
+                    pos(:,2) > mask.vert(1) & pos(:,2) < mask.vert(2)) | ...
+                    (pos(:,1) > mask.hor(1) & pos(:,1) < mask.hor(2) & ...
+                    pos(:,2) > mask.bridge(1) & pos(:,2) < mask.bridge(2));
+            case 'U'
+            case 'Oval'
+            case 'Rectangle'
+        end
     end
-end
