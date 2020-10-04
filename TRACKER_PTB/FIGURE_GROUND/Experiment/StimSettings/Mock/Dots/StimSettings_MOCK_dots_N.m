@@ -43,8 +43,9 @@ Stm.MoveStim.SOA = 0.200; % secs
 Stm.MoveStim.nFrames = 5; % frames
 Stm.MoveStim.XY = [0.1 0.1]; % deg
 
-% new version
+% new version >> use for dots <<
 Stm.MoveStim.Speed = [1 1]; %deg/sec [X Y] direction
+Stm.MoveStim.Duration = 500; % ms
 
 Stm.RefreshSeed = 0; % s set to 0 for no refresh
 
