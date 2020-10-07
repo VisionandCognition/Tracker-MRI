@@ -38,10 +38,13 @@ Stm.StimType{2} = 'lines'; % lines / dots
 % Figure/Ground stimuli
 Stm.MoveStim.Do = false;
 Stm.MoveStim.SOA = 0.500; % secs
-Stm.MoveStim.nFrames = 5; % frames
-Stm.MoveStim.XY = [0.1 0.1]; % deg
-% texture: [X Y]
-% dots: [parallel orthogonal]
+% old version >> use for textures <<
+Stm.MoveStim.nFrames = 10; % frames << overwritten by duration-based
+Stm.MoveStim.XY = 0*[0.1 0.1]; % deg
+
+% new version >> use for dots <<
+Stm.MoveStim.Speed = [0.5 0.5]; %deg/sec [X Y] direction
+Stm.MoveStim.Duration = 2; % secs
 
 Stm.RefreshSeed = 0; % s set to 0 for no refresh
 
@@ -58,11 +61,14 @@ Stm.LogFolder = 'FigGnd';
 %% This only applies to newly created stim ================================
 % Background definitions --
 Stm.Gnd_all.backcol = [1 1 1]; % [R G B] 0-1
+
+% lines
 Stm.Gnd_all.lines.length = 50; % pix
 Stm.Gnd_all.lines.width = 4; % pix
 Stm.Gnd_all.lines.density = 0.7; % 0-1
 Stm.Gnd_all.lines.color = [0 0 0];
-%
+
+% dots
 Stm.Gnd_all.dots.size = 8; % 5; 
 % maxes at 10 if we want larger we need to draw rects
 Stm.Gnd_all.dots.density = 0.4; % 0.7; % 0-1
@@ -174,7 +180,7 @@ Stm.InterLeave_FigGnd = false;
 % Timing --
 Stm.stimblockdur = 10;
 
-Stm.stim_TRs = 0.2; % stim duration in TRs
+Stm.stim_TRs = 0.5; % stim duration in TRs
 Stm.int_TRs =  0.0; % interval duration in TRs << set to zero for none
 Stm.firstint_TRs =  0; % interval duration in TRs 
 

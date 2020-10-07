@@ -37,11 +37,15 @@ Stm.StimType{2} = 'dots'; % lines / dots
 
 % Figure/Ground stimuli
 Stm.MoveStim.Do = true;
-Stm.MoveStim.SOA = 0.500; % secs
-Stm.MoveStim.nFrames = 5; % frames
-Stm.MoveStim.XY = [0.1 0.1]; % deg
-% texture: [X Y]
-% dots: [parallel orthogonal]
+Stm.MoveStim.SOA = 0.0; % secs
+
+% old version >> use for textures <<
+Stm.MoveStim.nFrames = 10; % frames << overwritten by duration-based
+Stm.MoveStim.XY = 0*[0.1 0.1]; % deg
+
+% new version >> use for dots <<
+Stm.MoveStim.Speed = [1 1]; %deg/sec [X Y] direction
+Stm.MoveStim.Duration = 1.25; % secs
 
 Stm.RefreshSeed = 0; % s set to 0 for no refresh
 
@@ -49,7 +53,7 @@ Stm.InvertPolarity = false;
 Stm.RefreshPol = 0.500;
 
 Stm.SaveToFile = false;
-Stm.LoadFromFile = true; %% Overwrites settings
+Stm.LoadFromFile = false; %% Overwrites settings
 Stm.FileName = 'MOCK_FigGnd_DotsTexture_N_loc.mat';
 
 % Logfolder
@@ -58,11 +62,14 @@ Stm.LogFolder = 'FigGnd';
 %% This only applies to newly created stim ================================
 % Background definitions --
 Stm.Gnd_all.backcol = [1 1 1]; % [R G B] 0-1
+
+% lines
 Stm.Gnd_all.lines.length = 50; % pix
 Stm.Gnd_all.lines.width = 4; % pix
 Stm.Gnd_all.lines.density = 0.7; % 0-1
 Stm.Gnd_all.lines.color = [0 0 0];
-%
+
+% dots
 Stm.Gnd_all.dots.size = 5; % 5; 
 % maxes at 10 if we want larger we need to draw rects
 Stm.Gnd_all.dots.density = 0.5; % 0.7; % 0-1
@@ -70,14 +77,17 @@ Stm.Gnd_all.dots.color = [0 0 0]; % [0 0 0];
 Stm.Gnd_all.dots.type = 0; % 0; % fast square dots
 %
 Stm.Gnd_all.NumSeeds = 1;
+
 %
 Stm.Gnd = Stm.Gnd_all;
 
 % Individual stimulus definitions -----
 Stm.Gnd(1).orient = 45;
+Stm.Gnd(1).movegain = -1;
 % -
 Stm.Gnd(2) = Stm.Gnd(1);
 Stm.Gnd(2).orient = -45;
+Stm.Gnd(1).movegain = 1;
 
 % Figure definitions --t
 % inherits texture feats from gnd
@@ -92,6 +102,7 @@ Stm.Fig(1).orient = ...
 Stm.Fig(1).shape = 'Rectangle';
 % 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down', 'N','U'
 Stm.Fig(1).NU_gapsize = [2 3]; % [width height] >> only applies to NU and U
+Stm.Fig(1).movegain = 1;
 
 % -
 Stm.Fig(2) = Stm.Fig(1); 
@@ -112,6 +123,11 @@ Stm.Fig(6).position = [-3 0]; % DVA
 Stm.Fig(7) = Stm.Fig(1); 
 Stm.Fig(7).position = [-4 0]; % DVA
 
+for i=1:7
+	Stm.Fig(7+i) = Stm.Fig(i);
+	Stm.Fig(7+i).movegain = -1;
+ end
+
 % -
   
 % Intermediate background --
@@ -122,20 +138,20 @@ Stm.IntGnd.orient = 90;
 % >> always followed by background only <<
 % [figure ground; figure ground]
 % alternating between the 1st and 2nd pair
-Stm.FigGnd{1} = [1 1]; 
-Stm.FigGnd{2} = [0 1];
-Stm.FigGnd{3} = [2 1];
-Stm.FigGnd{4} = [0 1];
-Stm.FigGnd{5} = [3 1];
-Stm.FigGnd{6} = [0 1];
-Stm.FigGnd{7} = [4 1];
-Stm.FigGnd{8} = [0 1];
-Stm.FigGnd{9} = [5 1];
-Stm.FigGnd{10} = [0 1];
-Stm.FigGnd{11} = [6 1];
-Stm.FigGnd{12} = [0 1];
-Stm.FigGnd{13} = [7 1];
-Stm.FigGnd{14} = [0 1];
+Stm.FigGnd{1} = [1 0 ; 8 0]; 
+Stm.FigGnd{2} = [0 0 ; 0 0];
+Stm.FigGnd{3} = [2 0 ; 9 0];
+Stm.FigGnd{4} = [0 0 ; 0 0];
+Stm.FigGnd{5} = [3 0 ; 10 0];
+Stm.FigGnd{6} = [0 0 ; 0 0];
+Stm.FigGnd{7} = [4 0 ; 11 0];
+Stm.FigGnd{8} = [0 0 ; 0 0];
+Stm.FigGnd{9} = [5 0 ; 12 0];
+Stm.FigGnd{10} = [0 0 ; 0 0];
+Stm.FigGnd{11} = [6 0 ; 13 0];
+Stm.FigGnd{12} = [0 0 ; 0 0];
+Stm.FigGnd{13} = [7 0 ; 14 0];
+Stm.FigGnd{14} = [0 0 ; 0 0];
 
 Stm.InterLeave_FigGnd = false;
 % if true, do fig - gnd - fig - gnd - fig - etc...
@@ -144,8 +160,8 @@ Stm.InterLeave_FigGnd = false;
 % Timing --
 Stm.stimblockdur = 10;
 
-Stm.stim_TRs = 0.4; % stim duration in TRs
-Stm.int_TRs =  0.1; % interval duration in TRs << set to zero for none
+Stm.stim_TRs = 0.5; % stim duration in TRs
+Stm.int_TRs =  0.0; % interval duration in TRs << set to zero for none
 Stm.firstint_TRs =  0; % interval duration in TRs 
 
 nrep = ceil(Stm.stimblockdur./((Stm.stim_TRs+Stm.int_TRs)*2.5));

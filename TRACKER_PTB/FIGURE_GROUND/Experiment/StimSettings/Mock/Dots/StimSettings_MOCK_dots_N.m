@@ -37,15 +37,15 @@ Stm.StimType{2} = 'dots'; % lines / dots
 
 % Figure/Ground stimuli
 Stm.MoveStim.Do = true;
-Stm.MoveStim.SOA = 0.000; % secs
+Stm.MoveStim.SOA = 0.0; % secs
 
 % old version >> use for textures <<
 Stm.MoveStim.nFrames = 5; % frames
 Stm.MoveStim.XY = [0.1 0.1]; % deg
 
 % new version >> use for dots <<
-Stm.MoveStim.Speed = [0.5 0.5]; %deg/sec [X Y] direction
-Stm.MoveStim.Duration = 2; % secs
+Stm.MoveStim.Speed = [1 1]; %deg/sec [X Y] direction
+Stm.MoveStim.Duration = 1.25; % secs
 
 Stm.RefreshSeed = 0; % s set to 0 for no refresh
 
@@ -54,7 +54,7 @@ Stm.RefreshPol = 0.500;
 
 Stm.SaveToFile = false;
 Stm.LoadFromFile = false; %% Overwrites settings
-Stm.FileName = 'xxxxx.mat';
+Stm.FileName = 'figgnd_movingdots.mat';
 
 % Logfolder
 Stm.LogFolder = 'FigGnd';
@@ -160,8 +160,8 @@ Stm.InterLeave_FigGnd = false;
 % Timing --
 Stm.stimblockdur = 10;
 
-Stm.stim_TRs = 0.4; % stim duration in TRs
-Stm.int_TRs =  0.1; % interval duration in TRs << set to zero for none
+Stm.stim_TRs = 0.5; % stim duration in TRs
+Stm.int_TRs =  0.0; % interval duration in TRs << set to zero for none
 Stm.firstint_TRs =  0; % interval duration in TRs 
 
 nrep = ceil(Stm.stimblockdur./((Stm.stim_TRs+Stm.int_TRs)*2.5));

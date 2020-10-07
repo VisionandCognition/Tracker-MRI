@@ -38,10 +38,14 @@ Stm.StimType{2} = 'lines'; % lines / dots
 % Figure/Ground stimuli
 Stm.MoveStim.Do = false;
 Stm.MoveStim.SOA = 0.500; % secs
-Stm.MoveStim.nFrames = 5; % frames
-Stm.MoveStim.XY = [0.1 0.1]; % deg
-% texture: [X Y]
-% dots: [parallel orthogonal]
+
+% old version >> use for textures <<
+Stm.MoveStim.nFrames = 10; % frames << overwritten by duration-based
+Stm.MoveStim.XY = 0*[0.1 0.1]; % deg
+
+% new version >> use for dots <<
+Stm.MoveStim.Speed = [0.5 0.5]; %deg/sec [X Y] direction
+Stm.MoveStim.Duration = 2; % secs
 
 Stm.RefreshSeed = 0; % s set to 0 for no refresh
 
@@ -174,7 +178,7 @@ Stm.InterLeave_FigGnd = false;
 % Timing --
 Stm.stimblockdur = 10;
 
-Stm.stim_TRs = 0.2; % stim duration in TRs
+Stm.stim_TRs = 0.5; % stim duration in TRs
 Stm.int_TRs =  0.0; % interval duration in TRs << set to zero for none
 Stm.firstint_TRs =  0; % interval duration in TRs 
 

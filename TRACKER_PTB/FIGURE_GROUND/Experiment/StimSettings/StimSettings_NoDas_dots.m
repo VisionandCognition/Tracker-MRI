@@ -45,7 +45,7 @@ Stm.MoveStim.XY = 0*[0.1 0.1]; % deg
 
 % new version >> use for dots <<
 Stm.MoveStim.Speed = [0.5 0.5]; %deg/sec [X Y] direction
-Stm.MoveStim.Duration = 2; % secs
+Stm.MoveStim.Duration = 0.500; % secs
 
 Stm.RefreshSeed = 0; % s set to 0 for no refresh
 
@@ -139,7 +139,7 @@ Stm.InterLeave_FigGnd = false;
 
 % Timing --
 Stm.stimblockdur = 10;
-Stm.stim_TRs = 0.5; % stim duration in TRs (2.5s)
+Stm.stim_TRs = 0.2; % stim duration in TRs (2.5s)
 Stm.int_TRs =  0.0; % interval duration in TRs 
 
 nrep = ceil(Stm.stimblockdur./((Stm.stim_TRs+Stm.int_TRs)*2.5));
