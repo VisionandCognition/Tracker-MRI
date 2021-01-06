@@ -31,30 +31,26 @@ Stm.CyclePosition = 0; % set zero for manual cycling
 
 % Retinotopic mapping stimulus --------------------------------------------
 Stm.RandomizeStim=true;
-Stm.Descript = 'FigGnd';
+Stm.Descript = 'FigGnd_holes_loc';
 Stm.StimType{1} = 'FigureGround'; 
-Stm.StimType{2} = 'dots'; % lines / dots
+Stm.StimType{2} = 'lines'; % lines / dots
 
 % Figure/Ground stimuli
-Stm.MoveStim.Do = true;
+Stm.MoveStim.Do = false;
 Stm.MoveStim.SOA = 0.500; % secs
-
-% old version >> use for textures <<
-Stm.MoveStim.nFrames = 10; % frames << overwritten by duration-based
-Stm.MoveStim.XY = 0*[0.1 0.1]; % deg
-
-% new version >> use for dots <<
-Stm.MoveStim.Speed = [1 1]; %deg/sec [X Y] direction
-Stm.MoveStim.Duration = 1.25; % secs
+Stm.MoveStim.nFrames = 5; % frames
+Stm.MoveStim.XY = [0.1 0.1]; % deg
+% texture: [X Y]
+% dots: [parallel orthogonal]
 
 Stm.RefreshSeed = 0; % s set to 0 for no refresh
 
 Stm.InvertPolarity = false;
 Stm.RefreshPol = 0.500;
 
-Stm.SaveToFile = true;
-Stm.LoadFromFile = false; %% Overwrites settings
-Stm.FileName = 'MOCK_FigGnd_DotsTexture_holes.mat';
+Stm.SaveToFile = false;
+Stm.LoadFromFile = true; %% Overwrites settings
+Stm.FileName = 'MOCK_FigGnd_LineTexture_holes_loc.mat';
 
 % Logfolder
 Stm.LogFolder = 'FigGnd';
@@ -110,26 +106,17 @@ Stm.Fig(4).ori_ind = 2;
 Stm.Fig(4).orient = ...
     Stm.Fig_all.orientations(Stm.Fig(4).ori_ind);
 
-% -
-Stm.Fig(5) = Stm.Fig(1);
-Stm.Fig(5).ishole = true;
-Stm.Fig(6) = Stm.Fig(2);
-Stm.Fig(6).ishole = true;
-
 % Intermediate background --
 Stm.IntGnd = Stm.Gnd_all;
 Stm.IntGnd.orient = 90;
     
 % Stimulus combination to include --
 % >> always followed by background only <<
-Stm.FigGnd{1} = [1 1; 3 2]; % [figure ground]
-Stm.FigGnd{2} = [0 1; 0 2];
-Stm.FigGnd{3} = [2 1; 4 2];
-Stm.FigGnd{4} = [0 1; 0 2];
-Stm.FigGnd{5} = [5 1; 5 2];
-Stm.FigGnd{6} = [0 1; 0 2];
-Stm.FigGnd{7} = [6 1; 6 2];
-Stm.FigGnd{8} = [0 1; 0 2];
+Stm.FigGnd{1} = [1 0; 3 0]; % [figure ground]
+Stm.FigGnd{2} = [0 0; 0 0];
+Stm.FigGnd{3} = [2 0; 4 0];
+Stm.FigGnd{4} = [0 0; 0 0];
+
 
 Stm.InterLeave_FigGnd = false;
 % if true, do fig - gnd - fig - gnd - fig - etc...
@@ -154,7 +141,7 @@ Stm.RandomizeStimMode = 2;
 
 Stm.PreDur_TRs = 5; % volumes
 Stm.PostDur_TRs = 5; % volumes
-Stm.nRepeatsStimSet = 6; % 0=unlimited
+Stm.nRepeatsStimSet = 12; % 0=unlimited
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

@@ -16,7 +16,7 @@ Stm.BackColor = [.667 .667 .667]; % [R G B] 0-1, from Retinotopy
 
 % Fixation ----------------------------------------------------------------
 Stm.FixDotSize = 0.15;
-Stm.FixDotSurrSize = 0.3;
+Stm.FixDotSurrSize = 0.6;
 Stm.FixDotCol = [.5 0 0;1 0 0]; %[RGB if not fixating; RGB fixating]
 
 % Fixation position can be toggled with 1-5 keys --------------------------
@@ -38,14 +38,10 @@ Stm.StimType{2} = 'dots'; % lines / dots
 % Figure/Ground stimuli
 Stm.MoveStim.Do = true;
 Stm.MoveStim.SOA = 0.500; % secs
-
-% old version >> use for textures <<
-Stm.MoveStim.nFrames = 10; % frames << overwritten by duration-based
-Stm.MoveStim.XY = 0*[0.1 0.1]; % deg
-
-% new version >> use for dots <<
-Stm.MoveStim.Speed = [1 1]; %deg/sec [X Y] direction
-Stm.MoveStim.Duration = 1.25; % secs
+Stm.MoveStim.nFrames = 10; % frames
+Stm.MoveStim.XY = [0.1 0.1]; % deg
+% texture: [X Y]
+% dots: [parallel orthogonal]
 
 Stm.RefreshSeed = 0; % s set to 0 for no refresh
 
@@ -54,7 +50,7 @@ Stm.RefreshPol = 0.500;
 
 Stm.SaveToFile = true;
 Stm.LoadFromFile = false; %% Overwrites settings
-Stm.FileName = 'MOCK_FigGnd_DotsTexture_holes.mat';
+Stm.FileName = 'MOCK_FigGnd_LineTexture_triangle_loc.mat';
 
 % Logfolder
 Stm.LogFolder = 'FigGnd';
@@ -85,65 +81,70 @@ Stm.Gnd(2).orient = -45;
 % inherits texture feats from gnd
 Stm.Fig_all.orientations = [-Stm.Gnd(1).orient -Stm.Gnd(2).orient];
 %
-Stm.Fig(1).size = [4 4]; % DVA in case of triangle only take (1)
-Stm.Fig(1).position = [3 0]; % DVA
+Stm.Fig(1).size = [3 3]; % DVA in case of triangle only take (1)
+Stm.Fig(1).position = [-5 0]; % DVA
 Stm.Fig(1).ishole = false;
 Stm.Fig(1).ori_ind = 1;
 Stm.Fig(1).orient = ...
     Stm.Fig_all.orientations(Stm.Fig(1).ori_ind);
-Stm.Fig(1).shape = 'Oval';
-% 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down','N','U'
-Stm.Fig(1).NU_gapsize = [1 2]; % [width height] >> only applies to NU and U
-
+Stm.Fig(1).shape = 'Triangle_up';
+% 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down'
 % -
 Stm.Fig(2) = Stm.Fig(1); 
-Stm.Fig(2).position = [-3 0]; % DVA
-
+Stm.Fig(2).position = [5 0]; % DVA
 % -
 Stm.Fig(3) = Stm.Fig(1);
 Stm.Fig(3).ori_ind = 2;
 Stm.Fig(3).orient = ...
     Stm.Fig_all.orientations(Stm.Fig(3).ori_ind);
 % -
-Stm.Fig(4) = Stm.Fig(2);
-Stm.Fig(4).ori_ind = 2;
-Stm.Fig(4).orient = ...
-    Stm.Fig_all.orientations(Stm.Fig(4).ori_ind);
-
+Stm.Fig(4) = Stm.Fig(3);
+Stm.Fig(4).position = [5 0]; % DVA
 % -
 Stm.Fig(5) = Stm.Fig(1);
-Stm.Fig(5).ishole = true;
+Stm.Fig(5).shape = 'Triangle_down';
+% -
 Stm.Fig(6) = Stm.Fig(2);
-Stm.Fig(6).ishole = true;
-
+Stm.Fig(6).shape = 'Triangle_down';
+% -
+Stm.Fig(7) = Stm.Fig(3);
+Stm.Fig(7).shape = 'Triangle_down';
+% -
+Stm.Fig(8) = Stm.Fig(4);
+Stm.Fig(8).shape = 'Triangle_down';
+    
 % Intermediate background --
 Stm.IntGnd = Stm.Gnd_all;
 Stm.IntGnd.orient = 90;
     
 % Stimulus combination to include --
 % >> always followed by background only <<
-Stm.FigGnd{1} = [1 1; 3 2]; % [figure ground]
-Stm.FigGnd{2} = [0 1; 0 2];
-Stm.FigGnd{3} = [2 1; 4 2];
-Stm.FigGnd{4} = [0 1; 0 2];
-Stm.FigGnd{5} = [5 1; 5 2];
-Stm.FigGnd{6} = [0 1; 0 2];
-Stm.FigGnd{7} = [6 1; 6 2];
-Stm.FigGnd{8} = [0 1; 0 2];
+Stm.FigGnd{1} = [1 1]; % [figure ground]
+Stm.FigGnd{2} = [0 1];
+Stm.FigGnd{3} = [2 1];
+Stm.FigGnd{4} = [0 1];
+Stm.FigGnd{5} = [3 2];
+Stm.FigGnd{6} = [0 2];
+Stm.FigGnd{7} = [4 2];
+Stm.FigGnd{8} = [0 2];
+Stm.FigGnd{9} = [5 1];
+Stm.FigGnd{10} = [0 1];
+Stm.FigGnd{11} = [6 1];
+Stm.FigGnd{12} = [0 1];
+Stm.FigGnd{13} = [7 2];
+Stm.FigGnd{14} = [0 2];
+Stm.FigGnd{15} = [8 2];
+Stm.FigGnd{16} = [0 2];
 
 Stm.InterLeave_FigGnd = false;
 % if true, do fig - gnd - fig - gnd - fig - etc...
 % if false, only do figures
 
 % Timing --
-Stm.stimblockdur = 10;
-
-Stm.stim_TRs = 0.2; % stim duration in TRs
-Stm.int_TRs =  0.0; % interval duration in TRs << set to zero for none
-Stm.firstint_TRs =  0; % interval duration in TRs 
-
-nrep = ceil(Stm.stimblockdur./((Stm.stim_TRs+Stm.int_TRs)*2.5));
-Stm.stim_rep = nrep; %16; % BLOCK: 
+Stm.stim_rep = 16; % BLOCK: n stim + n backgrounds
+Stm.stim_TRs = 0.3; % stim duration in TRs
+Stm.int_TRs =  0.2; % interval duration in TRs 
+Stm.firstint_TRs =  1; % interval duration in TRs 
 
 Stm.RandomizeStimMode = 2; 
 % 0: no randomnisation
@@ -154,7 +155,7 @@ Stm.RandomizeStimMode = 2;
 
 Stm.PreDur_TRs = 5; % volumes
 Stm.PostDur_TRs = 5; % volumes
-Stm.nRepeatsStimSet = 6; % 0=unlimited
+Stm.nRepeatsStimSet = 2; % 0=unlimited
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

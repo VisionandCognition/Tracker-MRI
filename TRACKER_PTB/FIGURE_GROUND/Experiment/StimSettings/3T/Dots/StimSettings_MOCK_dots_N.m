@@ -37,11 +37,11 @@ Stm.StimType{2} = 'dots'; % lines / dots
 
 % Figure/Ground stimuli
 Stm.MoveStim.Do = true;
-Stm.MoveStim.SOA = 0.500; % secs
+Stm.MoveStim.SOA = 0.0; % secs
 
 % old version >> use for textures <<
-Stm.MoveStim.nFrames = 10; % frames << overwritten by duration-based
-Stm.MoveStim.XY = 0*[0.1 0.1]; % deg
+Stm.MoveStim.nFrames = 5; % frames
+Stm.MoveStim.XY = [0.1 0.1]; % deg
 
 % new version >> use for dots <<
 Stm.MoveStim.Speed = [1 1]; %deg/sec [X Y] direction
@@ -52,9 +52,9 @@ Stm.RefreshSeed = 0; % s set to 0 for no refresh
 Stm.InvertPolarity = false;
 Stm.RefreshPol = 0.500;
 
-Stm.SaveToFile = true;
+Stm.SaveToFile = false;
 Stm.LoadFromFile = false; %% Overwrites settings
-Stm.FileName = 'MOCK_FigGnd_DotsTexture_holes.mat';
+Stm.FileName = 'figgnd_movingdots.mat';
 
 % Logfolder
 Stm.LogFolder = 'FigGnd';
@@ -62,59 +62,71 @@ Stm.LogFolder = 'FigGnd';
 %% This only applies to newly created stim ================================
 % Background definitions --
 Stm.Gnd_all.backcol = [1 1 1]; % [R G B] 0-1
+
+% lines
 Stm.Gnd_all.lines.length = 50; % pix
 Stm.Gnd_all.lines.width = 4; % pix
 Stm.Gnd_all.lines.density = 0.7; % 0-1
 Stm.Gnd_all.lines.color = [0 0 0];
-%
-Stm.Gnd_all.dots.size = 8; % 5; 
+
+% dots
+Stm.Gnd_all.dots.size = 5; % 5; 
 % maxes at 10 if we want larger we need to draw rects
-Stm.Gnd_all.dots.density = 0.4; % 0.7; % 0-1
+Stm.Gnd_all.dots.density = 0.5; % 0.7; % 0-1
 Stm.Gnd_all.dots.color = [0 0 0]; % [0 0 0];
 Stm.Gnd_all.dots.type = 0; % 0; % fast square dots
+
 %
 Stm.Gnd_all.NumSeeds = 1;
+
 %
 Stm.Gnd = Stm.Gnd_all;
+
+% Individual stimulus definitions -----
 Stm.Gnd(1).orient = 45;
+Stm.Gnd(1).movegain = -1;
 % -
 Stm.Gnd(2) = Stm.Gnd(1);
 Stm.Gnd(2).orient = -45;
-    
-% Figure definitions --t
+Stm.Gnd(2).movegain = 1;
+
+% Figure definitions ------------------------------------------------------
 % inherits texture feats from gnd
 Stm.Fig_all.orientations = [-Stm.Gnd(1).orient -Stm.Gnd(2).orient];
 %
-Stm.Fig(1).size = [4 4]; % DVA in case of triangle only take (1)
-Stm.Fig(1).position = [3 0]; % DVA
+Stm.Fig(1).size = [6 4]; % DVA in case of triangle only take (1)
+Stm.Fig(1).position = [0 -0.5]; % DVA
 Stm.Fig(1).ishole = false;
 Stm.Fig(1).ori_ind = 1;
 Stm.Fig(1).orient = ...
     Stm.Fig_all.orientations(Stm.Fig(1).ori_ind);
-Stm.Fig(1).shape = 'Oval';
-% 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down','N','U'
-Stm.Fig(1).NU_gapsize = [1 2]; % [width height] >> only applies to NU and U
+Stm.Fig(1).shape = 'N'; % 'Rectangle', 'Oval', 'Triangle_up', 'Triangle_down', 'N','U'
+Stm.Fig(1).NU_gapsize = [2 3]; % [width height] >> only applies to NU and U
+Stm.Fig(1).movegain = 1;
 
 % -
 Stm.Fig(2) = Stm.Fig(1); 
-Stm.Fig(2).position = [-3 0]; % DVA
+Stm.Fig(2).position = [2 -0.5]; % DVA
+% -
+Stm.Fig(3) = Stm.Fig(1); 
+Stm.Fig(3).position = [3 -0.5]; % DVA
+% -
+Stm.Fig(4) = Stm.Fig(1); 
+Stm.Fig(4).position = [4 -0.5]; % DVA
+% -
+Stm.Fig(5) = Stm.Fig(1); 
+Stm.Fig(5).position = [-2 -0.5]; % DVA
+% -
+Stm.Fig(6) = Stm.Fig(1); 
+Stm.Fig(6).position = [-3 -0.5]; % DVA
+% -
+Stm.Fig(7) = Stm.Fig(1); 
+Stm.Fig(7).position = [-4 -0.5]; % DVA
 
-% -
-Stm.Fig(3) = Stm.Fig(1);
-Stm.Fig(3).ori_ind = 2;
-Stm.Fig(3).orient = ...
-    Stm.Fig_all.orientations(Stm.Fig(3).ori_ind);
-% -
-Stm.Fig(4) = Stm.Fig(2);
-Stm.Fig(4).ori_ind = 2;
-Stm.Fig(4).orient = ...
-    Stm.Fig_all.orientations(Stm.Fig(4).ori_ind);
-
-% -
-Stm.Fig(5) = Stm.Fig(1);
-Stm.Fig(5).ishole = true;
-Stm.Fig(6) = Stm.Fig(2);
-Stm.Fig(6).ishole = true;
+for i=1:7
+	Stm.Fig(7+i) = Stm.Fig(i);
+	Stm.Fig(7+i).movegain = -1;
+ end
 
 % Intermediate background --
 Stm.IntGnd = Stm.Gnd_all;
@@ -122,14 +134,24 @@ Stm.IntGnd.orient = 90;
     
 % Stimulus combination to include --
 % >> always followed by background only <<
-Stm.FigGnd{1} = [1 1; 3 2]; % [figure ground]
-Stm.FigGnd{2} = [0 1; 0 2];
-Stm.FigGnd{3} = [2 1; 4 2];
-Stm.FigGnd{4} = [0 1; 0 2];
-Stm.FigGnd{5} = [5 1; 5 2];
-Stm.FigGnd{6} = [0 1; 0 2];
-Stm.FigGnd{7} = [6 1; 6 2];
-Stm.FigGnd{8} = [0 1; 0 2];
+% [figure ground; figure ground]
+% alternating between the 1st and 2nd pair
+Stm.FigGnd{1} = [1 1 ; 8 2]; 
+Stm.FigGnd{2} = [0 1 ; 0 2];
+Stm.FigGnd{3} = [2 1 ; 9 2];
+Stm.FigGnd{4} = [0 1 ; 0 2];
+Stm.FigGnd{5} = [3 1 ; 10 2];
+Stm.FigGnd{6} = [0 1 ; 0 2];
+Stm.FigGnd{7} = [4 1 ; 11 2];
+Stm.FigGnd{8} = [0 1 ; 0 2];
+Stm.FigGnd{9} = [5 1 ; 12 2];
+Stm.FigGnd{10} = [0 1 ; 0 2];
+Stm.FigGnd{11} = [6 1 ; 13 2];
+Stm.FigGnd{12} = [0 1 ; 0 2];
+Stm.FigGnd{13} = [7 1 ; 14 2];
+Stm.FigGnd{14} = [0 1 ; 0 2];
+Stm.FigGnd{15} = [1 1 ; 8 2]; 
+Stm.FigGnd{16} = [0 1 ; 0 2];
 
 Stm.InterLeave_FigGnd = false;
 % if true, do fig - gnd - fig - gnd - fig - etc...
@@ -138,7 +160,7 @@ Stm.InterLeave_FigGnd = false;
 % Timing --
 Stm.stimblockdur = 10;
 
-Stm.stim_TRs = 0.2; % stim duration in TRs
+Stm.stim_TRs = 0.5; % stim duration in TRs
 Stm.int_TRs =  0.0; % interval duration in TRs << set to zero for none
 Stm.firstint_TRs =  0; % interval duration in TRs 
 
@@ -154,7 +176,7 @@ Stm.RandomizeStimMode = 2;
 
 Stm.PreDur_TRs = 5; % volumes
 Stm.PostDur_TRs = 5; % volumes
-Stm.nRepeatsStimSet = 6; % 0=unlimited
+Stm.nRepeatsStimSet = 3; % 0=unlimited
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

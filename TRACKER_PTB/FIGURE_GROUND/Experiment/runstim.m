@@ -739,7 +739,7 @@ while ~Par.ESC && ~ExpFinished
                             if ~StimLogDone
                                 if strcmp(CurrentlyDrawn, 'PreDur')
                                     fprintf('>> Starting Stimulus Block <<\n')
-                                    fprintf(['StimType is ' StimType '\n']);
+                                    %fprintf(['StimType is ' StimType '\n']);
                                 end
                                 %fprintf(['StimType is ' StimType '\n']);
                                 StartWhat = 'Stim';
@@ -1671,10 +1671,10 @@ while ~Par.ESC && ~ExpFinished
                         StimRepNr = 1;
                         if Stm.FigGnd{Log.StimOrder(StimNr)}(1) > 0
                             StimType = 'Figure'; % start with figure if defined
-                            fprintf(['StimType is ' StimType '\n']);
+                            %fprintf(['StimType is ' StimType '\n']);
                         else
                             StimType = 'Ground';
-                            fprintf(['StimType is ' StimType '\n']);
+                            %fprintf(['StimType is ' StimType '\n']);
                         end
                         
                         Log.nEvents = Log.nEvents+1;
@@ -1713,12 +1713,12 @@ while ~Par.ESC && ~ExpFinished
                                                 WithinBlockStatus = 'Stim';
                                                 StimType = 'Figure';
                                                 StimLogDone = false;
-                                                fprintf(['StimType is ' StimType '\n']);
+                                                %fprintf(['StimType is ' StimType '\n']);
                                             else
                                                 WithinBlockStatus = 'Stim';
                                                 StimType = 'Ground';
                                                 StimLogDone = false;
-                                                fprintf(['StimType is ' StimType '\n']);
+                                                %fprintf(['StimType is ' StimType '\n']);
                                             end
                                         else
                                             StimRepNr =  StimRepNr+1;
@@ -1784,12 +1784,12 @@ while ~Par.ESC && ~ExpFinished
                                                 WithinBlockStatus = 'Stim';
                                                 StimType = 'Figure';
                                                 StimLogDone = false;
-                                                fprintf(['StimType is ' StimType '\n']);
+                                                %fprintf(['StimType is ' StimType '\n']);
                                             else
                                                 WithinBlockStatus = 'Stim';
                                                 StimType = 'Ground';
                                                 StimLogDone = false;
-                                                fprintf(['StimType is ' StimType '\n']);
+                                                %fprintf(['StimType is ' StimType '\n']);
                                             end
                                         else
                                             StimRepNr =  StimRepNr+1;
@@ -1881,7 +1881,7 @@ while ~Par.ESC && ~ExpFinished
                                         StimType = 'Ground';
                                         StimLogDone = false;
                                     end
-                                    fprintf(['StimType is ' StimType '\n']);
+                                    %fprintf(['StimType is ' StimType '\n']);
                                 else
                                     StimRepNr =  StimRepNr+1; 
                                     WithinBlockStatus = 'Stim';
@@ -1912,7 +1912,7 @@ while ~Par.ESC && ~ExpFinished
                                         StimType = 'Ground';
                                         StimLogDone = false;
                                     end
-                                    fprintf(['StimType is ' StimType '\n']);
+                                    %fprintf(['StimType is ' StimType '\n']);
                                 else
                                     StimRepNr =  StimRepNr+1; 
                                     WithinBlockStatus = 'Stim';
@@ -2054,7 +2054,7 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
     else
         Screen('FillRect',Par.window,[0 0 0].*Par.ScrWhite); % black first
     end
-    lft=Screen('Flip', Par.window,lft+.9*Par.fliptimeSec);
+    lft=Screen('Flip', Par.window,lft+.95*Par.fliptimeSec);
     if ~TestRunstimWithoutDAS
         dasjuice(0); %stop reward if its running
     end

@@ -31,30 +31,26 @@ Stm.CyclePosition = 0; % set zero for manual cycling
 
 % Retinotopic mapping stimulus --------------------------------------------
 Stm.RandomizeStim=true;
-Stm.Descript = 'FigGnd';
+Stm.Descript = 'FigGnd_holes';
 Stm.StimType{1} = 'FigureGround'; 
-Stm.StimType{2} = 'dots'; % lines / dots
+Stm.StimType{2} = 'lines'; % lines / dots
 
 % Figure/Ground stimuli
-Stm.MoveStim.Do = true;
+Stm.MoveStim.Do = false;
 Stm.MoveStim.SOA = 0.500; % secs
-
-% old version >> use for textures <<
-Stm.MoveStim.nFrames = 10; % frames << overwritten by duration-based
-Stm.MoveStim.XY = 0*[0.1 0.1]; % deg
-
-% new version >> use for dots <<
-Stm.MoveStim.Speed = [1 1]; %deg/sec [X Y] direction
-Stm.MoveStim.Duration = 1.25; % secs
+Stm.MoveStim.nFrames = 5; % frames
+Stm.MoveStim.XY = [0.1 0.1]; % deg
+% texture: [X Y]
+% dots: [parallel orthogonal]
 
 Stm.RefreshSeed = 0; % s set to 0 for no refresh
 
 Stm.InvertPolarity = false;
 Stm.RefreshPol = 0.500;
 
-Stm.SaveToFile = true;
-Stm.LoadFromFile = false; %% Overwrites settings
-Stm.FileName = 'MOCK_FigGnd_DotsTexture_holes.mat';
+Stm.SaveToFile = false;
+Stm.LoadFromFile = true; %% Overwrites settings
+Stm.FileName = 'MOCK_FigGnd_LineTexture_holes.mat';
 
 % Logfolder
 Stm.LogFolder = 'FigGnd';
