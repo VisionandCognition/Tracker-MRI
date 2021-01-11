@@ -1,0 +1,837 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+
+
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8"><!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>runstim</title>
+   <meta name="generator" content="MATLAB 7.11"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2012-03-02"><meta name="DC.source" content="runstim.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+	background: #EEEEEE;
+	padding: 10px;
+	color: #033;
+}
+@media print {
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  .StimGui {
+	color: #F00;
+}
+   </style></head><body><div class="content">
+    <pre class="codeinput"><span class="keyword">function</span> runstim(Hnd)
+ <span class="comment">%Updated 26_03_2013 Chris van der Togt</span>
+
+ <span class="keyword">global</span> Par   <span class="comment">%global parameters</span>
+ <span class="keyword">global</span> LPStat  <span class="comment">%das status values, acronym for Data Aquisition System
+ </span><span class="keyword">global </span>StimObj <span class="comment">%stimulus objects</span>
+
+ <span class="keyword">if</span> ~isfield(StimObj, <span class="string">'Stm'</span>)
+     disp(<span class="string">'ERROR: No stimulus'</span>);
+     <span class="keyword">return</span>
+ <span class="keyword">end</span>
+
+ Times = Par.Times; <span class="comment">%copy timing structure</span>
+ BG = Par.BG; <span class="comment">%background Color</span>
+ cgflip(BG(1), BG(2), BG(3)) <span class="comment">%set background for both front</span>
+ cgflip(BG(1), BG(2), BG(3)) <span class="comment">%and back buffer</span>
+
+<span class="StimGui">%@@</span>
+ Stms = StimObj.Stm;   <span class="comment">%all stimuli</span>
+ Objs = StimObj.Obj;   <span class="comment">%all graphical objects</span>
+ IDs = [ Objs(:).Id ]; <span class="comment">%Ids of all graphical objects</span>
+
+ <span class="comment">%All stimulus objects presented as sprites should not be drawn on sprites at this stage
+ %and so the flag isLoaded on these objects should be false, but to be sure...</span>
+  <span class="keyword">for</span> i = 1:length(IDs)
+      <span class="keyword">if</span> strcmp(Objs(i).Type, <span class="string">'Texture'</span>) || strcmp(Objs(i).Type, <span class="string">'Bitmap'</span>) || strcmp(Objs(i).Type, <span class="string">'Bezier'</span>)
+           Objs(i).Data.isLoaded = false;
+      <span class="keyword">end</span>
+  <span class="keyword">end</span>
+<span class="StimGui">%@@</span>
+ <span class="comment">%....EVENTS.........................</span>
+ FIX = 1;
+ STM = 2;
+ TARG = 3;
+ TARGOF = 4;
+ <span class="comment">%MICR = 5;</span>
+	FS = 0;
+	FO = 0;
+
+<span class="comment">%////YOUR STIMULATION CONTROL LOOP /////////////////////////////////</span>
+   Hit = 2;
+   Par.ESC = false; <span class="comment">%escape has not been pressed</span>
+   <span class="keyword">while</span> ~Par.ESC
+       <span class="comment">%Pretrial</span>
+
+<span class="comment">%SETUP YOUR STIMULI FOR THIS TRIAL</span>
+
+    <span class="keyword">if</span> Par.Drum &amp;&amp; Hit ~= 2 <span class="comment">%if drumming and this was an error trial</span>
+        <span class="comment">%just redo with current sttings</span>
+    <span class="keyword">else</span>
+    <span class="comment">%randomization</span>
+        I = ceil(rand*length(Stms));
+        <span class="comment">%or use custom randomisation procedure</span>
+
+        <span class="comment">%condition and associated stimuli</span>
+        EVENT = Stms(I).Event;
+		<span class="comment">%later when this becomes a non aborted trial we send this value to TDT. using Dasword</span>
+
+		<span class="comment">%timing</span>
+        PREFIXT = Times.ToFix; <span class="comment">%time to enter fixation window</span>
+        FIXT = fix(Times.Fix + rand*Times.RndFix); <span class="comment">%time to fix before stim onset</span>
+        STIMT = fix(Par.Times.Stim + rand*Times.RndStim); <span class="comment">%time that stimulus is displayed</span>
+        TARGT = fix(Times.Targ + round(2*rand-1)*Times.RndTarg); <span class="comment">%time to fix before target onset</span>
+        RACT = Times.Rt;      <span class="comment">%reaction time</span>
+
+        FLtime = Par.fliptime;  <span class="comment">%adjusting for fliptime</span>
+        STIMT = (round(STIMT/FLtime) - 0) * FLtime;
+        TARGT = (round(TARGT/FLtime) - 0) * FLtime;
+
+    <span class="comment">%control window setup</span>
+        FI = find(IDs == Stms(I).Fix, 1);
+        TI = find(IDs == Stms(I).Targ, 1);
+        WIN = [ Objs(FI).Data.cx,  Objs(FI).Data.cy, Par.PixPerDeg*Par.FixWdDeg, Par.PixPerDeg*Par.FixHtDeg, 0; <span class="keyword">...</span><span class="comment"> %Fix</span>
+                Objs(TI).Data.cx,  Objs(TI).Data.cy, Par.PixPerDeg*Par.TargWdDeg, Par.PixPerDeg*Par.TargHtDeg, 2 ];   <span class="comment">%Targ</span>
+        Par.OFFx = Objs(FI).Data.cx;
+        Par.OFFy = Objs(FI).Data.cy;
+
+        Alt = Stms(I).Talt{:};
+        <span class="keyword">for</span> k = 1:length(Alt)
+            AI = find(IDs == Alt(k), 1);
+            WIN = [ WIN; <span class="keyword">...</span>
+                    Objs(AI).Data.cx,  Objs(AI).Data.cy, Par.PixPerDeg*Par.TargWdDeg, Par.PixPerDeg*Par.TargHtDeg, 1 ]; <span class="comment">%TAlt</span>
+        <span class="keyword">end</span>
+        Par.WIN = WIN';
+
+<span class="StimGui">%@@</span>
+     <span class="comment">%preload tectures and bitmaps</span>
+
+         Ids = unique([EVENT{:}]); <span class="comment">%get all object ids in stimulus</span>
+         Notused = setxor(IDs, Ids);
+        <span class="comment">%free memory of obsolete sprites</span>
+        <span class="keyword">for</span> id = Notused <span class="comment">%indices into notused objects</span>
+            idx = find(IDs == id); <span class="comment">%obtain index to the object corresponding with this id</span>
+            <span class="keyword">if</span> strcmp(Objs(idx).Type, <span class="string">'Texture'</span>) || strcmp(Objs(idx).Type, <span class="string">'Bitmap'</span>) || strcmp(Objs(idx).Type, <span class="string">'Bezier'</span>)
+                <span class="keyword">if</span> Objs(idx).Data.isLoaded
+                    cgfreesprite(id) <span class="comment">%unload this sprite to make memory free</span>
+                    Objs(idx).Data.isLoaded = false;
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+        <span class="comment">%load new sprites</span>
+        <span class="keyword">for</span> id = Ids
+           idx = find(IDs == id);
+           <span class="keyword">if</span> strcmp(Objs(idx).Type, <span class="string">'Texture'</span>)
+               OBJ = Objs(idx).Data;
+               <span class="keyword">if</span> ~(OBJ.isLoaded) <span class="comment">%is not loaded</span>
+                    Objs(idx).Data = cgTexture(OBJ, <span class="string">'L'</span>, id); <span class="comment">%(L)oad the texture</span>
+               <span class="keyword">end</span>
+           <span class="keyword">elseif</span> strcmp(Objs(idx).Type, <span class="string">'Bitmap'</span>)
+               OBJ = Objs(idx).Data;
+               <span class="keyword">if</span> ~(OBJ.isLoaded) <span class="comment">%is not loaded</span>
+                    Objs(idx).Data = cgBitmap(OBJ, <span class="string">'L'</span>, id); <span class="comment">%Load the bitmap</span>
+               <span class="keyword">end</span>
+           <span class="keyword">elseif</span> strcmp(Objs(idx).Type, <span class="string">'Bezier'</span>)
+               OBJ = Objs(idx).Data;
+               <span class="keyword">if</span> ~(OBJ.isLoaded) <span class="comment">%is not loaded</span>
+                    Objs(idx).Data = cgBezier(OBJ, <span class="string">'S'</span>, id); <span class="comment">%draw the bezier on a sprite</span>
+               <span class="keyword">end</span>
+           <span class="keyword">end</span>
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="StimGui">%@@</span>
+<span class="comment">%/////////////////////////////////////////////////////////////////////</span>
+<span class="comment">%START THE TRIAL</span>
+    <span class="comment">%set control window positions and dimensions</span>
+    refreshtracker(1) <span class="comment">%for your control display</span>
+    SetWindowDas      <span class="comment">%for the dascard, initializes eye control windows</span>
+    Abort = false;    <span class="comment">%whether subject has aborted before end of trial</span>
+
+<span class="comment">%///////// EVENT 0 START FIXATING //////////////////////////////////////</span>
+
+    <span class="comment">%cgellipse(Px,Py,20,20,[1 0 0 ],'f') %the red fixation dot on the screen</span>
+<span class="StimGui">%@@</span>
+    cgplotstim(EVENT{FIX}, Objs);
+<span class="StimGui">%@@</span>
+    cgflip(BG(1), BG(2), BG(3))
+
+     dasreset( 0 )  <span class="comment">%test enter fix window</span>
+    <span class="comment">%     0 enter fix window</span>
+    <span class="comment">%     1 leave fix window</span>
+    <span class="comment">%     2 enter target window</span>
+
+
+    <span class="comment">%LPStat(1) = time (ms) passed since last reset</span>
+    <span class="comment">%LPStat(2) = control window hit (1 : in or out, 2 : in correct</span>
+    <span class="comment">%                  target window</span>
+    <span class="comment">%LPStat.(3) = hit position x</span>
+    <span class="comment">%LPStat(4) = hit postion y</span>
+    <span class="comment">%LPStat(5) = reaction time</span>
+    <span class="comment">%LPStat(6) = time saccade length</span>
+
+
+     <span class="comment">%subject has to start fixating central dot</span>
+    Par.SetZero = false; <span class="comment">%set key to false to remove previous presses</span>
+    <span class="comment">%Par.Updatxy = 1; %centering key is enabled</span>
+    Time = 1;
+    Hit = 0;
+    <span class="keyword">while</span> Time &lt; PREFIXT &amp;&amp; Hit == 0
+        pause(0.05)
+
+       [Hit Time] = DasCheck; <span class="comment">%retrieve position values and plot on Control display</span>
+    <span class="keyword">end</span>
+
+<span class="comment">%///////// EVENT 1 KEEP FIXATING or REDO  ////////////////////////////////////</span>
+
+    <span class="keyword">if</span> Hit ~= 0  <span class="comment">%subjects eyes are in fixation window keep fixating for FIX time</span>
+        <span class="comment">%the tril bit has now automatically been set high!! If the monkey</span>
+        <span class="comment">%loses fixation he gets another chance but the tril bit just stays</span>
+        <span class="comment">%high and this results in a longer prestim period</span>
+        dasreset( 1 );  <span class="comment">%set test parameters for exiting fix window</span>
+
+        Time = 1;
+        Hit = 0;
+        <span class="keyword">while</span> Time &lt; FIXT &amp;&amp; Hit== 0
+            <span class="comment">%Check for 10 ms</span>
+            pause(0.005)
+
+              <span class="comment">%detect eye enter/exit of control windows</span>
+                                            <span class="comment">%this will also automaitcally</span>
+                                            <span class="comment">%occur during pauzes due to a</span>
+                                            <span class="comment">%callback routine run every single ms</span>
+            [Hit Time] = DasCheck; <span class="comment">%retrieve eyechannel buffer and events, plot eye motion,</span>
+        <span class="keyword">end</span>
+
+
+        <span class="keyword">if</span> Hit ~= 0 <span class="comment">%eye has left fixation to early</span>
+                <span class="comment">%possibly due to eye overshoot, give subject another chance</span>
+                dasreset( 0 );
+                Time = 1;
+                Hit = 0;
+                <span class="keyword">while</span> Time &lt; PREFIXT &amp;&amp; Hit == 0
+                    pause(0.005)
+                    [Hit Time] = DasCheck; <span class="comment">%retrieve position values and plot on Control display</span>
+                <span class="keyword">end</span>
+             <span class="keyword">if</span> Hit ~= 0  <span class="comment">%subjects eyes are in fixation window keep fixating for FIX time</span>
+                dasreset( 1 );  <span class="comment">%test for exiting fix window</span>
+
+                Time = 1;
+                Hit = 0;
+                <span class="keyword">while</span> Time &lt; FIXT &amp;&amp; Hit == 0
+                    <span class="comment">%Check for 10 ms</span>
+                    pause(0.005)
+                    [Hit Time] = DasCheck;
+                <span class="keyword">end</span>
+             <span class="keyword">else</span>
+                  Hit = -1; <span class="comment">%the subject did not fixate</span>
+             <span class="keyword">end</span>
+        <span class="keyword">end</span>
+
+    <span class="keyword">else</span>
+        Hit = -1; <span class="comment">%the subject did not fixate</span>
+    <span class="keyword">end</span>
+
+<span class="comment">%///////// EVENT 2 DISPLAY STIMULUS //////////////////////////////////////</span>
+     <span class="keyword">if</span> Hit == 0 <span class="comment">%subject kept fixation, display stimulus</span>
+        Par.Trlcount = Par.Trlcount + 1;  <span class="comment">%counts total number of trials for this session</span>
+		   dasword( I); <span class="comment">%send word bit and condition, or trial number as you please
+</span>
+<span class="comment">%change your display between these lines.......................</span>
+<span class="comment"></span><span class="StimGui">%@@</span>
+        cgplotstim(EVENT{STM}, Objs);
+<span class="StimGui">%@@</span>
+ <span class="comment">%..............................................................</span>
+        FO = cgflip(BG(1), BG(2), BG(3));
+        FS = FO;
+        <span class="comment">%cgflip('v'); %this is not nice; cgflip does not give good timing</span>
+        tic  <span class="comment">%measure onset too</span>
+        dasbit( Par.StimB, 1);   <span class="comment">%send stimulus bit to TDT</span>
+        dasreset( 1 );  <span class="comment">%test for exiting fix window</span>
+        refreshtracker(2)  <span class="comment">%set target window to green</span>
+        Time = 0;
+
+ <span class="comment">%prepare display for next flip TARGON.................</span>
+        <span class="keyword">if</span> ~isempty(EVENT{TARG})
+<span class="StimGui">%@@</span>
+                cgplotstim(EVENT{TARG}, Objs);
+<span class="StimGui">%@@</span>
+                EPoch = min( STIMT-10, TARGT-50); <span class="comment">%determine smallest time</span>
+                <span class="keyword">while</span> Time &lt; EPoch  &amp;&amp; Hit == 0
+                     dasrun( 5 );
+                    <span class="comment">%get hit time</span>
+                    [Hit Time] = DasCheck;
+                <span class="keyword">end</span>
+                FS = cgflip(BG(1), BG(2), BG(3));
+
+        <span class="keyword">end</span>
+        <span class="keyword">if</span> ~isempty(EVENT{TARGOF})
+<span class="StimGui">%@@</span>
+                    cgplotstim(EVENT{TARGOF}, Objs);
+<span class="StimGui">%@@</span>
+               <span class="comment">%prepare display for next flip.................</span>
+        <span class="keyword">end</span>
+
+        <span class="keyword">while</span> Time &lt; TARGT-50  &amp;&amp; Hit == 0  <span class="comment">%Keep fixating till just before (50ms) target onset</span>
+                dasrun( 5 );
+                <span class="comment">%get hit time and plot eyemotion</span>
+                [Hit Time] = DasCheck; <span class="comment">%plot eye motion in tracker</span>
+        <span class="keyword">end</span>
+
+            <span class="comment">%how much time(ms) do we have left till target onset???  +</span>
+            <span class="comment">%FlOP* FLtime</span>
+            delay = floor(TARGT - toc*1000 - FLtime/2); <span class="comment">%hold up calling the next flip</span>
+            <span class="keyword">if</span> delay &gt; 0
+                <span class="comment">%calllib(Par.Dll, 'Check', delay)</span>
+                dasrun(delay)
+                Hit = LPStat(2);  <span class="comment">%don't wast time!!!! on updating the screen</span>
+            <span class="keyword">else</span>
+                disp(<span class="string">'WARNING....not enough time between stimoffset and target onset.'</span>)
+            <span class="keyword">end</span>
+
+<span class="comment">%///////// EVENT 3 TARGET ONSET, REACTION TIME%%//////////////////////////////////////</span>
+
+        <span class="keyword">if</span> Hit == 0 <span class="comment">%subject kept fixation, subject may make an eye movement</span>
+            FS = cgflip(BG(1), BG(2), BG(3));
+        <span class="comment">%    cgflip('v');    %this is not nice; cgflip doesnot give good timing</span>
+            dasbit( Par.TargetB, 1); <span class="comment">%send target bit to TDT</span>
+            dasreset(2);            <span class="comment">%reset counter and check for entering target window</span>
+            <span class="comment">%toc      %display this to check your internal timing</span>
+            refreshtracker(3) <span class="comment">%set fix point to green</span>
+
+            Time = 0;
+            <span class="keyword">while</span> Time &lt; RACT &amp;&amp; Hit &lt;= 0  <span class="comment">%RACT = time to respond (reaction time)</span>
+                <span class="comment">%Check for 5 ms</span>
+                dasrun( 5)
+                [Hit Time] = DasCheck;
+            <span class="keyword">end</span>
+
+        <span class="keyword">else</span>
+            Abort = true;
+        <span class="keyword">end</span>
+        <span class="comment">%END EVENT 3</span>
+    <span class="keyword">else</span>
+        Abort = true;
+    <span class="keyword">end</span>
+    <span class="comment">%END EVENT 2</span>
+    cgflip(BG(1), BG(2), BG(3));
+
+  <span class="comment">%///////// POSTTRIAL AND REWARD //////////////////////////////////////</span>
+        <span class="keyword">if</span> Hit ~= 0 &amp;&amp; ~Abort <span class="comment">%has entered a target window (false or correct)</span>
+
+            <span class="keyword">if</span> Par.Mouserun
+                HP = line(<span class="string">'XData'</span>, Par.ZOOM * (LPStat(3) + Par.MOff(1)), <span class="string">'YData'</span>, Par.ZOOM * (LPStat(4) + Par.MOff(2)), <span class="string">'EraseMode'</span>,<span class="string">'none'</span>);
+            <span class="keyword">else</span>
+               HP = line(<span class="string">'XData'</span>, Par.ZOOM * LPStat(3), <span class="string">'YData'</span>, Par.ZOOM * LPStat(4), <span class="string">'EraseMode'</span>,<span class="string">'none'</span>);
+            <span class="keyword">end</span>
+            set(HP, <span class="string">'Marker'</span>, <span class="string">'+'</span>, <span class="string">'MarkerSize'</span>, 20, <span class="string">'MarkerEdgeColor'</span>, <span class="string">'m'</span>)
+            <span class="comment">%drawnow</span>
+
+            <span class="keyword">if</span> Hit == 2 &amp;&amp; Par.Reward &amp;&amp; LPStat(6) &lt; Times.Sacc <span class="comment">%correct target, give juice</span>
+
+                    dasbit( Par.CorrectB, 1);
+                    dasbit( Par.RewardB, 1);
+                    dasjuice( 5 );
+                    Par.Corrcount = Par.Corrcount + 1; <span class="comment">%log correct trials</span>
+                   <span class="comment">% beep</span>
+
+                    pause(Par.RewardTime) <span class="comment">%RewardTime is in seconds</span>
+
+                    dasbit( Par.RewardB, 0);
+                    dasjuice( 0 );
+
+
+            <span class="keyword">elseif</span> Hit == 1
+                    dasbit(  Par.ErrorB, 1);
+                    Par.Errcount = Par.Errcount + 1;
+                   <span class="comment">%in wrong target window</span>
+            <span class="keyword">end</span>
+
+            <span class="comment">%keep following eye motion to plot complete saccade</span>
+            <span class="keyword">for</span> i = 1:10   <span class="comment">%keep targoff for 50ms</span>
+                pause(0.005) <span class="comment">%not time critical, add some time to follow eyes</span>
+            <span class="comment">%calllib(Par.Dll, 'Check', 5);</span>
+            DasCheck; <span class="comment">%keep following eye motion</span>
+            <span class="keyword">end</span>
+            <span class="comment">%Save_eyetrace( I )</span>
+
+        <span class="keyword">end</span>
+
+         <span class="keyword">if</span> Hit ~= 2  <span class="comment">%error response</span>
+              <span class="comment">%add pause when subject makes error</span>
+             <span class="keyword">for</span> i = 1:round(Times.Err/5)   <span class="comment">%keep targoff for Times.Err(ms)</span>
+                 pause(0.005)
+                <span class="comment">% calllib(Par.Dll, 'Check', 5);</span>
+                DasCheck;
+             <span class="keyword">end</span>
+
+         <span class="keyword">end</span>
+         [ Hit Lasttime] = DasCheck;
+<span class="comment">%///////////////////////INTERTRIAL AND CLEANUP</span>
+         display([<span class="string">'hit '</span> num2str(Hit) <span class="string">' reactiontime: '</span> num2str(LPStat(5))  <span class="string">' saccadetime: '</span> num2str(LPStat(6))]);
+         disp([<span class="string">'stimulus-target duration: '</span> num2str((FS - FO)*1000) <span class="string">' ms '</span>]);  <span class="comment">%check timing of target onset</span>
+
+         <span class="comment">%reset all bits to null</span>
+         <span class="keyword">for</span> i = [0 1 2 3 4 5 6 7]  <span class="comment">%Error, Stim, Saccade, Trial, Correct,</span>
+             <span class="comment">%calllib(Par.Dll, 'DO_Bit', i, 0);</span>
+             dasbit( i, 0); <span class="comment">%clear bits</span>
+         <span class="keyword">end</span>
+         <span class="comment">%calllib(Par.Dll, 'Clear_Word');</span>
+         dasclearword();
+
+            SCNT = {<span class="string">'TRIALS'</span>};
+            SCNT(2) = { [<span class="string">'N: '</span> num2str(Par.Trlcount) ]};
+            SCNT(3) = { [<span class="string">'C: '</span> num2str(Par.Corrcount) ] };
+            SCNT(4) = { [<span class="string">'E: '</span> num2str(Par.Errcount) ] };
+            set(Hnd(1), <span class="string">'String'</span>, SCNT ) <span class="comment">%display updated numbers in GUI</span>
+
+            SD = dasgetnoise();
+            SD = SD./Par.PixPerDeg;
+
+            set(Hnd(2), <span class="string">'String'</span>, SD )
+
+         cgpencol(BG(1), BG(2), BG(3)) <span class="comment">%clear background before flipping</span>
+         cgrect
+         cgflip(BG(1), BG(2), BG(3))
+         <span class="comment">%pause( Times.InterTrial/1000 ) %pause is called with seconds</span>
+                                       <span class="comment">%Times.InterTrial is in ms</span>
+         Time = Lasttime;
+         <span class="keyword">while</span> Time &lt; Times.InterTrial + Lasttime
+             pause(0.005)
+             <span class="comment">%calllib(Par.Dll, 'Check', 5);</span>
+            [Hit Time] = DasCheck;
+         <span class="keyword">end</span>
+
+   <span class="keyword">end</span>   <span class="comment">%WHILE_NOT_ESCAPED%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span></pre>
+  </div>
+<!--
+##### SOURCE BEGIN #####
+function runstim(Hnd)
+ %Updated 19_10_2011 Chris van der Togt
+
+ global Par   %global parameters
+ global LPStat  %das status values
+ global StimObj %stimulus objects
+ 
+ if ~isfield(StimObj, 'Stm')
+     disp('ERROR: No stimulus');
+     return
+ end
+ 
+ Times = Par.Times; %copy timing structure
+ BG = Par.BG; %background Color
+ cgflip(BG(1), BG(2), BG(3))
+ 
+ Stms = StimObj.Stm;   %all stimuli
+ Objs = StimObj.Obj;   %all graphical objects
+ IDs = [ Objs(:).Id ]; %Ids of all graphical objects
+ 
+ %they should all be not loaded, but just to make sure
+  for i = 1:length(IDs) 
+      if strcmp(Objs(i).Type, 'Texture') || strcmp(Objs(i).Type, 'Bitmap') || strcmp(Objs(i).Type, 'Bezier')
+           Objs(i).Data.isLoaded = false;
+      end
+  end
+ 
+ %....EVENTS.........................
+ FIX = 1;
+ STM = 2;
+ TARG = 3;
+ TARGOF = 4;
+ %MICR = 5;
+FS = 0;
+FO = 0;
+
+%////YOUR STIMULATION CONTROL LOOP /////////////////////////////////
+   Hit = 2;
+   Par.ESC = false; %escape has not been pressed
+   while ~Par.ESC   
+       %Pretrial
+
+%SETUP YOUR STIMULI FOR THIS TRIAL
+
+    if Par.Drum && Hit ~= 2 %if drumming and this was an error trial
+        %just redo with current sttings
+    else
+    %randomization
+        I = ceil(rand*length(Stms));
+        %or use custom randomisation procedure
+        
+        %condition and associated stimuli
+        EVENT = Stms(I).Event;
+        %calllib(Par.Dll, 'DO_Word', I); %send word bit and condition
+        dasword( I); %send word bit and condition
+        
+    %timing
+        PREFIXT = Times.ToFix; %time to enter fixation window
+        FIXT = fix(Times.Fix + rand*Times.RndFix); %time to fix before stim onset
+        STIMT = fix(Par.Times.Stim + rand*Times.RndStim); %time that stimulus is displayed
+        TARGT = fix(Times.Targ + round(2*rand-1)*Times.RndTarg); %time to fix before target onset
+        RACT = Times.Rt;      %reaction time
+        
+        FLtime = Par.fliptime;  %adjusting for fliptime       
+        STIMT = (round(STIMT/FLtime) - 0) * FLtime;
+        TARGT = (round(TARGT/FLtime) - 0) * FLtime;
+                
+    %control window setup    
+        FI = find(IDs == Stms(I).Fix, 1);
+        TI = find(IDs == Stms(I).Targ, 1);
+        WIN = [ Objs(FI).Data.cx,  Objs(FI).Data.cy, Par.PixPerDeg*Par.FixWdDeg, Par.PixPerDeg*Par.FixHtDeg, 0; ... %Fix
+                Objs(TI).Data.cx,  Objs(TI).Data.cy, Par.PixPerDeg*Par.TargWdDeg, Par.PixPerDeg*Par.TargHtDeg, 2 ];   %Targ
+        Par.OFFx = Objs(FI).Data.cx;
+        Par.OFFy = Objs(FI).Data.cy;
+
+        Alt = Stms(I).Talt{:};
+        for k = 1:length(Alt)
+            AI = find(IDs == Alt(k), 1);
+            WIN = [ WIN; ...
+                    Objs(AI).Data.cx,  Objs(AI).Data.cy, Par.PixPerDeg*Par.TargWdDeg, Par.PixPerDeg*Par.TargHtDeg, 1 ]; %TAlt
+        end
+        Par.WIN = WIN';
+
+     %preload tectures and bitmaps
+
+         Ids = unique([EVENT{:}]); %get all object ids in stimulus 
+         Notused = setxor(IDs, Ids);
+        %free memory of obsolete sprites
+        for id = Notused %indices into notused objects
+            idx = find(IDs == id); %obtain index to the object corresponding with this id
+            if strcmp(Objs(idx).Type, 'Texture') || strcmp(Objs(idx).Type, 'Bitmap') || strcmp(Objs(idx).Type, 'Bezier')
+                if Objs(idx).Data.isLoaded
+                    cgfreesprite(id) %unload this sprite to make memory free
+                    Objs(idx).Data.isLoaded = false;
+                end
+            end
+        end
+        %load new sprites
+        for id = Ids
+           idx = find(IDs == id);
+           if strcmp(Objs(idx).Type, 'Texture') 
+               OBJ = Objs(idx).Data;
+               if ~(OBJ.isLoaded) %is not loaded
+                    Objs(idx).Data = cgTexture(OBJ, 'L', id); %(L)oad the texture
+               end
+           elseif strcmp(Objs(idx).Type, 'Bitmap')
+               OBJ = Objs(idx).Data;
+               if ~(OBJ.isLoaded) %is not loaded
+                    Objs(idx).Data = cgBitmap(OBJ, 'L', id); %Load the bitmap
+               end
+           elseif strcmp(Objs(idx).Type, 'Bezier')
+               OBJ = Objs(idx).Data;
+               if ~(OBJ.isLoaded) %is not loaded
+                    Objs(idx).Data = cgBezier(OBJ, 'S', id); %draw the bezier on a sprite
+               end
+           end
+        end
+    end   
+%///////////////////////////////////////////////////////////////////// 
+%START THE TRIAL
+    %set control window positions and dimensions
+    refreshtracker(1) %for your control display
+    SetWindowDas      %for the dascard, initializes eye control windows
+    Abort = false;    %whether subject has aborted before end of trial
+
+%///////// EVENT 0 START FIXATING //////////////////////////////////////
+    
+    %cgellipse(Px,Py,20,20,[1 0 0 ],'f') %the red fixation dot on the screen
+    cgplotstim(EVENT{FIX}, Objs);
+    cgflip(BG(1), BG(2), BG(3))
+
+     dasreset( 0 )  %test enter fix window
+    %     0 enter fix window
+    %     1 leave fix window
+    %     2 enter target window
+    
+
+    %LPStat(1) = time (ms) passed since last reset
+    %LPStat(2) = control window hit (1 : in or out, 2 : in correct
+    %                  target window
+    %LPStat.(3) = hit position x
+    %LPStat(4) = hit postion y
+    %LPStat(5) = reaction time
+    %LPStat(6) = time saccade length
+
+    
+     %subject has to start fixating central dot
+    Par.SetZero = false; %set key to false to remove previous presses
+    %Par.Updatxy = 1; %centering key is enabled
+    Time = 1;
+    Hit = 0;
+    while Time < PREFIXT && Hit == 0 
+        pause(0.05)
+                
+       [Hit Time] = DasCheck; %retrieve position values and plot on Control display
+    end 
+ 
+%///////// EVENT 1 KEEP FIXATING or REDO  ////////////////////////////////////
+        
+    if Hit ~= 0  %subjects eyes are in fixation window keep fixating for FIX time
+        %the tril bit has now automatically been set high!! If the monkey
+        %loses fixation he gets another chance but the tril bit just stays
+        %high and this results in a longer prestim period
+        dasreset( 1 );  %set test parameters for exiting fix window
+        
+        Time = 1;
+        Hit = 0;
+        while Time < FIXT && Hit== 0
+            %Check for 10 ms
+            pause(0.005)
+            
+              %detect eye enter/exit of control windows
+                                            %this will also automaitcally
+                                            %occur during pauzes due to a
+                                            %callback routine run every single ms
+            [Hit Time] = DasCheck; %retrieve eyechannel buffer and events, plot eye motion, 
+        end
+        
+        
+        if Hit ~= 0 %eye has left fixation to early
+                %possibly due to eye overshoot, give subject another chance
+                dasreset( 0 );
+                Time = 1;
+                Hit = 0;
+                while Time < PREFIXT && Hit == 0 
+                    pause(0.005)
+                    [Hit Time] = DasCheck; %retrieve position values and plot on Control display
+                end 
+             if Hit ~= 0  %subjects eyes are in fixation window keep fixating for FIX time  
+                dasreset( 1 );  %test for exiting fix window
+                
+                Time = 1;
+                Hit = 0;
+                while Time < FIXT && Hit == 0
+                    %Check for 10 ms
+                    pause(0.005)                  
+                    [Hit Time] = DasCheck;
+                end
+             else
+                  Hit = -1; %the subject did not fixate
+             end
+        end
+        
+    else
+        Hit = -1; %the subject did not fixate
+    end
+    
+%///////// EVENT 2 DISPLAY STIMULUS //////////////////////////////////////
+     if Hit == 0 %subject kept fixation, display stimulus
+        Par.Trlcount = Par.Trlcount + 1;  %counts total number of trials for this session  
+        
+%change your display between these lines.......................
+%             cgpencol(1,1,1)
+%             cgrect(-462, 334, 100, 100) %test stimulus for light diode
+%             cgellipse(Px,Py,20,20,[1 0 0 ],'f') %fixation dot
+%             cgellipse(Par.WIN(1,2), Par.WIN(2,2), 20, 20, [1 0 0 ], 'f') %target
+        cgplotstim(EVENT{STM}, Objs);
+ %.............................................................. 
+        FO = cgflip(BG(1), BG(2), BG(3));
+        FS = FO;
+        %cgflip('v'); %this is not nice; cgflip does not give good timing
+        tic  %measure onset too 
+        dasbit( Par.StimB, 1);   %send stimulus bit to TDT   
+        dasreset( 1 );  %test for exiting fix window
+        refreshtracker(2)  %set target window to green
+        Time = 0;
+        
+ %prepare display for next flip TARGON.................
+        if ~isempty(EVENT{TARG})
+                cgplotstim(EVENT{TARG}, Objs);
+                EPoch = min( STIMT-10, TARGT-50); %determine smallest time
+                while Time < EPoch  && Hit == 0 
+                     dasrun( 5 );
+                    %get hit time 
+                    [Hit Time] = DasCheck;   
+                end
+                FS = cgflip(BG(1), BG(2), BG(3));
+                
+        end
+        if ~isempty(EVENT{TARGOF})
+                    cgplotstim(EVENT{TARGOF}, Objs);                             
+               %prepare display for next flip.................      
+        end      
+        
+        while Time < TARGT-50  && Hit == 0  %Keep fixating till just before (50ms) target onset
+                dasrun( 5 );
+                %get hit time and plot eyemotion
+                [Hit Time] = DasCheck; %plot eye motion in tracker
+        end
+
+            %how much time(ms) do we have left till target onset???  +
+            %FlOP* FLtime
+            delay = floor(TARGT - toc*1000 - FLtime/2); %hold up calling the next flip
+            if delay > 0
+                %calllib(Par.Dll, 'Check', delay)
+                dasrun(delay)
+                Hit = LPStat(2);  %don't wast time!!!! on updating the screen
+            else
+                disp('WARNING....not enough time between stimoffset and target onset.')
+            end
+            
+%///////// EVENT 3 TARGET ONSET, REACTION TIME%%//////////////////////////////////////  
+
+        if Hit == 0 %subject kept fixation, subject may make an eye movement
+            FS = cgflip(BG(1), BG(2), BG(3)); 
+        %    cgflip('v');    %this is not nice; cgflip doesnot give good timing
+            dasbit( Par.TargetB, 1); %send target bit to TDT 
+            dasreset(2);            %reset counter and check for entering target window
+            %toc      %display this to check your internal timing
+            refreshtracker(3) %set fix point to green
+
+            Time = 0;
+            while Time < RACT && Hit <= 0  %RACT = time to respond (reaction time)
+                %Check for 5 ms
+                dasrun( 5)
+                [Hit Time] = DasCheck;
+            end
+            
+        else
+            Abort = true;
+        end
+        %END EVENT 3           
+    else
+        Abort = true;
+    end
+    %END EVENT 2
+    cgflip(BG(1), BG(2), BG(3));
+
+  %///////// POSTTRIAL AND REWARD ////////////////////////////////////// 
+        if Hit ~= 0 && ~Abort %has entered a target window (false or correct)
+        
+            if Par.Mouserun
+                HP = line('XData', Par.ZOOM * (LPStat(3) + Par.MOff(1)), 'YData', Par.ZOOM * (LPStat(4) + Par.MOff(2)), 'EraseMode','none');
+            else
+               HP = line('XData', Par.ZOOM * LPStat(3), 'YData', Par.ZOOM * LPStat(4), 'EraseMode','none');
+            end
+            set(HP, 'Marker', '+', 'MarkerSize', 20, 'MarkerEdgeColor', 'm')
+            %drawnow
+                  
+            if Hit == 2 && Par.Reward && LPStat(6) < Times.Sacc %correct target, give juice 
+                                
+                    dasbit( Par.CorrectB, 1);
+                    dasbit( Par.RewardB, 1);
+                    dasjuice( 5 ); 
+                    Par.Corrcount = Par.Corrcount + 1; %log correct trials
+                   % beep
+ 
+                    pause(Par.RewardTime) %RewardTime is in seconds
+
+                    dasbit( Par.RewardB, 0);
+                    dasjuice( 0 ); 
+                    
+            
+            elseif Hit == 1
+                    dasbit(  Par.ErrorB, 1);
+                    Par.Errcount = Par.Errcount + 1;
+                   %in wrong target window
+            end
+            
+            %keep following eye motion to plot complete saccade
+            for i = 1:10   %keep targoff for 50ms
+                pause(0.005) %not time critical, add some time to follow eyes
+            %calllib(Par.Dll, 'Check', 5);
+            DasCheck; %keep following eye motion
+            end
+            %Save_eyetrace( I )
+
+        end
+
+         if Hit ~= 2  %error response
+              %add pause when subject makes error
+             for i = 1:round(Times.Err/5)   %keep targoff for Times.Err(ms)
+                 pause(0.005)
+                % calllib(Par.Dll, 'Check', 5);
+                DasCheck; 
+             end
+            
+         end                       
+         [ Hit Lasttime] = DasCheck;
+%///////////////////////INTERTRIAL AND CLEANUP   
+         display(['hit ' num2str(Hit) ' reactiontime: ' num2str(LPStat(5))  ' saccadetime: ' num2str(LPStat(6))]);
+         disp(['stimulus-target duration: ' num2str((FS - FO)*1000) ' ms ']);  %check timing of target onset 
+
+         %reset all bits to null
+         for i = [0 1 2 3 4 5 6 7]  %Error, Stim, Saccade, Trial, Correct,  
+             %calllib(Par.Dll, 'DO_Bit', i, 0);
+             dasbit( i, 0); %clear bits
+         end
+         %calllib(Par.Dll, 'Clear_Word');
+         dasclearword();
+              
+            SCNT = {'TRIALS'};
+            SCNT(2) = { ['N: ' num2str(Par.Trlcount) ]};
+            SCNT(3) = { ['C: ' num2str(Par.Corrcount) ] };
+            SCNT(4) = { ['E: ' num2str(Par.Errcount) ] };
+            set(Hnd(1), 'String', SCNT ) %display updated numbers in GUI
+            
+            SD = dasgetnoise(); 
+            SD = SD./Par.PixPerDeg;
+            
+            set(Hnd(2), 'String', SD )
+
+         cgpencol(BG(1), BG(2), BG(3)) %clear background before flipping
+         cgrect
+         cgflip(BG(1), BG(2), BG(3))         
+         %pause( Times.InterTrial/1000 ) %pause is called with seconds
+                                       %Times.InterTrial is in ms
+         Time = Lasttime;                              
+         while Time < Times.InterTrial + Lasttime
+             pause(0.005)
+             %calllib(Par.Dll, 'Check', 5);
+            [Hit Time] = DasCheck;
+         end
+        
+   end   %WHILE_NOT_ESCAPED%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   
+
+ 
+
+     
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Trackerman</title>
+<style type="text/css">
+<!--
+body {
+	margin-left: 50px;
+}
+.green {
+	color: #990;
+}
+.cyan {
+	color: #09C4C4;
+}
+.StimGui {	color: #F00;
+}
+span.comment {color: #228B22}
+span.keyword {color: #0000FF}
+p.footer {  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+pre.codeinput {  background: #EEEEEE;
+  padding: 10px;
+}
+pre.codeinput {word-wrap:break-word; width:100%;}
+pre.codeoutput {  color: #666666;
+  padding: 10px;
+}
+.comment {
+	color: #093;
+}
+-->
+</style></head>
+
+<body>
+<h1>Manual for Tracker</h1>
+<p>Chris van der Togt, 01-03-2012</p>
+<p>Tracker is a <strong>matlab</strong> program for visual experiments in which it is necessary to follow the  eyemovements of a subject and detect behavioural responses. It consists of a small number of scripts that are called through a <strong>Graphical user interface </strong>(GUI). One of these scripts the <strong>runstim </strong>function is the central procedure in which every thing comes together and can be adapted to the requirements of the experimenter.</p>
+<p>Within the scripts functions are called from two external libraries; </p>
+<p><strong>Cogent</strong>: a library of functions to present stimuli on a test screen. Details on how to use this library can be found in the cogent documentation under the CogGph\Doc directory.</p>
+<p><strong>Dascontrol</strong>: a library of functions to follow eye position, to test whether the eye position is inside or outside of defined areas on the screen, and detect the onset timing of these events. These libraries are extensions to matlab and compiled from C code to mex functions. See below for details.</p>
+<h2>Basic use</h2>
+<p>The main function of the GUI interface of tracker is to be able to follow the eye movements of the subject and manipulate all parameters. It has been built using GUIDE an toolbox for making GUI interfaces and is standard matlab script.</p>
+<p><img src="GUIeyepos.png" width="958" height="691" alt="Using Tracker running" /></p>
+<p>Once tracker has initialized the following basic functions can be used:</p>
+<p>In the control screen for following eye movements, the experiment is set to a running mode by pressing <strong>Run </strong>on the right hand side control interface. This runs the runstim matlab mfile. Set to pause mode by pressing <strong>stop</strong>. </p>
+<p>Test the eye channel input without showing stimuli and running the experiment by pressing <strong>Test Eye</strong>.</p>
+<p>The eye position can also be emulated with the mouse. (Set the radio button next to <strong>Mouse</strong> on, click on the central display and move the mouse while in <strong>Run mode</strong>. After clicking on the central display the keyboard is also activated and tracker responds to key presses.</p>
+<p>The <strong>Z </strong>key sets the offset of the eye channel input to zero, which corresponds to the centre of the display. The eye signal position immediately shifts to the centre. This is used to update the offset of the eye input when the subject fixates in the middle of the screen.</p>
+<p>If the <strong>SHIFT</strong> radio button is selected the eye position offset can also be changed with small amounts with the arrow keys in the direction of the key pressed. This is important to adjust the offset of the eye channels when the subject fixates but the eye position has a small offset. </p>
+<p>If the <strong>SCALE</strong> radio button is selected the scale of the eye signals is increased of decreased by pressing the up and down arrow keys.</p>
+<p>The amount of <strong>Reward</strong> the subject gets can also be varied by moving the slider up and down. The time that the juice valve is open will be shown on the left.</p>
+<p>At the bottom of the right hand side control interface are two additional boxes that display the <strong>Noise</strong> on the eye channels during fixation and a box showing the numbers of trials where the subject started to fixate, the number that were correct, and the number that were incorrect. The difference between total number and correct + error is equal to the number of aborted trials.</p>
+<p>&nbsp;</p>
+<h2>Initializing Tracker</h2>
+<p>When you call tracker, it will automatically initialise the cogent and DasControl library, and set all parameters to their default values. It does this by first calling the <strong>prestim </strong>mfile. In this script a global structure is initialised called <strong>Par</strong> that is used throughout tracker and it's subroutines. If you want to see what is in this structure, type <strong>&lt; global Par &gt;</strong> in the matlab command window. When cogent initialises it opens a display window for presenting your stimuli on a secondary screen, in the matlab command window the screen dimensions in pixels and the refresh rate are shown for the cogent display window.</p>
+<h3>Parameters</h3>
+<p>Before setting tracker to run mode, you need to load your stimuli and set experiment specific parameters. To read in parameters press <strong>File -&gt;Read parameters</strong>. Select the appropriate file, this is usually a <strong>par.mat</strong> file or a mat file with a self chosen name after saving parameters (<strong>Save parameters</strong>) from a previous session. Before running the experiment the parameters can be changed by pressing <strong>File -&gt; Change parameters</strong></p>
+<p><img src="GiuParameters.png" width="966" height="683" alt="Parameters" /></p>
+<p>Two sets of parameters are shown; <strong>Timing</strong> parameters and <strong>Visual Scaling</strong> parameters. </p>
+<p><strong>Visual scaling</strong></p>
+<p>The distance to the screen, screen width, and pixel dimensions of the screen determine the number of pixels per degree with respect to the subjects eye. These numbers are important to define the size and position of visual stimuli in visual degrees. The screen pixel dimensions are determined when the stimulus display screen is initialised by cogent and therefore these values are retrieved through a cogent function and cannot be edited. If these numbers are correct the control window dimensions can be set in visual degrees. The fix window and target window dimensions can be set separately. <strong>n.b. </strong>See below for function of control windows. Next to <strong>Eye</strong> the sign of the the eyechannel input can be changed. When you notice that the subject makes eyemovements to the opposite side of the screen to where a saccade should be made, this usually means one or both channels have an incorrect sign. Adjust the sign by pressing the buttons. Background color is just the default background color during and between stimulus presentations. Values should be between 0 and 1, for Red, Green and Blue resp.</p>
+<p><strong>Timing</strong></p>
+<p>In a stimulus procedure different intervals are defined that correspond to the subsequent presentation of stimuli and the behaviour of the subject (which is based on eye position). To account for this a series of event periods are defined and their values are editable. Below the user interfaces the same periods are displayed in a time graph. In the most simple protocol, the program defines five periods; </p>
+<p>1. A time to start fixating period (fix_wait duration); the program waits until the subjects eyes enter the fixation window. This is when the fixation dot is presented.</p>
+<p>2. Fix hold, subject fixates, only fixation dot is presented. Now the program starts checking whether the eyes stay within the fixation control window, a circle in the middle of the screen with a red dot at it's center.</p>
+<p>3. A Stimulus presentation period in which stimuli are presented but the subject must maintain fixation. If the target time is equal to the stimulus on time this is immediately followed by the reaction time.</p>
+<p>4. Reaction time period; If the target window is not the same as the fixation window, the subject must make an eye movement to the target within the reaction time period. The program will now detect that the eyes leave the fixation window (= saccade onset) and detect that they enter a target window. </p>
+<p>5. Inter trial period. defines a pause time between stimulus trials.</p>
+<p>In addition to these periods, the following time variables are defined.</p>
+<p><strong>Randomness</strong> to the predefined periods can be added (value editors on the right).</p>
+<p><strong>Drumming</strong> is for repeating trials on which the subject made errors.</p>
+<p><strong>Saccade time</strong> defines the limit to the length of time that a saccade may take. Once the subject's eyes leave the fixation window they are required to enter a target window within this specified time otherwise the trial is aborted.</p>
+<p><strong>Error time</strong>, a period of time that is added to a trial when a subject makes an error. Basically a sort of punishment for making an error.</p>
+<h3>Stimuli</h3>
+<p>Load stimuli by pressing <strong>Context</strong> -&gt; <strong>StimGui</strong> -&gt; <strong>File</strong> -&gt; <strong>Read</strong> . StimGui is a separate graphical user interface specifically made to load and make stimulus object files.It can also be run separately from tracker. This is handy when you want to make stimuli on another computer which does not have an AD card (DasControl does not work) but you can use cogent.</p>
+<p>&nbsp;</p>
+<p><img src="Stimgui.png" width="945" height="677" alt="Stimgui" /></p>
+<p>With StimGui, visual objects are defined which can be grouped and ordered in time to define separate stimulus conditions. The right hand side of StimGui shows a list of graphical objects when you press on the small arrow. The left hand side shows a list of stimulus conditions. The Graphical objects (dot, box, bezier, bitmap) have an id number which is the number on the left of each item. These numbers are used to refer to them in the stimulus condition setup. </p>
+<p><img src="Stimgui3.png" width="1019" height="651" alt="Control windows" /></p>
+<p>&nbsp;</p>
+<p>In the lower part of the StimGui is a box with an<strong> Event display</strong> list and a <strong>control window</strong> list. When you click on one of the stimulus conditions under stimuli, these edit boxes are filled with the references to the visual objects associated with this stimulus.</p>
+<p>As mentioned earlier, an experimental procedure consists of a series of intervals in which different sets of graphical objects should be presented to a subject. Here  <strong>Fix-on, Stim-on, Targ-on and Targ-off </strong>are defined. In each edit box a list of numbers can be entered corresponding to the id's of the graphical objects that should be presented in that event interval. <strong>n.b.</strong> If some graphical object should be plotted on top of others the order of the numbers is important. Objects are plotted in the order listed.</p>
+<p>Graphical objects are also used as place holders for control windows, even if you do not plan to display them. This is only for objects with a centre x, and centre y position. In an experiment three types of control windows are defined; <strong>Fix , Correct and Error</strong> windows. Usually a subject first has to fixate on a colored dot (red) for a certain time including the presentation of a stimulus. Following the presentation of the stimulus, the subject may be required to make an eye movement to one of several possible targets. Only one can be correct, and there can be multiple other targets that are incorrect. The control windows are plotted in the eye movement display window within the main control window of tracker. The fixation window has a red dot in the middle, the target window is a magenta circle, the error windows are black circles. When the subject is cued to make an eye movement, the fixation dot and the correct target window become green. Of course this is not what the subject sees, only the experimenter.</p>
+<p>In StimGui, with the edit boxes on the right (<strong>Control windows</strong>), a <strong>fix</strong> object, a <strong>correct</strong> object and <strong>error</strong> target objects can be selected. <strong>n.b.</strong>The selection of graphical objects for the different events and for the control windows has to be done for each separate stimulus condition.</p>
+<p>This figure illustrates the correspondence between the events in StimGui and Tracker.</p>
+<p><img src="Stimgui2.png" width="818" height="507" alt="epochs" /></p>
+<p>The stimulus defined in <strong>Fix-on</strong> in StimGui is presented at the start of the left gray bar, that is before the subject starts to fixate. The thin black bar shows the stim on time period. The start of this period corresponds with the presentation of the objects entered in <strong>stim-on</strong> in StimGui. When this period ends this corresponds with the presentation of objects defined in <strong>targ-on</strong> in StimGui (I will add a vertical line at the end of the stim period to indicate targ-on). The vertical line with targ in tracker is the onset of the reaction time period (<span class="green">green bar</span>) and it's onset corresponds with the presentation of visual objects defined in <strong>targ-off</strong> in StimGui. Note that  the <span class="cyan">cyan bar</span> indicates the whole period that the subject should fixate, however this groups three periods together; the fix hold, the stim on and the target time. </p>
+<h2>Closing Tracker</h2>
+<p>When you are finished with tracker, it should be properly shut down by pressing File-&gt;Exit. Only then variables ar properly cleared and this prevents matlab from crashing if you call tracker a second time. As tracker closes down it calls poststim to clear all variables.</p>
+<p>&nbsp;</p>
+<h2>Advanced use</h2>
+<p>&nbsp;</p>
+<p>An advantage of using tracker is that the runstim, which is the actual function controlling subsequent events and their timing, is a script file that can easily be adapted to any weird protocol someone might like to use. This includes the possibility to define your own visual stimuli in any way you prefer. That also means you do not have to use StimGui if it does not meet your requirements. To do this the runstim mfile has to be copied to another location and edited. Once it is adapted you can use it in tracker by changing the matlab working directory to the directory containing your run function and pressing; <strong>Context -&gt; NewRunfunction</strong> . To select your runstim function. This will tell tracker to use this function instead of the default one.</p>
+<p>Here is the basic runstim provided with tracker; <a href="runstim.html" title="Runstim">Runstim</a></p>
+<p><span class="StimGui">%@@</span> Lines enclosed by these flags in runstim are all associated with StimGui generated stimuli and can be excluded if necessary <span class="StimGui">%@@</span></p>
+<p>But if you provide you own stimuli, you will also have to provide you own control windows, including position and dimensions. This is done by calling dassetwindow after initialising the WIN structure on each trial.</p>
+<!--
+##### SOURCE BEGIN #####
+function SetWindowDas()
+    global Par
+    NumWins = size(Par.WIN, 2);
+    WIN = Par.WIN;
+    
+    dassetwindow( NumWins, WIN(:), Par.Bsqr, Par.SCx*Par.xdir, Par.SCy*Par.ydir )
+    %third parameter is bool; square (1) or ellips (0)
+    %Mouserun; use mouse instead of das input 
+##### SOURCE END #####
+-->
+<p>The WIN structure should be initialised as an array with the following values for each window (circle or  box); <br/>
+(cx : center x, cy : center y; height, width, control window type ) either F : fix (0), T : target(2), or A : alternative (1)<br/>
+and should include at a minimum a fix and a target window.
+<pre class="codeinput"><span class="comment">%control window setup in runstim</span>
+
+	WIN = [ F_cx, F_cy, F_height, F_width, 0; <span class="keyword">...</span><span class="comment"> %Fix window (in pixels),  ONLY one!!!!</span>
+        	T_cx, T_cy, T_height, T_width, 2 ];   <span class="comment">%Targ window              ONLY one!!!! </span>
+
+	Par.OFFx = F_cx; <span class="comment">%fixation offset</span>
+	Par.OFFy = F_cy;
+
+	WIN = [ WIN; <span class="keyword">...</span>
+        	A_cx, A_cy, A_height, A_width, 1 ];  <span class="comment">%Talt or error windows, can be more than one</span>
+
+	WIN = WIN'; <span class="comment">%column wise arrangement of values for each window.</span>
+
+    NumWins = size(WIN, 2);
+
+    dassetwindow( NumWins, WIN(:), Par.Bsqr, Par.SCx*Par.xdir, Par.SCy*Par.ydir )
+    <span class="comment">%third parameter is bool; square (1) or ellipse (0)</span></pre>
+<p class="footer"><br />
+  Published with MATLAB® 7.11<br />
+</p>
+<p>The Par.OFFx and OFFy are necessary to tell tracker where the fixation window is, so it is also positioned appropriately within the tracker control window display.</p>
+<p>The <strong>dassetwindow</strong> function uses the WIN structure to set  DasControl global variables necessary for estimating eye position relative to the control windows. Note that you must provide the values in pixels. The third parameter determines whether the control windows are round or square. The fourth and fifth parameter in <strong>dassetwindow</strong> are for scaling the eye channels, which are updated in the tracker user interface and retrieved from the  Par structure. This should basically get everything working.</p>
+<p>&nbsp;</p>
+<h2>DasControl Library</h2>
+<p>To understand further how to manipulate the runstim and debug it, it may be necessary to understand the das control functions. The DasControl library contains functions necessary to access a Measurement and Computing&reg; PCIDAS1602 card for analog input of the eye channels and output of digital events to a neurophysiological recording system. It has been coded in C++ and the functions are exported in a DLL. To access these functions from matlab, the exported functions are wrapped in mexfile routines listed below.</p>
+<p>The DasControl library initializes analog digital conversion on 2 - 8 channels at 1000Hz per channel. After initialization it automatically checks if eye signal is in or out of a control window based on the initialization of the control windows ( <span class="codeinput"><strong>dassetwindow</strong>) and reset parameters (</span><strong>dasreset</strong> ). </p>
+<p><strong>Initializing and closing</strong></p>
+<p>LPStat<strong> = dasinit</strong>( boardnumber, number of channels ); initialises the dascard and sets the number of channels to sample. </p>
+<p>LPStat is a global value within the DasControl library and is cleared when the library is closed. Should also be cleared from Matlab global memory when tracker is closed. <br />
+  LPStat(1) = time (ms) passed since last reset<br />
+  LPStat(2) = control window hit (1 : in or out, 2 : in correct target window)<br />
+  LPStat.(3) = hit position x<br />
+  LPStat(4) = hit postion y<br />
+  LPStat(5) = reaction time<br />
+  LPStat(6) = time saccade length</p>
+<p><strong>dasclose</strong>(); closes the das library</p>
+<p>&nbsp;</p>
+<p><strong>Output</strong></p>
+<p><strong>dasanalogout</strong>( volt ); output of voltage on first analog output channel (not used in tracker)</p>
+<p><strong>dasjuice</strong>( volt ); output of voltage on second analog output channel, used for reward system</p>
+<p><strong>dasbit</strong>( channel, 1 or 0); sets bit on or off.</p>
+<p>Possible channels to set bits on, how they are interpreted by the TDT system software and used in tracker; (names are self explanatory)<br />
+   Par.ErrorB = 0; <br />
+  Par.StimB = 1;<br />
+  Par.TargetB = 2;<br />
+  Par.RewardB = 3;<br />
+  %Par.SaccadeB = 4; done by DasControl<br />
+  %Par.TrialB = 5;   done by DasControl<br />
+  Par.MicroB = 6;<br />
+Par.CorrectB = 7; </p>
+<p><strong>dasclearword</strong>(); clears the 16 bit output port, actually one 8bit port B and two 4bit ports CL and CH.</p>
+<p><strong>dasword</strong>( condition ) ; sets port B, CL and CH. ; Used to log condition number in TDT system.</p>
+<p></p>
+<p><strong>Input</strong></p>
+<p>pos = <strong>dasgetcursorpos</strong>(); gets mouse coordinates on screen. used when emulating eye movement with mouse</p>
+<p>Pos,xy = <strong>dasgeteye</strong>(); gets average eye position over last 5 ms, used to plot eye movement in main control window of tracker.</p>
+<p>level = <strong>dasgetlevel(); </strong>gets momentary level on extra analog input channels. If you use another input device, e.g. manual button press </p>
+<p><strong>	dassetnoise</strong>( 1 or 0); set noise sampling on or off.</p>
+<p>averagenoise = <strong>dasgetnoise</strong>(); 2* standard error from moving average (20smpls) of variance on eye channels during fixation.</p>
+<p>eyetrace = <strong>dasgettrace</strong>(); eye trace over the last 1024 ms. Also retrieve LPStat(0) for time of last sample in buffer.</p>
+<p>&nbsp;</p>
+<p><strong>Set parameters, run acquisition</strong></p>
+<p><strong>daszero</strong>(); set offset to point where fix window should be.</p>
+<p><strong>dasoffset</strong>( shiftx, shifty); shift offset of eye channel by this amount.</p>
+<p><strong>dasreset</strong>( in ) ; input 0, 1, 2 (<strong>see figure below</strong>)</p>
+<p><span class="codeinput"><strong>dassetwindow</strong>( NumWins, WIN(:), Bsqr, xSc, ySc )</span> ; takes updated WIN structure as input, including boolean if control windows are square : 1  or are round : 0, and scaling of eye channel iput in x and y direction.</p>
+<p><strong>dasrun</strong>( ms ); ms = number of samples to do eye control window checking. The sampling rate of the AD card is at 1000Hz. If the function detects a hit, based on condition set in dasreset, the function<strong> immediately</strong> returns. So this function cannot be used as a timer.</p>
+<p><strong>daspause</strong>(ms) ; does not return if a hit has been detected. Can be used to time a fixed pause.</p>
+<p>&nbsp;</p>
+<p><strong>Miscellaneous</strong></p>
+<p><strong>dasusemouse</strong>( 1 or 0); use mouse to emulate eye movement or turn off.</p>
+<p><strong>daspulse</strong>( Rep, Intvl); output Rep number pulses with Intvl  ms between each pulse. Output TTLs on  7th digital channel (Microstim)</p>
+<p>&nbsp;</p>
+<p><img src="dasreset.png" width="960" height="720" alt="reset" /><br />
+</p>
+</body>
+</html>
