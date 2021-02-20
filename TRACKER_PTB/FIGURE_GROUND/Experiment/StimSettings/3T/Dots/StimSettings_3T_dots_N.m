@@ -8,7 +8,6 @@ global StimObj
 % Refreshrate -------------------------------------------------------------
 Stm.UsePreDefFlipTime=false; %else as fast as possible
 Stm.FlipTimePredef = 1/75;
-Stm.ScreenUpdateTime = 0.020; % secs
 
 % Background --------------------------------------------------------------
 %Stm.BackColor = [.5 .5 .5]; % [R G B] 0-1
@@ -16,8 +15,8 @@ Stm.BackColor = [.667 .667 .667]; % [R G B] 0-1, from Retinotopy
 % Leuven retinotopy clips have a background of 88 out of 256
 
 % Fixation ----------------------------------------------------------------
-Stm.FixDotSize = 0.15;
-Stm.FixDotSurrSize = 0.3;
+Stm.FixDotSize = 0.2;
+Stm.FixDotSurrSize = 0.4;
 Stm.FixDotCol = [.5 0 0;1 0 0]; %[RGB if not fixating; RGB fixating]
 
 % Fixation position can be toggled with 1-5 keys --------------------------
@@ -41,7 +40,7 @@ Stm.MoveStim.Do = true;
 Stm.MoveStim.SOA = 0.0; % secs
 
 % old version >> use for textures <<
-Stm.MoveStim.nFrames = 5; % frames 
+Stm.MoveStim.nFrames = 5; % frames
 Stm.MoveStim.XY = [0.1 0.1]; % deg
 
 % new version >> use for dots <<
