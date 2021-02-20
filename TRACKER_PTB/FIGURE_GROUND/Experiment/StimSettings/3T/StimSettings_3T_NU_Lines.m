@@ -8,6 +8,7 @@ global StimObj
 % Refreshrate -------------------------------------------------------------
 Stm.UsePreDefFlipTime=false; %else as fast as possible
 Stm.FlipTimePredef = 1/75;
+Stm.ScreenUpdateTime = 0.020; % secs
 
 % Background --------------------------------------------------------------
 %Stm.BackColor = [.5 .5 .5]; % [R G B] 0-1

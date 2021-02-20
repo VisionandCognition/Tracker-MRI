@@ -214,10 +214,13 @@ end
 
 % calculate how fast things should move
 if strcmp(Stm.StimType{2},'dots')
+%     Stm.MoveStim.PixPerFlip = ...
+%         (Stm.MoveStim.Speed.*Par.PixPerDeg).*Par.fliptimeSec;
     Stm.MoveStim.PixPerFlip = ...
-        (Stm.MoveStim.Speed.*Par.PixPerDeg).*Par.fliptimeSec;
+        (Stm.MoveStim.Speed.*Par.PixPerDeg).*Stm.ScreenUpdateTime;    
     % calculate how many frames things should move
-    Stm.MoveStim.nFrames = Stm.MoveStim.Duration./Par.fliptimeSec;
+%     Stm.MoveStim.nFrames = Stm.MoveStim.Duration./Par.fliptimeSec;
+    Stm.MoveStim.nFrames = Stm.MoveStim.Duration./Stm.ScreenUpdateTime;
 end
 
 % Create textures
@@ -249,7 +252,6 @@ switch Stm.StimType{2}
         end
     case 'dots'       
         % Don't do this anymore, dots are created on the fly now (delete when tested) ---
-
 end
 % preload textures in VRAM
 Screen('PreloadTextures',Par.window); 
@@ -1599,7 +1601,8 @@ while ~Par.ESC && ~ExpFinished
     StopRewardIfNeeded();
 
     %% Check time, adjust status, and change stim -------------------------
-    DrawDur = 0.03;
+    %DrawDur = 0.03;
+    DrawDur = Stm.ScreenUpdateTime;
     switch ExpStatus
         case 'PreDur'
             % check for refresh seed ---
@@ -2054,7 +2057,7 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
     else
         Screen('FillRect',Par.window,[0 0 0].*Par.ScrWhite); % black first
     end
-    lft=Screen('Flip', Par.window,lft+.95*Par.fliptimeSec);
+    lft=Screen('Flip', Par.window);
     if ~TestRunstimWithoutDAS
         dasjuice(0); %stop reward if its running
     end
