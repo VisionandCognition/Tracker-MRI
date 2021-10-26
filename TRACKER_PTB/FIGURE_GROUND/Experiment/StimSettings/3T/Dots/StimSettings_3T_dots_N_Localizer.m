@@ -177,7 +177,7 @@ Stm.RandomizeStimMode = 2;
 
 Stm.PreDur_TRs = 5; % volumes
 Stm.PostDur_TRs = 5; % volumes
-Stm.nRepeatsStimSet = 3; % 0=unlimited
+Stm.nRepeatsStimSet = 2; % 0=unlimited
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

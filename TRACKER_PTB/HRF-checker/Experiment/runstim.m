@@ -2122,6 +2122,7 @@ for STIMNR = Log.StimOrder
                 json.session.run        = Par.jf.RunNumber;
                 json.session.quality    = Par.jf.QualityAsses;
                 json.session.comment    = Par.jf.Comment;
+                json.version            = '1.0';
                 
                 % retrospectively create jsons for all runs
                 for jj = 1:StimLoopNr % save json files for all runs

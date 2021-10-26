@@ -616,6 +616,7 @@ if do_json
     end
     json.session.logfile    = Par.jf.logfile_name;
     json.session.logfolder  = Par.jf.LogFolder;
+    json.version            = '1.0';
     savejson('', json, fullfile(logPath,['Log_' DateString '_session.json']));
 end
 % ================================

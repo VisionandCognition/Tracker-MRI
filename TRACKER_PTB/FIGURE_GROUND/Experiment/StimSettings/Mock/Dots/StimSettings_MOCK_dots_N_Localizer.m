@@ -75,7 +75,7 @@ Stm.Gnd_all.dots.size = 5; % 5;
 % maxes at 10 if we want larger we need to draw rects
 Stm.Gnd_all.dots.density = 0.5; % 0.7; % 0-1
 Stm.Gnd_all.dots.color = [0 0 0]; % [0 0 0];
-Stm.Gnd_all.dots.type = 0; % 0; % fast square dots
+Stm.Gnd_all.dots.type = 1; % 0; % fast square dots
 %
 Stm.Gnd_all.NumSeeds = 1;
 

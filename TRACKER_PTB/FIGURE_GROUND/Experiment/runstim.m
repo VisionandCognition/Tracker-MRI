@@ -2199,6 +2199,7 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
         json.session.run        = Par.jf.RunNumber;
         json.session.quality    = Par.jf.QualityAsses;
         json.session.comment    = Par.jf.Comment;
+        json.version            = '1.0';
         if isempty(json.session.stimulus)
             json.session.stimulus='undefined';
         end
