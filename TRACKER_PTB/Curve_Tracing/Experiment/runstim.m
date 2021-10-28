@@ -566,7 +566,7 @@ if do_json
     Par.jf.Subject      = Par.MONKEY;
     Par.jf.Researcher   = 'KanishkaWaghmare';
     Par.jf.Setup        = Par.SetUp;
-    Par.jf.Group        = 'awake';
+    Par.jf.Condition    = 'awake';
     Par.jf.Stimulus     = Par.STIMSETFILE(find(Par.STIMSETFILE=='_',1,'last')+1:end);
     Par.jf.LogFolder    = [Par.MONKEY '_' DateString];
     Par.jf.logfile_name = FileName;
@@ -578,12 +578,12 @@ if do_json
     if strcmp(Par.SetUp, 'Spinoza_3T') || strcmp(Par.SetUp, 'NIN')
         json_defanswer = {Par.jf.Project,Par.jf.Method,Par.jf.Protocol,...
             Par.jf.Dataset,Par.jf.Subject,Par.jf.Researcher,...
-            Par.jf.Setup,Par.jf.Group,Par.jf.RunNumber,...
+            Par.jf.Setup,Par.jf.Condition,Par.jf.RunNumber,...
             Par.jf.QualityAsses,Par.jf.Comment};
         json_answer = inputdlg(...
             {'Project','Method','Protocol',...
             'Dataset','Subject','Researcher',...
-            'Setup','Group','Run','Quality (0-10)',...
+            'Setup','Condition','Run','Quality (0-10)',...
             'Comment'},'JSON SPECS',1,json_defanswer,'on');
         if isempty(json_answer);json_answer=json_defanswer;end
         Par.jf.Project      = json_answer{1};
@@ -593,30 +593,32 @@ if do_json
         Par.jf.Subject      = json_answer{5};
         Par.jf.Researcher   = json_answer{6};
         Par.jf.Setup        = json_answer{7};
-        Par.jf.Group        = json_answer{8};
+        Par.jf.Condition    = json_answer{8};
         Par.jf.RunNumber    = json_answer{9};
         Par.jf.QualityAsses = json_answer{10};
         Par.jf.Comment      = json_answer{11};
     end
-    json.project.title      = Par.jf.Project;
-    json.project.method     = Par.jf.Method;
-    json.dataset.protocol   = Par.jf.Protocol;
-    json.dataset.name       = Par.jf.Dataset;
-    json.session.date       = Par.jf.Date;
-    json.session.subjectId  = Par.jf.Subject;
-    json.session.investigator = Par.jf.Researcher;
-    json.session.setup      = Par.jf.Setup;
-    json.session.group      = Par.jf.Group;
-    json.session.stimulus   = Par.jf.Stimulus;
-    json.session.run        = Par.jf.RunNumber;
-    json.session.quality    = Par.jf.QualityAsses;
-    json.session.comment    = Par.jf.Comment;
-    if isempty(json.session.stimulus)
-        json.session.stimulus='undefined';
-    end
-    json.session.logfile    = Par.jf.logfile_name;
-    json.session.logfolder  = Par.jf.LogFolder;
+
+    json.project            = Par.jf.Project;
+    json.method             = Par.jf.Method;
+    json.protocol           = Par.jf.Protocol;
+    json.dataset            = Par.jf.Dataset;
+    json.date               = Par.jf.Date;
+    json.subject            = Par.jf.Subject;
+    json.investigator       = Par.jf.Researcher;        
+    json.setup              = Par.jf.Setup;
+    json.condition          = Par.jf.Condition;
+    json.stimulus           = Par.jf.Stimulus;        
+    json.run                = Par.jf.RunNumber;
+    json.quality            = Par.jf.QualityAsses;
+    json.comment            = Par.jf.Comment;
     json.version            = '1.0';
+
+    if isempty(json.stimulus)
+        json.stimulus='undefined';
+    end
+    json.logfile    = Par.jf.logfile_name;
+    json.logfolder  = Par.jf.LogFolder;
     savejson('', json, fullfile(logPath,['Log_' DateString '_session.json']));
 end
 % ================================
