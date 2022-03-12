@@ -11,14 +11,14 @@ end
 clc; fprintf('Starting Tracker. Please have some patience...\n');
 
 %what matlab version
-MatlabVersion = version;
-if str2double([MatlabVersion(1) MatlabVersion(3)]) == 95 % R2018
-    Par.ML = 2018;
-elseif str2double([MatlabVersion(1) MatlabVersion(3)]) == 84 % R2014 
-    Par.ML = 2014;
-else % before R2014b
-    Par.ML = 2013;
-end
+% MatlabVersion = version;
+% if str2double([MatlabVersion(1) MatlabVersion(3)]) == 95 % R2018
+%     Par.ML = 2018;
+% elseif str2double([MatlabVersion(1) MatlabVersion(3)]) == 84 % R2014 
+%     Par.ML = 2014;
+% else % before R2014b
+%     Par.ML = 2013;
+% end
             
 % Ask to select screen and configure accordingly
 % BOLD screen at 3T needs to be flipped

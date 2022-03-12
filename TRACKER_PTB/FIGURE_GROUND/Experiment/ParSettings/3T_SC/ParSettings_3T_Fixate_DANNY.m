@@ -33,7 +33,7 @@ StimObj.Stm.FixDotCol = [.7 0 0;1 0 0];
 %[RGB if not fixating; RGB fixating]
 
 % overrule generic fixation window
-Par.FixWinSize = [2 2]; % [W H] in deg
+Par.FixWinSize = [2 2.5]; % [W H] in deg
 
 %% Eyetracking parameters =================================================
 Par.SetZero = false; %initialize zero key to not pressed
@@ -244,7 +244,7 @@ Par.RewardFixMultiplier = 1.0;
 Par.RewardType = 0; % Duration: 0=fixed reward, 1=progressive, 2=stimulus dependent
 switch Par.RewardType
     case 0
-        Par.RewardTimeSet = 0.080;
+        Par.RewardTimeSet = 0.090;
     case 1
         % Alternatively use a progressive reward scheme based on the number of
         % preceding consecutive correct responses format as
@@ -261,14 +261,14 @@ switch Par.RewardType
         Par.RewardTimeSet = 0; %no reward
 end
 
-Par.RewardTimeManual = 0.02; % amount of reward when given manually
+Par.RewardTimeManual = 0.05; % amount of reward when given manually
 
 Par.RewardFixHoldTimeProg = true;
 if Par.RewardFixHoldTimeProg
     Par.RewardFixHoldTime = [...
-        0 1500;...
-        5 1200;...   
-        10 1000;...
+        0 1200;...
+        5 1000;...   
+        10 900;...
         30  800;...
         60  700;...
         ];
