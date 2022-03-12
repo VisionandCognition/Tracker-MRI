@@ -50,7 +50,7 @@ if Par.ExpFolder
     % Go to folder
     cd(Par.ExpFolder);
     % Run tracker
-    Par.hTracker = tracker_CK; % standard light version of tracker
+    Par.hTracker = tracker_CK_gui; % standard light version of tracker
     Par.hTracker_ax=findobj(Par.hTracker,'Tag','axes1'); 
     if strcmp(Par.tracker_version, 'tracker_dark')
         set(Par.hTracker_ax,'Color','k');
