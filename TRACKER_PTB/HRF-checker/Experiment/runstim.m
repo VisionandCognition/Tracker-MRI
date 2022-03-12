@@ -168,13 +168,26 @@ FirstEyeRecSet=false;
 if ~TestRunstimWithoutDAS
     dasbit(0,1); %set eye-recording trigger to 1 (=stopped)
     %reset reward slider based on ParSettings
-    handles=guihandles(Par.hTracker);
-    if numel(Par.RewardTime)==1
-        set(handles.Lbl_Rwtime, 'String', num2str(Par.RewardTime, 5))
-        set(handles.slider1, 'Value', Par.RewardTime)
-    else
-        set(handles.Lbl_Rwtime, 'String', num2str(Par.RewardTime(1,2), 5))
-        set(handles.slider1, 'Value', Par.RewardTime(1,2))
+    switch Par.ui
+        case 'guide'
+            %GUIDE
+            handles=guihandles(Par.hTracker);
+            if numel(Par.RewardTime)==1
+                set(handles.Lbl_Rwtime, 'String', num2str(Par.RewardTime, 5))
+                set(handles.slider1, 'Value', Par.RewardTime)
+            else
+                set(handles.Lbl_Rwtime, 'String', num2str(Par.RewardTime(1,2), 5))
+                set(handles.slider1, 'Value', Par.RewardTime(1,2))
+            end
+        case 'mlapp'
+            %MLAPP
+            if numel(Par.RewardTime)==1
+                app.Lbl_Rwtime.Text = num2str(Par.RewardTime, 5);
+                app.slider1.Value = Par.RewardTime;
+            else
+                app.Lbl_Rwtime.Text = num2str(Par.RewardTime(1,2), 5);
+                app.slider1.Value = Par.RewardTime(1,2);
+            end
     end
 end
 
