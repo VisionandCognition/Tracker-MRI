@@ -7,6 +7,10 @@ else
     Par.tracker_version = tracker_version;
 end
 
+% announce that this is an mlapp utility
+fprintf('Using modern MLAPP instead of GUIDE\n')
+Par.ui = 'mlapp';
+
 %clear and welcome message
 clc; fprintf('Starting Tracker. Please have some patience...\n');
 
