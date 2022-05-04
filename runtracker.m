@@ -7,7 +7,7 @@ else
     Par.tracker_version = tracker_version;
 end
 
-% announce that this is an mlapp utility
+% announce whether this is a GUIDE or mlapp utility
 fprintf('Using GUIDE, which will no longer be supported\n')
 Par.ui = 'guide';
 
