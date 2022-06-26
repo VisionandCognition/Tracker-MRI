@@ -1539,6 +1539,7 @@ Par.hTracker = tracker_CK;
 Par.hTracker_ax = findobj(Par.hTracker,'Tag','axes1');
 if strcmp(Par.tracker_version, 'tracker_dark')
     set(Par.hTracker_ax,'Color','k');
+    recolortracker;
 end
 Par.MONKEY = CurrMonkey;
 
