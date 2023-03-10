@@ -28,7 +28,7 @@ addpath(genpath(fullfile(pwd,'SharedScripts')));
 
 % Add the log-folder as an environment variable
 if ispc % windows
-    setenv('TRACKER_LOGS', 'C:\Users\NINuser\Documents\Logs');
+    setenv('TRACKER_LOGS', 'C:\Users\VANDC\Documents\Logs');
 else % unix
     setenv('TRACKER_LOGS', fullfile(getenv('HOME'),'Desktop','Logs'));
 end
