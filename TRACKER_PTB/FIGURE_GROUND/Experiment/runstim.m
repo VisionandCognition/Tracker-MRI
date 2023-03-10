@@ -2089,6 +2089,7 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
     [~,~,~] = mkdir(LogPath);    
     
     LogFn = [Par.SetUp '_' Par.MONKEY '_' DateString_sec];
+    [~,~,~] = mkdir(LogPath);
     cd(LogPath)
     
     if ~TestRunstimWithoutDAS
@@ -2350,7 +2351,7 @@ end
 %% Process performance ====================================================
 if ~isempty(CollectPerformance) && ~TestRunstimWithoutDAS
     ColPerf=[];
-    
+    [~,~,~] = mkdir(LogPath);
     cd(LogPath);
     fid2=fopen(['SUMMARY_' LogFn '.txt'],'w');
     fprintf(fid2,['Runstim: ' Par.RUNFUNC '\n']);
