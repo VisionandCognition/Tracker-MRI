@@ -24,7 +24,12 @@ warning('off','MATLAB:dispatcher:InexactMatch')
 if ~isfield(Par,'window') % assume that if a window has been opened, it's still there
     ptbInit % initialize PTB
     Par.scr=Screen('screens');
-    Par.ScrNr=max(Par.scr); % use the screen with the highest #
+    if strcmp(Par.ScreenChoice,'3T') || strcmp(Par.ScreenChoice,'Mock')
+        % internal screen assignment seems flipped ater windows update
+        Par.ScrNr=1;
+    else
+        Par.ScrNr=max(Par.scr); % use the screen with the highest #
+    end
     PsychImaging('PrepareConfiguration');
     % Check which screen and flip if 3T BOLD
     if strcmp(Par.ScreenChoice,'3T') % 3T

@@ -404,6 +404,7 @@ for CleanUp=1 % code folding
         );
     [~,~,~] = mkdir(LogPath);    
     LogFn = [Par.SetUp '_' Par.MONKEY '_' DateString_sec];
+    [~,~,~] = mkdir(LogPath);
     cd(LogPath)
     FileName=['Log_' LogFn];
     save(FileName,'Log','Par','StimObj');
