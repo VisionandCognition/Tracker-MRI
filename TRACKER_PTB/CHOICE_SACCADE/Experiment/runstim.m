@@ -839,6 +839,7 @@ LogPath = fullfile(getenv('TRACKER_LOGS'),... % base log folder
     );
 [~,~,~] = mkdir(LogPath);
 LogFn = [Par.SetUp '_' Par.MONKEY '_' DateString_sec];
+[~,~,~] = mkdir(LogPath);
 cd(LogPath)
 
 %FileName=['Log_' Par.MONKEY '_' Par.STIMSETFILE '_' DateString];

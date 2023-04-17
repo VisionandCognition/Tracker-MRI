@@ -34,7 +34,7 @@ Stm.CyclePosition = 0; % set zero for manual cycling
 Stm.RandomizeStim=true;
 Stm.Descript = 'FigGnd_Loc';
 Stm.StimType{1} = 'FigureGround'; 
-Stm.StimType{2} = 'dots'; % lines / dots
+Stm.StimType{2} = 'dots'; % lines / dots / dots_tex
 
 % Figure/Ground stimuli
 Stm.MoveStim.Do = true;
@@ -177,7 +177,7 @@ Stm.RandomizeStimMode = 2;
 
 Stm.PreDur_TRs = 5; % volumes
 Stm.PostDur_TRs = 5; % volumes
-Stm.nRepeatsStimSet = 2; % 0=unlimited
+Stm.nRepeatsStimSet = 3; % 0=unlimited
 
 %% ========================================================================
 % Write stimulus settings to global variable StimObj

@@ -2274,7 +2274,7 @@ end
 %% Process performance ====================================================
 if ~isempty(CollectPerformance) && ~TestRunstimWithoutDAS
     ColPerf=[];
-    
+    [~,~,~] = mkdir(LogPath);
     cd(LogPath);
     fid2=fopen(['SUMMARY_' LogFn '.txt'],'w');
     fprintf(fid2,['Runstim: ' Par.RUNFUNC '\n']);

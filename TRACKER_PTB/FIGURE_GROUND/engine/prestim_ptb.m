@@ -4,51 +4,54 @@
 
 global Par;
 
-for InitializeDasAndPTB=1 %allows code folding
-    %% Das card
-    BtOn = 0;  %if using button presses set to 1
-    Par.Board = int32(22);  %mcc board = 22; Demo-board = 0
-    Par.nChannels = 8;
-    if ~isfield(Par, 'DasOn')
-        Par.DasOn = 0; %persistent value
-    end
-    
-    if Par.DasOn ~= 1
-        %LPStat = dasinit( Par.Board, Par.nChannels);  %mexfunction acces!!
-        dasinit( Par.Board, Par.nChannels);  %mexfunction acces!!
-        Par.DasOn = 1;
-    end
-    
-    %% PTB
-    warning('off','MATLAB:dispatcher:InexactMatch')
-        
-    if ~isfield(Par,'window') % assume that is a window has een opened, it's still there
-        ptbInit % initialize PTB
-        Par.scr=Screen('screens');
-        Par.ScrNr=max(Par.scr); % use the screen with the highest #
-        PsychImaging('PrepareConfiguration');
-        % Check which screen and flip if 3T BOLD
-        if strcmp(Par.ScreenChoice,'3T'); % 3T
-            % flip horizontal
-            PsychImaging('AddTask','AllViews','FlipHorizontal');
-            fprintf([Par.ScreenChoice ' BOLD display: Flipping the screen\n']);
-        elseif strcmp(Par.ScreenChoice,'Mock')% mock
-            % specific mock stuff?
-        elseif strcmp(Par.ScreenChoice,'NIN')% ephys setup
-            % specific ephys stuff?    
-        else
-        end
-        %[Par.window, Par.wrect] = Screen('OpenWindow',Par.ScrNr,0,[],[],2,[],[],1);
-        [Par.window, Par.wrect] = PsychImaging('OpenWindow',Par.ScrNr,0,[],[],2,[],[],1);
-    end
-    
-    %Set-up blend function
-    [sourceFactorOld,destinationFactorOld,colorMaskOld] = ...
-        Screen('BlendFunction',Par.window,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-    
-    %% set eyerec trigger to 'off'
-    dasbit(0,1);
+%% Das card
+BtOn = 0;  %if using button presses set to 1
+Par.Board = int32(22);  %mcc board = 22; Demo-board = 0
+Par.nChannels = 8;
+if ~isfield(Par, 'DasOn')
+    Par.DasOn = 0; %persistent value
 end
+
+if Par.DasOn ~= 1
+    %LPStat = dasinit( Par.Board, Par.nChannels);  %mexfunction acces!!
+    dasinit( Par.Board, Par.nChannels);  %mexfunction acces!!
+    Par.DasOn = 1;
+end
+
+%% PTB
+warning('off','MATLAB:dispatcher:InexactMatch')
+
+if ~isfield(Par,'window') % assume that is a window has een opened, it's still there
+    ptbInit % initialize PTB
+    Par.scr=Screen('screens');
+    if strcmp(Par.ScreenChoice,'3T') || strcmp(Par.ScreenChoice,'Mock')
+        % internal screen assignment seems flipped ater windows update
+        Par.ScrNr=1;
+    else
+        Par.ScrNr=max(Par.scr); % use the screen with the highest #
+    end
+    PsychImaging('PrepareConfiguration');
+    % Check which screen and flip if 3T BOLD
+    if strcmp(Par.ScreenChoice,'3T') % 3T
+        % flip horizontal
+        PsychImaging('AddTask','AllViews','FlipHorizontal');
+        fprintf([Par.ScreenChoice ' BOLD display: Flipping the screen\n']);
+    elseif strcmp(Par.ScreenChoice,'Mock')% mock
+        % specific mock stuff?
+    elseif strcmp(Par.ScreenChoice,'NIN')% ephys setup
+        % specific ephys stuff?
+    else
+    end
+    %[Par.window, Par.wrect] = Screen('OpenWindow',Par.ScrNr,0,[],[],2,[],[],1);
+    [Par.window, Par.wrect] = PsychImaging('OpenWindow',Par.ScrNr,0,[],[],2,[],[],1);
+end
+
+%Set-up blend function
+[sourceFactorOld,destinationFactorOld,colorMaskOld] = ...
+    Screen('BlendFunction',Par.window,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+%% set eyerec trigger to 'off'
+dasbit(0,1);
 
 %////////////////////global variable Par settings//////////////////////////
 % default file assignment

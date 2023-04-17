@@ -13,7 +13,7 @@ Par.ui = 'mlapp';
 
 %clear and welcome message
 clc; fprintf('Starting Tracker. Please have some patience...\n');
-
+       
 % Ask to select screen and configure accordingly
 % BOLD screen at 3T needs to be flipped
 % PTB will take care of this
@@ -28,7 +28,7 @@ addpath(genpath(fullfile(pwd,'SharedScripts')));
 
 % Add the log-folder as an environment variable
 if ispc % windows
-    setenv('TRACKER_LOGS', 'C:\Users\NINuser\Documents\Logs');
+    setenv('TRACKER_LOGS', 'C:\Users\VANDC\Documents\Logs');
 else % unix
     setenv('TRACKER_LOGS', fullfile(getenv('HOME'),'Desktop','Logs'));
 end
