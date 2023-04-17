@@ -36,7 +36,7 @@ Stm.nRepeatsStimSet=1;
 
 Stm.Descript = 'FigGnd';
 Stm.StimType{1} = 'FigureGround'; 
-Stm.StimType{2} = 'lines'; % lines / dots
+Stm.StimType{2} = 'lines'; % lines / dots / dots_text
 
 % Figure/Ground stimuli
 Stm.MoveStim.Do = false;

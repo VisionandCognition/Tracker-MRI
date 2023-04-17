@@ -34,7 +34,7 @@ Stm.CyclePosition = 0; % set zero for manual cycling
 Stm.RandomizeStim=true;
 Stm.Descript = 'FigGnd';
 Stm.StimType{1} = 'FigureGround'; 
-Stm.StimType{2} = 'lines'; % lines / dots
+Stm.StimType{2} = 'lines'; % lines / dots / dots_tex
 
 % Figure/Ground stimuli
 Stm.MoveStim.Do = false;
