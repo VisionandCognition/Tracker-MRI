@@ -1,1 +1,1 @@
-"C:\Program Files\MATLAB\R2021b\bin\matlab" -nosplash -r runtracker('tracker_dark')
+"C:\Program Files\MATLAB\R2022b\bin\matlab" -nosplash -r runtracker('dark','guide',1)

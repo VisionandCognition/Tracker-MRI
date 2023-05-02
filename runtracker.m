@@ -1,15 +1,31 @@
-function runtracker(tracker_version)
+function runtracker(gui_color,gui_engine,daspresent)
 global Par
 
-if nargin < 1
-    Par.tracker_version = 'default';
+if nargin < 3
+    Par.daspresent = true;
+    if nargin < 2
+        Par.gui_engine = 'guide';
+        if nargin<1
+            Par.tracker_color = 'dark';
+        else
+            Par.tracker_color = 'light';
+        end
+    else
+        Par.gui_engine = gui_engine;
+        Par.tracker_color = 'dark';
+    end
 else
-    Par.tracker_version = tracker_version;
+    Par.gui_engine = gui_engine;
+    Par.graphics_engine = graphics_engine;
+    Par.daspresent = daspresent;
 end
 
 % announce whether this is a GUIDE or mlapp utility
-fprintf('Using GUIDE, which will no longer be supported\n')
-Par.ui = 'guide';
+if strcmp(Par.gui_engine,'guide')
+    fprintf('Using GUIDE, which will no longer be supported\n')
+else 
+    fprintf('Using modern MLAPP instead of GUIDE\n')
+end
 
 %clear and welcome message
 clc; fprintf('Starting Tracker. Please have some patience...\n');
@@ -44,9 +60,14 @@ if Par.ExpFolder
     % Go to folder
     cd(Par.ExpFolder);
     % Run tracker
-    Par.hTracker = tracker_CK; % standard light version of tracker
+    switch Par.gui_engine
+        case 'guide'
+            Par.hTracker = tracker_CK; % standard light version of tracker
+        case 'mlapp'
+            Par.hTracker = tracker_CK_gui; % standard light version of tracker
+    end
     Par.hTracker_ax=findobj(Par.hTracker,'Tag','axes1'); 
-    if strcmp(Par.tracker_version, 'tracker_dark')
+    if strcmp(Par.tracker_color, 'dark')
         set(Par.hTracker_ax,'Color','k');
     end
 else

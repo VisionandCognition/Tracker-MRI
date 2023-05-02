@@ -5,7 +5,9 @@ Psychophysical experimentation and training, with eye control using a Measuremen
 Interfaces with an ISCAN eye tracker and communicated with the MRI console using trigger pulses.
 
 Forked from [Tracker](https://github.com/VisionandCognition/Tracker) which was developed by Chris van der Togt. 
-This fork uses PTB-3 instead of Cogent and is only appropriate for 64-bit Windows versions.
+This fork uses PTB-3 instead of Cogent and is only appropriate for 64-bit Windows versions.      
+
+See [this brief manual](https://github.com/VisionandCognition/Tracker-MRI/tree/master/trackermanual/tracker-mri_manual.md) to get started.      
 
 Questions: c.klink@nin.knaw.nl
 
