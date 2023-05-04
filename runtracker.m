@@ -16,9 +16,10 @@ if nargin < 3
     end
 else
     Par.gui_engine = gui_engine;
-    Par.graphics_engine = graphics_engine;
+    Par.tracker_color = 'light';
     Par.daspresent = daspresent;
 end
+Par.ui = Par.gui_engine;
 
 % announce whether this is a GUIDE or mlapp utility
 if strcmp(Par.gui_engine,'guide')
@@ -44,7 +45,7 @@ addpath(genpath(fullfile(pwd,'SharedScripts')));
 
 % Add the log-folder as an environment variable
 if ispc % windows
-    setenv('TRACKER_LOGS', 'C:\Users\NINuser\Documents\Logs');
+    setenv('TRACKER_LOGS', 'C:\Users\VANDC\Documents\Logs');
 else % unix
     setenv('TRACKER_LOGS', fullfile(getenv('HOME'),'Desktop','Logs'));
 end
