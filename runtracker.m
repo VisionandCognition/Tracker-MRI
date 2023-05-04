@@ -16,7 +16,7 @@ if nargin < 3
     end
 else
     Par.gui_engine = gui_engine;
-    Par.tracker_color = 'light';
+    Par.tracker_color = gui_color;
     Par.daspresent = daspresent;
 end
 Par.ui = Par.gui_engine;

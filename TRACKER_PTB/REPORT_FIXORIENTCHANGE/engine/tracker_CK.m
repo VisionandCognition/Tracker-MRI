@@ -21,7 +21,7 @@ function varargout = tracker_CK(varargin)
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
 % Edit the above text to modify the response to help tracker_CK
-% Last Modified by GUIDE v2.5 20-Sep-2019 13:11:53
+% Last Modified by GUIDE v2.5 04-May-2023 17:53:04
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -117,9 +117,11 @@ set(handles.e_Err, 'String', num2str(Par.Times.Err, 4))
 if numel(Par.RewardTime)==1
     set(handles.Lbl_Rwtime, 'String', num2str(Par.RewardTime, 5))
     set(handles.slider1, 'Value', Par.RewardTime)
+    set(handles.RewInput, 'String', num2str(Par.RewardTime, 5))
 else
     set(handles.Lbl_Rwtime, 'String', num2str(Par.RewardTime(1,2), 5))
     set(handles.slider1, 'Value', Par.RewardTime(1,2))
+    set(handles.RewInput, 'String', num2str(Par.RewardTime(1,2), 5))
 end
 
 set(handles.rb_Drum, 'Value', Par.Drum)
@@ -321,6 +323,7 @@ function slider1_Callback(hObject, eventdata, handles)
 global Par
 Par.RewardTime = get(hObject,'Value');
 set(handles.Lbl_Rwtime, 'String', num2str(Par.RewardTime, '% -5.3f'));
+set(handles.RewInput, 'String', num2str(Par.RewardTime, '% -5.3f'));
 
 % --- Executes during object creation, after setting all properties.
 function slider1_CreateFcn(hObject, eventdata, handles)
@@ -1795,7 +1798,7 @@ function darkmode_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 global Par
 set(Par.hTracker_ax,'Color','k');
-Par.tracker_version = 'tracker_dark';
+Par.tracker_color = 'dark';
 recolortracker;
 
 % --------------------------------------------------------------------
@@ -1805,5 +1808,34 @@ function lightmode_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 global Par
 set(Par.hTracker_ax,'Color','w');
-Par.tracker_version = 'default';
+Par.tracker_color = 'light';
 recolortracker;
+
+
+
+function RewInput_Callback(hObject, eventdata, handles)
+% hObject    handle to RewInput (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of RewInput as text
+%        str2double(get(hObject,'String')) returns contents of RewInput as a double
+global Par 
+Par.RewardTime = str2double(get(hObject,'String'));
+set(handles.Lbl_Rwtime, 'String', num2str(Par.RewardTime, '% -5.3f'));
+set(handles.RewInput, 'String', num2str(Par.RewardTime, '% -5.3f'));
+set(handles.slider1, 'Value', Par.RewardTime);
+
+
+
+% --- Executes during object creation, after setting all properties.
+function RewInput_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to RewInput (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
