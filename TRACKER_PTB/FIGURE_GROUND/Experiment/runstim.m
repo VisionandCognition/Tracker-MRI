@@ -193,9 +193,11 @@ if ~TestRunstimWithoutDAS
             if numel(Par.RewardTime)==1
                 app.Lbl_Rwtime.Text = num2str(Par.RewardTime, 5);
                 app.slider1.Value = Par.RewardTime;
+                app.setRewField.Value = Par.RewardTime;
             else
                 app.Lbl_Rwtime.Text = num2str(Par.RewardTime(1,2), 5);
                 app.slider1.Value = Par.RewardTime(1,2);
+                app.setRewField.Value = Par.RewardTime(1,2);
             end
     end
 end
@@ -599,11 +601,9 @@ while ~Par.ESC && ~ExpFinished
         Par.LastFixInTime=GetSecs;
         %Par.GoBarOnset = rand(1)*Par.EventPeriods(2)/1000 + ...
         %    Par.EventPeriods(1)/1000;
-        
         Log.nEvents = Log.nEvents+1; time_s = Par.LastFixInTime-Par.ExpStart;
         task = 'Fixate'; event = 'Fixation'; info = 'start';
         WriteToLog(Log.nEvents,time_s,task,event,info);
-        
     elseif Par.CheckFixOut && Hit~=0
         % add time to non-fixation duration
         FixTimeThisFlip = FixTimeThisFlip+Time;
@@ -614,7 +614,6 @@ while ~Par.ESC && ~ExpFinished
         Log.nEvents = Log.nEvents+1; time_s = Par.LastFixOutTime-Par.ExpStart;
         task = 'Fixate'; event = 'Fixation'; info = 'stop';
         WriteToLog(Log.nEvents,time_s,task,event,info);
-        
     end
     
     %% what happens depends on the status of the experiment ---------------
