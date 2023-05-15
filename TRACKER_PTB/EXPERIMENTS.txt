@@ -38,5 +38,5 @@ RETINOTOPY
 >> checkerboard/faces/walkers rings and wedges
 >> prf moving bars in 8 directions
 >> with or without hand response task 
->> if wthout task, fixation is rewarded
+>> if without task, fixation is rewarded
 >> some checkerboards are set up to get individual HRFs

@@ -11,9 +11,9 @@ Stm(1).BackColor = [.5 .5 .5]; % [R G B] 0-1
 %Stm(1).BackColor = (88/255).*[1 1 1]; % [R G B] 0-1
 % Leuven retinotopy clips have a background of 88 out of 256
 
-% Fixation ----------------------------------------------------------------
-Stm(1).FixDotSize = 5;%0.15;
-Stm(1).FixDotSurrSize = 5; %0.75
+% Fixation ----------1------------------------------------------------------
+Stm(1).FixDotSize = 0.15;%0.15;
+Stm(1).FixDotSurrSize = 0.75; %0.75
 Stm(1).FixDotCol = [1 0 0;0.5 1 0.5]; %[RGB if not fixating; RGB fixating]
 
 % Fixation position can be toggled with 1-5 keys --------------------------
