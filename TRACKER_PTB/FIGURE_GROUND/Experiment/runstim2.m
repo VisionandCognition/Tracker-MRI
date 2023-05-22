@@ -268,6 +268,12 @@ switch Stm.StimType{2}
 
 
 
+
+
+
+
+
+
 end
 % preload textures in VRAM
 Screen('PreloadTextures',Par.window); 
@@ -870,6 +876,11 @@ while ~Par.ESC && ~ExpFinished
 
 
 
+
+
+
+
+                    
 
 
 

@@ -101,6 +101,8 @@ for gs = 1:Stm.Gnd_all.NumSeeds
             % draw lines in offscreen window
             Screen('FillRect',offscr.w,Stm.Gnd_all.backcol*Par.ScrWhite)
             
+
+            
             
 
             
