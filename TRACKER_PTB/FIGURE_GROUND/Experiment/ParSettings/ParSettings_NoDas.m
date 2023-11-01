@@ -71,6 +71,10 @@ Par.EyeRecAutoTrigger = false;
 Par.EyeRecStatus = 0; % recording status initially to 'not recording'
 Par.EyeRecTriggerLevel = 1; % 1 = stop recording, 0 = start recording
 
+% save a csv file of eye data with the Tracker log
+Par.EyeLog.do = false;
+Par.EyeLog.sf = 120; % Hz
+
 %% Screen info ============================================================
 [ScrWidth, ScrHeight] = Screen('WindowSize',Par.ScrNr);
 Par.HW = ScrWidth/2; %get half width of the screen
