@@ -172,6 +172,17 @@ for nR=1:Stm.nRepeatsStimSet
     end
 end
 
+% Setup Tracker eye-log
+if Par.EyeLog.do
+    eye.logfile = ['eye_' DateString '.csv'];
+    % first create file locally on SSD, move to log folder later
+    eye.fileId = fopen(eye.logfile, 'w');
+    header = "X,Y,D,sX,sY,oX,oY";
+    fprintf(eye.fileId, '%s\n', header);
+    eye.timer = timer('TimerFcn', {@writeToEyeLog, eye.fileId}, ...
+        'Period', 1/Par.EyeLog.sf, 'ExecutionMode', 'fixedRate');
+end
+
 % This control parameter needs to be outside the stimulus loop
 FirstEyeRecSet=false;
 if ~TestRunstimWithoutDAS
@@ -456,6 +467,16 @@ if Par.EyeRecAutoTrigger
 else
     fprintf('Eye recording not triggered (ephys or training?).\n')
     fprintf('Make sure it''s running!\n');
+end
+
+if Par.EyeLog.do
+    % start the logging process on the timer
+    start(eye.timer);
+    % log this in the events
+    Log.nEvents = Log.nEvents+1;
+    time_s = GetSecs-Par.ExpStart;
+    task = 'Exp'; event = 'EyeRecLog'; info = 'start';
+    WriteToLog(Log.nEvents,time_s,task,event,info);
 end
 
 %% MRI triggered start ----------------------------------------------------
@@ -2095,6 +2116,18 @@ if Par.EyeRecAutoTrigger && ~EyeRecMsgShown
     EyeRecMsgShown=true;
 end
 
+if Par.EyeLog.do
+    % start the logging process on the timer
+    stop(eye.timer);
+    % log this in the events
+    Log.nEvents = Log.nEvents+1;
+    time_s = GetSecs-Par.ExpStart;
+    task = 'Exp'; event = 'EyeRecLog'; info = 'stop';
+    WriteToLog(Log.nEvents,time_s,task,event,info);
+    % close the file
+    fclose(eye.fileId);
+end
+
 if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
     % Empty the screen
     if ~Par.Pause
@@ -2166,6 +2199,12 @@ if ~isempty(Stm.Descript) && ~TestRunstimWithoutDAS
             copyfile(FullStimFilePath,Stm.FileName);
         end
         RunParStim_Saved=true;
+    end
+    
+    % move the detailed eyelog file
+    if Par.EyeLog.do
+        movefile( fullfile(Par.ExpFolder,eye.logfile),...
+            fullfile(LogPath,eye.logfile));
     end
     
     % save the events to a csv file
