@@ -377,7 +377,7 @@ Par.KeyStim = KbName('s');          % toggle stimulus on/off
 Par.KeyFix = KbName('f');           % toggle fix dot on/off
 Par.KeyPause = KbName('p');         % switch on/off stimuli & reward
 Par.KeyRewTimeSet = KbName('r');    % switch to reward timing as defined in ParSettings
-Par.KeyShowRewTime = KbName('w');   % Shows the current reward scheme
+%Par.KeyShowRewTime = KbName('w');   % Shows the current reward scheme
 % using the slider in tracker window overrules the initialize reward timing
 
 % Change stim position

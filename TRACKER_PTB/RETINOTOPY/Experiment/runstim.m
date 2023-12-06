@@ -2675,13 +2675,13 @@ Par=Par_BU;
                             Par.Times.Targ = Par.RewardFixHoldTime;
                             fprintf('Reward schedule set as defined in ParSettings\n');
                         end
-                    case Par.KeyShowRewTime
-                        if Par.KeyDetectedInTrackerWindow % only in Tracker
-                            fprintf('Reward amount (s):\n');
-                            Par.RewardTime
-                            fprintf('Fix time to get reward:\n' );
-                            Par.Times.Targ
-                        end
+%                     case Par.KeyShowRewTime
+%                         if Par.KeyDetectedInTrackerWindow % only in Tracker
+%                             fprintf('Reward amount (s):\n');
+%                             Par.RewardTime
+%                             fprintf('Fix time to get reward:\n' );
+%                             Par.Times.Targ
+%                         end
                     case Par.KeyCyclePos
                         if Par.KeyDetectedInTrackerWindow % only in Tracker
                             if ~Par.PositionLocked

@@ -260,11 +260,11 @@ Par.RewardTimeManual = 0.02; % amount of reward when given manually
 Par.RewardFixHoldTimeProg = true;
 if Par.RewardFixHoldTimeProg
     Par.RewardFixHoldTime = [...
-        0 1800;...
-        5 1600;...   
-        10 1400;...
-        20 1000;...
-        30 600;...
+        0 10;...
+        5 50;...   
+        10 100;...
+        20 100;...
+        30 100;...
         ];
 else
     Par.RewardFixHoldTime = 1250; %time to maintain fixation for reward
@@ -370,11 +370,11 @@ Par.CorrStreakcount = [0 0];
 Par.KeyEscape = KbName('Escape');   % allows breaking out of the experiment
 Par.KeyTriggerMR = KbName('t');     % MRI sends a sync pulse as a 't' keypress
 Par.KeyJuice = KbName('j');         % Manual juice reward
-Par.KeyStim = KbName('s');          % toggle stimulus on/off
+% Par.KeyStim = KbName('s');          % toggle stimulus on/off
 Par.KeyFix = KbName('f');           % toggle fix dot on/off
 Par.KeyPause = KbName('p');         % switch on/off stimuli & reward
 Par.KeyRewTimeSet = KbName('r');    % switch to reward timing as defined in ParSettings
-Par.KeyShowRewTime = KbName('w');   % Shows the current reward scheme
+% Par.KeyShowRewTime = KbName('w');   % Shows the current reward scheme
 % using the slider in tracker window overrules the initialize reward timing
 
 % Change stim position
@@ -391,7 +391,7 @@ Par.Key5 = KbName('5%');
 Par.KeyNext = KbName('n');          % next position
 Par.KeyCyclePos = KbName('0)');     % toggle cycle position automatically
 Par.KeyLockPos = KbName('l');       % lock current position (switching keys will have no effect)
-Par.PositionLocked=true;
+Par.PositionLocked=false;
 
 Par.KeyBeam = KbName('b');          % cycle through possible beam requirements 
 Par.KeyBeamInd = 0;
