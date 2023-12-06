@@ -1535,6 +1535,16 @@ warning on
 close(Par.hTracker);
 % Add stuff to the path
 addpath(genpath(Par.ExpFolder));
+
+% Handle daspresent yes/no
+if Par.daspresent
+    % remove dasdummy
+    rmpath(genpath(fullfile(Par.ExpFolder,'engine','dasdummy')));
+else
+    % remove das
+    rmpath(genpath(fullfile(Par.ExpFolder,'engine','das64bit')));
+end
+
 % Go to folder
 cd(Par.ExpFolder);
 % Run tracker

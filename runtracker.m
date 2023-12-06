@@ -31,6 +31,10 @@ end
 %clear and welcome message
 clc; fprintf('Starting Tracker. Please have some patience...\n');
  
+if ~Par.daspresent
+    fprintf('NB! Initiating without das card. Use for debugging only.\n');
+end
+
 % Ask to select screen and configure accordingly
 % BOLD screen at 3T needs to be flipped
 % PTB will take care of this
@@ -58,6 +62,16 @@ Par.ExpFolder = uigetdir(pwd,'Choose your experiment root-folder (contains Engin
 if Par.ExpFolder
     % Add stuff to the path
     addpath(genpath(Par.ExpFolder));
+    
+    % Handle daspresent yes/no
+    if Par.daspresent
+        % remove dasdummy
+        rmpath(genpath(fullfile(Par.ExpFolder,'engine','dasdummy')));
+    else
+        % remove das
+        rmpath(genpath(fullfile(Par.ExpFolder,'engine','das64bit')));
+    end
+
     % Go to folder
     cd(Par.ExpFolder);
     % Run tracker
